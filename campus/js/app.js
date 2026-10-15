@@ -5,6 +5,12 @@ import {
   playTone, narrate, stopNarration, fillVoiceSelect,
 } from "./audio.js";
 import { tryFieldRoute, bindChrome, noteBadge, searchField } from "./field.js";
+import { loadJSON } from "./store.js";
+import { mountSpotlight } from "./diagrams.js";
+import * as tools from "./tools.js";
+import { mountTopology } from "./topology.js";
+import { paradeHTML, bindParade, animateStats, burst } from "./fx.js";
+import { chartsHTML, paintRoughTotals, trackMinutesChart } from "./charts.js";
 
 const view = document.querySelector("#view");
 const titleEl = document.querySelector("#view-title");
@@ -30,7 +36,9 @@ const NAV = [
   { href: "#/play/builder", label: "Flow builder", group: "Tools" },
   { href: "#/explorer", label: "Flow explorer", group: "Tools" },
   { href: "#/topology", label: "3D topology", group: "Tools", mobile: "Map" },
-  { href: "#/atlas", label: "Diagram atlas", group: "Field" },
+  { href: "#/atlas", label: "Diagrams", group: "Field" },
+  { href: "#/flows", label: "Flows", group: "Field" },
+  { href: "#/charts", label: "Charts", group: "Field" },
   { href: "#/ports", label: "Ports", group: "Field" },
   { href: "#/glossary", label: "Glossary", group: "Field" },
   { href: "#/ecosystem", label: "Ecosystem", group: "Field" },
@@ -45,7 +53,6 @@ const NAV = [
 let catalog = null;
 let cleanup = () => {};
 let routeGen = 0;
-const cache = new Map();
 
 function progress() {
   try { return JSON.parse(localStorage.getItem(PROG) || "{\"lessons\":{}}"); }
@@ -69,13 +76,13 @@ function updatePill() {
   pill.textContent = total ? `${done}/${total} read` : `${done} read`;
 }
 
-async function loadJSON(path) {
-  if (cache.has(path)) return cache.get(path);
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`${path} (${res.status})`);
-  const data = await res.json();
-  cache.set(path, data);
-  return data;
+function markPrime(path) {
+  document.querySelectorAll(".prime a").forEach((link) => {
+    const href = link.getAttribute("href");
+    const on = path === href || (href !== "#/" && path.startsWith(href));
+    if (on) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
 }
 
 function parseHash() {
@@ -103,6 +110,7 @@ function paintNav(path) {
     }).join("");
     return `<h2>${group}</h2>${links}`;
   }).join("");
+  markPrime(path);
   const mobile = [
     { href: "#/", label: "Home" },
     { href: "#/tracks", label: "Tracks" },
@@ -158,14 +166,14 @@ async function renderHome() {
   const stats = catalog.stats;
   const preview = catalog.preview;
   view.innerHTML = `
-    <p class="lede">A field guide to SIP, SDP, RTP/SRTP, NAT, ICE, and the session border controllers between enterprises, carriers, and cloud voice. Lessons cite an RFC or a vendor document.</p>
+    ${paradeHTML()}
     <div class="stat-row">
-      <div class="stat"><b>${stats.tracks}</b> tracks</div>
-      <div class="stat"><b>${stats.lessons}</b> lessons</div>
-      <div class="stat"><b>${stats.quizzes}</b> quiz items</div>
-      <div class="stat"><b>${stats.cards}</b> flashcards</div>
-      <div class="stat"><b>${stats.labs}</b> labs</div>
-      <div class="stat"><b>${stats.glossary}</b> glossary terms</div>
+      <div class="stat"><b data-count="${stats.tracks}">0</b> tracks</div>
+      <div class="stat"><b data-count="${stats.lessons}">0</b> lessons</div>
+      <div class="stat"><b data-count="${stats.quizzes}">0</b> quiz items</div>
+      <div class="stat"><b data-count="${stats.cards}">0</b> flashcards</div>
+      <div class="stat"><b data-count="${stats.labs}">0</b> labs</div>
+      <div class="stat"><b data-count="${stats.glossary}">0</b> glossary terms</div>
     </div>
     <div class="hero-stage">
       <div class="orb orb-a" aria-hidden="true"></div>
@@ -182,6 +190,8 @@ async function renderHome() {
     </div>
     <h2>Signal, in motion</h2>
     <div id="home-atlas"></div>
+    <h2>Charts from the catalog</h2>
+    <div id="home-charts"></div>
     <h2>Tracks</h2>
     <div class="card-grid">${catalog.tracks.map(trackCard).join("")}</div>
     <h2>Benches</h2>
@@ -196,10 +206,14 @@ async function renderHome() {
       ${bench("3D topology", "Enterprise SBC, CUCM, Teams, Webex, and CCaaS paths.", "#/topology")}
     </div>
     <p class="fine">Example messages are synthetic. Addresses use the documentation ranges in <a href="https://www.rfc-editor.org/rfc/rfc5737">RFC 5737</a>. Phone numbers use 555.</p>`;
+  const ports = await loadJSON("data/ports.json");
+  view.querySelector("#home-charts").innerHTML = chartsHTML(catalog, ports);
+  paintRoughTotals(view, catalog);
+  animateStats(view);
   const stop = mountFlow(view.querySelector("#home-flow"), preview);
-  const { mountSpotlight } = await import("./diagrams.js");
   mountSpotlight(view.querySelector("#home-atlas"));
-  return stop;
+  const stopParade = bindParade(view);
+  return () => { stop(); stopParade(); };
 }
 
 function trackCard(track) {
@@ -233,10 +247,20 @@ async function renderTrack(id) {
   if (!file) return notFound();
   const track = await loadJSON(file);
   setTitle(track.title);
+  const minutes = track.lessons.reduce((sum, lesson) => sum + (lesson.minutes || 0), 0);
   view.innerHTML = `${crumbs([["Tracks", "#/tracks"], [track.title]])}
+    ${paradeHTML()}
     <p class="lede">${esc(track.summary)}</p>
-    <ol class="lesson-index">${track.lessons.map((lesson, i) => `<li><a href="#/lesson/${esc(track.id)}/${esc(lesson.id)}">${esc(lesson.title)}</a> <span class="fine">${lesson.minutes} min</span></li>`).join("")}</ol>`;
-  return () => {};
+    <div class="stat-row">
+      <div class="stat"><b data-count="${track.lessons.length}">0</b> lessons</div>
+      <div class="stat"><b data-count="${minutes}">0</b> minutes</div>
+      <div class="stat"><b data-count="${track.order || 0}">0</b> order</div>
+    </div>
+    <h2>Minutes in this track</h2>
+    ${trackMinutesChart(track)}
+    <ol class="lesson-index">${track.lessons.map((lesson) => `<li><a href="#/lesson/${esc(track.id)}/${esc(lesson.id)}">${esc(lesson.title)}</a> <span class="fine">${lesson.minutes} min</span></li>`).join("")}</ol>`;
+  animateStats(view);
+  return bindParade(view);
 }
 
 async function renderLesson(trackId, lessonId) {
@@ -315,6 +339,7 @@ function mountQuiz(host, questions, onDone) {
       });
     });
     playTone(score === questions.length ? "ok" : "bad");
+    if (score === questions.length) burst();
     host.querySelector("#grade-score").textContent = `${score} of ${questions.length}`;
     onDone(score, questions.length);
   });
@@ -382,7 +407,6 @@ async function mountLab(host, lesson, onPass) {
   let stop = () => {};
   if (lab.kind === "ladder") stop = mountFlow(tool, lab.flow || lesson.flow);
   if (["dissect", "sdp", "sandbox", "capture"].includes(lab.kind)) {
-    const tools = await import("./tools.js");
     if (lab.kind === "dissect") tools.mountDissector(tool, lab.message || "");
     if (lab.kind === "sdp") tools.mountSdp(tool, lab.offer || "", lab.answer || "");
     if (lab.kind === "sandbox") tools.mountSandbox(tool, lab.rules || "", lab.message || "", lab.dialect || "cube");
@@ -447,7 +471,6 @@ async function renderTool(name) {
     draw();
     return () => stop();
   }
-  const tools = await import("./tools.js");
   if (name === "dissector") tools.mountDissector(host, samples.messages.invite);
   if (name === "sdp") tools.mountSdp(host, samples.sdp.offer, samples.sdp.answer);
   if (name === "sandbox") tools.mountSandbox(host, samples.sandbox.rules, samples.sandbox.message, "cube");
@@ -471,7 +494,6 @@ function renderTools() {
 async function renderTopology() {
   setTitle("SBC topology");
   view.innerHTML = `<p class="lede">A teaching map of an enterprise SBC between the PSTN, CUCM, and cloud voice. Failure toggles change the drawing. They do not touch a live network.</p><div id="topo-host"></div>`;
-  const { mountTopology } = await import("./topology.js");
   return mountTopology(view.querySelector("#topo-host"));
 }
 
@@ -686,7 +708,7 @@ async function boot() {
     catalog = await loadJSON("data/catalog.json");
   } catch (err) {
     setTitle("SIP Universe");
-    view.innerHTML = `<p>The catalog did not load. Serve this folder over HTTP. Opening the file directly blocks fetch.</p><p class="fine">${esc(err.message)}</p>`;
+    view.innerHTML = `<p>The catalog did not load. On disk, embedded-data.js has to load before this script. Over HTTP, data/catalog.json has to answer.</p><p class="fine">${esc(err.message)}</p>`;
     return;
   }
   updatePill();
@@ -695,6 +717,7 @@ async function boot() {
   if (!location.hash) location.hash = "#/";
   else render();
   window.setTimeout(() => {
+    if (location.protocol === "file:") return;
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./sw.js").then(() => {
         window.setTimeout(() => {

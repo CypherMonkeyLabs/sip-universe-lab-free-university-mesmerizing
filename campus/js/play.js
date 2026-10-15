@@ -1,5 +1,6 @@
 import { esc, citeLinks } from "./draw.js";
 import { ladderSVG } from "./flow.js";
+import { loadJSON } from "./store.js";
 
 function cardSvg({ title, lines }) {
   const body = lines.map((line, i) => `<text x="48" y="${230 + i * 40}" fill="#e8f6ff" font-size="26" font-family="ui-sans-serif,system-ui,sans-serif">${esc(line)}</text>`).join("");
@@ -29,9 +30,7 @@ export function shareResult(title, lines) {
 }
 
 async function load(path) {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`${path} (${res.status})`);
-  return res.json();
+  return loadJSON(path);
 }
 
 export async function route(path, view, ctx) {

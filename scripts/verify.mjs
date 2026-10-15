@@ -2,6 +2,8 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dissect, negotiate, applyCube, applyAcme, extractMessages } from "../campus/js/parse.js";
+import { ATLAS } from "../campus/js/diagrams.js";
+import { CHARTS } from "../campus/js/charts.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const data = join(root, "campus", "data");
@@ -108,6 +110,41 @@ for (const item of manifest.items) {
 }
 const indexHtml = readFileSync(join(root, "campus", "index.html"), "utf8").toLowerCase();
 if (indexHtml.includes("linkedin") || indexHtml.includes("mailto:")) problems.push("chrome contact policy");
+const menuWords = ["diagrams", "flows", "charts", "cheat codes", "play", "ecosystem", "downloads", "careers"];
+for (const word of menuWords) {
+  if (!indexHtml.includes(word)) problems.push(`menu ${word}`);
+}
+if (indexHtml.includes("type=\"module\"")) problems.push("module entry");
+if (!indexHtml.includes("campus.iife.js") || !indexHtml.includes("embedded-data.js")) problems.push("disk boot");
+const animated = ATLAS.filter((item) => item.animated).length;
+if (ATLAS.length < 25) problems.push(`atlas ${ATLAS.length}`);
+if (animated < 12) problems.push(`animated ${animated}`);
+if (CHARTS.length < 6) problems.push(`charts ${CHARTS.length}`);
+const fullSheets = manifest.items.filter((item) => item.html && item.pdf && item.png);
+if (fullSheets.length < 10) problems.push(`sheets ${fullSheets.length}`);
+for (const file of ["vendor/d3.min.js", "vendor/anime.umd.min.js", "vendor/rough.js", "vendor/confetti.browser.js", "vendor/markmap-view.js", "js/campus.iife.js", "js/embedded-data.js"]) {
+  if (!statSync(join(root, "campus", file), { throwIfNoEntry: false })) problems.push(`missing ${file}`);
+}
+const embedPath = join(root, "campus", "js", "embedded-data.js");
+if (statSync(embedPath, { throwIfNoEntry: false })) {
+  const raw = readFileSync(embedPath, "utf8").replace(/^\/\*[\s\S]*?\*\/\n/, "").replace(/^window\.SIP_DATA=/, "").replace(/;\s*$/, "");
+  const embedded = JSON.parse(raw);
+  if (!embedded["data/catalog.json"] || embedded["data/catalog.json"].stats.lessons !== catalog.stats.lessons) problems.push("embed stale");
+  if (!embedded["downloads/manifest.json"]) problems.push("embed manifest");
+}
+const iifePath = join(root, "campus", "js", "campus.iife.js");
+if (statSync(iifePath, { throwIfNoEntry: false })) {
+  const iife = readFileSync(iifePath, "utf8");
+  if (!iife.includes("data-count")) problems.push("bundle stale");
+}
+for (const page of [
+  "https://cipher0x9.github.io/uc-lab-free-university-mesmerizing/",
+  "https://cipher0x9.github.io/ai-lab-free-university-mesmerizing/",
+  "https://cipher0x9.github.io/webex-lab-free-university-mesmerizing/",
+  "https://cipher0x9.github.io/sip-universe-lab-free-university-mesmerizing/",
+]) {
+  if (!indexHtml.includes(page)) problems.push(`sibling ${page}`);
+}
 
 const shell = ["index.html", "css/app.css", "js/app.js", "js/draw.js", "js/audio.js", "js/flow.js", "data/catalog.json"]
   .map((rel) => statSync(join(root, "campus", rel)).size);
@@ -193,6 +230,10 @@ const report = {
   illustrations,
   featuredLabs: labsPage.labs.length,
   shellBytes,
+  atlas: ATLAS.length,
+  animated,
+  charts: CHARTS.length,
+  sheets: manifest.items.filter((item) => item.html && item.pdf && item.png).length,
   problems,
 };
 console.log(JSON.stringify(report, null, 2));

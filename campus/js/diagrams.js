@@ -475,10 +475,101 @@ export const ATLAS = [
       return svg("timeline", 860, 40 + rows.length * 36, `<line x1="28" y1="20" x2="28" y2="${rows.length * 36}" stroke="var(--cc-accent-1)"></line>${body}`);
     },
   },
+  {
+    id: "hold",
+    title: "Hold with re-INVITE",
+    caption: "Hold is a new offer. a=sendonly asks the other side to stop sending. A confirmed dialog is required for re-INVITE.",
+    cite: { label: "RFC 3264 §8.4", url: "https://www.rfc-editor.org/rfc/rfc3264#section-8.4" },
+    draw: () => ladder(["Alice", "Bob"], [
+      { from: 0, to: 1, label: "re-INVITE sendonly" },
+      { from: 1, to: 0, label: "200 recvonly" },
+      { from: 0, to: 1, label: "ACK" },
+      { from: 0, to: 1, label: "re-INVITE sendrecv" },
+      { from: 1, to: 0, label: "200" },
+      { from: 0, to: 1, label: "ACK" },
+    ]),
+  },
+  {
+    id: "tls",
+    title: "SIP over TLS",
+    caption: "The handshake is TLS. The INVITE rides after it. SIPS and 5061 are the usual signal. TLS 1.0 and 1.1 are deprecated.",
+    cite: { label: "RFC 3261 §18 / RFC 8996", url: "https://www.rfc-editor.org/rfc/rfc8996" },
+    draw: () => ladder(["Client", "Server"], [
+      { from: 0, to: 1, label: "ClientHello" },
+      { from: 1, to: 0, label: "ServerHello" },
+      { from: 0, to: 1, label: "INVITE" },
+      { from: 1, to: 0, label: "100" },
+      { from: 1, to: 0, label: "200" },
+    ]),
+  },
+  {
+    id: "srtp-flow",
+    title: "SRTP after SDES",
+    caption: "This ladder is the SDES path: keys travel in SDP. DTLS-SRTP (RFC 5764) keys the media in the media path instead.",
+    cite: { label: "RFC 4568", url: "https://www.rfc-editor.org/rfc/rfc4568" },
+    draw: () => ladder(["Alice", "Bob"], [
+      { from: 0, to: 1, label: "INVITE a=crypto" },
+      { from: 1, to: 0, label: "200 a=crypto" },
+      { from: 0, to: 1, label: "ACK" },
+      { from: 0, to: 1, label: "SRTP" },
+    ]),
+  },
+  {
+    id: "cutover",
+    title: "Parallel trunk cutover",
+    caption: "A teaching sequence: prove the new trunk, then retire the old one. It is not a record of any carrier procedure.",
+    cite: { label: "RFC 3261", url: "https://www.rfc-editor.org/rfc/rfc3261" },
+    draw: () => ladder(["Pilot", "Old SBC", "New SBC"], [
+      { from: 0, to: 1, label: "INVITE" },
+      { from: 1, to: 0, label: "200" },
+      { from: 0, to: 2, label: "INVITE" },
+      { from: 2, to: 0, label: "200" },
+      { from: 0, to: 1, label: "BYE" },
+    ]),
+  },
+  {
+    id: "fault-tree",
+    title: "One-way audio path",
+    caption: "Status code first, then the SDP address, then whether RTP actually arrives. Private c= on a public hop is a common dead end.",
+    cite: { label: "RFC 7362", url: "https://www.rfc-editor.org/rfc/rfc7362" },
+    draw: () => svg("fault-tree", 860, 280, [
+      box(40, 30, 200, 70, "One-way audio", "start here", 0),
+      box(320, 20, 220, 70, "SDP c= private?", "RFC 7362", 3),
+      box(620, 20, 200, 70, "Latch or rewrite", "media", 1),
+      box(320, 160, 220, 70, "RTP present?", "even port", 2),
+      box(620, 160, 200, 70, "Codec / ptime", "488 or silence", 0),
+      arrow(250, 65, 310, 55, ""),
+      arrow(550, 55, 610, 55, ""),
+      arrow(430, 100, 430, 150, "no"),
+      arrow(550, 195, 610, 195, ""),
+      packet(250, 65, 610, 55),
+    ].join("")),
+  },
+  {
+    id: "mermaid-register",
+    title: "REGISTER, from Mermaid",
+    caption: "Mermaid 11.12.0 drew this at build time from the same registration sequence. The hand ladder is the one that animates.",
+    cite: { label: "RFC 3261 §10", url: "https://www.rfc-editor.org/rfc/rfc3261#section-10" },
+    draw: () => `<img class="atlas-svg" alt="REGISTER sequence drawn by Mermaid" src="diagrams/register.svg">`,
+  },
+  {
+    id: "mermaid-border",
+    title: "Border paths, from Mermaid",
+    caption: "A teaching sketch of a phone, an SBC, a call agent, and a carrier. Mermaid 11.12.0 drew it at build time. It is not a customer topology.",
+    cite: { label: "RFC 7092", url: "https://www.rfc-editor.org/rfc/rfc7092" },
+    draw: () => `<img class="atlas-svg" alt="Phone, SBC, CUCM, and carrier drawn by Mermaid" src="diagrams/border.svg">`,
+  },
 ];
 
+const ANIMATED = new Set([
+  "invite-txn", "noninvite", "stun", "turn", "nat", "ice",
+  "register", "prack", "refer", "early", "fork", "timer", "cancel", "stir",
+  "hold", "tls", "srtp-flow", "cutover", "fault-tree",
+]);
+for (const item of ATLAS) item.animated = ANIMATED.has(item.id);
+
 export function figureHTML(item) {
-  return `<figure class="atlas-fig" id="atlas-${esc(item.id)}">
+  return `<figure class="atlas-fig${item.animated ? " is-animated" : ""}" id="atlas-${esc(item.id)}" data-animated="${item.animated ? "1" : "0"}">
     ${item.draw()}
     <figcaption><strong>${esc(item.title)}.</strong> ${esc(item.caption)} <a href="${esc(item.cite.url)}">${esc(item.cite.label)}</a></figcaption>
   </figure>`;

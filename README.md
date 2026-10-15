@@ -68,7 +68,7 @@ Example messages are synthetic. Addresses come from the documentation ranges in 
 
 ## Layout
 
-- `campus/` — the site. Hash routes (`#/track/sip-core`, `#/tools/sdp`, `#/topology`, `#/atlas`, `#/ports`, `#/guide`, `#/play`, `#/downloads`).
+- `campus/` — the site. Hash routes (`#/track/sip-core`, `#/tools/sdp`, `#/topology`, `#/atlas`, `#/flows`, `#/charts`, `#/ports`, `#/guide`, `#/play`, `#/downloads`). Opening `campus/index.html` from disk loads `js/embedded-data.js` so the catalog does not depend on `fetch`.
 - `campus/downloads/` — one-page cheat sheets (HTML, PDF, PNG) and the printable flashcard deck.
 - `content/` — curriculum source. Tracks 2 and 3 are Python. Tracks 1 and 4 are frozen JSON because their generators were recovered from bytecode.
 - `scripts/build_content.py` — writes `campus/data/`.
@@ -76,12 +76,13 @@ Example messages are synthetic. Addresses come from the documentation ranges in 
 
 ## License
 
-Code is MIT. Curriculum prose is CC BY-NC-SA 4.0. Three.js is MIT. See `LICENSE`.
+Code is MIT. Curriculum prose is CC BY-NC-SA 4.0. Vendored libraries are MIT or ISC. See `LICENSE`.
 
 Cheat sheets, the flashcard deck, and `downloads/manifest.json` are rebuilt with:
 
 ```bash
 node scripts/build_downloads.mjs
+node scripts/build_client.mjs
 ```
 
 ## Screenshots

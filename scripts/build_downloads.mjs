@@ -185,6 +185,36 @@ addSheet({
   body: sectionBlocks("trunking"),
 });
 
+addSheet({
+  id: "security",
+  topic: "Security",
+  title: "Signaling security checklist",
+  kicker: "Cheat sheet",
+  blurb: "Transport, identity, and what not to put on a public hop.",
+  body: sectionBlocks("security"),
+});
+
+const mediaTerms = ["SDP", "Offer/answer", "RTP", "SRTP", "telephone-event"];
+addSheet({
+  id: "sdp-rtp",
+  topic: "Media",
+  title: "SDP and RTP reminders",
+  kicker: "Cheat sheet",
+  blurb: "Offer/answer, port 0, and the G.722 clock exception.",
+  body: `<ul>
+    <li>Port 0 rejects a media stream. <a href="https://www.rfc-editor.org/rfc/rfc3264">RFC 3264</a></li>
+    <li>G.722 RTP clock rate is 8000 even though the audio is 16 kHz. <a href="https://www.rfc-editor.org/rfc/rfc3551#section-4.5.2">RFC 3551 §4.5.2</a></li>
+    <li>telephone-event is the IETF digit mechanism in RTP. INFO is not the DTMF spec. <a href="https://www.rfc-editor.org/rfc/rfc4733">RFC 4733</a> · <a href="https://www.rfc-editor.org/rfc/rfc6086">RFC 6086</a></li>
+    <li>SRTP is RFC 3711. SDES (RFC 4568) and DTLS-SRTP (RFC 5764) are different keying paths.</li>
+  </ul>
+  <table><thead><tr><th>Term</th><th>In one breath</th></tr></thead><tbody>
+    ${mediaTerms.map((name) => {
+      const term = glossary.terms.find((item) => item.term === name);
+      return term ? `<tr><td>${esc(term.term)}</td><td>${esc(term.def)}</td></tr>` : "";
+    }).join("")}
+  </tbody></table>`,
+});
+
 const cards = [];
 for (const file of ["01-foundations.json", "02-sip-core.json", "03-call-flows.json", "04-routing.json", "05-sdp.json", "06-rtp.json", "07-security.json", "08-nat.json", "09-sbc.json", "10-cisco.json", "11-multivendor.json", "12-cloud.json", "13-troubleshoot.json", "14-operations.json", "15-ecosystem.json", "16-capstone.json"]) {
   const track = JSON.parse(readFileSync(join(campus, "data", "tracks", file), "utf8"));

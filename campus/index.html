@@ -7,7 +7,14 @@
   <meta name="description" content="SIP Universe is a field guide to SIP, SDP, RTP/SRTP, NAT, ICE, and session border controllers, with ladders, labs, and cited sources.">
   <meta name="theme-color" content="#07111c">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%2307111c' width='32' height='32' rx='6'/%3E%3Cpath d='M6 16h8M18 10l8 6-8 6' stroke='%233ddcff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
-  <link rel="manifest" href="manifest.webmanifest">
+  <script>
+    if (location.protocol !== "file:") {
+      var manifestLink = document.createElement("link");
+      manifestLink.rel = "manifest";
+      manifestLink.href = "manifest.webmanifest";
+      document.head.appendChild(manifestLink);
+    }
+  </script>
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/flagship.css">
   <script>
@@ -39,6 +46,16 @@
           <button type="button" data-offline>Offline</button>
         </div>
       </header>
+      <nav class="prime" aria-label="Campus">
+        <a href="#/atlas">Diagrams</a>
+        <a href="#/flows">Flows</a>
+        <a href="#/charts">Charts</a>
+        <a href="#/downloads">Cheat Codes</a>
+        <a href="#/play">Play</a>
+        <a href="#/ecosystem">Ecosystem</a>
+        <a href="#/downloads">Downloads</a>
+        <a href="#/career">Careers</a>
+      </nav>
       <nav class="linkbar" aria-label="CypherMonkey">
         <a href="https://cyphermonkeylabs.com" rel="noopener noreferrer">Labs</a>
         <a href="https://linktr.ee/cyphermonkey" rel="noopener noreferrer">Linktree</a>
@@ -90,10 +107,10 @@
       </p>
       <p class="fine" id="pack-status"></p>
       <nav class="next-labs" aria-label="Other labs">
-        <a href="https://github.com/cipher0x9/uc-lab-free-university" rel="noopener noreferrer">UC Lab</a>
-        <a href="https://github.com/cipher0x9/ai-lab-free-university-mesmerizing" rel="noopener noreferrer">AI Lab</a>
-        <a href="https://cypherwebex-canon-test.vercel.app" rel="noopener noreferrer">Webex Canon</a>
-        <a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing" rel="noopener noreferrer">This repo</a>
+        <a href="https://cipher0x9.github.io/uc-lab-free-university-mesmerizing/" rel="noopener noreferrer">UC Lab</a>
+        <a href="https://cipher0x9.github.io/ai-lab-free-university-mesmerizing/" rel="noopener noreferrer">AI Lab</a>
+        <a href="https://cipher0x9.github.io/webex-lab-free-university-mesmerizing/" rel="noopener noreferrer">Webex Lab</a>
+        <a href="https://cipher0x9.github.io/sip-universe-lab-free-university-mesmerizing/" rel="noopener noreferrer">This lab</a>
       </nav>
     </footer>
   </div>
@@ -143,6 +160,16 @@
     <form method="dialog"><button type="submit" class="primary">Close</button></form>
   </dialog>
   <noscript><p>SIP Universe’s router needs JavaScript. The track files are in <a href="data/catalog.json">data/catalog.json</a>.</p></noscript>
-  <script type="module" src="js/app.js"></script>
+  <script src="vendor/d3.min.js"></script>
+  <script src="vendor/anime.umd.min.js"></script>
+  <script src="vendor/rough.js"></script>
+  <script src="vendor/confetti.browser.js"></script>
+  <script src="vendor/markmap-view.js"></script>
+  <script>
+    if (location.protocol === "file:") {
+      document.write('<script src="js/embedded-data.js"><\/script>');
+    }
+  </script>
+  <script src="js/campus.iife.js"></script>
 </body>
 </html>

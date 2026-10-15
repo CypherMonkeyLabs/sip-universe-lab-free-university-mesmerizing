@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SDP and RTP reminders · SIP Universe</title>
+  <style>
+    @page { size: letter; margin: 0.45in; }
+    body { font: 13px/1.35 ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
+    main { max-width: 980px; margin: 0 auto; padding: 18px 18px 8px; background: white; }
+    h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.03em; }
+    .kicker { color: #0f6e73; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; }
+    th, td { text-align: left; vertical-align: top; border-bottom: 1px solid #d5deea; padding: 4px 6px; font-size: 12px; }
+    th { background: #e7f6f6; }
+    ul { margin: 6px 0 12px; padding-left: 18px; }
+    li { margin: 3px 0; }
+    a { color: #0f6e73; }
+    footer { border-top: 2px solid #0f6e73; margin-top: 12px; padding-top: 8px; font-size: 11px; color: #3c5168; }
+    .ladder { font-family: ui-monospace, monospace; background: #07111c; color: #d7f6ff; padding: 10px; border-radius: 8px; white-space: pre; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="kicker">Cheat sheet</p>
+  <h1>SDP and RTP reminders</h1>
+  <ul>
+    <li>Port 0 rejects a media stream. <a href="https://www.rfc-editor.org/rfc/rfc3264">RFC 3264</a></li>
+    <li>G.722 RTP clock rate is 8000 even though the audio is 16 kHz. <a href="https://www.rfc-editor.org/rfc/rfc3551#section-4.5.2">RFC 3551 §4.5.2</a></li>
+    <li>telephone-event is the IETF digit mechanism in RTP. INFO is not the DTMF spec. <a href="https://www.rfc-editor.org/rfc/rfc4733">RFC 4733</a> · <a href="https://www.rfc-editor.org/rfc/rfc6086">RFC 6086</a></li>
+    <li>SRTP is RFC 3711. SDES (RFC 4568) and DTLS-SRTP (RFC 5764) are different keying paths.</li>
+  </ul>
+  <table><thead><tr><th>Term</th><th>In one breath</th></tr></thead><tbody>
+    <tr><td>SDP</td><td>Session Description Protocol. The text format that describes media streams for offer/answer.</td></tr><tr><td>Offer/answer</td><td>The rule set that pairs one SDP offer with one SDP answer. The answer mirrors the offer’s m-line count and order.</td></tr><tr><td>RTP</td><td>Real-time Transport Protocol. Carries media samples. It is not SIP.</td></tr><tr><td>SRTP</td><td>Secure RTP. Encrypts and authenticates media packets.</td></tr><tr><td>telephone-event</td><td>RTP payload for DTMF and related tones.</td></tr>
+  </tbody></table>
+  <footer>
+    <p><a href="https://cyphermonkeylabs.com">cyphermonkeylabs.com</a> · <a href="https://linktr.ee/cyphermonkey">linktr.ee/cyphermonkey</a> · <a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing">github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing</a></p>
+    <p>Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
+  </footer>
+</main>
+</body>
+</html>

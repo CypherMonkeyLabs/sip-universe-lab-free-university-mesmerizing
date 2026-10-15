@@ -1,5 +1,11 @@
 import { esc, citeLinks } from "./draw.js";
 import { getSettings, saveSettings, onSettings } from "./audio.js";
+import { loadJSON } from "./store.js";
+import { ATLAS, figureHTML } from "./diagrams.js";
+import { downloadPack } from "./pack.js";
+import * as play from "./play.js";
+import { CHARTS, chartsHTML, paintRoughTotals, mountMind } from "./charts.js";
+import { paradeHTML, bindParade, bindMenuKeys } from "./fx.js";
 
 const BADGE_KEY = "sip-universe-badges";
 
@@ -106,7 +112,6 @@ function bindOffline(catalog) {
   const run = async () => {
     const status = document.querySelector("#pack-status");
     try {
-      const { downloadPack } = await import("./pack.js");
       await downloadPack(catalog);
       noteBadge("offline");
     } catch (err) {
@@ -124,12 +129,7 @@ export function bindChrome(catalog) {
   bindSwatches();
   bindProgressBar();
   bindOffline(catalog);
-}
-
-async function loadJSON(path) {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`${path} (${res.status})`);
-  return res.json();
+  bindMenuKeys(document);
 }
 
 function blockHTML(block) {
@@ -166,10 +166,31 @@ export function searchField(data, q) {
 export async function tryFieldRoute(path, view, ctx) {
   if (path === "#/atlas") {
     ctx.setTitle("Diagram atlas");
-    const { ATLAS, figureHTML } = await import("./diagrams.js");
-    view.innerHTML = `<p class="lede">${ATLAS.length} animated diagrams. Reduced motion keeps the drawing and drops the traveling packet.</p>
+    const animated = ATLAS.filter((item) => item.animated).length;
+    view.innerHTML = `<p class="lede">${ATLAS.length} diagrams, ${animated} of them animated call, signal, or data flows. Reduced motion keeps the drawing and drops the traveling packet.</p>
       <div class="atlas-grid">${ATLAS.map(figureHTML).join("")}</div>`;
     return () => {};
+  }
+  if (path === "#/flows") {
+    ctx.setTitle("Flows");
+    const flows = ATLAS.filter((item) => item.animated);
+    view.innerHTML = `<p class="lede">${flows.length} animated flows: INVITE, REGISTER, transfer, hold, forking, early media, NAT, TLS, and SRTP among them.</p>
+      ${paradeHTML()}
+      <div class="atlas-grid">${flows.map(figureHTML).join("")}</div>`;
+    return bindParade(view);
+  }
+  if (path === "#/charts") {
+    const ports = await loadJSON("data/ports.json");
+    ctx.setTitle("Charts");
+    view.innerHTML = `<p class="lede">${CHARTS.length} charts from the catalog, the ports table, and lesson tags. The topic map uses markmap.</p>
+      ${paradeHTML()}
+      ${chartsHTML(ctx.catalog, ports)}
+      <h2>Topic map</h2>
+      <div id="mind-host"></div>`;
+    paintRoughTotals(view, ctx.catalog);
+    const stopMind = mountMind(view.querySelector("#mind-host"));
+    const stopParade = bindParade(view);
+    return () => { stopParade(); stopMind(); };
   }
   if (path === "#/ports") {
     const data = await loadJSON("data/ports.json");
@@ -188,7 +209,7 @@ export async function tryFieldRoute(path, view, ctx) {
   if (path === "#/downloads") {
     const manifest = await loadJSON("downloads/manifest.json");
     ctx.setTitle("Cheat codes");
-    view.innerHTML = `<p class="lede">One-page sheets and a printable flashcard deck, generated into this repo. Each file carries the campus footer. No email. No LinkedIn.</p>
+    view.innerHTML = `<p class="lede">One-page sheets and a printable flashcard deck, generated into this repo. Each file carries the campus footer.</p>
       <div class="card-grid">${manifest.items.map((item) => `<article class="card">
         <span class="kicker">${esc(item.topic)}</span>
         <h3>${esc(item.title)}</h3>
@@ -232,7 +253,6 @@ export async function tryFieldRoute(path, view, ctx) {
     return () => {};
   }
   if (path === "#/play" || path.startsWith("#/play/") || path === "#/explorer") {
-    const play = await import("./play.js");
     return play.route(path, view, { ...ctx, noteBadge });
   }
   if (path === "#/guide" || path === "#/roadmap" || path === "#/career") {

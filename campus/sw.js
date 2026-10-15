@@ -1,14 +1,16 @@
-const CACHE = "sip-universe-v2";
+const CACHE = "sip-universe-v3";
 const SHELL = [
   "./",
   "./index.html",
   "./css/app.css",
-  "./js/app.js",
-  "./js/draw.js",
-  "./js/audio.js",
-  "./js/flow.js",
-  "./js/field.js",
   "./css/flagship.css",
+  "./js/campus.iife.js",
+  "./vendor/d3.min.js",
+  "./vendor/anime.umd.min.js",
+  "./vendor/rough.js",
+  "./vendor/confetti.browser.js",
+  "./vendor/markmap-view.js",
+  "./vendor/three.min.js",
   "./manifest.webmanifest",
   "./data/catalog.json",
 ];

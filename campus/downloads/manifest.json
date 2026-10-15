@@ -74,6 +74,24 @@
    "png": "downloads/trunking.png"
   },
   {
+   "id": "security",
+   "topic": "Security",
+   "title": "Signaling security checklist",
+   "blurb": "Transport, identity, and what not to put on a public hop.",
+   "html": "downloads/security.html",
+   "pdf": "downloads/security.pdf",
+   "png": "downloads/security.png"
+  },
+  {
+   "id": "sdp-rtp",
+   "topic": "Media",
+   "title": "SDP and RTP reminders",
+   "blurb": "Offer/answer, port 0, and the G.722 clock exception.",
+   "html": "downloads/sdp-rtp.html",
+   "pdf": "downloads/sdp-rtp.pdf",
+   "png": "downloads/sdp-rtp.png"
+  },
+  {
    "id": "flashcards",
    "topic": "Flashcards",
    "title": "Printable flashcard deck",

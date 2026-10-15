@@ -101,7 +101,7 @@ function loadThree() {
   if (window.THREE) return Promise.resolve(window.THREE);
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = new URL("../vendor/three.min.js", import.meta.url).href;
+    script.src = "vendor/three.min.js";
     script.onload = () => resolve(window.THREE);
     script.onerror = () => reject(new Error("Three.js did not load"));
     document.head.appendChild(script);

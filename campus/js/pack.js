@@ -78,6 +78,18 @@ const SHELL = [
   "js/field.js",
   "js/play.js",
   "js/pack.js",
+  "js/store.js",
+  "js/charts.js",
+  "js/fx.js",
+  "js/campus.iife.js",
+  "js/embedded-data.js",
+  "vendor/d3.min.js",
+  "vendor/anime.umd.min.js",
+  "vendor/rough.js",
+  "vendor/confetti.browser.js",
+  "vendor/markmap-view.js",
+  "diagrams/register.svg",
+  "diagrams/border.svg",
   "vendor/three.min.js",
   "vendor/VERSION.txt",
   "vendor/THREE-LICENSE.txt",
@@ -95,6 +107,10 @@ const SHELL = [
 ];
 
 async function fetchBytes(path) {
+  const bag = globalThis.SIP_DATA;
+  if (bag && Object.prototype.hasOwnProperty.call(bag, path)) {
+    return new TextEncoder().encode(JSON.stringify(bag[path]));
+  }
   const res = await fetch(path);
   if (!res.ok) throw new Error(`${path} (${res.status})`);
   return new Uint8Array(await res.arrayBuffer());
@@ -102,6 +118,10 @@ async function fetchBytes(path) {
 
 export async function downloadPack(catalog) {
   const status = document.querySelector("#pack-status");
+  if (location.protocol === "file:") {
+    if (status) status.textContent = "This page already has the catalog embedded. Serve the folder over HTTP to build the zip.";
+    return 0;
+  }
   if (status) status.textContent = "Collecting the campus…";
   const names = new Set(SHELL);
   for (const track of catalog.tracks || []) names.add(track.file);
@@ -132,6 +152,6 @@ export async function downloadPack(catalog) {
   link.download = "sip-universe-offline.zip";
   link.click();
   URL.revokeObjectURL(url);
-  if (status) status.textContent = `Downloaded ${files.length} files. Unzip and serve the folder over HTTP.`;
+  if (status) status.textContent = `Downloaded ${files.length} files. Unzip and serve the folder over HTTP, or open index.html from disk.`;
   return files.length;
 }
