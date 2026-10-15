@@ -39,8 +39,15 @@ let session = null;
 let flyArmed = false;
 let looseFly = null;
 
+function pixelRatio() {
+  return Math.min(window.devicePixelRatio || 1, 2);
+}
+
 function reduced() {
-  return document.documentElement.dataset.motion === "reduce";
+  const motion = document.documentElement.dataset.motion;
+  if (motion === "reduce") return true;
+  if (motion === "full") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 function hasWebGL() {
@@ -158,7 +165,7 @@ function startLooseFly() {
     const bg = cssHex("--cc-bg", "#07101f");
     scene.background = new THREE.Color(bg);
     renderer.setClearColor(bg, 1);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+    renderer.setPixelRatio(pixelRatio());
     renderer.setSize(window.innerWidth, window.innerHeight, false);
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -248,7 +255,7 @@ export async function mountHero(host) {
     showFallback();
     return () => {};
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+  renderer.setPixelRatio(pixelRatio());
   bleed.dataset.hero = "webgl";
   bleed.dataset.bloom = "0";
 
@@ -595,7 +602,7 @@ export async function mountHero(host) {
   let bloomOn = true;
 
   const resizeTargets = (w, h) => {
-    const ratio = Math.min(window.devicePixelRatio || 1, 1.25);
+    const ratio = pixelRatio();
     const dw = Math.max(2, Math.floor(w * ratio));
     const dh = Math.max(2, Math.floor(h * ratio));
     rtScene.setSize(dw, dh);
@@ -733,15 +740,32 @@ export async function mountHero(host) {
     kit.blur.dispose();
     kit.composite.dispose();
     renderer.dispose();
+    document.removeEventListener("visibilitychange", onVis);
+    heroWatch.disconnect();
     canvas.classList.remove("is-fly");
     if (canvas.parentElement === document.body) canvas.remove();
     if (session === current) session = null;
   };
 
-  const tick = (now) => {
-    if (stop && !current.flying) return;
+  let heroVisible = true;
+  let loopOn = false;
+  const kick = () => {
+    if (loopOn || (stop && !current.flying)) return;
+    loopOn = true;
     raf = requestAnimationFrame(tick);
-    if (document.hidden) return;
+  };
+  const onVis = () => { if (!document.hidden) kick(); };
+  document.addEventListener("visibilitychange", onVis);
+  const heroWatch = new IntersectionObserver((entries) => {
+    heroVisible = entries.some((entry) => entry.isIntersecting);
+    if (heroVisible) kick();
+  });
+  heroWatch.observe(bleed);
+  const tick = (now) => {
+    if (stop && !current.flying) { loopOn = false; return; }
+    if (!current.flying && (document.hidden || !heroVisible)) { loopOn = false; return; }
+    loopOn = true;
+    raf = requestAnimationFrame(tick);
     t += 0.006;
     globe.rotation.y = t * 0.35;
     rings.forEach((ring, i) => { ring.rotation.z = t * (0.25 + i * 0.08); });
@@ -768,7 +792,7 @@ export async function mountHero(host) {
     placeDepth(t);
     try { renderFrame(); } catch { bloomOn = false; }
   };
-  tick(performance.now());
+  kick();
 
   return () => {
     window.removeEventListener("pointermove", onPtr);
@@ -781,6 +805,7 @@ export async function mountHero(host) {
       current.flyStart = performance.now();
       canvas.classList.add("is-fly");
       document.body.appendChild(canvas);
+      kick();
       return;
     }
     hardDispose();

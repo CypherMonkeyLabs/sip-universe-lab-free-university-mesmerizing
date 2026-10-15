@@ -98,8 +98,9 @@ export function applyLang(lang) {
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
     el.setAttribute("placeholder", t(el.dataset.i18nPlaceholder));
   });
-  const sel = document.querySelector("#lang");
-  if (sel && sel.value !== meta.id) sel.value = meta.id;
+  document.querySelectorAll("[data-lang-select]").forEach((sel) => {
+    if (sel.value !== meta.id) sel.value = meta.id;
+  });
   const line = document.querySelector("#mascot-line");
   if (line) line.textContent = t("greeting");
 }

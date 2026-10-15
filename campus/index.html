@@ -41,6 +41,10 @@
           <span class="mark" aria-hidden="true"></span>
           <span><strong>SIP Universe</strong><small data-i18n="tagline">Signaling, media, borders</small></span>
         </a>
+        <button type="button" class="menu-open" id="menu-open" aria-expanded="false" aria-controls="phone-menu">
+          <span class="burger" aria-hidden="true"></span>
+          <span>Menu</span>
+        </button>
         <form class="search" id="search-form" role="search">
           <label class="sr-only" for="q">Search lessons</label>
           <input id="q" name="q" type="search" placeholder="Search PRACK, CUBE, 488…" data-i18n-placeholder="search" autocomplete="off">
@@ -48,7 +52,7 @@
         <div class="top-actions">
           <span class="progress-pill" id="progress-pill">0 read</span>
           <label class="sr-only" for="lang">Language</label>
-          <select id="lang" name="lang">
+          <select id="lang" name="lang" data-lang-select>
             <option value="en">English</option>
             <option value="es">Español</option>
             <option value="hi">हिन्दी</option>
@@ -105,6 +109,7 @@
       <p><strong>CypherMonkey</strong> · SIP Universe · independent study campus</p>
       <p class="fine">Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
       <p class="foot-links">
+        <a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing" rel="noopener noreferrer">Rate, comment, help</a>
         <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Report a concern / takedown</a>
         <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Work with us</a>
         <button type="button" data-offline>Download offline pack</button>
@@ -118,7 +123,13 @@
       </nav>
     </footer>
   </div>
-  <nav class="bottom" id="bottom" aria-label="Mobile"></nav>
+  <nav class="bottom" id="bottom" aria-label="Quick">
+    <a href="#/tracks">Learn</a>
+    <a href="#/atlas">Diagrams</a>
+    <a href="#/play">Play</a>
+    <button type="button" id="quick-menu" aria-expanded="false" aria-controls="phone-menu">Menu</button>
+    <button type="button" id="quick-listen">Listen</button>
+  </nav>
   <div class="mascot" id="mascot" data-pose="wave" data-look="visor">
     <svg viewBox="0 0 80 96" aria-hidden="true">
       <ellipse cx="40" cy="78" rx="18" ry="12" fill="var(--cc-accent-3)"/>
@@ -156,6 +167,18 @@
         <label><input type="radio" name="theme" value="contrast"> High contrast</label>
         <label><input type="radio" name="theme" value="phosphor"> Phosphor</label>
       </fieldset>
+      <label class="stack" for="settings-lang">Language
+        <select id="settings-lang" name="lang" data-lang-select>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="hi">हिन्दी</option>
+          <option value="te">తెలుగు</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="ja">日本語</option>
+          <option value="ar">العربية</option>
+        </select>
+      </label>
       <fieldset>
         <legend>Font size</legend>
         <label><input type="radio" name="font" value="sm"> Small</label>
@@ -188,6 +211,35 @@
     <div id="lightbox-stage"></div>
     <p id="lightbox-legend"></p>
     <p id="lightbox-why"></p>
+  </dialog>
+  <dialog id="phone-menu" class="phone-menu" aria-labelledby="phone-menu-title">
+    <div class="phone-menu-bar">
+      <h2 id="phone-menu-title">Menu</h2>
+      <button type="button" id="phone-menu-close" class="primary">Close</button>
+    </div>
+    <div class="phone-menu-tools">
+      <label class="stack" for="menu-lang">Language
+        <select id="menu-lang" name="menu-lang" data-lang-select>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="hi">हिन्दी</option>
+          <option value="te">తెలుగు</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="ja">日本語</option>
+          <option value="ar">العربية</option>
+        </select>
+      </label>
+      <div class="swatches menu-swatches" role="group" aria-label="Theme">
+        <button type="button" data-set-theme="holographic" aria-pressed="false">Holographic</button>
+        <button type="button" data-set-theme="neon" aria-pressed="true">Neon</button>
+        <button type="button" data-set-theme="cyberpunk" aria-pressed="false">Cyberpunk</button>
+        <button type="button" data-set-theme="sunset" aria-pressed="false">Sunset</button>
+        <button type="button" data-set-theme="light" aria-pressed="false">Light</button>
+      </div>
+      <button type="button" id="menu-settings">Settings</button>
+    </div>
+    <nav id="phone-menu-list" aria-label="Sections"></nav>
   </dialog>
   <dialog id="more" aria-labelledby="more-title">
     <h2 id="more-title">More</h2>

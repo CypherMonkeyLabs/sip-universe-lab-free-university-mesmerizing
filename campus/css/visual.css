@@ -405,26 +405,21 @@ html[dir="rtl"] .mascot-line { right: auto; left: 78px; }
   .linkbar a, .swatches button { min-height: 24px; padding: 0 7px; font-size: 0.72rem; }
   h1, h2, section { scroll-margin-top: 96px; }
 }
-@media (max-width: 700px) {
-  .linkbar { display: none; }
-  .site-head { padding: 0; }
-  .topbar { flex-wrap: nowrap; padding: 2px 8px; gap: 6px; min-height: 0; }
-  .brand { min-height: 0; gap: 6px; }
-  .brand small, .brand strong, #progress-pill, .top-actions [data-offline], #open-settings { display: none; }
-  .mark { width: 22px; height: 22px; box-shadow: none; }
-  .search { order: 0; flex: 1 1 auto; min-width: 0; }
-  .search input, #lang, #theme-toggle {
-    min-height: 28px;
-    height: 28px;
-    padding: 0 6px;
-    font-size: 0.75rem;
-  }
-  .search input { width: 100%; min-width: 0; }
-  #lang { max-width: 5.6rem; }
-  .prime { padding: 0 6px 2px; gap: 4px; }
-  .prime a { min-height: 26px; padding: 0 7px; font-size: 0.72rem; }
-  .stage-inline { grid-template-columns: 1fr; }
-  .side-live { height: 210px; }
+.menu-open { display: none; }
+.rail-settings { width: 100%; margin-top: 12px; text-align: start; }
+html { scroll-behavior: smooth; }
+html[data-motion="reduce"] { scroll-behavior: auto; }
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) { scroll-behavior: auto; }
+}
+html[data-motion="full"] .reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+html[data-motion="full"] .reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .reveal { opacity: 1; transform: none; transition: none; }
 }
 @media (max-width: 800px) {
   .hero-bleed { min-height: 100dvh; }
@@ -442,3 +437,176 @@ html[data-motion="reduce"] .ticker span,
 html[data-motion="reduce"] .mascot .lid,
 html[data-motion="reduce"] .mascot .arm-r { animation: none; }
 html[data-motion="reduce"] .card:hover { transform: none; }
+
+@media (max-width: 700px) {
+  html, body { overflow-x: hidden; max-width: 100%; }
+  .site-head {
+    padding: env(safe-area-inset-top) 0 0;
+    display: block;
+  }
+  .topbar {
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    max-height: 64px;
+    min-height: 0;
+    padding: 4px 10px;
+    gap: 8px;
+  }
+  .brand { min-height: 0; min-width: 0; flex: 1 1 auto; gap: 8px; }
+  .brand span:last-child { min-width: 0; }
+  .brand strong {
+    display: block;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .brand small, .search, .top-actions, .prime, .linkbar, #progress-pill { display: none; }
+  .mark { width: 28px; height: 28px; flex: 0 0 auto; box-shadow: none; }
+  .menu-open {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    min-width: 48px;
+    min-height: 48px;
+    height: 48px;
+    padding: 0 14px;
+    border-radius: 14px;
+    font-weight: 700;
+  }
+  .burger {
+    position: relative;
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+    display: block;
+  }
+  .burger::before, .burger::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+  }
+  .burger::before { top: -6px; }
+  .burger::after { top: 6px; }
+  .layout { grid-template-columns: 1fr; }
+  .rail { display: none; }
+  .bottom {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    align-items: stretch;
+    justify-content: space-around;
+    gap: 4px;
+    box-sizing: border-box;
+    min-height: calc(56px + env(safe-area-inset-bottom));
+    padding: 4px 6px calc(4px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--cc-bg) 94%, #000 6%);
+    border-top: 1px solid var(--cc-line);
+    backdrop-filter: blur(16px);
+  }
+  .bottom a, .bottom button {
+    flex: 1 1 0;
+    min-width: 48px;
+    min-height: 48px;
+    height: auto;
+    padding: 4px 2px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  main { padding: 12px 12px calc(88px + env(safe-area-inset-bottom)); }
+  .site-foot { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  h1, h2, section, #architect { scroll-margin-top: 72px; scroll-margin-bottom: 88px; }
+  .hero-bleed { width: 100%; margin-left: 0; min-height: 100dvh; }
+  .hero-glass {
+    inset-inline-start: 12px;
+    inset-inline-end: 72px;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    max-width: none;
+    max-height: calc(100dvh - 64px - 84px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    overflow: auto;
+    padding: 12px;
+  }
+  .hero-glass h2 { font-size: 1.7rem; }
+  .hero-glass .stat-row { flex-wrap: wrap; overflow: visible; }
+  .mascot { width: 56px; bottom: calc(72px + env(safe-area-inset-bottom)); right: 8px; }
+  .stage-inline { grid-template-columns: 1fr; }
+  .side-live { height: 210px; }
+  dialog#phone-menu[open] {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    padding: calc(12px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+    background: var(--cc-bg);
+    color: var(--cc-text);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  dialog#phone-menu::backdrop { background: rgba(2, 4, 10, 0.78); }
+  .phone-menu-bar, .phone-menu-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .phone-menu-bar { justify-content: space-between; }
+  .phone-menu-bar h2 { margin: 0; }
+  .phone-menu-tools { align-items: stretch; }
+  .phone-menu-tools .stack { flex: 1 1 100%; margin: 0; }
+  #phone-menu select, #phone-menu button, #phone-menu a, #menu-settings, #phone-menu-close {
+    min-height: 48px;
+  }
+  #phone-menu-close, #menu-settings { min-width: 48px; padding: 0 16px; }
+  .menu-swatches { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; width: 100%; }
+  .menu-swatches button {
+    width: auto;
+    height: auto;
+    min-height: 48px;
+    padding: 0 12px;
+    border-radius: 999px;
+    color: #081018;
+    font-weight: 700;
+  }
+  #phone-menu-list { overflow: auto; display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-height: 0; }
+  #phone-menu-list h2 {
+    margin: 14px 0 4px;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cc-muted);
+  }
+  #phone-menu-list a {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 12px;
+    border-radius: 12px;
+    color: var(--cc-text);
+    text-decoration: none;
+  }
+  #phone-menu-list a[aria-current="page"] {
+    background: var(--cc-surface);
+    color: var(--cc-accent-1);
+    box-shadow: inset 4px 0 0 var(--cc-accent-1);
+  }
+  #settings label, #settings button, #settings select { min-height: 48px; }
+}

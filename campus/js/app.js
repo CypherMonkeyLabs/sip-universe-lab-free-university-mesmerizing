@@ -9,7 +9,7 @@ import { loadJSON } from "./store.js";
 import { mountSpotlight } from "./diagrams.js";
 import * as tools from "./tools.js";
 import { mountTopology } from "./topology.js";
-import { paradeHTML, bindParade, animateStats, burst } from "./fx.js";
+import { paradeHTML, bindParade, animateStats, burst, bindReveal } from "./fx.js";
 import { chartsHTML, paintRoughTotals, trackMinutesChart, bindChartTips, animateCharts } from "./charts.js";
 import { mountHero, armFly } from "./hero.js";
 import { iconHTML } from "./icons.js";
@@ -105,6 +105,28 @@ function setTitle(text) {
   titleEl.focus();
 }
 
+function navCurrent(path, href) {
+  if (href === "#/tracks") {
+    return path === "#/tracks" || path.startsWith("#/track/") || path.startsWith("#/lesson/")
+      || path === "#/labs" || path.startsWith("#/guide") || path.startsWith("#/boss") || path.startsWith("#/interview");
+  }
+  if (href === "#/") return path === "#/" || path === "";
+  return path === href || path.startsWith(`${href}/`);
+}
+
+function fillPhoneMenu(path) {
+  const list = document.querySelector("#phone-menu-list");
+  if (!list) return;
+  const groups = ["Learn", "Tools", "Field"];
+  list.innerHTML = groups.map((group) => {
+    const links = NAV.filter((item) => item.group === group).map((item) => {
+      const current = navCurrent(path, item.href) ? ' aria-current="page"' : "";
+      return `<a href="${item.href}"${current}>${esc(item.label)}</a>`;
+    }).join("");
+    return `<h2>${group}</h2>${links}`;
+  }).join("");
+}
+
 function paintNav(path) {
   const groups = ["Learn", "Tools", "Field"];
   rail.innerHTML = groups.map((group) => {
@@ -113,25 +135,114 @@ function paintNav(path) {
       return `<a href="${item.href}"${current}>${esc(item.label)}</a>`;
     }).join("");
     return `<h2>${group}</h2>${links}`;
-  }).join("");
+  }).join("") + `<button type="button" class="rail-settings" id="rail-settings">Settings</button>`;
+  rail.querySelector("#rail-settings").addEventListener("click", openSettings);
   markPrime(path);
-  const mobile = [
-    { href: "#/", label: "Home" },
-    { href: "#/tracks", label: "Tracks" },
-    { href: "#/play", label: "Play" },
-    { href: "#/topology", label: "Map" },
-  ];
-  bottom.innerHTML = mobile.map((item) => {
-    const current = path === item.href || (item.href === "#/play" && path.startsWith("#/play")) ? ' aria-current="page"' : "";
-    return `<a href="${item.href}"${current}>${esc(item.label)}</a>`;
-  }).join("") + `<button type="button" id="open-more">More</button>`;
-  bottom.querySelector("#open-more").addEventListener("click", () => {
-    const list = document.querySelector("#more-list");
-    list.innerHTML = NAV.filter((item) => !["#/", "#/tracks", "#/topology"].includes(item.href) && item.href !== "#/tools/ladder")
-      .map((item) => `<a href="${item.href}">${esc(item.label)}</a>`).join("")
-      + `<button type="button" id="more-settings">Settings</button>`;
-    list.querySelector("#more-settings").addEventListener("click", openSettings);
-    document.querySelector("#more").showModal();
+  bottom.querySelectorAll("a").forEach((link) => {
+    const href = link.getAttribute("href");
+    if (navCurrent(path, href)) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+  fillPhoneMenu(path);
+}
+
+let menuHistory = false;
+
+function setMenuExpanded(open) {
+  document.querySelectorAll("#menu-open, #quick-menu").forEach((button) => {
+    button.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+}
+
+function openPhoneMenu() {
+  const dialog = document.querySelector("#phone-menu");
+  if (!dialog || dialog.open) return;
+  fillPhoneMenu(parseHash().path);
+  dialog.showModal();
+  setMenuExpanded(true);
+  history.pushState({ sipMenu: true }, "");
+  menuHistory = true;
+  document.querySelector("#phone-menu-close")?.focus();
+}
+
+function closePhoneMenu() {
+  const dialog = document.querySelector("#phone-menu");
+  if (menuHistory) {
+    menuHistory = false;
+    history.back();
+    return;
+  }
+  if (dialog?.open) dialog.close();
+  setMenuExpanded(false);
+}
+
+function listenClip() {
+  const behavior = document.documentElement.dataset.motion === "reduce" ? "auto" : "smooth";
+  const tryPlay = (tries) => {
+    const section = document.querySelector("#architect");
+    if (!section) {
+      if (tries < 40) window.setTimeout(() => tryPlay(tries + 1), 50);
+      return;
+    }
+    section.scrollIntoView({ behavior, block: "start" });
+    const audio = document.querySelector("#architect-use");
+    if (audio) audio.play().catch(() => {});
+  };
+  if ((location.hash || "#/") !== "#/") location.hash = "#/";
+  tryPlay(0);
+}
+
+function bindPhoneMenu() {
+  document.querySelector("#menu-open")?.addEventListener("click", openPhoneMenu);
+  document.querySelector("#quick-menu")?.addEventListener("click", openPhoneMenu);
+  document.querySelector("#quick-listen")?.addEventListener("click", listenClip);
+  document.querySelector("#phone-menu-close")?.addEventListener("click", closePhoneMenu);
+  document.querySelector("#menu-settings")?.addEventListener("click", () => {
+    const dialog = document.querySelector("#phone-menu");
+    if (menuHistory) {
+      menuHistory = false;
+      history.replaceState(null, "");
+    }
+    if (dialog?.open) dialog.close();
+    setMenuExpanded(false);
+    openSettings();
+  });
+  const dialog = document.querySelector("#phone-menu");
+  dialog?.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    closePhoneMenu();
+  });
+  dialog?.addEventListener("close", () => setMenuExpanded(false));
+  dialog?.addEventListener("click", (event) => {
+    if (event.target === dialog) {
+      closePhoneMenu();
+      return;
+    }
+    const link = event.target.closest("a[href]");
+    if (!link || !dialog.contains(link)) return;
+    event.preventDefault();
+    const href = link.getAttribute("href");
+    if (menuHistory) {
+      menuHistory = false;
+      history.replaceState(null, "");
+    }
+    dialog.close();
+    setMenuExpanded(false);
+    if (href && location.hash !== href) location.hash = href;
+  });
+  dialog?.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    const items = [...dialog.querySelectorAll("a, button, select")];
+    const index = items.indexOf(document.activeElement);
+    if (index < 0) return;
+    event.preventDefault();
+    const next = event.key === "ArrowDown" ? (index + 1) % items.length : (index - 1 + items.length) % items.length;
+    items[next].focus();
+  });
+  window.addEventListener("popstate", () => {
+    menuHistory = false;
+    if (dialog?.open) dialog.close();
+    setMenuExpanded(false);
   });
 }
 
@@ -229,7 +340,8 @@ async function renderHome() {
   const stopTips = bindChartTips(view);
   const playBtn = view.querySelector("#play-architect");
   const onPlay = () => {
-    view.querySelector("#architect")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const behavior = document.documentElement.dataset.motion === "reduce" ? "auto" : "smooth";
+    view.querySelector("#architect")?.scrollIntoView({ behavior, block: "start" });
     const audio = view.querySelector("#architect-use");
     if (audio) audio.play().catch(() => {});
   };
@@ -697,8 +809,9 @@ async function render() {
   }
   if (gen !== routeGen) { if (typeof stop === "function") stop(); return; }
   const stopGlyphs = mountGlyphs(view);
+  const stopReveal = bindReveal(view);
   const stopRoute = typeof stop === "function" ? stop : () => {};
-  cleanup = () => { stopRoute(); stopGlyphs(); };
+  cleanup = () => { stopRoute(); stopGlyphs(); stopReveal(); };
   view.removeAttribute("aria-busy");
   titleEl.setAttribute("tabindex", "-1");
   applyLang(getSettings().lang || document.documentElement.lang || "en");
@@ -712,6 +825,8 @@ function openSettings() {
   dialog.querySelector('[name="sfx"]').checked = settings.sfx;
   dialog.querySelector('[name="narration"]').checked = settings.narration;
   dialog.querySelector('[name="motion"]').checked = settings.motion === "reduce";
+  const langSel = dialog.querySelector("#settings-lang");
+  if (langSel) langSel.value = settings.lang || "en";
   dialog.querySelector('[name="rate"]').value = settings.rate;
   dialog.querySelector("#rate-val").textContent = settings.rate;
   fillVoiceSelect(dialog.querySelector("#voice"));
@@ -728,6 +843,7 @@ function bindSettings() {
     voiceURI: form.querySelector("#voice").value,
     rate: Number(form.querySelector("#rate").value),
     motion: form.querySelector('[name="motion"]').checked ? "reduce" : "full",
+    lang: form.querySelector("#settings-lang")?.value || getSettings().lang,
   });
   form.addEventListener("change", read);
   form.querySelector("#rate").addEventListener("input", () => {
@@ -735,6 +851,7 @@ function bindSettings() {
     read();
   });
   document.querySelector("#open-settings").addEventListener("click", openSettings);
+  document.querySelector("#prime-settings")?.addEventListener("click", openSettings);
 }
 
 async function boot() {
@@ -749,6 +866,7 @@ async function boot() {
   document.querySelector("#more").addEventListener("click", (event) => {
     if (event.target.tagName === "A") document.querySelector("#more").close();
   });
+  bindPhoneMenu();
   try {
     catalog = await loadJSON("data/catalog.json");
   } catch (err) {

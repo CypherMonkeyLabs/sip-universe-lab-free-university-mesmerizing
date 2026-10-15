@@ -1869,6 +1869,30 @@
     if (reduced() || typeof confetti !== "function") return;
     confetti({ particleCount: 90, spread: 70, origin: { y: 0.65 }, disableForReducedMotion: true });
   }
+  function bindReveal(root) {
+    const nodes = [...root.querySelectorAll(".card, .atlas-fig, .chart-card, .architect, .panel")];
+    const motion = document.documentElement.dataset.motion;
+    const reduce = motion === "reduce" || motion !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || typeof IntersectionObserver !== "function") {
+      nodes.forEach((node) => node.classList.add("is-in"));
+      return () => {
+      };
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-in");
+        io.unobserve(entry.target);
+      });
+    }, { threshold: 0.12 });
+    nodes.forEach((node) => {
+      node.classList.add("reveal");
+      const rect = node.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) node.classList.add("is-in");
+      else io.observe(node);
+    });
+    return () => io.disconnect();
+  }
   function bindMenuKeys(root) {
     const nav = root.querySelector(".prime");
     if (!nav) return;
@@ -2080,8 +2104,9 @@
     document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
       el.setAttribute("placeholder", t(el.dataset.i18nPlaceholder));
     });
-    const sel = document.querySelector("#lang");
-    if (sel && sel.value !== meta.id) sel.value = meta.id;
+    document.querySelectorAll("[data-lang-select]").forEach((sel) => {
+      if (sel.value !== meta.id) sel.value = meta.id;
+    });
     const line = document.querySelector("#mascot-line");
     if (line) line.textContent = t("greeting");
   }
@@ -2212,14 +2237,12 @@
     });
   }
   function bindLang() {
-    const lang = document.querySelector("#lang");
-    if (lang) {
+    document.querySelectorAll("#lang, #menu-lang").forEach((lang) => {
       lang.value = getSettings().lang || "en";
       lang.addEventListener("change", () => {
         saveSettings({ lang: lang.value });
-        applyLang(lang.value);
       });
-    }
+    });
     const toggle = document.querySelector("#theme-toggle");
     const paintToggle = () => {
       if (!toggle) return;
@@ -3367,6 +3390,9 @@
       const loop = () => {
         if (stop) return;
         frame = requestAnimationFrame(loop);
+        if (document.hidden) return;
+        const box2 = canvas.getBoundingClientRect();
+        if (box2.bottom <= 0 || box2.top >= window.innerHeight) return;
         if (!dragging) sph.theta += 15e-4;
         placeCamera();
         renderer2.render(scene2, camera2);
@@ -3427,8 +3453,14 @@
   var session = null;
   var flyArmed = false;
   var looseFly = null;
+  function pixelRatio() {
+    return Math.min(window.devicePixelRatio || 1, 2);
+  }
   function reduced2() {
-    return document.documentElement.dataset.motion === "reduce";
+    const motion = document.documentElement.dataset.motion;
+    if (motion === "reduce") return true;
+    if (motion === "full") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
   function hasWebGL() {
     try {
@@ -3537,7 +3569,7 @@
       const bg = cssHex("--cc-bg", "#07101f");
       scene2.background = new THREE2.Color(bg);
       renderer2.setClearColor(bg, 1);
-      renderer2.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+      renderer2.setPixelRatio(pixelRatio());
       renderer2.setSize(window.innerWidth, window.innerHeight, false);
       camera2.aspect = window.innerWidth / window.innerHeight;
       camera2.updateProjectionMatrix();
@@ -3627,7 +3659,7 @@
       return () => {
       };
     }
-    renderer2.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+    renderer2.setPixelRatio(pixelRatio());
     bleed.dataset.hero = "webgl";
     bleed.dataset.bloom = "0";
     const scene2 = new THREE2.Scene();
@@ -3958,7 +3990,7 @@
     let rtB = makeTarget(THREE2, 4, 4);
     let bloomOn = true;
     const resizeTargets = (w, h) => {
-      const ratio = Math.min(window.devicePixelRatio || 1, 1.25);
+      const ratio = pixelRatio();
       const dw = Math.max(2, Math.floor(w * ratio));
       const dh = Math.max(2, Math.floor(h * ratio));
       rtScene.setSize(dw, dh);
@@ -4098,14 +4130,39 @@
       kit.blur.dispose();
       kit.composite.dispose();
       renderer2.dispose();
+      document.removeEventListener("visibilitychange", onVis);
+      heroWatch.disconnect();
       canvas.classList.remove("is-fly");
       if (canvas.parentElement === document.body) canvas.remove();
       if (session === current) session = null;
     };
-    const tick = (now) => {
-      if (stop && !current.flying) return;
+    let heroVisible = true;
+    let loopOn = false;
+    const kick = () => {
+      if (loopOn || stop && !current.flying) return;
+      loopOn = true;
       raf2 = requestAnimationFrame(tick);
-      if (document.hidden) return;
+    };
+    const onVis = () => {
+      if (!document.hidden) kick();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    const heroWatch = new IntersectionObserver((entries) => {
+      heroVisible = entries.some((entry) => entry.isIntersecting);
+      if (heroVisible) kick();
+    });
+    heroWatch.observe(bleed);
+    const tick = (now) => {
+      if (stop && !current.flying) {
+        loopOn = false;
+        return;
+      }
+      if (!current.flying && (document.hidden || !heroVisible)) {
+        loopOn = false;
+        return;
+      }
+      loopOn = true;
+      raf2 = requestAnimationFrame(tick);
       t2 += 6e-3;
       globe.rotation.y = t2 * 0.35;
       rings.forEach((ring, i) => {
@@ -4142,7 +4199,7 @@
         bloomOn = false;
       }
     };
-    tick(performance.now());
+    kick();
     return () => {
       window.removeEventListener("pointermove", onPtr);
       window.removeEventListener("scroll", onScroll);
@@ -4154,6 +4211,7 @@
         current.flyStart = performance.now();
         canvas.classList.add("is-fly");
         document.body.appendChild(canvas);
+        kick();
         return;
       }
       hardDispose();
@@ -4180,7 +4238,14 @@
     "capstone"
   ];
   function reduced3() {
-    return document.documentElement.dataset.motion === "reduce";
+    const motion = document.documentElement.dataset.motion;
+    if (motion === "reduce") return true;
+    if (motion === "full") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+  function onScreen(el) {
+    const rect = el.getBoundingClientRect();
+    return rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
   }
   function loadThree3() {
     if (window.THREE) return Promise.resolve(window.THREE);
@@ -4473,6 +4538,7 @@
       if (dead) return;
       raf = requestAnimationFrame(loop);
       if (!renderer || document.hidden || reduced3()) return;
+      if (!hosts.some((host) => host.isConnected && onScreen(host))) return;
       const batch = Math.min(4, hosts.length);
       for (let n = 0; n < batch; n += 1) {
         const host = hosts[cursor % hosts.length];
@@ -4595,6 +4661,25 @@
     announcer.textContent = text2;
     titleEl.focus();
   }
+  function navCurrent(path, href) {
+    if (href === "#/tracks") {
+      return path === "#/tracks" || path.startsWith("#/track/") || path.startsWith("#/lesson/") || path === "#/labs" || path.startsWith("#/guide") || path.startsWith("#/boss") || path.startsWith("#/interview");
+    }
+    if (href === "#/") return path === "#/" || path === "";
+    return path === href || path.startsWith(`${href}/`);
+  }
+  function fillPhoneMenu(path) {
+    const list = document.querySelector("#phone-menu-list");
+    if (!list) return;
+    const groups = ["Learn", "Tools", "Field"];
+    list.innerHTML = groups.map((group) => {
+      const links = NAV.filter((item) => item.group === group).map((item) => {
+        const current = navCurrent(path, item.href) ? ' aria-current="page"' : "";
+        return `<a href="${item.href}"${current}>${esc(item.label)}</a>`;
+      }).join("");
+      return `<h2>${group}</h2>${links}`;
+    }).join("");
+  }
   function paintNav(path) {
     const groups = ["Learn", "Tools", "Field"];
     rail.innerHTML = groups.map((group) => {
@@ -4603,23 +4688,109 @@
         return `<a href="${item.href}"${current}>${esc(item.label)}</a>`;
       }).join("");
       return `<h2>${group}</h2>${links}`;
-    }).join("");
+    }).join("") + `<button type="button" class="rail-settings" id="rail-settings">Settings</button>`;
+    rail.querySelector("#rail-settings").addEventListener("click", openSettings);
     markPrime(path);
-    const mobile = [
-      { href: "#/", label: "Home" },
-      { href: "#/tracks", label: "Tracks" },
-      { href: "#/play", label: "Play" },
-      { href: "#/topology", label: "Map" }
-    ];
-    bottom.innerHTML = mobile.map((item) => {
-      const current = path === item.href || item.href === "#/play" && path.startsWith("#/play") ? ' aria-current="page"' : "";
-      return `<a href="${item.href}"${current}>${esc(item.label)}</a>`;
-    }).join("") + `<button type="button" id="open-more">More</button>`;
-    bottom.querySelector("#open-more").addEventListener("click", () => {
-      const list = document.querySelector("#more-list");
-      list.innerHTML = NAV.filter((item) => !["#/", "#/tracks", "#/topology"].includes(item.href) && item.href !== "#/tools/ladder").map((item) => `<a href="${item.href}">${esc(item.label)}</a>`).join("") + `<button type="button" id="more-settings">Settings</button>`;
-      list.querySelector("#more-settings").addEventListener("click", openSettings);
-      document.querySelector("#more").showModal();
+    bottom.querySelectorAll("a").forEach((link) => {
+      const href = link.getAttribute("href");
+      if (navCurrent(path, href)) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+    fillPhoneMenu(path);
+  }
+  var menuHistory = false;
+  function setMenuExpanded(open) {
+    document.querySelectorAll("#menu-open, #quick-menu").forEach((button) => {
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+  function openPhoneMenu() {
+    const dialog = document.querySelector("#phone-menu");
+    if (!dialog || dialog.open) return;
+    fillPhoneMenu(parseHash().path);
+    dialog.showModal();
+    setMenuExpanded(true);
+    history.pushState({ sipMenu: true }, "");
+    menuHistory = true;
+    document.querySelector("#phone-menu-close")?.focus();
+  }
+  function closePhoneMenu() {
+    const dialog = document.querySelector("#phone-menu");
+    if (menuHistory) {
+      menuHistory = false;
+      history.back();
+      return;
+    }
+    if (dialog?.open) dialog.close();
+    setMenuExpanded(false);
+  }
+  function listenClip() {
+    const behavior = document.documentElement.dataset.motion === "reduce" ? "auto" : "smooth";
+    const tryPlay = (tries) => {
+      const section = document.querySelector("#architect");
+      if (!section) {
+        if (tries < 40) window.setTimeout(() => tryPlay(tries + 1), 50);
+        return;
+      }
+      section.scrollIntoView({ behavior, block: "start" });
+      const audio = document.querySelector("#architect-use");
+      if (audio) audio.play().catch(() => {
+      });
+    };
+    if ((location.hash || "#/") !== "#/") location.hash = "#/";
+    tryPlay(0);
+  }
+  function bindPhoneMenu() {
+    document.querySelector("#menu-open")?.addEventListener("click", openPhoneMenu);
+    document.querySelector("#quick-menu")?.addEventListener("click", openPhoneMenu);
+    document.querySelector("#quick-listen")?.addEventListener("click", listenClip);
+    document.querySelector("#phone-menu-close")?.addEventListener("click", closePhoneMenu);
+    document.querySelector("#menu-settings")?.addEventListener("click", () => {
+      const dialog2 = document.querySelector("#phone-menu");
+      if (menuHistory) {
+        menuHistory = false;
+        history.replaceState(null, "");
+      }
+      if (dialog2?.open) dialog2.close();
+      setMenuExpanded(false);
+      openSettings();
+    });
+    const dialog = document.querySelector("#phone-menu");
+    dialog?.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      closePhoneMenu();
+    });
+    dialog?.addEventListener("close", () => setMenuExpanded(false));
+    dialog?.addEventListener("click", (event) => {
+      if (event.target === dialog) {
+        closePhoneMenu();
+        return;
+      }
+      const link = event.target.closest("a[href]");
+      if (!link || !dialog.contains(link)) return;
+      event.preventDefault();
+      const href = link.getAttribute("href");
+      if (menuHistory) {
+        menuHistory = false;
+        history.replaceState(null, "");
+      }
+      dialog.close();
+      setMenuExpanded(false);
+      if (href && location.hash !== href) location.hash = href;
+    });
+    dialog?.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+      const items = [...dialog.querySelectorAll("a, button, select")];
+      const index = items.indexOf(document.activeElement);
+      if (index < 0) return;
+      event.preventDefault();
+      const next = event.key === "ArrowDown" ? (index + 1) % items.length : (index - 1 + items.length) % items.length;
+      items[next].focus();
+    });
+    window.addEventListener("popstate", () => {
+      menuHistory = false;
+      if (dialog?.open) dialog.close();
+      setMenuExpanded(false);
     });
   }
   function trackFile(id) {
@@ -4717,7 +4888,8 @@
     const stopTips = bindChartTips(view);
     const playBtn = view.querySelector("#play-architect");
     const onPlay = () => {
-      view.querySelector("#architect")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const behavior = document.documentElement.dataset.motion === "reduce" ? "auto" : "smooth";
+      view.querySelector("#architect")?.scrollIntoView({ behavior, block: "start" });
       const audio = view.querySelector("#architect-use");
       if (audio) audio.play().catch(() => {
       });
@@ -5219,11 +5391,13 @@
       return;
     }
     const stopGlyphs = mountGlyphs(view);
+    const stopReveal = bindReveal(view);
     const stopRoute = typeof stop === "function" ? stop : () => {
     };
     cleanup = () => {
       stopRoute();
       stopGlyphs();
+      stopReveal();
     };
     view.removeAttribute("aria-busy");
     titleEl.setAttribute("tabindex", "-1");
@@ -5241,6 +5415,8 @@
     dialog.querySelector('[name="sfx"]').checked = settings2.sfx;
     dialog.querySelector('[name="narration"]').checked = settings2.narration;
     dialog.querySelector('[name="motion"]').checked = settings2.motion === "reduce";
+    const langSel = dialog.querySelector("#settings-lang");
+    if (langSel) langSel.value = settings2.lang || "en";
     dialog.querySelector('[name="rate"]').value = settings2.rate;
     dialog.querySelector("#rate-val").textContent = settings2.rate;
     fillVoiceSelect(dialog.querySelector("#voice"));
@@ -5255,7 +5431,8 @@
       narration: form.querySelector('[name="narration"]').checked,
       voiceURI: form.querySelector("#voice").value,
       rate: Number(form.querySelector("#rate").value),
-      motion: form.querySelector('[name="motion"]').checked ? "reduce" : "full"
+      motion: form.querySelector('[name="motion"]').checked ? "reduce" : "full",
+      lang: form.querySelector("#settings-lang")?.value || getSettings().lang
     });
     form.addEventListener("change", read);
     form.querySelector("#rate").addEventListener("input", () => {
@@ -5263,6 +5440,7 @@
       read();
     });
     document.querySelector("#open-settings").addEventListener("click", openSettings);
+    document.querySelector("#prime-settings")?.addEventListener("click", openSettings);
   }
   async function boot() {
     loadSettings();
@@ -5278,6 +5456,7 @@
     document.querySelector("#more").addEventListener("click", (event) => {
       if (event.target.tagName === "A") document.querySelector("#more").close();
     });
+    bindPhoneMenu();
     try {
       catalog = await loadJSON("data/catalog.json");
     } catch (err) {
