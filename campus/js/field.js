@@ -162,7 +162,7 @@ function bindLang() {
   };
   toggle?.addEventListener("click", () => {
     const theme = getSettings().theme;
-    if (theme === "light" || theme === "daylight") saveSettings({ theme: localStorage.getItem("sip-universe-dark") || "holographic" });
+    if (theme === "light" || theme === "daylight") saveSettings({ theme: localStorage.getItem("sip-universe-dark") || "neon" });
     else {
       localStorage.setItem("sip-universe-dark", theme);
       saveSettings({ theme: "light" });
@@ -221,48 +221,57 @@ export async function tryFieldRoute(path, view, ctx) {
     ctx.setTitle("Diagram atlas");
     const animated = ATLAS.filter((item) => item.animated).length;
     const notes = ATLAS.slice(0, 8).map((item) => `<li><a href="#atlas-${esc(item.id)}">${esc(item.title)}</a></li>`).join("");
-    view.innerHTML = `<div class="split-stage"><div class="split-main">
-      <p class="lede">${ATLAS.length} diagrams, ${animated} of them animated call, signal, or data flows. Reduced motion keeps the drawing and drops the traveling packet.</p>
+    view.innerHTML = `<div class="stage-flow">
+      <header class="stage-inline">
+        <canvas class="glyph-view side-live" data-glyph="sip-core" width="320" height="320" aria-hidden="true"></canvas>
+        <div>
+          <p class="lede">${ATLAS.length} diagrams, ${animated} of them animated call, signal, or data flows. Reduced motion keeps the drawing and drops the traveling packet.</p>
+          <h2>Read these first</h2>
+          <ol>${notes}</ol>
+          <p class="fine">Enlarge a ladder to play, pause, and step the packet. The caption says why that hop matters.</p>
+        </div>
+      </header>
       <div class="atlas-grid">${ATLAS.map(figureHTML).join("")}</div>
-    </div><aside class="side-stage">
-      <canvas class="glyph-view side-live" data-glyph="sip-core" width="320" height="320" aria-hidden="true"></canvas>
-      <h2>Read these first</h2>
-      <ol>${notes}</ol>
-      <p class="fine">Enlarge a ladder to play, pause, and step the packet. The caption says why that hop matters.</p>
-    </aside></div>`;
+    </div>`;
     return () => {};
   }
   if (path === "#/flows") {
     ctx.setTitle("Flows");
     const flows = ATLAS.filter((item) => item.animated);
     const notes = flows.slice(0, 8).map((item) => `<li><a href="#atlas-${esc(item.id)}">${esc(item.title)}</a><span class="fine"> ${esc(item.caption)}</span></li>`).join("");
-    view.innerHTML = `<div class="split-stage"><div class="split-main">
-      <p class="lede">${flows.length} animated flows: INVITE, REGISTER, transfer, hold, forking, early media, NAT, TLS, and SRTP among them.</p>
+    view.innerHTML = `<div class="stage-flow">
+      <header class="stage-inline">
+        <canvas class="glyph-view side-live" data-glyph="call-flows" width="320" height="320" aria-hidden="true"></canvas>
+        <div>
+          <p class="lede">${flows.length} animated flows: INVITE, REGISTER, transfer, hold, forking, early media, NAT, TLS, and SRTP among them.</p>
+          <h2>Why these flows</h2>
+          <ol>${notes}</ol>
+        </div>
+      </header>
       ${paradeHTML()}
       <div class="atlas-grid">${flows.map(figureHTML).join("")}</div>
-    </div><aside class="side-stage">
-      <canvas class="glyph-view side-live" data-glyph="call-flows" width="320" height="320" aria-hidden="true"></canvas>
-      <h2>Why these flows</h2>
-      <ol>${notes}</ol>
-    </aside></div>`;
+    </div>`;
     return bindParade(view);
   }
   if (path === "#/charts") {
     const ports = await loadJSON("data/ports.json");
     ctx.setTitle("Charts");
     const notes = CHARTS.map((chart) => `<li><a href="#chart-${esc(chart.id)}">${esc(chart.title)}</a><span class="fine"> ${esc(chart.source)}</span></li>`).join("");
-    view.innerHTML = `<div class="split-stage"><div class="split-main">
-      <p class="lede">${CHARTS.length} charts from the catalog, the ports table, and lesson tags. The topic map uses markmap.</p>
+    view.innerHTML = `<div class="stage-flow">
+      <header class="stage-inline">
+        <canvas class="glyph-view side-live" data-glyph="operations" width="320" height="320" aria-hidden="true"></canvas>
+        <div>
+          <p class="lede">${CHARTS.length} charts from the catalog, the ports table, and lesson tags. The topic map uses markmap.</p>
+          <h2>Where the numbers come from</h2>
+          <ol>${notes}</ol>
+          <p class="fine">Hover a bar for the value. The source line under each chart is the citation.</p>
+        </div>
+      </header>
       ${paradeHTML()}
       ${chartsHTML(ctx.catalog, ports)}
       <h2>Topic map</h2>
       <div id="mind-host"></div>
-    </div><aside class="side-stage">
-      <canvas class="glyph-view side-live" data-glyph="operations" width="320" height="320" aria-hidden="true"></canvas>
-      <h2>Where the numbers come from</h2>
-      <ol>${notes}</ol>
-      <p class="fine">Hover a bar for the value. The source line under each chart is the citation.</p>
-    </aside></div>`;
+    </div>`;
     paintRoughTotals(view, ctx.catalog);
     animateCharts(view);
     const stopMind = mountMind(view.querySelector("#mind-host"));

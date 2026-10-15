@@ -1,4 +1,4 @@
-const CACHE = "sip-universe-v5";
+const CACHE = "sip-universe-v6";
 const SHELL = [
   "./",
   "./index.html",

@@ -77,7 +77,7 @@
   // campus/js/audio.js
   var KEY = "sip-universe-settings";
   var DEFAULTS = {
-    theme: "holographic",
+    theme: "neon",
     lang: "en",
     sfx: false,
     narration: false,
@@ -1235,7 +1235,7 @@
   // campus/js/icons.js
   function iconHTML(id) {
     const safe = String(id || "foundations").replace(/[^a-z0-9-]/gi, "") || "foundations";
-    return `<span class="iso glyph-hold"><canvas class="glyph-view" data-glyph="${safe}" width="192" height="192" aria-hidden="true"></canvas></span>`;
+    return `<span class="iso glyph-hold"><canvas class="glyph-view" data-glyph="${safe}" width="256" height="256" aria-hidden="true"></canvas></span>`;
   }
 
   // campus/js/play.js
@@ -2230,7 +2230,7 @@
     };
     toggle?.addEventListener("click", () => {
       const theme = getSettings().theme;
-      if (theme === "light" || theme === "daylight") saveSettings({ theme: localStorage.getItem("sip-universe-dark") || "holographic" });
+      if (theme === "light" || theme === "daylight") saveSettings({ theme: localStorage.getItem("sip-universe-dark") || "neon" });
       else {
         localStorage.setItem("sip-universe-dark", theme);
         saveSettings({ theme: "light" });
@@ -2283,15 +2283,18 @@
       ctx2.setTitle("Diagram atlas");
       const animated = ATLAS.filter((item) => item.animated).length;
       const notes = ATLAS.slice(0, 8).map((item) => `<li><a href="#atlas-${esc(item.id)}">${esc(item.title)}</a></li>`).join("");
-      view2.innerHTML = `<div class="split-stage"><div class="split-main">
-      <p class="lede">${ATLAS.length} diagrams, ${animated} of them animated call, signal, or data flows. Reduced motion keeps the drawing and drops the traveling packet.</p>
+      view2.innerHTML = `<div class="stage-flow">
+      <header class="stage-inline">
+        <canvas class="glyph-view side-live" data-glyph="sip-core" width="320" height="320" aria-hidden="true"></canvas>
+        <div>
+          <p class="lede">${ATLAS.length} diagrams, ${animated} of them animated call, signal, or data flows. Reduced motion keeps the drawing and drops the traveling packet.</p>
+          <h2>Read these first</h2>
+          <ol>${notes}</ol>
+          <p class="fine">Enlarge a ladder to play, pause, and step the packet. The caption says why that hop matters.</p>
+        </div>
+      </header>
       <div class="atlas-grid">${ATLAS.map(figureHTML).join("")}</div>
-    </div><aside class="side-stage">
-      <canvas class="glyph-view side-live" data-glyph="sip-core" width="320" height="320" aria-hidden="true"></canvas>
-      <h2>Read these first</h2>
-      <ol>${notes}</ol>
-      <p class="fine">Enlarge a ladder to play, pause, and step the packet. The caption says why that hop matters.</p>
-    </aside></div>`;
+    </div>`;
       return () => {
       };
     }
@@ -2299,33 +2302,39 @@
       ctx2.setTitle("Flows");
       const flows = ATLAS.filter((item) => item.animated);
       const notes = flows.slice(0, 8).map((item) => `<li><a href="#atlas-${esc(item.id)}">${esc(item.title)}</a><span class="fine"> ${esc(item.caption)}</span></li>`).join("");
-      view2.innerHTML = `<div class="split-stage"><div class="split-main">
-      <p class="lede">${flows.length} animated flows: INVITE, REGISTER, transfer, hold, forking, early media, NAT, TLS, and SRTP among them.</p>
+      view2.innerHTML = `<div class="stage-flow">
+      <header class="stage-inline">
+        <canvas class="glyph-view side-live" data-glyph="call-flows" width="320" height="320" aria-hidden="true"></canvas>
+        <div>
+          <p class="lede">${flows.length} animated flows: INVITE, REGISTER, transfer, hold, forking, early media, NAT, TLS, and SRTP among them.</p>
+          <h2>Why these flows</h2>
+          <ol>${notes}</ol>
+        </div>
+      </header>
       ${paradeHTML()}
       <div class="atlas-grid">${flows.map(figureHTML).join("")}</div>
-    </div><aside class="side-stage">
-      <canvas class="glyph-view side-live" data-glyph="call-flows" width="320" height="320" aria-hidden="true"></canvas>
-      <h2>Why these flows</h2>
-      <ol>${notes}</ol>
-    </aside></div>`;
+    </div>`;
       return bindParade(view2);
     }
     if (path === "#/charts") {
       const ports = await loadJSON("data/ports.json");
       ctx2.setTitle("Charts");
       const notes = CHARTS.map((chart) => `<li><a href="#chart-${esc(chart.id)}">${esc(chart.title)}</a><span class="fine"> ${esc(chart.source)}</span></li>`).join("");
-      view2.innerHTML = `<div class="split-stage"><div class="split-main">
-      <p class="lede">${CHARTS.length} charts from the catalog, the ports table, and lesson tags. The topic map uses markmap.</p>
+      view2.innerHTML = `<div class="stage-flow">
+      <header class="stage-inline">
+        <canvas class="glyph-view side-live" data-glyph="operations" width="320" height="320" aria-hidden="true"></canvas>
+        <div>
+          <p class="lede">${CHARTS.length} charts from the catalog, the ports table, and lesson tags. The topic map uses markmap.</p>
+          <h2>Where the numbers come from</h2>
+          <ol>${notes}</ol>
+          <p class="fine">Hover a bar for the value. The source line under each chart is the citation.</p>
+        </div>
+      </header>
       ${paradeHTML()}
       ${chartsHTML(ctx2.catalog, ports)}
       <h2>Topic map</h2>
       <div id="mind-host"></div>
-    </div><aside class="side-stage">
-      <canvas class="glyph-view side-live" data-glyph="operations" width="320" height="320" aria-hidden="true"></canvas>
-      <h2>Where the numbers come from</h2>
-      <ol>${notes}</ol>
-      <p class="fine">Hover a bar for the value. The source line under each chart is the citation.</p>
-    </aside></div>`;
+    </div>`;
       paintRoughTotals(view2, ctx2.catalog);
       animateCharts(view2);
       const stopMind = mountMind(view2.querySelector("#mind-host"));
@@ -3381,6 +3390,7 @@
 
   // campus/js/hero.js
   var LABELS = ["UA", "SBC", "DNS", "PSTN", "TURN", "RTP"];
+  var MESSAGES = ["INVITE", "180", "200", "ACK"];
   var VERT = `
   varying vec2 vUv;
   void main() {
@@ -3671,27 +3681,62 @@
       });
     }
     scene2.add(grid);
-    const count = 900;
+    const count = 1700;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i += 1) {
-      const radius = 2.2 + Math.random() * 6.5;
+      const radius = 1.4 + Math.random() * 9.2;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
-      positions[i * 3] = Math.sin(phi) * Math.cos(theta) * radius;
-      positions[i * 3 + 1] = Math.cos(phi) * radius * 0.75 + 1.1;
-      positions[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * radius;
+      positions[i * 3] = Math.sin(phi) * Math.cos(theta) * radius * 1.45;
+      positions[i * 3 + 1] = Math.cos(phi) * radius * 0.9 + 1.05;
+      positions[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * radius * 0.72 + 0.35;
     }
     const pointsGeo = new THREE2.BufferGeometry();
     pointsGeo.setAttribute("position", new THREE2.BufferAttribute(positions, 3));
     const points = new THREE2.Points(pointsGeo, new THREE2.PointsMaterial({
       color: colors.c,
-      size: 0.055,
+      size: 0.05,
       transparent: true,
-      opacity: 1,
+      opacity: 0.95,
       blending: THREE2.AdditiveBlending,
       depthWrite: false
     }));
-    scene2.add(points);
+    const nearCount = 480;
+    const nearPos = new Float32Array(nearCount * 3);
+    for (let i = 0; i < nearCount; i += 1) {
+      nearPos[i * 3] = (Math.random() - 0.5) * 4.8;
+      nearPos[i * 3 + 1] = (Math.random() - 0.4) * 5.2 + 0.8;
+      nearPos[i * 3 + 2] = 2.8 + Math.random() * 2.4;
+    }
+    const nearGeo = new THREE2.BufferGeometry();
+    nearGeo.setAttribute("position", new THREE2.BufferAttribute(nearPos, 3));
+    const nearPoints = new THREE2.Points(nearGeo, new THREE2.PointsMaterial({
+      color: colors.a,
+      size: 0.11,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE2.AdditiveBlending,
+      depthWrite: false
+    }));
+    const ribbonCount = 360;
+    const ribbonPos = new Float32Array(ribbonCount * 3);
+    for (let i = 0; i < ribbonCount; i += 1) {
+      const angle = Math.random() * Math.PI * 2;
+      ribbonPos[i * 3] = Math.cos(angle) * (1.15 + Math.random() * 0.95);
+      ribbonPos[i * 3 + 1] = 0.15 + Math.random() * 2.5;
+      ribbonPos[i * 3 + 2] = 2.9 + Math.sin(angle) * 0.35 + Math.random() * 0.35;
+    }
+    const ribbonGeo = new THREE2.BufferGeometry();
+    ribbonGeo.setAttribute("position", new THREE2.BufferAttribute(ribbonPos, 3));
+    const ribbon = new THREE2.Points(ribbonGeo, new THREE2.PointsMaterial({
+      color: colors.b,
+      size: 0.07,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE2.AdditiveBlending,
+      depthWrite: false
+    }));
+    scene2.add(points, nearPoints, ribbon);
     const orbit = new THREE2.Group();
     const nodeMats = [];
     const shellMats = [];
@@ -3713,7 +3758,7 @@
       sprite.scale.set(1.8, 0.5, 1);
       group.add(sprite);
       const angle = i / LABELS.length * Math.PI * 2;
-      group.position.set(Math.cos(angle) * 4.2, 1.7 + Math.sin(angle * 2) * 1.15, Math.sin(angle) * 4.2);
+      group.position.set(Math.cos(angle) * 5.1, 1.55 + Math.sin(angle * 2) * 1.35, Math.sin(angle) * 3.6);
       orbit.add(group);
     });
     scene2.add(orbit);
@@ -3722,11 +3767,64 @@
     LABELS.forEach((_, i) => {
       const a = i / LABELS.length * Math.PI * 2;
       const b = (i + 1) / LABELS.length * Math.PI * 2;
-      linePositions.push(Math.cos(a) * 4.2, 1.7, Math.sin(a) * 4.2, Math.cos(b) * 4.2, 1.7, Math.sin(b) * 4.2);
+      linePositions.push(Math.cos(a) * 5.1, 1.55, Math.sin(a) * 3.6, Math.cos(b) * 5.1, 1.55, Math.sin(b) * 3.6);
     });
     const lineGeo = new THREE2.BufferGeometry();
     lineGeo.setAttribute("position", new THREE2.BufferAttribute(new Float32Array(linePositions), 3));
     scene2.add(new THREE2.LineSegments(lineGeo, lineMat));
+    const span = new THREE2.Mesh(
+      new THREE2.TorusGeometry(6.4, 0.028, 8, 96),
+      new THREE2.MeshBasicMaterial({ color: colors.d, transparent: true, opacity: 0.9 })
+    );
+    span.position.set(0, 1.25, 0.4);
+    span.rotation.x = 1.25;
+    scene2.add(span);
+    rings.push(span);
+    const trailPoint = (angle) => {
+      const x = Math.cos(angle) * 1.95;
+      const y = 1.05 + Math.sin(angle * 2) * 1.15;
+      const z = 3.15 + Math.sin(angle) * 0.4;
+      return [x, y, z];
+    };
+    const trails = MESSAGES.map((name, i) => {
+      const tone = [colors.a, colors.b, colors.c, colors.d][i];
+      const group = new THREE2.Group();
+      const headMat = new THREE2.MeshBasicMaterial({ color: tone });
+      group.add(new THREE2.Mesh(new THREE2.SphereGeometry(0.18, 14, 14), headMat));
+      const tex = new THREE2.CanvasTexture(paintLabel(name, "#f7fbff"));
+      const labelMat = new THREE2.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+      labelMats.push(labelMat);
+      const sprite = new THREE2.Sprite(labelMat);
+      sprite.position.y = 0.55;
+      sprite.scale.set(2.05, 0.62, 1);
+      group.add(sprite);
+      const beads = [];
+      for (let k = 1; k <= 16; k += 1) {
+        const mat = new THREE2.MeshBasicMaterial({
+          color: tone,
+          transparent: true,
+          opacity: Math.max(0.08, 0.9 * (1 - k / 17)),
+          blending: THREE2.AdditiveBlending,
+          depthWrite: false
+        });
+        const bead = new THREE2.Mesh(new THREE2.SphereGeometry(0.09 * (1 - k / 22), 8, 8), mat);
+        scene2.add(bead);
+        beads.push(bead);
+      }
+      scene2.add(group);
+      return { group, beads, phase: i / MESSAGES.length * Math.PI * 2 };
+    });
+    const placeTrails = (time) => {
+      trails.forEach((trail) => {
+        const [x, y, z] = trailPoint(trail.phase + time);
+        trail.group.position.set(x, y, z);
+        trail.beads.forEach((bead, k) => {
+          const lag = trailPoint(trail.phase + time - (k + 1) * 0.11);
+          bead.position.set(lag[0], lag[1], lag[2]);
+        });
+      });
+    };
+    placeTrails(0);
     const key = new THREE2.PointLight(colors.b, 16, 30);
     key.position.set(4, 5, 6);
     const fill = new THREE2.PointLight(colors.c, 12, 30);
@@ -3794,7 +3892,15 @@
       rings[1].material.color.set(next.c);
       rings[2].material.color.set(next.d);
       points.material.color.set(next.c);
+      nearPoints.material.color.set(next.a);
+      ribbon.material.color.set(next.b);
       lineMat.color.set(next.a);
+      span.material.color.set(next.d);
+      const trailTones = [next.a, next.b, next.c, next.d];
+      trails.forEach((trail, i) => {
+        trail.group.children[0].material.color.set(trailTones[i]);
+        trail.beads.forEach((bead) => bead.material.color.set(trailTones[i]));
+      });
       key.color.set(next.b);
       fill.color.set(next.c);
       const tones = [next.a, next.b, next.c, next.d, next.a, next.b];
@@ -3876,6 +3982,9 @@
         ring.rotation.z = t2 * (0.25 + i * 0.08);
       });
       orbit.rotation.y = t2 * 0.28;
+      points.rotation.y = t2 * 0.04;
+      nearPoints.rotation.z = t2 * 0.03;
+      placeTrails(t2 * 0.85);
       if (current.flying) {
         const u = Math.min(1, (now - current.flyStart) / 720);
         const dive = Math.sin(u * Math.PI);
@@ -4182,14 +4291,14 @@
   function ensure(T) {
     if (renderer) return;
     const canvas = document.createElement("canvas");
-    canvas.width = 192;
-    canvas.height = 192;
+    canvas.width = 256;
+    canvas.height = 256;
     renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
-    renderer.setSize(192, 192, false);
+    renderer.setSize(256, 256, false);
     renderer.setClearColor(0, 0);
     scene = new T.Scene();
-    camera = new T.PerspectiveCamera(35, 1, 0.1, 20);
-    camera.position.set(1.35, 0.95, 2.35);
+    camera = new T.PerspectiveCamera(32, 1, 0.1, 20);
+    camera.position.set(1.05, 0.72, 1.9);
     camera.lookAt(0, 0, 0);
     scene.add(new T.AmbientLight(16777215, 0.55));
     const key = new T.PointLight(16777215, 12, 12);

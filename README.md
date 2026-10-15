@@ -39,7 +39,7 @@ node scripts/verify.mjs
 
 Every lesson has an illustration, a Play / Pause / Step / Inspect ladder, a quiz, flashcards, a lab, and a fault. Settings (observatory, daylight, high contrast, phosphor, sound, narration with a voice picker, speed, reduced motion, type size) persist in `localStorage`. Sound and narration start off. The voice picker waits for `voiceschanged` and will not auto-select a classic Microsoft David, Zira, or Mark voice.
 
-First load is the shell plus `data/catalog.json`: 121,467 bytes, measured as `index.html`, `css/app.css`, `js/app.js`, `js/draw.js`, `js/audio.js`, `js/flow.js`, and `data/catalog.json`. The home screen paints a vendored Three.js r159 scene (`campus/vendor/three.min.js`, no CDN) immediately, with the globe under the header and no fog. Track JSON and the tools load when you open them. A service worker caches the shell after the first visit and then fills tracks in the background.
+First load is the shell plus `data/catalog.json`: 121,453 bytes, measured as `index.html`, `css/app.css`, `js/app.js`, `js/draw.js`, `js/audio.js`, `js/flow.js`, and `data/catalog.json`. The home screen paints a vendored Three.js r159 scene (`campus/vendor/three.min.js`, no CDN) immediately. The default theme is dark neon. Track JSON and the tools load when you open them. A service worker caches the shell after the first visit and then fills tracks in the background.
 
 Lighthouse mobile against `http://127.0.0.1:8741/campus/` (Lighthouse 12.8.2, 2026-10-15): performance 99, accessibility 100. The local Python server does not gzip or set long cache headers; GitHub Pages does the compression part.
 
@@ -89,7 +89,7 @@ node scripts/build_client.mjs
 
 Home, with the compressed ladder and the track index:
 
-![Home](docs/screenshots/r5b-home-desk.png)
+![Home](docs/screenshots/r6c-home-desk.png)
 
 A lesson: illustration, ladder, and quiz.
 

@@ -256,14 +256,14 @@ function palette() {
 function ensure(T) {
   if (renderer) return;
   const canvas = document.createElement("canvas");
-  canvas.width = 192;
-  canvas.height = 192;
+  canvas.width = 256;
+  canvas.height = 256;
   renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
-  renderer.setSize(192, 192, false);
+  renderer.setSize(256, 256, false);
   renderer.setClearColor(0x000000, 0);
   scene = new T.Scene();
-  camera = new T.PerspectiveCamera(35, 1, 0.1, 20);
-  camera.position.set(1.35, 0.95, 2.35);
+  camera = new T.PerspectiveCamera(32, 1, 0.1, 20);
+  camera.position.set(1.05, 0.72, 1.9);
   camera.lookAt(0, 0, 0);
   scene.add(new T.AmbientLight(0xffffff, 0.55));
   const key = new T.PointLight(0xffffff, 12, 12);

@@ -1,7 +1,7 @@
 const KEY = "sip-universe-settings";
 
 export const DEFAULTS = {
-  theme: "holographic",
+  theme: "neon",
   lang: "en",
   sfx: false,
   narration: false,
