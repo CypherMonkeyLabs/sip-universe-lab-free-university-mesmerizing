@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="futuristic" data-font="md">
+<html lang="en" data-theme="holographic" data-font="md">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SIP Universe</title>
   <meta name="description" content="SIP Universe is a field guide to SIP, SDP, RTP/SRTP, NAT, ICE, and session border controllers, with ladders, labs, and cited sources.">
-  <meta name="theme-color" content="#07111c">
+  <meta name="theme-color" content="#07101f">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%2307111c' width='32' height='32' rx='6'/%3E%3Cpath d='M6 16h8M18 10l8 6-8 6' stroke='%233ddcff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
   <script>
     if (location.protocol !== "file:") {
@@ -17,12 +17,17 @@
   </script>
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/flagship.css">
+  <link rel="stylesheet" href="css/visual.css">
   <script>
     try {
       var saved = JSON.parse(localStorage.getItem("sip-universe-settings") || "{}");
       if (saved.theme) document.documentElement.dataset.theme = saved.theme;
       if (saved.font) document.documentElement.dataset.font = saved.font;
       if (saved.motion) document.documentElement.dataset.motion = saved.motion;
+      if (saved.lang) {
+        document.documentElement.lang = saved.lang;
+        document.documentElement.dir = saved.lang === "ar" ? "rtl" : "ltr";
+      }
     } catch (e) {}
   </script>
 </head>
@@ -34,27 +39,40 @@
       <header class="topbar">
         <a class="brand" href="#/">
           <span class="mark" aria-hidden="true"></span>
-          <span><strong>SIP Universe</strong><small>Signaling, media, borders</small></span>
+          <span><strong>SIP Universe</strong><small data-i18n="tagline">Signaling, media, borders</small></span>
         </a>
         <form class="search" id="search-form" role="search">
           <label class="sr-only" for="q">Search lessons</label>
-          <input id="q" name="q" type="search" placeholder="Search PRACK, CUBE, 488…" autocomplete="off">
+          <input id="q" name="q" type="search" placeholder="Search PRACK, CUBE, 488…" data-i18n-placeholder="search" autocomplete="off">
         </form>
         <div class="top-actions">
           <span class="progress-pill" id="progress-pill">0 read</span>
+          <label class="sr-only" for="lang">Language</label>
+          <select id="lang" name="lang">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="hi">हिन्दी</option>
+            <option value="te">తెలుగు</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="ja">日本語</option>
+            <option value="ar">العربية</option>
+          </select>
+          <button type="button" id="theme-toggle">Light</button>
           <button type="button" id="open-settings">Settings</button>
           <button type="button" data-offline>Offline</button>
         </div>
       </header>
       <nav class="prime" aria-label="Campus">
-        <a href="#/atlas">Diagrams</a>
-        <a href="#/flows">Flows</a>
-        <a href="#/charts">Charts</a>
-        <a href="#/downloads">Cheat Codes</a>
-        <a href="#/play">Play</a>
-        <a href="#/ecosystem">Ecosystem</a>
-        <a href="#/downloads">Downloads</a>
-        <a href="#/career">Careers</a>
+        <a href="#/atlas" data-i18n="diagrams">Diagrams</a>
+        <a href="#/flows" data-i18n="flows">Flows</a>
+        <a href="#/charts" data-i18n="charts">Charts</a>
+        <a href="#/downloads" data-i18n="cheats">Cheat Codes</a>
+        <a href="#/play" data-i18n="play">Play</a>
+        <a href="#/ecosystem" data-i18n="ecosystem">Ecosystem</a>
+        <a href="#/downloads" data-i18n="downloads">Downloads</a>
+        <a href="#/career" data-i18n="careers">Careers</a>
+        <a href="#/regions" data-i18n="regions">Regions</a>
       </nav>
       <nav class="linkbar" aria-label="CypherMonkey">
         <a href="https://cyphermonkeylabs.com" rel="noopener noreferrer">Labs</a>
@@ -64,25 +82,11 @@
         <a href="https://huggingface.co/Cypher0x9" rel="noopener noreferrer">Hugging Face</a>
         <a href="https://x.com/Cypher0x9" rel="noopener noreferrer">X</a>
         <div class="swatches" role="group" aria-label="Theme">
-          <button type="button" data-set-theme="futuristic" aria-pressed="true"><span class="swatch-label">Futuristic</span></button>
-          <button type="button" data-set-theme="gaming" aria-pressed="false"><span class="swatch-label">Gaming</span></button>
+          <button type="button" data-set-theme="holographic" aria-pressed="true"><span class="swatch-label">Holographic</span></button>
           <button type="button" data-set-theme="neon" aria-pressed="false"><span class="swatch-label">Neon</span></button>
+          <button type="button" data-set-theme="cyberpunk" aria-pressed="false"><span class="swatch-label">Cyberpunk</span></button>
+          <button type="button" data-set-theme="sunset" aria-pressed="false"><span class="swatch-label">Sunset</span></button>
           <button type="button" data-set-theme="light" aria-pressed="false"><span class="swatch-label">Light</span></button>
-        </div>
-        <div class="mascot" id="mascot" data-pose="wave">
-          <svg viewBox="0 0 80 96" aria-hidden="true">
-            <ellipse cx="40" cy="78" rx="18" ry="12" fill="var(--cc-accent-3)"/>
-            <circle cx="18" cy="34" r="10" fill="var(--cc-accent-2)"/>
-            <circle cx="62" cy="34" r="10" fill="var(--cc-accent-2)"/>
-            <circle cx="40" cy="36" r="22" fill="var(--cc-accent-1)"/>
-            <circle cx="32" cy="34" r="3" fill="#061018"/>
-            <circle cx="48" cy="34" r="3" fill="#061018"/>
-            <path d="M32 46c4 4 12 4 16 0" stroke="#061018" stroke-width="2" fill="none"/>
-            <g class="arm arm-l"><rect x="8" y="58" width="8" height="22" rx="4" fill="var(--cc-accent-4)"/></g>
-            <g class="arm arm-r"><rect x="64" y="58" width="8" height="22" rx="4" fill="var(--cc-accent-4)"/></g>
-            <path d="M58 80c12 8 18 2 16-6" stroke="var(--cc-accent-2)" stroke-width="3" fill="none"/>
-          </svg>
-          <p class="mascot-line" id="mascot-line">Follow the Via.</p>
         </div>
       </nav>
     </div>
@@ -115,15 +119,38 @@
     </footer>
   </div>
   <nav class="bottom" id="bottom" aria-label="Mobile"></nav>
+  <div class="mascot" id="mascot" data-pose="wave" data-look="visor">
+    <svg viewBox="0 0 80 96" aria-hidden="true">
+      <ellipse cx="40" cy="78" rx="18" ry="12" fill="var(--cc-accent-3)"/>
+      <circle cx="18" cy="34" r="10" fill="var(--cc-accent-2)"/>
+      <circle cx="62" cy="34" r="10" fill="var(--cc-accent-2)"/>
+      <circle cx="40" cy="36" r="22" fill="var(--cc-accent-1)"/>
+      <circle cx="32" cy="34" r="3" fill="#061018"/>
+      <circle cx="48" cy="34" r="3" fill="#061018"/>
+      <rect class="lid" x="28" y="30" width="10" height="8" rx="2" fill="var(--cc-accent-1)"/>
+      <rect class="lid" x="43" y="30" width="10" height="8" rx="2" fill="var(--cc-accent-1)"/>
+      <path d="M32 46c4 4 12 4 16 0" stroke="#061018" stroke-width="2" fill="none"/>
+      <g class="look look-visor"><path d="M24 33h32" stroke="#061018" stroke-width="4" stroke-linecap="round"/></g>
+      <g class="look look-phones"><rect x="12" y="28" width="8" height="14" rx="3" fill="var(--cc-accent-4)"/><rect x="60" y="28" width="8" height="14" rx="3" fill="var(--cc-accent-4)"/></g>
+      <g class="look look-scarf"><path d="M26 50h28l6 16H20z" fill="var(--cc-accent-2)"/></g>
+      <g class="arm arm-l"><rect x="8" y="58" width="8" height="22" rx="4" fill="var(--cc-accent-4)"/></g>
+      <g class="arm arm-r"><rect x="64" y="58" width="8" height="22" rx="4" fill="var(--cc-accent-4)"/></g>
+      <path d="M58 80c12 8 18 2 16-6" stroke="var(--cc-accent-2)" stroke-width="3" fill="none"/>
+    </svg>
+    <p class="mascot-line" id="mascot-line">Follow the signal.</p>
+  </div>
   <dialog id="settings" aria-labelledby="settings-title">
     <form method="dialog" class="settings-grid" id="settings-form">
       <h2 id="settings-title">Settings</h2>
       <fieldset>
         <legend>Theme</legend>
+        <label><input type="radio" name="theme" value="holographic"> Holographic</label>
+        <label><input type="radio" name="theme" value="neon"> Neon</label>
+        <label><input type="radio" name="theme" value="cyberpunk"> Cyberpunk</label>
+        <label><input type="radio" name="theme" value="sunset"> Sunset</label>
+        <label><input type="radio" name="theme" value="light"> Light</label>
         <label><input type="radio" name="theme" value="futuristic"> Futuristic</label>
         <label><input type="radio" name="theme" value="gaming"> Gaming</label>
-        <label><input type="radio" name="theme" value="neon"> Neon</label>
-        <label><input type="radio" name="theme" value="light"> Light</label>
         <label><input type="radio" name="theme" value="observatory"> Observatory</label>
         <label><input type="radio" name="theme" value="daylight"> Daylight</label>
         <label><input type="radio" name="theme" value="contrast"> High contrast</label>
@@ -148,6 +175,19 @@
       <p class="fine">Sound stays off until you enable it. Narration waits for the browser voice list and will not select a classic robotic Microsoft David, Zira, or Mark voice on its own.</p>
       <button type="submit" class="primary">Close</button>
     </form>
+  </dialog>
+  <dialog id="lightbox" aria-labelledby="lightbox-title">
+    <div class="lightbox-bar">
+      <h2 id="lightbox-title">Diagram</h2>
+      <button type="button" data-flow="play">Play</button>
+      <button type="button" data-flow="pause">Pause</button>
+      <button type="button" data-flow="step">Step</button>
+      <span id="lightbox-step"></span>
+      <form method="dialog"><button type="submit" class="primary">Close</button></form>
+    </div>
+    <div id="lightbox-stage"></div>
+    <p id="lightbox-legend"></p>
+    <p id="lightbox-why"></p>
   </dialog>
   <dialog id="more" aria-labelledby="more-title">
     <h2 id="more-title">More</h2>

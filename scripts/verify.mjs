@@ -136,6 +136,14 @@ const iifePath = join(root, "campus", "js", "campus.iife.js");
 if (statSync(iifePath, { throwIfNoEntry: false })) {
   const iife = readFileSync(iifePath, "utf8");
   if (!iife.includes("data-count")) problems.push("bundle stale");
+  if (!iife.includes("hero-canvas")) problems.push("hero missing");
+  if (iife.includes("import.meta")) problems.push("import.meta in bundle");
+}
+for (const word of ["holographic", "cyberpunk", "sunset", "visual.css", "id=\"lang\"", "lightbox"]) {
+  if (!indexHtml.includes(word)) problems.push(`visual ${word}`);
+}
+for (const rel of ["audio/architect-use.mp3", "audio/architect-share.mp3", "css/visual.css"]) {
+  if (!statSync(join(root, "campus", rel), { throwIfNoEntry: false })) problems.push(`missing ${rel}`);
 }
 for (const page of [
   "https://cipher0x9.github.io/uc-lab-free-university-mesmerizing/",

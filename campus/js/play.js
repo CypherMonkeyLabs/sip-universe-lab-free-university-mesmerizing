@@ -1,4 +1,5 @@
 import { esc, citeLinks } from "./draw.js";
+import { iconHTML } from "./icons.js";
 import { ladderSVG } from "./flow.js";
 import { loadJSON } from "./store.js";
 
@@ -46,11 +47,11 @@ function hub(view, ctx) {
   ctx.setTitle("Practice");
   view.innerHTML = `<p class="lede">Short drills with the same facts as the lessons. Scores stay in this browser.</p>
     <div class="card-grid">
-      <a class="card" href="#/play/ports"><span class="kicker">Game</span><h3>Ports mastery</h3><p>Eight questions from the checked port table.</p></a>
-      <a class="card" href="#/play/builder"><span class="kicker">Sandbox</span><h3>Build a call flow</h3><p>Add parties and hops. The ladder is the same engine as the lessons.</p></a>
-      <a class="card" href="#/explorer"><span class="kicker">Map</span><h3>Flow explorer</h3><p>Click a node. Read the protocol and the citation.</p></a>
-      <a class="card" href="#/play/daily"><span class="kicker">Daily</span><h3>Daily challenge</h3><p>Three questions chosen from the date. Same set until tomorrow UTC.</p></a>
-      <a class="card" href="#/badges"><span class="kicker">Badges</span><h3>Badges</h3><p>Earned only when you do the thing.</p></a>
+      <a class="card" href="#/play/ports">${iconHTML("nat")}<span class="kicker">Game</span><h3>Ports mastery</h3><p>Eight questions from the checked port table.</p></a>
+      <a class="card" href="#/play/builder">${iconHTML("call-flows")}<span class="kicker">Sandbox</span><h3>Build a call flow</h3><p>Add parties and hops. The ladder is the same engine as the lessons.</p></a>
+      <a class="card" href="#/explorer">${iconHTML("routing")}<span class="kicker">Map</span><h3>Flow explorer</h3><p>Click a node. Read the protocol and the citation.</p></a>
+      <a class="card" href="#/play/daily">${iconHTML("operations")}<span class="kicker">Daily</span><h3>Daily challenge</h3><p>Three questions chosen from the date. Same set until tomorrow UTC.</p></a>
+      <a class="card" href="#/badges">${iconHTML("capstone")}<span class="kicker">Badges</span><h3>Badges</h3><p>Earned only when you do the thing.</p></a>
     </div>`;
   return () => {};
 }

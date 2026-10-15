@@ -1,7 +1,8 @@
 const KEY = "sip-universe-settings";
 
 export const DEFAULTS = {
-  theme: "futuristic",
+  theme: "holographic",
+  lang: "en",
   sfx: false,
   narration: false,
   voiceURI: "",
@@ -51,7 +52,8 @@ export function applySettings() {
   const theme = document.querySelector('meta[name="theme-color"]');
   if (theme) {
     const colors = {
-      futuristic: "#07111c", gaming: "#120814", neon: "#05060a", light: "#f6f1e7",
+      holographic: "#07101f", neon: "#070112", cyberpunk: "#140016", sunset: "#1b0c12", light: "#e7f3ff",
+      futuristic: "#071427", gaming: "#120814",
       observatory: "#070b14", daylight: "#f4f7fb", contrast: "#000000", phosphor: "#04140c",
     };
     theme.setAttribute("content", colors[settings.theme] || "#070b14");

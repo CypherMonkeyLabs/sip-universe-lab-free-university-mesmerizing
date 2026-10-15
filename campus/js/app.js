@@ -10,7 +10,10 @@ import { mountSpotlight } from "./diagrams.js";
 import * as tools from "./tools.js";
 import { mountTopology } from "./topology.js";
 import { paradeHTML, bindParade, animateStats, burst } from "./fx.js";
-import { chartsHTML, paintRoughTotals, trackMinutesChart } from "./charts.js";
+import { chartsHTML, paintRoughTotals, trackMinutesChart, bindChartTips, animateCharts } from "./charts.js";
+import { mountHero } from "./hero.js";
+import { iconHTML } from "./icons.js";
+import { applyLang } from "./i18n.js";
 
 const view = document.querySelector("#view");
 const titleEl = document.querySelector("#view-title");
@@ -164,56 +167,78 @@ function mountCheck(host, check, onPass) {
 async function renderHome() {
   setTitle("SIP Universe");
   const stats = catalog.stats;
-  const preview = catalog.preview;
   view.innerHTML = `
-    ${paradeHTML()}
-    <div class="stat-row">
-      <div class="stat"><b data-count="${stats.tracks}">0</b> tracks</div>
-      <div class="stat"><b data-count="${stats.lessons}">0</b> lessons</div>
-      <div class="stat"><b data-count="${stats.quizzes}">0</b> quiz items</div>
-      <div class="stat"><b data-count="${stats.cards}">0</b> flashcards</div>
-      <div class="stat"><b data-count="${stats.labs}">0</b> labs</div>
-      <div class="stat"><b data-count="${stats.glossary}">0</b> glossary terms</div>
-    </div>
-    <div class="hero-stage">
-      <div class="orb orb-a" aria-hidden="true"></div>
-      <div class="orb orb-b" aria-hidden="true"></div>
-      <div>
-        <p>Start in Foundations if you can subnet and have not lived in RFC 3261. Open the field guide for cutover, emergency calling, and the neighbor systems. Open a bench if a trunk is already on fire.</p>
-        <div class="row-actions">
-          <a class="btn primary" href="#/track/foundations">Start at the protocol</a>
-          <a class="btn" href="#/atlas">Open the diagram atlas</a>
-          <a class="btn" href="#/ports">Ports and firewalls</a>
-        </div>
+    <div id="hero-host">
+      <p class="hero-kicker">SIP · SDP · RTP</p>
+      <h2>SIP Universe</h2>
+      <p data-i18n="heroLead">Call path, ladders, and borders.</p>
+      <div class="ticker" aria-hidden="true"><span>INVITE</span><span>180</span><span>200</span><span>ACK</span></div>
+      <div class="stat-row">
+        <div class="stat"><b data-count="${stats.tracks}">0</b> tracks</div>
+        <div class="stat"><b data-count="${stats.lessons}">0</b> lessons</div>
+        <div class="stat"><b data-count="${stats.quizzes}">0</b> quiz items</div>
+        <div class="stat"><b data-count="${stats.cards}">0</b> flashcards</div>
+        <div class="stat"><b data-count="${stats.labs}">0</b> labs</div>
+        <div class="stat"><b data-count="${stats.glossary}">0</b> glossary terms</div>
       </div>
-      <div id="home-flow"></div>
+      <div class="row-actions">
+        <a class="btn primary" href="#/track/foundations" data-i18n="start">Start at the protocol</a>
+        <a class="btn" href="#/atlas" data-i18n="openAtlas">Open the diagrams</a>
+        <button type="button" class="btn" id="play-architect" data-i18n="listen">Play the architect clip</button>
+      </div>
     </div>
-    <h2>Signal, in motion</h2>
-    <div id="home-atlas"></div>
-    <h2>Charts from the catalog</h2>
-    <div id="home-charts"></div>
-    <h2>Tracks</h2>
-    <div class="card-grid">${catalog.tracks.map(trackCard).join("")}</div>
-    <h2>Benches</h2>
-    <div class="card-grid">
-      ${bench("Ladders", "Play, pause, step, and inspect a call.", "#/tools/ladder")}
-      ${bench("Dissector", "Headers, compact forms, and structural warnings.", "#/tools/dissector")}
-      ${bench("SDP negotiator", "Offer/answer codec, direction, and port 0.", "#/tools/sdp")}
-      ${bench("Normalization", "CUBE SIP profile and Acme header-rule subsets.", "#/tools/sandbox")}
-      ${bench("Capture bench", "Synthetic debug ccsip output, one message at a time.", "#/tools/capture")}
-      ${bench("Flow builder", "Assemble your own ladder.", "#/play/builder")}
-      ${bench("Flow explorer", "Click the edge and read the citation.", "#/explorer")}
-      ${bench("3D topology", "Enterprise SBC, CUCM, Teams, Webex, and CCaaS paths.", "#/topology")}
-    </div>
-    <p class="fine">Example messages are synthetic. Addresses use the documentation ranges in <a href="https://www.rfc-editor.org/rfc/rfc5737">RFC 5737</a>. Phone numbers use 555.</p>`;
+    <div class="home-after">
+      ${paradeHTML()}
+      <section class="architect" id="architect">
+        <h2 data-i18n="audioTitle">Architect notes</h2>
+        <p>Two short clips. Signal and Border walk the campus: how to view it, practise, and share it. Spoken with eSpeak NG 1.51. A low pad sits under the voices.</p>
+        <audio id="architect-use" controls preload="none" src="audio/architect-use.mp3"></audio>
+        <audio id="architect-share" controls preload="none" src="audio/architect-share.mp3"></audio>
+        <p class="fine">Scripts: <a href="audio/scripts/architect-use.md">how to view</a> · <a href="audio/scripts/architect-share.md">how to practise and share</a>.</p>
+        <p><a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing">Rate, comment, or help on the repository</a> · <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Contact</a></p>
+      </section>
+      <h2>Signal, in motion</h2>
+      <div id="home-atlas"></div>
+      <h2>Charts from the catalog</h2>
+      <div id="home-charts"></div>
+      <h2>Tracks</h2>
+      <div class="card-grid">${catalog.tracks.map(trackCard).join("")}</div>
+      <h2>Benches</h2>
+      <div class="card-grid">
+        ${bench("Ladders", "Play, pause, step, and inspect a call.", "#/tools/ladder", "call-flows")}
+        ${bench("Dissector", "Headers, compact forms, and structural warnings.", "#/tools/dissector", "sip-core")}
+        ${bench("SDP negotiator", "Offer/answer codec, direction, and port 0.", "#/tools/sdp", "sdp")}
+        ${bench("Normalization", "CUBE SIP profile and Acme header-rule subsets.", "#/tools/sandbox", "cisco")}
+        ${bench("Capture bench", "Synthetic debug ccsip output, one message at a time.", "#/tools/capture", "troubleshoot")}
+        ${bench("Flow builder", "Assemble your own ladder.", "#/play/builder", "routing")}
+        ${bench("Flow explorer", "Click the edge and read the citation.", "#/explorer", "ecosystem")}
+        ${bench("3D topology", "Enterprise SBC, CUCM, Teams, Webex, and CCaaS paths.", "#/topology", "sbc")}
+      </div>
+      <p class="fine">Example messages are synthetic. Addresses use the documentation ranges in <a href="https://www.rfc-editor.org/rfc/rfc5737">RFC 5737</a>. Phone numbers use 555. Start in Foundations if you can subnet and have not lived in RFC 3261.</p>
+    </div>`;
+  const stopHero = await mountHero(view.querySelector("#hero-host"));
   const ports = await loadJSON("data/ports.json");
-  view.querySelector("#home-charts").innerHTML = chartsHTML(catalog, ports);
+  const charts = view.querySelector("#home-charts");
+  if (charts) charts.innerHTML = chartsHTML(catalog, ports);
   paintRoughTotals(view, catalog);
   animateStats(view);
-  const stop = mountFlow(view.querySelector("#home-flow"), preview);
+  animateCharts(view);
   mountSpotlight(view.querySelector("#home-atlas"));
   const stopParade = bindParade(view);
-  return () => { stop(); stopParade(); };
+  const stopTips = bindChartTips(view);
+  const playBtn = view.querySelector("#play-architect");
+  const onPlay = () => {
+    view.querySelector("#architect")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const audio = view.querySelector("#architect-use");
+    if (audio) audio.play().catch(() => {});
+  };
+  playBtn?.addEventListener("click", onPlay);
+  return () => {
+    stopHero();
+    stopParade();
+    stopTips();
+    playBtn?.removeEventListener("click", onPlay);
+  };
 }
 
 function trackCard(track) {
@@ -223,16 +248,23 @@ function trackCard(track) {
     return row && (row.read || (row.quizN && row.quiz / row.quizN >= 0.8));
   }).length;
   const pct = Math.round((done / track.lessons.length) * 100);
+  const ring = (188.4 * pct / 100).toFixed(1);
   return `<a class="card" href="#/track/${esc(track.id)}">
+    <div class="card-top">${iconHTML(track.id)}
+      <svg class="ring" viewBox="0 0 72 72" aria-label="${pct} percent">
+        <circle class="ring-track" cx="36" cy="36" r="30"></circle>
+        <circle class="ring-val" cx="36" cy="36" r="30" stroke-dasharray="${ring} 188.4"></circle>
+        <text x="36" y="41">${pct}</text>
+      </svg>
+    </div>
     <span class="kicker">${esc(track.level)} · ${track.lessons.length} lessons</span>
     <h3>${esc(track.title)}</h3>
     <p>${esc(track.summary)}</p>
-    <div class="bar" aria-hidden="true"><span style="width:${pct}%"></span></div>
     <span class="fine">${done} of ${track.lessons.length} in progress or done</span>
   </a>`;
 }
-function bench(title, copy, href) {
-  return `<a class="card" href="${href}"><span class="kicker">Bench</span><h3>${esc(title)}</h3><p>${esc(copy)}</p></a>`;
+function bench(title, copy, href, icon) {
+  return `<a class="card" href="${href}">${iconHTML(icon || "foundations")}<span class="kicker">Bench</span><h3>${esc(title)}</h3><p>${esc(copy)}</p></a>`;
 }
 
 function renderTracks() {
@@ -249,6 +281,7 @@ async function renderTrack(id) {
   setTitle(track.title);
   const minutes = track.lessons.reduce((sum, lesson) => sum + (lesson.minutes || 0), 0);
   view.innerHTML = `${crumbs([["Tracks", "#/tracks"], [track.title]])}
+    ${iconHTML(track.id)}
     ${paradeHTML()}
     <p class="lede">${esc(track.summary)}</p>
     <div class="stat-row">
@@ -517,7 +550,7 @@ async function renderGlossary() {
 async function renderEcosystem() {
   const data = await loadJSON("data/ecosystem.json");
   setTitle("Ecosystem");
-  view.innerHTML = `<p class="lede">${esc(data.summary)}</p>
+  view.innerHTML = `${iconHTML("ecosystem")}<p class="lede">${esc(data.summary)}</p>
     <h2>Neighboring systems</h2>
     <div class="card-grid">${data.sisters.map((item) => `<article class="card"><h3>${esc(item.name)}</h3><p>${esc(item.blurb)}</p>${citeLinks(item.cites)}</article>`).join("")}</div>
     <h2>Where SIP shows up in the UC stack</h2>
@@ -620,6 +653,7 @@ async function render() {
   cleanup = () => {};
   stopNarration();
   const { path, params } = parseHash();
+  document.body.classList.toggle("is-home", path === "#/" || path === "");
   paintNav(path);
   view.setAttribute("aria-busy", "true");
   let stop = () => {};
@@ -657,6 +691,7 @@ async function render() {
   cleanup = typeof stop === "function" ? stop : () => {};
   view.removeAttribute("aria-busy");
   titleEl.setAttribute("tabindex", "-1");
+  applyLang(getSettings().lang || document.documentElement.lang || "en");
 }
 
 function openSettings() {

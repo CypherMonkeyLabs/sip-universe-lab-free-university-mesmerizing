@@ -77,7 +77,8 @@
   // campus/js/audio.js
   var KEY = "sip-universe-settings";
   var DEFAULTS = {
-    theme: "futuristic",
+    theme: "holographic",
+    lang: "en",
     sfx: false,
     narration: false,
     voiceURI: "",
@@ -121,10 +122,13 @@
     const theme = document.querySelector('meta[name="theme-color"]');
     if (theme) {
       const colors = {
-        futuristic: "#07111c",
+        holographic: "#07101f",
+        neon: "#070112",
+        cyberpunk: "#140016",
+        sunset: "#1b0c12",
+        light: "#e7f3ff",
+        futuristic: "#071427",
         gaming: "#120814",
-        neon: "#05060a",
-        light: "#f6f1e7",
         observatory: "#070b14",
         daylight: "#f4f7fb",
         contrast: "#000000",
@@ -251,7 +255,7 @@
       return esc(line);
     }).join("\n");
   }
-  function ladderSVG(flow, active) {
+  function ladderSVG(flow, active2) {
     const parties = flow.parties || [];
     const steps = flow.steps || [];
     const width = Math.max(640, parties.length * 180);
@@ -268,9 +272,9 @@
       const x1 = col * step.from + col / 2;
       const x2 = col * step.to + col / 2;
       const y = top + i * row + 28;
-      const on = i === active ? "is-on" : i < active ? "is-done" : "";
+      const on = i === active2 ? "is-on" : i < active2 ? "is-done" : "";
       const mid = (x1 + x2) / 2;
-      const travel = i === active && !prefersReduced() ? `<circle r="5" fill="var(--cc-accent-3)"><animate attributeName="cx" from="${x1}" to="${x2}" dur="0.9s" repeatCount="indefinite"></animate><animate attributeName="cy" from="${y}" to="${y}" dur="0.9s" repeatCount="indefinite"></animate></circle>` : "";
+      const travel = i === active2 && !prefersReduced() ? `<circle r="5" fill="var(--cc-accent-3)"><animate attributeName="cx" from="${x1}" to="${x2}" dur="0.9s" repeatCount="indefinite"></animate><animate attributeName="cy" from="${y}" to="${y}" dur="0.9s" repeatCount="indefinite"></animate></circle>` : "";
       return `<g class="hop ${on} kind-${esc(step.kind || "req")}">
       <line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="hop-line"></line>
       <polygon points="${x2},${y} ${x2 - Math.sign(x2 - x1) * 10},${y - 5} ${x2 - Math.sign(x2 - x1) * 10},${y + 5}" class="arrow-head"></polygon>
@@ -431,7 +435,7 @@
       const x1 = col * step.from + col / 2;
       const x2 = col * step.to + col / 2;
       const y = top + i * row + 18;
-      return arrow(x1, y, x2, y, step.label) + packet(x1, y, x2, y);
+      return `<g class="hop" data-i="${i}">${arrow(x1, y, x2, y, step.label)}${packet(x1, y, x2, y)}</g>`;
     }).join("");
     return svg(parties.join(" "), w, h, heads + hops);
   }
@@ -969,8 +973,72 @@
   function figureHTML(item) {
     return `<figure class="atlas-fig${item.animated ? " is-animated" : ""}" id="atlas-${esc(item.id)}" data-animated="${item.animated ? "1" : "0"}">
     ${item.draw()}
-    <figcaption><strong>${esc(item.title)}.</strong> ${esc(item.caption)} <a href="${esc(item.cite.url)}">${esc(item.cite.label)}</a></figcaption>
+    <figcaption><strong>${esc(item.title)}.</strong> <span data-i18n="why">Why this matters</span>: ${esc(item.caption)} <a href="${esc(item.cite.url)}">${esc(item.cite.label)}</a></figcaption>
+    <div class="fig-actions"><button type="button" data-enlarge data-i18n="enlarge">Enlarge</button></div>
   </figure>`;
+  }
+  function bindLightbox() {
+    const dialog = document.querySelector("#lightbox");
+    if (!dialog || dialog.dataset.bound) return;
+    dialog.dataset.bound = "1";
+    const stage = dialog.querySelector("#lightbox-stage");
+    const title = dialog.querySelector("#lightbox-title");
+    const legend = dialog.querySelector("#lightbox-legend");
+    const why = dialog.querySelector("#lightbox-why");
+    const stepLabel = dialog.querySelector("#lightbox-step");
+    let step = 0;
+    const hops = () => [...stage.querySelectorAll(".hop")];
+    const show = (n) => {
+      const list = hops();
+      if (!list.length) {
+        stepLabel.textContent = "";
+        return;
+      }
+      step = Math.max(0, Math.min(n, list.length - 1));
+      list.forEach((hop, i) => {
+        hop.style.opacity = i <= step ? "1" : "0.12";
+      });
+      stepLabel.textContent = `${step + 1} / ${list.length}`;
+    };
+    const svg2 = () => stage.querySelector("svg");
+    document.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-enlarge]");
+      if (!btn) return;
+      const fig = btn.closest("figure");
+      if (!fig) return;
+      const source = fig.querySelector("svg, img");
+      stage.replaceChildren();
+      if (source) stage.appendChild(source.cloneNode(true));
+      const heading = fig.querySelector("figcaption strong");
+      title.textContent = heading ? heading.textContent.replace(/\.$/, "") : "Diagram";
+      why.textContent = fig.querySelector("figcaption") ? fig.querySelector("figcaption").textContent : "";
+      const names = [...stage.querySelectorAll("text.d-label")].map((node) => node.textContent.trim()).filter(Boolean);
+      const unique = [...new Set(names)].slice(0, 8);
+      legend.textContent = unique.length ? `Legend: ${unique.join(" \xB7 ")}` : "Legend: the drawing is a static export. The hand-built ladder is the one that steps.";
+      const picture = svg2();
+      if (picture && typeof picture.unpauseAnimations === "function") picture.unpauseAnimations();
+      show(hops().length ? hops().length - 1 : 0);
+      if (!dialog.open) dialog.showModal();
+    });
+    dialog.addEventListener("click", (event) => {
+      const action = event.target.closest("[data-flow]");
+      if (!action) return;
+      const picture = svg2();
+      if (action.dataset.flow === "pause") {
+        if (picture && picture.pauseAnimations) picture.pauseAnimations();
+        return;
+      }
+      if (action.dataset.flow === "play") {
+        hops().forEach((hop) => {
+          hop.style.opacity = "1";
+        });
+        if (picture && picture.unpauseAnimations) picture.unpauseAnimations();
+        stepLabel.textContent = hops().length ? `${hops().length} / ${hops().length}` : "";
+        return;
+      }
+      if (picture && picture.pauseAnimations) picture.pauseAnimations();
+      show(step + 1 >= hops().length ? 0 : step + 1);
+    });
   }
   function mountSpotlight(host) {
     if (!host) return;
@@ -1075,6 +1143,9 @@
     "sw.js",
     "css/app.css",
     "css/flagship.css",
+    "css/visual.css",
+    "audio/architect-use.mp3",
+    "audio/architect-share.mp3",
     "js/app.js",
     "js/audio.js",
     "js/draw.js",
@@ -1161,6 +1232,69 @@
     return files.length;
   }
 
+  // campus/js/icons.js
+  var SPECS = {
+    foundations: [[0, 0, 0, 1.4, 1.4, 2.4], [1.6, 0, 0.2, 0.8, 0.8, 1.1], [-0.2, 0, 1.6, 0.7, 0.7, 0.7]],
+    "sip-core": [[0, 0, 0, 1.6, 1.2, 0.45], [0.15, 0.5, 0.15, 1.3, 1, 0.45], [0.3, 1, 0.3, 1, 0.8, 0.45], [0.45, 1.5, 0.45, 0.7, 0.6, 0.4]],
+    "call-flows": [[0, 0, 0, 0.45, 0.45, 2.2], [2.2, 0, 0, 0.45, 0.45, 2.2], [0.2, 1.5, 0.2, 1.8, 0.28, 0.22], [0.2, 0.7, 0.2, 1.8, 0.28, 0.22]],
+    routing: [[0.4, 0, 0.4, 1.5, 1.5, 0.35], [0.9, 0.4, 0.2, 0.35, 1.2, 1.4], [0.2, 0.4, 0.9, 1.2, 0.35, 1.4]],
+    sdp: [[0, 0, 0, 1.7, 0.35, 1.3], [0.3, 0.2, 0.8, 1.5, 0.3, 1.1], [0.6, 0.4, 1.5, 1.2, 0.28, 0.9]],
+    rtp: [[0, 0, 0.2, 0.55, 0.7, 0.7], [0.8, 0, 0, 0.55, 0.7, 1.3], [1.6, 0, 0.3, 0.55, 0.7, 0.9], [2.4, 0, 0.1, 0.55, 0.7, 1.6]],
+    security: [[0.2, 0, 0.2, 1.6, 1.4, 0.4], [0.45, 0.45, 0.45, 1.1, 0.95, 1.5], [0.75, 1.9, 0.75, 0.5, 0.4, 0.45]],
+    nat: [[0, 0, 0, 1.1, 1.3, 1.5], [1.5, 0, 0.4, 1.1, 1.3, 1.5], [0.7, 0.3, 1.3, 0.7, 0.35, 0.35]],
+    sbc: [[0, 0, 0.6, 0.5, 1.4, 1.8], [2, 0, 0.6, 0.5, 1.4, 1.8], [0.5, 0.7, 0.3, 1.5, 0.4, 0.7]],
+    cisco: [[0.3, 0, 0.3, 1.8, 1.8, 0.7], [0.7, 0.75, 0.7, 1, 1, 0.9], [1.05, 1.7, 1.05, 0.35, 0.35, 0.55]],
+    multivendor: [[0, 0, 0, 0.8, 0.8, 0.8], [1.5, 0, 0.4, 0.8, 0.8, 1.2], [0.5, 0, 1.6, 0.8, 0.8, 1.5], [1.7, 0.2, 1.5, 0.6, 0.6, 0.6]],
+    cloud: [[0.2, 0, 0.6, 0.7, 0.7, 0.9], [1, 0.35, 0.3, 0.9, 0.8, 0.7], [1.7, 0.15, 1, 0.75, 0.7, 0.85], [0.8, 0.7, 1.2, 0.6, 0.55, 0.5]],
+    troubleshoot: [[0.8, 0, 0.8, 0.7, 0.7, 0.35], [0.95, 0.4, 0.95, 0.4, 0.4, 1.5], [0.2, 1.5, 0.5, 1.5, 0.28, 0.22]],
+    operations: [[0.15, 0, 0.15, 2, 2, 0.3], [0.7, 0.35, 0.7, 0.9, 0.9, 0.35], [1, 0.75, 1, 0.28, 0.28, 0.9]],
+    ecosystem: [[0.9, 0, 0.9, 0.7, 0.7, 0.7], [0, 0, 0.2, 0.55, 0.55, 0.55], [1.8, 0, 0.3, 0.55, 0.55, 0.9], [0.3, 0, 1.7, 0.55, 0.55, 1.1], [1.6, 0, 1.6, 0.5, 0.5, 0.5]],
+    capstone: [[0.85, 0, 0.85, 0.8, 0.8, 1.6], [0.2, 0.9, 0.85, 2.1, 0.35, 0.35], [0.85, 0.9, 0.2, 0.35, 2.1, 0.35]]
+  };
+  var TONES = [
+    ["var(--cc-accent-1)", "color-mix(in srgb, var(--cc-accent-1) 62%, #05060c)", "color-mix(in srgb, var(--cc-accent-2) 70%, #05060c)"],
+    ["var(--cc-accent-2)", "color-mix(in srgb, var(--cc-accent-2) 60%, #05060c)", "color-mix(in srgb, var(--cc-accent-3) 68%, #05060c)"],
+    ["var(--cc-accent-3)", "color-mix(in srgb, var(--cc-accent-3) 58%, #05060c)", "color-mix(in srgb, var(--cc-accent-4) 70%, #05060c)"],
+    ["var(--cc-accent-4)", "color-mix(in srgb, var(--cc-accent-4) 55%, #05060c)", "color-mix(in srgb, var(--cc-accent-1) 66%, #05060c)"]
+  ];
+  function project(x, y, z) {
+    return [120 + (x - z) * 26, 138 - y * 24 + (x + z) * 13];
+  }
+  function face(points, fill) {
+    const d = points.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" ") + " Z";
+    return `<path d="${d}" fill="${fill}" stroke="rgba(5,8,16,0.55)" stroke-width="1.1" stroke-linejoin="round"></path>`;
+  }
+  function prism(x, y, z, w, d, h, tone) {
+    const colors = TONES[tone % TONES.length];
+    const a = project(x, y, z);
+    const b = project(x + w, y, z);
+    const c = project(x + w, y, z + d);
+    const dp = project(x, y, z + d);
+    const a2 = project(x, y + h, z);
+    const b2 = project(x + w, y + h, z);
+    const c2 = project(x + w, y + h, z + d);
+    const d2 = project(x, y + h, z + d);
+    return face([b, c, c2, b2], colors[1]) + face([a, dp, d2, a2], colors[2]) + face([a2, b2, c2, d2], colors[0]);
+  }
+  function iconHTML(id) {
+    const parts = SPECS[id] || SPECS.foundations;
+    const body = parts.map((part, i) => prism(part[0], part[1], part[2], part[3], part[4], part[5], i + id.length % 3)).join("");
+    const safe = String(id).replace(/[^a-z0-9-]/gi, "") || "icon";
+    return `<span class="iso" data-iso="${safe}" aria-hidden="true"><svg viewBox="0 0 240 210">
+    <defs>
+      <radialGradient id="glow-${safe}" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="var(--cc-accent-1)" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="var(--cc-accent-2)" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="soft-${safe}" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="14" stdDeviation="6" flood-color="#02040a" flood-opacity="0.55"/>
+      </filter>
+    </defs>
+    <ellipse cx="120" cy="168" rx="62" ry="16" fill="url(#glow-${safe})"></ellipse>
+    <g filter="url(#soft-${safe})">${body}</g>
+  </svg></span>`;
+  }
+
   // campus/js/play.js
   function cardSvg({ title, lines }) {
     const body = lines.map((line, i) => `<text x="48" y="${230 + i * 40}" fill="#e8f6ff" font-size="26" font-family="ui-sans-serif,system-ui,sans-serif">${esc(line)}</text>`).join("");
@@ -1201,11 +1335,11 @@
     ctx2.setTitle("Practice");
     view2.innerHTML = `<p class="lede">Short drills with the same facts as the lessons. Scores stay in this browser.</p>
     <div class="card-grid">
-      <a class="card" href="#/play/ports"><span class="kicker">Game</span><h3>Ports mastery</h3><p>Eight questions from the checked port table.</p></a>
-      <a class="card" href="#/play/builder"><span class="kicker">Sandbox</span><h3>Build a call flow</h3><p>Add parties and hops. The ladder is the same engine as the lessons.</p></a>
-      <a class="card" href="#/explorer"><span class="kicker">Map</span><h3>Flow explorer</h3><p>Click a node. Read the protocol and the citation.</p></a>
-      <a class="card" href="#/play/daily"><span class="kicker">Daily</span><h3>Daily challenge</h3><p>Three questions chosen from the date. Same set until tomorrow UTC.</p></a>
-      <a class="card" href="#/badges"><span class="kicker">Badges</span><h3>Badges</h3><p>Earned only when you do the thing.</p></a>
+      <a class="card" href="#/play/ports">${iconHTML("nat")}<span class="kicker">Game</span><h3>Ports mastery</h3><p>Eight questions from the checked port table.</p></a>
+      <a class="card" href="#/play/builder">${iconHTML("call-flows")}<span class="kicker">Sandbox</span><h3>Build a call flow</h3><p>Add parties and hops. The ladder is the same engine as the lessons.</p></a>
+      <a class="card" href="#/explorer">${iconHTML("routing")}<span class="kicker">Map</span><h3>Flow explorer</h3><p>Click a node. Read the protocol and the citation.</p></a>
+      <a class="card" href="#/play/daily">${iconHTML("operations")}<span class="kicker">Daily</span><h3>Daily challenge</h3><p>Three questions chosen from the date. Same set until tomorrow UTC.</p></a>
+      <a class="card" href="#/badges">${iconHTML("capstone")}<span class="kicker">Badges</span><h3>Badges</h3><p>Earned only when you do the thing.</p></a>
     </div>`;
     return () => {
     };
@@ -1507,9 +1641,11 @@
       const y = 10 + i * rowH;
       const w = Math.max(4, widthOf(row.value));
       const suffix = unit ? ` ${unit}` : "";
+      const tip = `${row.label}: ${row.value}${suffix}`;
       return `<text x="12" y="${y + 14}" class="d-sub">${esc(row.label)}</text>
       <text x="548" y="${y + 14}" text-anchor="end" class="d-sub">${esc(String(row.value))}${esc(suffix)}</text>
-      <rect x="12" y="${y + 20}" width="${w.toFixed(1)}" height="12" rx="4" fill="var(--cc-accent-1)" opacity="0.9"></rect>`;
+      <rect data-tip="${esc(tip)}" x="12" y="${y + 16}" width="536" height="22" fill="transparent"></rect>
+      <rect class="bar" data-tip="${esc(tip)}" x="12" y="${y + 22}" width="${w.toFixed(1)}" height="12" rx="4" fill="var(--cc-accent-1)" opacity="0.9"></rect>`;
     }).join("");
     return `<svg class="chart-svg" viewBox="0 0 560 ${h}" role="img" aria-label="${esc(label)}">
     <rect width="560" height="${h}" rx="12" fill="var(--cc-bg)" stroke="var(--cc-line)"></rect>
@@ -1569,6 +1705,59 @@
       ${chartMarkup(chart.id, catalog2, ports)}
       <figcaption><strong>${esc(chart.title)}.</strong> ${esc(chart.source)}</figcaption>
     </figure>`).join("")}</div>`;
+  }
+  function bindChartTips(root) {
+    if (!root) return () => {
+    };
+    const grids = [...root.querySelectorAll(".chart-grid")];
+    const stops = grids.map((grid) => {
+      const tip = document.createElement("div");
+      tip.className = "chart-tip";
+      tip.hidden = true;
+      grid.appendChild(tip);
+      const move = (event) => {
+        const el = event.target.closest("[data-tip]");
+        if (!el || !grid.contains(el)) {
+          tip.hidden = true;
+          return;
+        }
+        tip.hidden = false;
+        tip.textContent = el.dataset.tip;
+        const rect = grid.getBoundingClientRect();
+        tip.style.left = `${Math.min(event.clientX - rect.left + 12, rect.width - 160)}px`;
+        tip.style.top = `${event.clientY - rect.top + 14}px`;
+      };
+      const leave = () => {
+        tip.hidden = true;
+      };
+      grid.addEventListener("pointermove", move);
+      grid.addEventListener("pointerleave", leave);
+      return () => {
+        grid.removeEventListener("pointermove", move);
+        grid.removeEventListener("pointerleave", leave);
+      };
+    });
+    return () => stops.forEach((fn) => fn());
+  }
+  function animateCharts(root) {
+    if (!root || document.documentElement.dataset.motion === "reduce") return;
+    const anime = globalThis.anime;
+    if (!anime || typeof anime.animate !== "function") return;
+    root.querySelectorAll(".chart-svg rect.bar").forEach((rect, index) => {
+      const width = Number(rect.getAttribute("width")) || 0;
+      const state = { w: 0 };
+      rect.setAttribute("width", "0");
+      try {
+        anime.animate(state, {
+          w: width,
+          duration: 700,
+          delay: index * 20,
+          onUpdate: () => rect.setAttribute("width", state.w.toFixed(1))
+        });
+      } catch {
+        rect.setAttribute("width", String(width));
+      }
+    });
   }
   function paintRoughTotals(root, catalog2) {
     const svg2 = root.querySelector("#chart-totals");
@@ -1751,6 +1940,209 @@
     });
   }
 
+  // campus/js/i18n.js
+  var LANGS = [
+    { id: "en", label: "English", dir: "ltr" },
+    { id: "es", label: "Espa\xF1ol", dir: "ltr" },
+    { id: "hi", label: "\u0939\u093F\u0928\u094D\u0926\u0940", dir: "ltr" },
+    { id: "te", label: "\u0C24\u0C46\u0C32\u0C41\u0C17\u0C41", dir: "ltr" },
+    { id: "fr", label: "Fran\xE7ais", dir: "ltr" },
+    { id: "de", label: "Deutsch", dir: "ltr" },
+    { id: "ja", label: "\u65E5\u672C\u8A9E", dir: "ltr" },
+    { id: "ar", label: "\u0627\u0644\u0639\u0631\u0628\u064A\u0629", dir: "rtl" }
+  ];
+  var STR = {
+    en: {
+      diagrams: "Diagrams",
+      flows: "Flows",
+      charts: "Charts",
+      cheats: "Cheat Codes",
+      play: "Play",
+      ecosystem: "Ecosystem",
+      downloads: "Downloads",
+      careers: "Careers",
+      regions: "Regions",
+      tagline: "Signaling, media, borders",
+      greeting: "Follow the signal.",
+      heroLead: "Call path, ladders, and borders.",
+      start: "Start at the protocol",
+      openAtlas: "Open the diagrams",
+      listen: "Play the architect clip",
+      search: "Search PRACK, CUBE, 488\u2026",
+      audioTitle: "Architect notes",
+      enlarge: "Enlarge",
+      why: "Why this matters"
+    },
+    es: {
+      diagrams: "Diagramas",
+      flows: "Flujos",
+      charts: "Gr\xE1ficos",
+      cheats: "Chuletas",
+      play: "Practicar",
+      ecosystem: "Ecosistema",
+      downloads: "Descargas",
+      careers: "Carreras",
+      regions: "Regiones",
+      tagline: "Se\xF1alizaci\xF3n, medios, fronteras",
+      greeting: "Sigue la se\xF1alizaci\xF3n.",
+      heroLead: "Ruta de llamada, escaleras y fronteras.",
+      start: "Empieza por el protocolo",
+      openAtlas: "Abrir diagramas",
+      listen: "O\xEDr a los arquitectos",
+      search: "Buscar PRACK, CUBE, 488\u2026",
+      audioTitle: "Notas del arquitecto",
+      enlarge: "Ampliar",
+      why: "Por qu\xE9 importa"
+    },
+    hi: {
+      diagrams: "\u0906\u0930\u0947\u0916",
+      flows: "\u092A\u094D\u0930\u0935\u093E\u0939",
+      charts: "\u091A\u093E\u0930\u094D\u091F",
+      cheats: "\u091A\u0940\u091F \u0915\u094B\u0921",
+      play: "\u0905\u092D\u094D\u092F\u093E\u0938",
+      ecosystem: "\u092A\u093E\u0930\u093F\u0938\u094D\u0925\u093F\u0924\u093F\u0915\u0940",
+      downloads: "\u0921\u093E\u0909\u0928\u0932\u094B\u0921",
+      careers: "\u0915\u0930\u093F\u092F\u0930",
+      regions: "\u0915\u094D\u0937\u0947\u0924\u094D\u0930",
+      tagline: "\u0938\u093F\u0917\u094D\u0928\u0932\u093F\u0902\u0917, \u092E\u0940\u0921\u093F\u092F\u093E, \u092C\u0949\u0930\u094D\u0921\u0930",
+      greeting: "\u0938\u093F\u0917\u094D\u0928\u0932 \u0915\u093E \u0905\u0928\u0941\u0938\u0930\u0923 \u0915\u0930\u0947\u0902\u0964",
+      heroLead: "\u0915\u0949\u0932 \u092A\u0925, \u0932\u0948\u0921\u0930, \u0914\u0930 \u092C\u0949\u0930\u094D\u0921\u0930\u0964",
+      start: "\u092A\u094D\u0930\u094B\u091F\u094B\u0915\u0949\u0932 \u0938\u0947 \u0936\u0941\u0930\u0942 \u0915\u0930\u0947\u0902",
+      openAtlas: "\u0906\u0930\u0947\u0916 \u0916\u094B\u0932\u0947\u0902",
+      listen: "\u0906\u0930\u094D\u0915\u093F\u091F\u0947\u0915\u094D\u091F \u0915\u094D\u0932\u093F\u092A \u091A\u0932\u093E\u090F\u0901",
+      search: "PRACK, CUBE, 488 \u0916\u094B\u091C\u0947\u0902\u2026",
+      audioTitle: "\u0906\u0930\u094D\u0915\u093F\u091F\u0947\u0915\u094D\u091F \u0928\u094B\u091F\u094D\u0938",
+      enlarge: "\u092C\u0921\u093C\u093E \u0915\u0930\u0947\u0902",
+      why: "\u092F\u0939 \u0915\u094D\u092F\u094B\u0902 \u092E\u093E\u092F\u0928\u0947 \u0930\u0916\u0924\u093E \u0939\u0948"
+    },
+    te: {
+      diagrams: "\u0C2A\u0C1F\u0C3E\u0C32\u0C41",
+      flows: "\u0C2A\u0C4D\u0C30\u0C35\u0C3E\u0C39\u0C3E\u0C32\u0C41",
+      charts: "\u0C1A\u0C3E\u0C30\u0C4D\u0C1F\u0C41\u0C32\u0C41",
+      cheats: "\u0C1A\u0C40\u0C1F\u0C4D \u0C15\u0C4B\u0C21\u0C4D\u0C38\u0C4D",
+      play: "\u0C05\u0C2D\u0C4D\u0C2F\u0C3E\u0C38\u0C02",
+      ecosystem: "\u0C2A\u0C30\u0C4D\u0C2F\u0C3E\u0C35\u0C30\u0C23\u0C02",
+      downloads: "\u0C21\u0C4C\u0C28\u0C4D\u200C\u0C32\u0C4B\u0C21\u0C4D\u0C32\u0C41",
+      careers: "\u0C15\u0C46\u0C30\u0C40\u0C30\u0C4D",
+      regions: "\u0C2A\u0C4D\u0C30\u0C3E\u0C02\u0C24\u0C3E\u0C32\u0C41",
+      tagline: "\u0C38\u0C3F\u0C17\u0C4D\u0C28\u0C32\u0C3F\u0C02\u0C17\u0C4D, \u0C2E\u0C40\u0C21\u0C3F\u0C2F\u0C3E, \u0C2C\u0C3E\u0C30\u0C4D\u0C21\u0C30\u0C4D\u0C32\u0C41",
+      greeting: "\u0C38\u0C3F\u0C17\u0C4D\u0C28\u0C32\u0C4D\u200C\u0C28\u0C41 \u0C05\u0C28\u0C41\u0C38\u0C30\u0C3F\u0C02\u0C1A\u0C02\u0C21\u0C3F.",
+      heroLead: "\u0C15\u0C3E\u0C32\u0C4D \u0C2A\u0C3E\u0C24\u0C4D, \u0C32\u0C3E\u0C21\u0C30\u0C4D\u0C32\u0C41, \u0C2C\u0C3E\u0C30\u0C4D\u0C21\u0C30\u0C4D\u0C32\u0C41.",
+      start: "\u0C2A\u0C4D\u0C30\u0C4B\u0C1F\u0C4B\u0C15\u0C3E\u0C32\u0C4D \u0C35\u0C26\u0C4D\u0C26 \u0C2A\u0C4D\u0C30\u0C3E\u0C30\u0C02\u0C2D\u0C3F\u0C02\u0C1A\u0C02\u0C21\u0C3F",
+      openAtlas: "\u0C2A\u0C1F\u0C3E\u0C32\u0C41 \u0C24\u0C46\u0C30\u0C35\u0C02\u0C21\u0C3F",
+      listen: "\u0C06\u0C30\u0C4D\u0C15\u0C3F\u0C1F\u0C46\u0C15\u0C4D\u0C1F\u0C4D \u0C15\u0C4D\u0C32\u0C3F\u0C2A\u0C4D \u0C2A\u0C4D\u0C32\u0C47 \u0C1A\u0C47\u0C2F\u0C02\u0C21\u0C3F",
+      search: "PRACK, CUBE, 488 \u0C35\u0C46\u0C24\u0C15\u0C02\u0C21\u0C3F\u2026",
+      audioTitle: "\u0C06\u0C30\u0C4D\u0C15\u0C3F\u0C1F\u0C46\u0C15\u0C4D\u0C1F\u0C4D \u0C28\u0C4B\u0C1F\u0C4D\u0C38\u0C4D",
+      enlarge: "\u0C2A\u0C46\u0C26\u0C4D\u0C26\u0C26\u0C3F\u0C17\u0C3E",
+      why: "\u0C07\u0C26\u0C3F \u0C0E\u0C02\u0C26\u0C41\u0C15\u0C41 \u0C2E\u0C41\u0C16\u0C4D\u0C2F\u0C02"
+    },
+    fr: {
+      diagrams: "Sch\xE9mas",
+      flows: "Flux",
+      charts: "Graphiques",
+      cheats: "Antis\xE8ches",
+      play: "Jouer",
+      ecosystem: "\xC9cosyst\xE8me",
+      downloads: "T\xE9l\xE9chargements",
+      careers: "Parcours",
+      regions: "R\xE9gions",
+      tagline: "Signalisation, m\xE9dia, fronti\xE8res",
+      greeting: "Suivez la signalisation.",
+      heroLead: "Chemin d'appel, \xE9chelles et fronti\xE8res.",
+      start: "Commencer par le protocole",
+      openAtlas: "Ouvrir les sch\xE9mas",
+      listen: "\xC9couter les architectes",
+      search: "Chercher PRACK, CUBE, 488\u2026",
+      audioTitle: "Notes d'architecte",
+      enlarge: "Agrandir",
+      why: "Pourquoi c'est important"
+    },
+    de: {
+      diagrams: "Diagramme",
+      flows: "Abl\xE4ufe",
+      charts: "Schaubilder",
+      cheats: "Spickzettel",
+      play: "\xDCben",
+      ecosystem: "\xD6kosystem",
+      downloads: "Downloads",
+      careers: "Laufbahn",
+      regions: "Regionen",
+      tagline: "Signalisierung, Medien, Grenzen",
+      greeting: "Folge der Signalisierung.",
+      heroLead: "Rufpfad, Leitern und Grenzen.",
+      start: "Beim Protokoll starten",
+      openAtlas: "Diagramme \xF6ffnen",
+      listen: "Architektengespr\xE4ch abspielen",
+      search: "PRACK, CUBE, 488 suchen\u2026",
+      audioTitle: "Architektennotizen",
+      enlarge: "Vergr\xF6\xDFern",
+      why: "Warum das z\xE4hlt"
+    },
+    ja: {
+      diagrams: "\u56F3",
+      flows: "\u30D5\u30ED\u30FC",
+      charts: "\u30B0\u30E9\u30D5",
+      cheats: "\u65E9\u898B\u8868",
+      play: "\u7DF4\u7FD2",
+      ecosystem: "\u30A8\u30B3\u30B7\u30B9\u30C6\u30E0",
+      downloads: "\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9",
+      careers: "\u30AD\u30E3\u30EA\u30A2",
+      regions: "\u5730\u57DF",
+      tagline: "\u30B7\u30B0\u30CA\u30EA\u30F3\u30B0\u3001\u30E1\u30C7\u30A3\u30A2\u3001\u5883\u754C",
+      greeting: "\u4FE1\u53F7\u3092\u8FFD\u3046\u3002",
+      heroLead: "\u30B3\u30FC\u30EB\u30D1\u30B9\u3001\u30E9\u30C0\u30FC\u3001\u30DC\u30FC\u30C0\u30FC\u3002",
+      start: "\u30D7\u30ED\u30C8\u30B3\u30EB\u304B\u3089\u59CB\u3081\u308B",
+      openAtlas: "\u56F3\u3092\u958B\u304F",
+      listen: "\u5EFA\u7BC9\u5BB6\u30AF\u30EA\u30C3\u30D7\u3092\u518D\u751F",
+      search: "PRACK\u3001CUBE\u3001488 \u3092\u691C\u7D22\u2026",
+      audioTitle: "\u30A2\u30FC\u30AD\u30C6\u30AF\u30C8\u306E\u30E1\u30E2",
+      enlarge: "\u62E1\u5927",
+      why: "\u306A\u305C\u91CD\u8981\u304B"
+    },
+    ar: {
+      diagrams: "\u0627\u0644\u0645\u062E\u0637\u0637\u0627\u062A",
+      flows: "\u0627\u0644\u062A\u062F\u0641\u0642\u0627\u062A",
+      charts: "\u0627\u0644\u0631\u0633\u0648\u0645",
+      cheats: "\u0623\u0648\u0631\u0627\u0642 \u0627\u0644\u0645\u0631\u062C\u0639",
+      play: "\u062A\u062F\u0631\u064A\u0628",
+      ecosystem: "\u0627\u0644\u0645\u0646\u0638\u0648\u0645\u0629",
+      downloads: "\u0627\u0644\u062A\u0646\u0632\u064A\u0644\u0627\u062A",
+      careers: "\u0627\u0644\u0645\u0633\u0627\u0631\u0627\u062A",
+      regions: "\u0627\u0644\u0645\u0646\u0627\u0637\u0642",
+      tagline: "\u0625\u0634\u0627\u0631\u0627\u062A \u0648\u0648\u0633\u0627\u0626\u0637 \u0648\u062D\u062F\u0648\u062F",
+      greeting: "\u0627\u062A\u0628\u0639 \u0627\u0644\u0625\u0634\u0627\u0631\u0629.",
+      heroLead: "\u0645\u0633\u0627\u0631 \u0627\u0644\u0646\u062F\u0627\u0621\u060C \u0648\u0627\u0644\u0633\u0644\u0627\u0644\u0645\u060C \u0648\u0627\u0644\u062D\u062F\u0648\u062F.",
+      start: "\u0627\u0628\u062F\u0623 \u0645\u0646 \u0627\u0644\u0628\u0631\u0648\u062A\u0648\u0643\u0648\u0644",
+      openAtlas: "\u0627\u0641\u062A\u062D \u0627\u0644\u0645\u062E\u0637\u0637\u0627\u062A",
+      listen: "\u062A\u0634\u063A\u064A\u0644 \u062D\u0648\u0627\u0631 \u0627\u0644\u0645\u0639\u0645\u0627\u0631\u064A\u064A\u0646",
+      search: "\u0627\u0628\u062D\u062B \u0639\u0646 PRACK \u0623\u0648 CUBE \u0623\u0648 488\u2026",
+      audioTitle: "\u0645\u0644\u0627\u062D\u0638\u0627\u062A \u0627\u0644\u0645\u0639\u0645\u0627\u0631\u064A",
+      enlarge: "\u062A\u0643\u0628\u064A\u0631",
+      why: "\u0644\u0645\u0627\u0630\u0627 \u0647\u0630\u0627 \u0645\u0647\u0645"
+    }
+  };
+  var active = "en";
+  function t(key) {
+    return STR[active] && STR[active][key] || STR.en[key] || key;
+  }
+  function applyLang(lang) {
+    const meta = LANGS.find((item) => item.id === lang) || LANGS[0];
+    active = meta.id;
+    document.documentElement.lang = meta.id;
+    document.documentElement.dir = meta.dir;
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      const value = t(el.dataset.i18n);
+      if (value) el.textContent = value;
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+      el.setAttribute("placeholder", t(el.dataset.i18nPlaceholder));
+    });
+    const sel = document.querySelector("#lang");
+    if (sel && sel.value !== meta.id) sel.value = meta.id;
+    const line = document.querySelector("#mascot-line");
+    if (line) line.textContent = t("greeting");
+  }
+
   // campus/js/field.js
   var BADGE_KEY = "sip-universe-badges";
   var BADGES = [
@@ -1789,20 +2181,32 @@
     { id: "think", line: "Port 0 means rejected." },
     { id: "cheer", line: "ACK the 200." }
   ];
+  var LOOKS = ["classic", "visor", "phones", "scarf"];
+  function paintLook() {
+    const mascot = document.querySelector("#mascot");
+    if (!mascot) return;
+    const theme = document.documentElement.dataset.theme || "holographic";
+    const map = { holographic: 1, neon: 2, cyberpunk: 2, sunset: 3, light: 0, futuristic: 1, gaming: 2, observatory: 0, daylight: 0, contrast: 0, phosphor: 1 };
+    const shift = Math.floor(Date.now() / 18e4);
+    mascot.dataset.look = LOOKS[((map[theme] ?? 0) + shift) % LOOKS.length];
+  }
   function startMascot() {
     const mascot = document.querySelector("#mascot");
     const line = document.querySelector("#mascot-line");
     if (!mascot || !line) return;
     let index = 0;
     const tick = () => {
+      paintLook();
       if (document.documentElement.dataset.motion === "reduce") return;
       const pose = POSES[index % POSES.length];
       mascot.dataset.pose = pose.id;
-      line.textContent = pose.line;
+      if (index % POSES.length !== 0) line.textContent = pose.line;
       index += 1;
     };
     tick();
     window.setInterval(tick, 7e3);
+    window.setInterval(paintLook, 6e4);
+    onSettings(paintLook);
   }
   var KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
   function bindKonami() {
@@ -1830,7 +2234,11 @@
       });
     };
     document.querySelectorAll("[data-set-theme]").forEach((button) => {
-      button.addEventListener("click", () => saveSettings({ theme: button.dataset.setTheme }));
+      button.addEventListener("click", () => {
+        const theme = button.dataset.setTheme;
+        if (theme !== "light") localStorage.setItem("sip-universe-dark", theme);
+        saveSettings({ theme });
+      });
     });
     onSettings(paint2);
     paint2();
@@ -1860,13 +2268,45 @@
       button.addEventListener("click", run);
     });
   }
+  function bindLang() {
+    const lang = document.querySelector("#lang");
+    if (lang) {
+      lang.value = getSettings().lang || "en";
+      lang.addEventListener("change", () => {
+        saveSettings({ lang: lang.value });
+        applyLang(lang.value);
+      });
+    }
+    const toggle = document.querySelector("#theme-toggle");
+    const paintToggle = () => {
+      if (!toggle) return;
+      const theme = getSettings().theme;
+      const light = theme === "light" || theme === "daylight";
+      toggle.textContent = light ? "Dark" : "Light";
+      toggle.setAttribute("aria-pressed", light ? "true" : "false");
+    };
+    toggle?.addEventListener("click", () => {
+      const theme = getSettings().theme;
+      if (theme === "light" || theme === "daylight") saveSettings({ theme: localStorage.getItem("sip-universe-dark") || "holographic" });
+      else {
+        localStorage.setItem("sip-universe-dark", theme);
+        saveSettings({ theme: "light" });
+      }
+    });
+    onSettings((settings2) => applyLang(settings2.lang || "en"));
+    onSettings(paintToggle);
+    paintToggle();
+    applyLang(getSettings().lang || "en");
+  }
   function bindChrome(catalog2) {
     startMascot();
     bindKonami();
     bindSwatches();
+    bindLang();
     bindProgressBar();
     bindOffline(catalog2);
     bindMenuKeys(document);
+    bindLightbox();
   }
   function blockHTML(block) {
     if (block.type === "checklist") {
@@ -1921,11 +2361,38 @@
       <h2>Topic map</h2>
       <div id="mind-host"></div>`;
       paintRoughTotals(view2, ctx2.catalog);
+      animateCharts(view2);
       const stopMind = mountMind(view2.querySelector("#mind-host"));
       const stopParade = bindParade(view2);
+      const stopTips = bindChartTips(view2);
       return () => {
         stopParade();
         stopMind();
+        stopTips();
+      };
+    }
+    if (path === "#/regions") {
+      ctx2.setTitle("Regions");
+      view2.innerHTML = `<p class="lede">SIP itself has no country. What follows is either a cited fact or marked as an example.</p>
+      <h2>Cited</h2>
+      <ul>
+        <li>SIP creates, modifies, and ends sessions. <a href="https://www.rfc-editor.org/rfc/rfc3261">RFC 3261</a>. It does not name a country, a carrier, or a data-residency region.</li>
+        <li>Public telephone numbers follow ITU-T E.164. This page does not restate national numbering plans.</li>
+        <li>United States multi-line telephone systems: FCC MLTS rules, and <a href="https://www.rfc-editor.org/rfc/rfc6881">RFC 6881</a> as a best current practice for emergency services. This is not legal advice.</li>
+        <li>Microsoft Teams Direct Routing, Microsoft Learn, fetched 2026-10-15: signaling TCP 5061 toward sip.pstnhub.microsoft.com, sip2.pstnhub.microsoft.com, and sip3.pstnhub.microsoft.com. Media UDP 3478\u20133481 and 49152\u201353247. Ranges 52.112.0.0/14 and 52.120.0.0/14. Those are Microsoft cloud addresses, not a map of countries.</li>
+      </ul>
+      <h2>Example region board</h2>
+      <p class="callout">Example only. Not coverage, not a carrier map, and not a data-residency guarantee. A calling code does not mean this campus or any SBC serves that place.</p>
+      <div class="region-board">
+        <article class="card"><p class="region-flag" aria-hidden="true">\u{1F1FA}\u{1F1F8}</p><h3>NANP</h3><p>+1</p><p class="fine">Example symbol. Not a coverage claim.</p></article>
+        <article class="card"><p class="region-flag" aria-hidden="true">\u{1F1EA}\u{1F1FA}</p><h3>Europe</h3><p>+33 \xB7 +49</p><p class="fine">Example symbols. Not a coverage claim.</p></article>
+        <article class="card"><p class="region-flag" aria-hidden="true">\u{1F1EE}\u{1F1F3}</p><h3>India</h3><p>+91</p><p class="fine">Example symbol. Not a coverage claim.</p></article>
+        <article class="card"><p class="region-flag" aria-hidden="true">\u{1F1EF}\u{1F1F5}</p><h3>Japan</h3><p>+81</p><p class="fine">Example symbol. Not a coverage claim.</p></article>
+        <article class="card"><p class="region-flag" aria-hidden="true">\u{1F1E6}\u{1F1EA}</p><h3>UAE</h3><p>+971</p><p class="fine">Example symbol. Not a coverage claim.</p></article>
+        <article class="card"><p class="region-flag" aria-hidden="true">\u{1F1E7}\u{1F1F7}</p><h3>Brazil</h3><p>+55</p><p class="fine">Example symbol. Not a coverage claim.</p></article>
+      </div>
+      <p class="fine">Where a recording or a trunk is stored is a product and contract question. Unverified here.</p>`;
+      return () => {
       };
     }
     if (path === "#/ports") {
@@ -1946,8 +2413,9 @@
     if (path === "#/downloads") {
       const manifest = await loadJSON("downloads/manifest.json");
       ctx2.setTitle("Cheat codes");
-      view2.innerHTML = `<p class="lede">One-page sheets and a printable flashcard deck, generated into this repo. Each file carries the campus footer. No email. No LinkedIn.</p>
+      view2.innerHTML = `<p class="lede">One-page sheets and a printable flashcard deck, generated into this repo. Each file carries the campus footer.</p>
       <div class="card-grid">${manifest.items.map((item) => `<article class="card">
+        ${iconHTML("operations")}
         <span class="kicker">${esc(item.topic)}</span>
         <h3>${esc(item.title)}</h3>
         <p>${esc(item.blurb)}</p>
@@ -2017,7 +2485,8 @@
     if (!section) return null;
     ctx2.setTitle(section.title);
     const trackList = id === "roadmap" && ctx2.catalog ? `<h2>Track order</h2><ol>${ctx2.catalog.tracks.map((track) => `<li><a href="#/track/${esc(track.id)}">${esc(track.title)}</a></li>`).join("")}</ol>` : "";
-    view2.innerHTML = `<p class="crumbs"><a href="#/guide">Field guide</a> / ${esc(section.title)}</p>
+    const banner = id === "career" ? iconHTML("capstone") : "";
+    view2.innerHTML = `${banner}<p class="crumbs"><a href="#/guide">Field guide</a> / ${esc(section.title)}</p>
     <p class="lede">${esc(section.summary)}</p>
     ${section.blocks.map(blockHTML).join("")}
     ${trackList}`;
@@ -2336,12 +2805,12 @@
     return m ? m[1] : null;
   }
   function ruleMatchesMessage(token, start) {
-    const t = String(token || "ANY").toUpperCase();
-    if (t === "ANY") return true;
+    const t2 = String(token || "ANY").toUpperCase();
+    if (t2 === "ANY") return true;
     const method = requestMethod(start);
     const code = responseCode(start);
-    if (method) return t === method;
-    if (code) return t === code || t === code[0] + "XX";
+    if (method) return t2 === method;
+    if (code) return t2 === code || t2 === code[0] + "XX";
     return false;
   }
   function applyCube(rulesText, message) {
@@ -2796,7 +3265,7 @@
     let camera = null;
     let THREE = null;
     const sph = { r: 13.5, theta: 0.5, phi: 1.05 };
-    const reduced2 = prefersReduced();
+    const reduced3 = prefersReduced();
     function placeCamera() {
       if (!camera) return;
       camera.position.set(
@@ -2835,7 +3304,7 @@
       host.querySelector("#topo-detail").innerHTML = `<h3>${esc(node.label)}</h3><p>Select a failure to see how this node\u2019s paths change. Labels are a teaching map, not a discovery scan.</p>`;
     });
     applyFailure();
-    if (reduced2) {
+    if (reduced3) {
       host.querySelector("#topo-mode").textContent = "Reduced motion is on, so the flat map is the view. Turn motion back on in Settings to orbit the 3D model.";
       return () => {
       };
@@ -2942,6 +3411,307 @@
         stop = true;
       };
     }
+  }
+
+  // campus/js/hero.js
+  var LABELS = ["UA", "SBC", "DNS", "PSTN", "TURN", "RTP"];
+  function reduced2() {
+    return document.documentElement.dataset.motion === "reduce";
+  }
+  function hasWebGL() {
+    try {
+      const test = document.createElement("canvas");
+      return !!(window.WebGLRenderingContext && (test.getContext("webgl2") || test.getContext("webgl")));
+    } catch {
+      return false;
+    }
+  }
+  function cssHex(name, fallback) {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return /^#[0-9a-fA-F]{6}$/.test(raw) ? raw : fallback;
+  }
+  function loadThree2() {
+    if (window.THREE) return Promise.resolve(window.THREE);
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "vendor/three.min.js";
+      script.onload = () => resolve(window.THREE);
+      script.onerror = () => reject(new Error("Three.js did not load"));
+      document.head.appendChild(script);
+    });
+  }
+  function fallbackMarkup() {
+    const nodes = LABELS.map((name, i) => `<span class="fb-node" style="--a:${i * 60}deg">${name}</span>`).join("");
+    return `<div class="fb-grid"></div><div class="fb-globe"></div><div class="fb-ring r1"></div><div class="fb-ring r2"></div><div class="fb-ring r3"></div>${nodes}`;
+  }
+  function paintLabel(text2, color) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 72;
+    const ctx2 = canvas.getContext("2d");
+    ctx2.clearRect(0, 0, 256, 72);
+    ctx2.font = "700 40px sans-serif";
+    ctx2.textAlign = "center";
+    ctx2.textBaseline = "middle";
+    ctx2.fillStyle = color;
+    ctx2.fillText(text2, 128, 36);
+    return canvas;
+  }
+  async function mountHero(host) {
+    const glass = host.innerHTML;
+    host.innerHTML = `<div class="hero-bleed" data-hero="pending">
+    <p class="sr-only">A three-dimensional call path. A user agent, an SBC, DNS, PSTN, TURN, and RTP orbit a glowing globe on a neon grid.</p>
+    <canvas class="hero-canvas" aria-hidden="true"></canvas>
+    <div class="hero-fallback" hidden>${fallbackMarkup()}</div>
+    <div class="hero-glass">${glass}</div>
+  </div>`;
+    const bleed = host.querySelector(".hero-bleed");
+    const canvas = host.querySelector(".hero-canvas");
+    const fallback = host.querySelector(".hero-fallback");
+    const fit = () => {
+      const head = document.querySelector(".site-head");
+      const h = head ? head.offsetHeight : 120;
+      bleed.style.marginTop = `-${h}px`;
+      bleed.style.paddingTop = `${h + 8}px`;
+    };
+    fit();
+    const showFallback = () => {
+      bleed.dataset.hero = "css";
+      canvas.hidden = true;
+      fallback.hidden = false;
+    };
+    if (reduced2() || !hasWebGL()) {
+      showFallback();
+      return () => {
+      };
+    }
+    let THREE;
+    try {
+      THREE = await loadThree2();
+    } catch {
+      showFallback();
+      return () => {
+      };
+    }
+    if (!THREE || !host.isConnected) {
+      showFallback();
+      return () => {
+      };
+    }
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
+    } catch {
+      showFallback();
+      return () => {
+      };
+    }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    bleed.dataset.hero = "webgl";
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 120);
+    camera.position.set(0.2, 2.15, 12.2);
+    const palette = () => ({
+      bg: cssHex("--cc-bg", "#0b1020"),
+      a: cssHex("--cc-accent-1", "#39ff14"),
+      b: cssHex("--cc-accent-2", "#ff2bd6"),
+      c: cssHex("--cc-accent-3", "#00e5ff"),
+      d: cssHex("--cc-accent-4", "#ffe600")
+    });
+    const colors = palette();
+    scene.background = new THREE.Color(colors.bg);
+    scene.fog = new THREE.Fog(colors.bg, 24, 72);
+    renderer.setClearColor(colors.bg, 1);
+    const globe = new THREE.Group();
+    const wire = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(2.35, 1),
+      new THREE.MeshBasicMaterial({ color: colors.a, wireframe: true })
+    );
+    const core = new THREE.Mesh(
+      new THREE.SphereGeometry(1.55, 28, 28),
+      new THREE.MeshBasicMaterial({ color: colors.c, transparent: true, opacity: 0.38, blending: THREE.AdditiveBlending, depthWrite: false })
+    );
+    globe.add(wire, core);
+    scene.add(globe);
+    const rings = [4.1, 5.4, 6.6].map((radius, i) => {
+      const mesh = new THREE.Mesh(
+        new THREE.TorusGeometry(radius, 0.028, 12, 96),
+        new THREE.MeshBasicMaterial({ color: [colors.b, colors.c, colors.d][i] })
+      );
+      mesh.rotation.x = 1.15 + i * 0.28;
+      mesh.rotation.y = i * 0.4;
+      scene.add(mesh);
+      return mesh;
+    });
+    const grid = new THREE.GridHelper(48, 24, colors.a, colors.b);
+    grid.position.y = -3.2;
+    if (grid.material) {
+      const mats = Array.isArray(grid.material) ? grid.material : [grid.material];
+      mats.forEach((mat) => {
+        mat.transparent = true;
+        mat.opacity = 0.45;
+      });
+    }
+    scene.add(grid);
+    const count = 1100;
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i += 1) {
+      const radius = 8 + Math.random() * 18;
+      const theta = Math.random() * Math.PI * 2;
+      positions[i * 3] = Math.cos(theta) * radius;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 14;
+      positions[i * 3 + 2] = Math.sin(theta) * radius;
+    }
+    const pointsGeo = new THREE.BufferGeometry();
+    pointsGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    const points = new THREE.Points(pointsGeo, new THREE.PointsMaterial({
+      color: colors.c,
+      size: 0.07,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    }));
+    scene.add(points);
+    const orbit = new THREE.Group();
+    const nodeMats = [];
+    const shellMats = [];
+    const labelMats = [];
+    LABELS.forEach((name, i) => {
+      const tone = [colors.a, colors.b, colors.c, colors.d, colors.a, colors.b][i];
+      const group = new THREE.Group();
+      const bodyMat = new THREE.MeshStandardMaterial({ color: tone, emissive: tone, emissiveIntensity: 0.65, roughness: 0.35, metalness: 0.15 });
+      const shellMat = new THREE.MeshBasicMaterial({ color: tone, transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending, depthWrite: false });
+      nodeMats.push(bodyMat);
+      shellMats.push(shellMat);
+      const body = new THREE.Mesh(new THREE.SphereGeometry(0.38, 20, 20), bodyMat);
+      const shell = new THREE.Mesh(new THREE.SphereGeometry(0.62, 16, 16), shellMat);
+      const tex = new THREE.CanvasTexture(paintLabel(name, "#f7fbff"));
+      const labelMat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+      labelMats.push(labelMat);
+      const sprite = new THREE.Sprite(labelMat);
+      sprite.position.y = 0.95;
+      sprite.scale.set(2.4, 0.68, 1);
+      group.add(body, shell, sprite);
+      const angle = i / LABELS.length * Math.PI * 2;
+      group.position.set(Math.cos(angle) * 7.2, Math.sin(angle * 2) * 0.6, Math.sin(angle) * 7.2);
+      group.userData.angle = angle;
+      orbit.add(group);
+    });
+    scene.add(orbit);
+    const linePositions = [];
+    LABELS.forEach((_, i) => {
+      const a = i / LABELS.length * Math.PI * 2;
+      const b = (i + 1) / LABELS.length * Math.PI * 2;
+      linePositions.push(Math.cos(a) * 7.2, 0.2, Math.sin(a) * 7.2, Math.cos(b) * 7.2, 0.2, Math.sin(b) * 7.2);
+    });
+    const lineGeo = new THREE.BufferGeometry();
+    lineGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(linePositions), 3));
+    const lineMat = new THREE.LineBasicMaterial({ color: colors.a, transparent: true, opacity: 0.7 });
+    scene.add(new THREE.LineSegments(lineGeo, lineMat));
+    const key = new THREE.PointLight(colors.b, 18, 48);
+    key.position.set(6, 8, 8);
+    const fill = new THREE.PointLight(colors.c, 14, 48);
+    fill.position.set(-8, 3, 6);
+    scene.add(new THREE.AmbientLight(16777215, 0.38), key, fill);
+    const accents = [wire.material, core.material, ...rings.map((ring) => ring.material), points.material, lineMat, ...nodeMats, ...shellMats];
+    const applyPalette = () => {
+      const next = palette();
+      scene.background.set(next.bg);
+      scene.fog.color.set(next.bg);
+      renderer.setClearColor(next.bg, 1);
+      wire.material.color.set(next.a);
+      core.material.color.set(next.c);
+      rings[0].material.color.set(next.b);
+      rings[1].material.color.set(next.c);
+      rings[2].material.color.set(next.d);
+      points.material.color.set(next.c);
+      lineMat.color.set(next.a);
+      key.color.set(next.b);
+      fill.color.set(next.c);
+      const tones = [next.a, next.b, next.c, next.d, next.a, next.b];
+      nodeMats.forEach((mat, i) => {
+        mat.color.set(tones[i]);
+        mat.emissive.set(tones[i]);
+      });
+      shellMats.forEach((mat, i) => mat.color.set(tones[i]));
+      const gridMats = Array.isArray(grid.material) ? grid.material : [grid.material];
+      gridMats.forEach((mat, i) => mat.color && mat.color.set(i === 0 ? next.a : next.b));
+      void accents;
+    };
+    let raf = 0;
+    let stop = false;
+    let t2 = 0;
+    const pointer = { x: 0, y: 0 };
+    let scrollY = window.scrollY || 0;
+    const onPtr = (event) => {
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      pointer.x = (event.clientX / w - 0.5) * 2;
+      pointer.y = (event.clientY / h - 0.5) * 2;
+    };
+    const onScroll = () => {
+      scrollY = window.scrollY || 0;
+    };
+    window.addEventListener("pointermove", onPtr, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const resize = () => {
+      const w = bleed.clientWidth || window.innerWidth;
+      const h = bleed.clientHeight || window.innerHeight;
+      if (!w || !h) return;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+    };
+    const ro = new ResizeObserver(resize);
+    ro.observe(bleed);
+    resize();
+    const unsettings = onSettings(applyPalette);
+    const tick = () => {
+      if (stop) return;
+      raf = requestAnimationFrame(tick);
+      if (document.hidden) return;
+      t2 += 5e-3;
+      const drift = t2 * 0.35;
+      globe.rotation.y = drift;
+      globe.rotation.x = Math.sin(t2 * 0.4) * 0.12;
+      rings.forEach((ring, i) => {
+        ring.rotation.z = drift * (0.35 + i * 0.12);
+      });
+      orbit.rotation.y = drift * 0.55;
+      points.rotation.y = drift * 0.08;
+      const px = pointer.x * 1.8 + Math.sin(t2 * 0.15) * 0.9;
+      const py = 2.05 + pointer.y * -0.7 - Math.min(scrollY, 700) * 25e-4;
+      const pz = 12.2 + pointer.y * 0.5;
+      camera.position.x += (px - camera.position.x) * 0.04;
+      camera.position.y += (py - camera.position.y) * 0.04;
+      camera.position.z += (pz - camera.position.z) * 0.04;
+      camera.lookAt(0, 0.85, 0);
+      renderer.render(scene, camera);
+    };
+    tick();
+    return () => {
+      stop = true;
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("pointermove", onPtr);
+      window.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+      unsettings();
+      scene.traverse((obj) => {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+          mats.forEach((mat) => {
+            if (mat.map) mat.map.dispose();
+            mat.dispose();
+          });
+        }
+      });
+      labelMats.forEach((mat) => {
+        if (mat.map) mat.map.dispose();
+      });
+      renderer.dispose();
+    };
   }
 
   // campus/js/app.js
@@ -3097,58 +3867,78 @@
   async function renderHome() {
     setTitle("SIP Universe");
     const stats = catalog.stats;
-    const preview = catalog.preview;
     view.innerHTML = `
-    ${paradeHTML()}
-    <div class="stat-row">
-      <div class="stat"><b data-count="${stats.tracks}">0</b> tracks</div>
-      <div class="stat"><b data-count="${stats.lessons}">0</b> lessons</div>
-      <div class="stat"><b data-count="${stats.quizzes}">0</b> quiz items</div>
-      <div class="stat"><b data-count="${stats.cards}">0</b> flashcards</div>
-      <div class="stat"><b data-count="${stats.labs}">0</b> labs</div>
-      <div class="stat"><b data-count="${stats.glossary}">0</b> glossary terms</div>
-    </div>
-    <div class="hero-stage">
-      <div class="orb orb-a" aria-hidden="true"></div>
-      <div class="orb orb-b" aria-hidden="true"></div>
-      <div>
-        <p>Start in Foundations if you can subnet and have not lived in RFC 3261. Open the field guide for cutover, emergency calling, and the neighbor systems. Open a bench if a trunk is already on fire.</p>
-        <div class="row-actions">
-          <a class="btn primary" href="#/track/foundations">Start at the protocol</a>
-          <a class="btn" href="#/atlas">Open the diagram atlas</a>
-          <a class="btn" href="#/ports">Ports and firewalls</a>
-        </div>
+    <div id="hero-host">
+      <p class="hero-kicker">SIP \xB7 SDP \xB7 RTP</p>
+      <h2>SIP Universe</h2>
+      <p data-i18n="heroLead">Call path, ladders, and borders.</p>
+      <div class="ticker" aria-hidden="true"><span>INVITE</span><span>180</span><span>200</span><span>ACK</span></div>
+      <div class="stat-row">
+        <div class="stat"><b data-count="${stats.tracks}">0</b> tracks</div>
+        <div class="stat"><b data-count="${stats.lessons}">0</b> lessons</div>
+        <div class="stat"><b data-count="${stats.quizzes}">0</b> quiz items</div>
+        <div class="stat"><b data-count="${stats.cards}">0</b> flashcards</div>
+        <div class="stat"><b data-count="${stats.labs}">0</b> labs</div>
+        <div class="stat"><b data-count="${stats.glossary}">0</b> glossary terms</div>
       </div>
-      <div id="home-flow"></div>
+      <div class="row-actions">
+        <a class="btn primary" href="#/track/foundations" data-i18n="start">Start at the protocol</a>
+        <a class="btn" href="#/atlas" data-i18n="openAtlas">Open the diagrams</a>
+        <button type="button" class="btn" id="play-architect" data-i18n="listen">Play the architect clip</button>
+      </div>
     </div>
-    <h2>Signal, in motion</h2>
-    <div id="home-atlas"></div>
-    <h2>Charts from the catalog</h2>
-    <div id="home-charts"></div>
-    <h2>Tracks</h2>
-    <div class="card-grid">${catalog.tracks.map(trackCard).join("")}</div>
-    <h2>Benches</h2>
-    <div class="card-grid">
-      ${bench("Ladders", "Play, pause, step, and inspect a call.", "#/tools/ladder")}
-      ${bench("Dissector", "Headers, compact forms, and structural warnings.", "#/tools/dissector")}
-      ${bench("SDP negotiator", "Offer/answer codec, direction, and port 0.", "#/tools/sdp")}
-      ${bench("Normalization", "CUBE SIP profile and Acme header-rule subsets.", "#/tools/sandbox")}
-      ${bench("Capture bench", "Synthetic debug ccsip output, one message at a time.", "#/tools/capture")}
-      ${bench("Flow builder", "Assemble your own ladder.", "#/play/builder")}
-      ${bench("Flow explorer", "Click the edge and read the citation.", "#/explorer")}
-      ${bench("3D topology", "Enterprise SBC, CUCM, Teams, Webex, and CCaaS paths.", "#/topology")}
-    </div>
-    <p class="fine">Example messages are synthetic. Addresses use the documentation ranges in <a href="https://www.rfc-editor.org/rfc/rfc5737">RFC 5737</a>. Phone numbers use 555.</p>`;
+    <div class="home-after">
+      ${paradeHTML()}
+      <section class="architect" id="architect">
+        <h2 data-i18n="audioTitle">Architect notes</h2>
+        <p>Two short clips. Signal and Border walk the campus: how to view it, practise, and share it. Spoken with eSpeak NG 1.51. A low pad sits under the voices.</p>
+        <audio id="architect-use" controls preload="none" src="audio/architect-use.mp3"></audio>
+        <audio id="architect-share" controls preload="none" src="audio/architect-share.mp3"></audio>
+        <p class="fine">Scripts: <a href="audio/scripts/architect-use.md">how to view</a> \xB7 <a href="audio/scripts/architect-share.md">how to practise and share</a>.</p>
+        <p><a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing">Rate, comment, or help on the repository</a> \xB7 <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Contact</a></p>
+      </section>
+      <h2>Signal, in motion</h2>
+      <div id="home-atlas"></div>
+      <h2>Charts from the catalog</h2>
+      <div id="home-charts"></div>
+      <h2>Tracks</h2>
+      <div class="card-grid">${catalog.tracks.map(trackCard).join("")}</div>
+      <h2>Benches</h2>
+      <div class="card-grid">
+        ${bench("Ladders", "Play, pause, step, and inspect a call.", "#/tools/ladder", "call-flows")}
+        ${bench("Dissector", "Headers, compact forms, and structural warnings.", "#/tools/dissector", "sip-core")}
+        ${bench("SDP negotiator", "Offer/answer codec, direction, and port 0.", "#/tools/sdp", "sdp")}
+        ${bench("Normalization", "CUBE SIP profile and Acme header-rule subsets.", "#/tools/sandbox", "cisco")}
+        ${bench("Capture bench", "Synthetic debug ccsip output, one message at a time.", "#/tools/capture", "troubleshoot")}
+        ${bench("Flow builder", "Assemble your own ladder.", "#/play/builder", "routing")}
+        ${bench("Flow explorer", "Click the edge and read the citation.", "#/explorer", "ecosystem")}
+        ${bench("3D topology", "Enterprise SBC, CUCM, Teams, Webex, and CCaaS paths.", "#/topology", "sbc")}
+      </div>
+      <p class="fine">Example messages are synthetic. Addresses use the documentation ranges in <a href="https://www.rfc-editor.org/rfc/rfc5737">RFC 5737</a>. Phone numbers use 555. Start in Foundations if you can subnet and have not lived in RFC 3261.</p>
+    </div>`;
+    const stopHero = await mountHero(view.querySelector("#hero-host"));
     const ports = await loadJSON("data/ports.json");
-    view.querySelector("#home-charts").innerHTML = chartsHTML(catalog, ports);
+    const charts = view.querySelector("#home-charts");
+    if (charts) charts.innerHTML = chartsHTML(catalog, ports);
     paintRoughTotals(view, catalog);
     animateStats(view);
-    const stop = mountFlow(view.querySelector("#home-flow"), preview);
+    animateCharts(view);
     mountSpotlight(view.querySelector("#home-atlas"));
     const stopParade = bindParade(view);
+    const stopTips = bindChartTips(view);
+    const playBtn = view.querySelector("#play-architect");
+    const onPlay = () => {
+      view.querySelector("#architect")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const audio = view.querySelector("#architect-use");
+      if (audio) audio.play().catch(() => {
+      });
+    };
+    playBtn?.addEventListener("click", onPlay);
     return () => {
-      stop();
+      stopHero();
       stopParade();
+      stopTips();
+      playBtn?.removeEventListener("click", onPlay);
     };
   }
   function trackCard(track) {
@@ -3158,16 +3948,23 @@
       return row && (row.read || row.quizN && row.quiz / row.quizN >= 0.8);
     }).length;
     const pct = Math.round(done / track.lessons.length * 100);
+    const ring = (188.4 * pct / 100).toFixed(1);
     return `<a class="card" href="#/track/${esc(track.id)}">
+    <div class="card-top">${iconHTML(track.id)}
+      <svg class="ring" viewBox="0 0 72 72" aria-label="${pct} percent">
+        <circle class="ring-track" cx="36" cy="36" r="30"></circle>
+        <circle class="ring-val" cx="36" cy="36" r="30" stroke-dasharray="${ring} 188.4"></circle>
+        <text x="36" y="41">${pct}</text>
+      </svg>
+    </div>
     <span class="kicker">${esc(track.level)} \xB7 ${track.lessons.length} lessons</span>
     <h3>${esc(track.title)}</h3>
     <p>${esc(track.summary)}</p>
-    <div class="bar" aria-hidden="true"><span style="width:${pct}%"></span></div>
     <span class="fine">${done} of ${track.lessons.length} in progress or done</span>
   </a>`;
   }
-  function bench(title, copy, href) {
-    return `<a class="card" href="${href}"><span class="kicker">Bench</span><h3>${esc(title)}</h3><p>${esc(copy)}</p></a>`;
+  function bench(title, copy, href, icon) {
+    return `<a class="card" href="${href}">${iconHTML(icon || "foundations")}<span class="kicker">Bench</span><h3>${esc(title)}</h3><p>${esc(copy)}</p></a>`;
   }
   function renderTracks() {
     setTitle("Tracks");
@@ -3183,6 +3980,7 @@
     setTitle(track.title);
     const minutes = track.lessons.reduce((sum, lesson) => sum + (lesson.minutes || 0), 0);
     view.innerHTML = `${crumbs([["Tracks", "#/tracks"], [track.title]])}
+    ${iconHTML(track.id)}
     ${paradeHTML()}
     <p class="lede">${esc(track.summary)}</p>
     <div class="stat-row">
@@ -3477,7 +4275,7 @@
   async function renderEcosystem() {
     const data = await loadJSON("data/ecosystem.json");
     setTitle("Ecosystem");
-    view.innerHTML = `<p class="lede">${esc(data.summary)}</p>
+    view.innerHTML = `${iconHTML("ecosystem")}<p class="lede">${esc(data.summary)}</p>
     <h2>Neighboring systems</h2>
     <div class="card-grid">${data.sisters.map((item) => `<article class="card"><h3>${esc(item.name)}</h3><p>${esc(item.blurb)}</p>${citeLinks(item.cites)}</article>`).join("")}</div>
     <h2>Where SIP shows up in the UC stack</h2>
@@ -3584,6 +4382,7 @@
     };
     stopNarration();
     const { path, params } = parseHash();
+    document.body.classList.toggle("is-home", path === "#/" || path === "");
     paintNav(path);
     view.setAttribute("aria-busy", "true");
     let stop = () => {
@@ -3627,6 +4426,7 @@
     };
     view.removeAttribute("aria-busy");
     titleEl.setAttribute("tabindex", "-1");
+    applyLang(getSettings().lang || document.documentElement.lang || "en");
   }
   function openSettings() {
     const dialog = document.querySelector("#settings");

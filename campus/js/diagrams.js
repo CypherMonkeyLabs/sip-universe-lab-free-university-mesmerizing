@@ -56,7 +56,7 @@ function ladder(parties, steps, w = 860, row = 52) {
     const x1 = col * step.from + col / 2;
     const x2 = col * step.to + col / 2;
     const y = top + i * row + 18;
-    return arrow(x1, y, x2, y, step.label) + packet(x1, y, x2, y);
+    return `<g class="hop" data-i="${i}">${arrow(x1, y, x2, y, step.label)}${packet(x1, y, x2, y)}</g>`;
   }).join("");
   return svg(parties.join(" "), w, h, heads + hops);
 }
@@ -571,8 +571,69 @@ for (const item of ATLAS) item.animated = ANIMATED.has(item.id);
 export function figureHTML(item) {
   return `<figure class="atlas-fig${item.animated ? " is-animated" : ""}" id="atlas-${esc(item.id)}" data-animated="${item.animated ? "1" : "0"}">
     ${item.draw()}
-    <figcaption><strong>${esc(item.title)}.</strong> ${esc(item.caption)} <a href="${esc(item.cite.url)}">${esc(item.cite.label)}</a></figcaption>
+    <figcaption><strong>${esc(item.title)}.</strong> <span data-i18n="why">Why this matters</span>: ${esc(item.caption)} <a href="${esc(item.cite.url)}">${esc(item.cite.label)}</a></figcaption>
+    <div class="fig-actions"><button type="button" data-enlarge data-i18n="enlarge">Enlarge</button></div>
   </figure>`;
+}
+
+export function bindLightbox() {
+  const dialog = document.querySelector("#lightbox");
+  if (!dialog || dialog.dataset.bound) return;
+  dialog.dataset.bound = "1";
+  const stage = dialog.querySelector("#lightbox-stage");
+  const title = dialog.querySelector("#lightbox-title");
+  const legend = dialog.querySelector("#lightbox-legend");
+  const why = dialog.querySelector("#lightbox-why");
+  const stepLabel = dialog.querySelector("#lightbox-step");
+  let step = 0;
+  const hops = () => [...stage.querySelectorAll(".hop")];
+  const show = (n) => {
+    const list = hops();
+    if (!list.length) {
+      stepLabel.textContent = "";
+      return;
+    }
+    step = Math.max(0, Math.min(n, list.length - 1));
+    list.forEach((hop, i) => { hop.style.opacity = i <= step ? "1" : "0.12"; });
+    stepLabel.textContent = `${step + 1} / ${list.length}`;
+  };
+  const svg = () => stage.querySelector("svg");
+  document.addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-enlarge]");
+    if (!btn) return;
+    const fig = btn.closest("figure");
+    if (!fig) return;
+    const source = fig.querySelector("svg, img");
+    stage.replaceChildren();
+    if (source) stage.appendChild(source.cloneNode(true));
+    const heading = fig.querySelector("figcaption strong");
+    title.textContent = heading ? heading.textContent.replace(/\.$/, "") : "Diagram";
+    why.textContent = fig.querySelector("figcaption") ? fig.querySelector("figcaption").textContent : "";
+    const names = [...stage.querySelectorAll("text.d-label")].map((node) => node.textContent.trim()).filter(Boolean);
+    const unique = [...new Set(names)].slice(0, 8);
+    legend.textContent = unique.length ? `Legend: ${unique.join(" · ")}` : "Legend: the drawing is a static export. The hand-built ladder is the one that steps.";
+    const picture = svg();
+    if (picture && typeof picture.unpauseAnimations === "function") picture.unpauseAnimations();
+    show(hops().length ? hops().length - 1 : 0);
+    if (!dialog.open) dialog.showModal();
+  });
+  dialog.addEventListener("click", (event) => {
+    const action = event.target.closest("[data-flow]");
+    if (!action) return;
+    const picture = svg();
+    if (action.dataset.flow === "pause") {
+      if (picture && picture.pauseAnimations) picture.pauseAnimations();
+      return;
+    }
+    if (action.dataset.flow === "play") {
+      hops().forEach((hop) => { hop.style.opacity = "1"; });
+      if (picture && picture.unpauseAnimations) picture.unpauseAnimations();
+      stepLabel.textContent = hops().length ? `${hops().length} / ${hops().length}` : "";
+      return;
+    }
+    if (picture && picture.pauseAnimations) picture.pauseAnimations();
+    show(step + 1 >= hops().length ? 0 : step + 1);
+  });
 }
 
 export function mountSpotlight(host) {

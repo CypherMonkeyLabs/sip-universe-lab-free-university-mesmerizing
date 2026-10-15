@@ -26,9 +26,11 @@ function barChart(label, rows, unit) {
     const y = 10 + i * rowH;
     const w = Math.max(4, widthOf(row.value));
     const suffix = unit ? ` ${unit}` : "";
+    const tip = `${row.label}: ${row.value}${suffix}`;
     return `<text x="12" y="${y + 14}" class="d-sub">${esc(row.label)}</text>
       <text x="548" y="${y + 14}" text-anchor="end" class="d-sub">${esc(String(row.value))}${esc(suffix)}</text>
-      <rect x="12" y="${y + 20}" width="${w.toFixed(1)}" height="12" rx="4" fill="var(--cc-accent-1)" opacity="0.9"></rect>`;
+      <rect data-tip="${esc(tip)}" x="12" y="${y + 16}" width="536" height="22" fill="transparent"></rect>
+      <rect class="bar" data-tip="${esc(tip)}" x="12" y="${y + 22}" width="${w.toFixed(1)}" height="12" rx="4" fill="var(--cc-accent-1)" opacity="0.9"></rect>`;
   }).join("");
   return `<svg class="chart-svg" viewBox="0 0 560 ${h}" role="img" aria-label="${esc(label)}">
     <rect width="560" height="${h}" rx="12" fill="var(--cc-bg)" stroke="var(--cc-line)"></rect>
@@ -96,6 +98,55 @@ export function chartsHTML(catalog, ports) {
       ${chartMarkup(chart.id, catalog, ports)}
       <figcaption><strong>${esc(chart.title)}.</strong> ${esc(chart.source)}</figcaption>
     </figure>`).join("")}</div>`;
+}
+
+export function bindChartTips(root) {
+  if (!root) return () => {};
+  const grids = [...root.querySelectorAll(".chart-grid")];
+  const stops = grids.map((grid) => {
+    const tip = document.createElement("div");
+    tip.className = "chart-tip";
+    tip.hidden = true;
+    grid.appendChild(tip);
+    const move = (event) => {
+      const el = event.target.closest("[data-tip]");
+      if (!el || !grid.contains(el)) { tip.hidden = true; return; }
+      tip.hidden = false;
+      tip.textContent = el.dataset.tip;
+      const rect = grid.getBoundingClientRect();
+      tip.style.left = `${Math.min(event.clientX - rect.left + 12, rect.width - 160)}px`;
+      tip.style.top = `${event.clientY - rect.top + 14}px`;
+    };
+    const leave = () => { tip.hidden = true; };
+    grid.addEventListener("pointermove", move);
+    grid.addEventListener("pointerleave", leave);
+    return () => {
+      grid.removeEventListener("pointermove", move);
+      grid.removeEventListener("pointerleave", leave);
+    };
+  });
+  return () => stops.forEach((fn) => fn());
+}
+
+export function animateCharts(root) {
+  if (!root || document.documentElement.dataset.motion === "reduce") return;
+  const anime = globalThis.anime;
+  if (!anime || typeof anime.animate !== "function") return;
+  root.querySelectorAll(".chart-svg rect.bar").forEach((rect, index) => {
+    const width = Number(rect.getAttribute("width")) || 0;
+    const state = { w: 0 };
+    rect.setAttribute("width", "0");
+    try {
+      anime.animate(state, {
+        w: width,
+        duration: 700,
+        delay: index * 20,
+        onUpdate: () => rect.setAttribute("width", state.w.toFixed(1)),
+      });
+    } catch {
+      rect.setAttribute("width", String(width));
+    }
+  });
 }
 
 export function paintRoughTotals(root, catalog) {

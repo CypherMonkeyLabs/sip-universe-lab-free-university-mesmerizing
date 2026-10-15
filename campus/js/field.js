@@ -1,11 +1,13 @@
 import { esc, citeLinks } from "./draw.js";
 import { getSettings, saveSettings, onSettings } from "./audio.js";
 import { loadJSON } from "./store.js";
-import { ATLAS, figureHTML } from "./diagrams.js";
+import { ATLAS, figureHTML, bindLightbox } from "./diagrams.js";
 import { downloadPack } from "./pack.js";
 import * as play from "./play.js";
-import { CHARTS, chartsHTML, paintRoughTotals, mountMind } from "./charts.js";
+import { CHARTS, chartsHTML, paintRoughTotals, mountMind, bindChartTips, animateCharts } from "./charts.js";
 import { paradeHTML, bindParade, bindMenuKeys } from "./fx.js";
+import { applyLang } from "./i18n.js";
+import { iconHTML } from "./icons.js";
 
 const BADGE_KEY = "sip-universe-badges";
 
@@ -46,20 +48,34 @@ const POSES = [
   { id: "cheer", line: "ACK the 200." },
 ];
 
+const LOOKS = ["classic", "visor", "phones", "scarf"];
+
+function paintLook() {
+  const mascot = document.querySelector("#mascot");
+  if (!mascot) return;
+  const theme = document.documentElement.dataset.theme || "holographic";
+  const map = { holographic: 1, neon: 2, cyberpunk: 2, sunset: 3, light: 0, futuristic: 1, gaming: 2, observatory: 0, daylight: 0, contrast: 0, phosphor: 1 };
+  const shift = Math.floor(Date.now() / 180000);
+  mascot.dataset.look = LOOKS[((map[theme] ?? 0) + shift) % LOOKS.length];
+}
+
 function startMascot() {
   const mascot = document.querySelector("#mascot");
   const line = document.querySelector("#mascot-line");
   if (!mascot || !line) return;
   let index = 0;
   const tick = () => {
+    paintLook();
     if (document.documentElement.dataset.motion === "reduce") return;
     const pose = POSES[index % POSES.length];
     mascot.dataset.pose = pose.id;
-    line.textContent = pose.line;
+    if (index % POSES.length !== 0) line.textContent = pose.line;
     index += 1;
   };
   tick();
   window.setInterval(tick, 7000);
+  window.setInterval(paintLook, 60000);
+  onSettings(paintLook);
 }
 
 const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
@@ -90,7 +106,11 @@ function bindSwatches() {
     });
   };
   document.querySelectorAll("[data-set-theme]").forEach((button) => {
-    button.addEventListener("click", () => saveSettings({ theme: button.dataset.setTheme }));
+    button.addEventListener("click", () => {
+      const theme = button.dataset.setTheme;
+      if (theme !== "light") localStorage.setItem("sip-universe-dark", theme);
+      saveSettings({ theme });
+    });
   });
   onSettings(paint);
   paint();
@@ -123,13 +143,46 @@ function bindOffline(catalog) {
   });
 }
 
+function bindLang() {
+  const lang = document.querySelector("#lang");
+  if (lang) {
+    lang.value = getSettings().lang || "en";
+    lang.addEventListener("change", () => {
+      saveSettings({ lang: lang.value });
+      applyLang(lang.value);
+    });
+  }
+  const toggle = document.querySelector("#theme-toggle");
+  const paintToggle = () => {
+    if (!toggle) return;
+    const theme = getSettings().theme;
+    const light = theme === "light" || theme === "daylight";
+    toggle.textContent = light ? "Dark" : "Light";
+    toggle.setAttribute("aria-pressed", light ? "true" : "false");
+  };
+  toggle?.addEventListener("click", () => {
+    const theme = getSettings().theme;
+    if (theme === "light" || theme === "daylight") saveSettings({ theme: localStorage.getItem("sip-universe-dark") || "holographic" });
+    else {
+      localStorage.setItem("sip-universe-dark", theme);
+      saveSettings({ theme: "light" });
+    }
+  });
+  onSettings((settings) => applyLang(settings.lang || "en"));
+  onSettings(paintToggle);
+  paintToggle();
+  applyLang(getSettings().lang || "en");
+}
+
 export function bindChrome(catalog) {
   startMascot();
   bindKonami();
   bindSwatches();
+  bindLang();
   bindProgressBar();
   bindOffline(catalog);
   bindMenuKeys(document);
+  bindLightbox();
 }
 
 function blockHTML(block) {
@@ -188,9 +241,34 @@ export async function tryFieldRoute(path, view, ctx) {
       <h2>Topic map</h2>
       <div id="mind-host"></div>`;
     paintRoughTotals(view, ctx.catalog);
+    animateCharts(view);
     const stopMind = mountMind(view.querySelector("#mind-host"));
     const stopParade = bindParade(view);
-    return () => { stopParade(); stopMind(); };
+    const stopTips = bindChartTips(view);
+    return () => { stopParade(); stopMind(); stopTips(); };
+  }
+  if (path === "#/regions") {
+    ctx.setTitle("Regions");
+    view.innerHTML = `<p class="lede">SIP itself has no country. What follows is either a cited fact or marked as an example.</p>
+      <h2>Cited</h2>
+      <ul>
+        <li>SIP creates, modifies, and ends sessions. <a href="https://www.rfc-editor.org/rfc/rfc3261">RFC 3261</a>. It does not name a country, a carrier, or a data-residency region.</li>
+        <li>Public telephone numbers follow ITU-T E.164. This page does not restate national numbering plans.</li>
+        <li>United States multi-line telephone systems: FCC MLTS rules, and <a href="https://www.rfc-editor.org/rfc/rfc6881">RFC 6881</a> as a best current practice for emergency services. This is not legal advice.</li>
+        <li>Microsoft Teams Direct Routing, Microsoft Learn, fetched 2026-10-15: signaling TCP 5061 toward sip.pstnhub.microsoft.com, sip2.pstnhub.microsoft.com, and sip3.pstnhub.microsoft.com. Media UDP 3478–3481 and 49152–53247. Ranges 52.112.0.0/14 and 52.120.0.0/14. Those are Microsoft cloud addresses, not a map of countries.</li>
+      </ul>
+      <h2>Example region board</h2>
+      <p class="callout">Example only. Not coverage, not a carrier map, and not a data-residency guarantee. A calling code does not mean this campus or any SBC serves that place.</p>
+      <div class="region-board">
+        <article class="card"><p class="region-flag" aria-hidden="true">🇺🇸</p><h3>NANP</h3><p>+1</p><p class="fine">Example symbol. Not a coverage claim.</p></article>
+        <article class="card"><p class="region-flag" aria-hidden="true">🇪🇺</p><h3>Europe</h3><p>+33 · +49</p><p class="fine">Example symbols. Not a coverage claim.</p></article>
+        <article class="card"><p class="region-flag" aria-hidden="true">🇮🇳</p><h3>India</h3><p>+91</p><p class="fine">Example symbol. Not a coverage claim.</p></article>
+        <article class="card"><p class="region-flag" aria-hidden="true">🇯🇵</p><h3>Japan</h3><p>+81</p><p class="fine">Example symbol. Not a coverage claim.</p></article>
+        <article class="card"><p class="region-flag" aria-hidden="true">🇦🇪</p><h3>UAE</h3><p>+971</p><p class="fine">Example symbol. Not a coverage claim.</p></article>
+        <article class="card"><p class="region-flag" aria-hidden="true">🇧🇷</p><h3>Brazil</h3><p>+55</p><p class="fine">Example symbol. Not a coverage claim.</p></article>
+      </div>
+      <p class="fine">Where a recording or a trunk is stored is a product and contract question. Unverified here.</p>`;
+    return () => {};
   }
   if (path === "#/ports") {
     const data = await loadJSON("data/ports.json");
@@ -211,6 +289,7 @@ export async function tryFieldRoute(path, view, ctx) {
     ctx.setTitle("Cheat codes");
     view.innerHTML = `<p class="lede">One-page sheets and a printable flashcard deck, generated into this repo. Each file carries the campus footer.</p>
       <div class="card-grid">${manifest.items.map((item) => `<article class="card">
+        ${iconHTML("operations")}
         <span class="kicker">${esc(item.topic)}</span>
         <h3>${esc(item.title)}</h3>
         <p>${esc(item.blurb)}</p>
@@ -279,7 +358,8 @@ function renderSection(data, id, view, ctx) {
   const trackList = id === "roadmap" && ctx.catalog
     ? `<h2>Track order</h2><ol>${ctx.catalog.tracks.map((track) => `<li><a href="#/track/${esc(track.id)}">${esc(track.title)}</a></li>`).join("")}</ol>`
     : "";
-  view.innerHTML = `<p class="crumbs"><a href="#/guide">Field guide</a> / ${esc(section.title)}</p>
+  const banner = id === "career" ? iconHTML("capstone") : "";
+  view.innerHTML = `${banner}<p class="crumbs"><a href="#/guide">Field guide</a> / ${esc(section.title)}</p>
     <p class="lede">${esc(section.summary)}</p>
     ${section.blocks.map(blockHTML).join("")}
     ${trackList}`;
