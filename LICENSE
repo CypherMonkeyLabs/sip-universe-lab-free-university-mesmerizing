@@ -24,8 +24,9 @@ SOFTWARE.
 
 Curriculum content (lesson prose, quiz items, flashcards, fault write-ups,
 glossary definitions, and diagram captions) is licensed under the
-Creative Commons Attribution 4.0 International License (CC BY 4.0):
-https://creativecommons.org/licenses/by/4.0/
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+License (CC BY-NC-SA 4.0):
+https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 Third-party code: Three.js r159 is vendored in campus/vendor/ under the MIT
 license. See campus/vendor/THREE-LICENSE.txt and campus/vendor/VERSION.txt.

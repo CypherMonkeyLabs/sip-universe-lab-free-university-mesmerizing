@@ -1,0 +1,89 @@
+{
+  "checked": "2026-10-15",
+  "items": [
+    {
+      "q": "What does a 100 Trying response guarantee?",
+      "choices": ["The phone is ringing", "The next hop received the request and the UAC can stop retransmitting that INVITE", "The call is answered", "Media ports are open"],
+      "answer": 1,
+      "why": "100 Trying is hop-by-hop. It does not mean alerting or answer.",
+      "cite": { "label": "RFC 3261 §21.1.1", "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21.1.1" }
+    },
+    {
+      "q": "Which three values identify a SIP dialog?",
+      "choices": ["Via branch, CSeq, and Call-ID", "Call-ID, local tag, and remote tag", "Request-URI, Contact, and SDP", "From display name, To display name, and date"],
+      "answer": 1,
+      "why": "The dialog ID is the Call-ID plus the tags. The branch identifies a transaction.",
+      "cite": { "label": "RFC 3261 §12", "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12" }
+    },
+    {
+      "q": "An SDP answer sets the audio port to 0. What does that mean?",
+      "choices": ["Use port 5060 instead", "That media stream is rejected", "The call must use TCP", "RTCP is multiplexed"],
+      "answer": 1,
+      "why": "Port 0 rejects the stream. It is not a request to pick a default.",
+      "cite": { "label": "RFC 3264", "url": "https://www.rfc-editor.org/rfc/rfc3264" }
+    },
+    {
+      "q": "G.722 audio is 16 kHz. What RTP timestamp clock rate does RFC 3551 assign it?",
+      "choices": ["16000", "8000", "48000", "90000"],
+      "answer": 1,
+      "why": "The RTP clock for G.722 is 8000 even though the audio bandwidth is wider. This is a classic interop bug.",
+      "cite": { "label": "RFC 3551 §4.5.2", "url": "https://www.rfc-editor.org/rfc/rfc3551#section-4.5.2" }
+    },
+    {
+      "q": "A 200 OK to CANCEL means what?",
+      "choices": ["The INVITE is definitely cancelled", "The CANCEL transaction succeeded; watch the INVITE for 487", "The dialog is confirmed", "Media may start"],
+      "answer": 1,
+      "why": "CANCEL has its own transaction. The INVITE ends with a response such as 487 Request Terminated.",
+      "cite": { "label": "RFC 3261 §9", "url": "https://www.rfc-editor.org/rfc/rfc3261#section-9" }
+    },
+    {
+      "q": "Which mechanism is the IETF standard for telephone events in RTP?",
+      "choices": ["SIP INFO body tones", "RFC 4733 telephone-event", "A custom Contact parameter", "In-band audio only, required"],
+      "answer": 1,
+      "why": "telephone-event is the standards-track DTMF in RTP. INFO is a generic method, not the DTMF specification.",
+      "cite": { "label": "RFC 4733", "url": "https://www.rfc-editor.org/rfc/rfc4733" }
+    },
+    {
+      "q": "What is an SBC in the taxonomy of RFC 7092?",
+      "choices": ["Always a stateless proxy", "A back-to-back user agent with two dialogs", "A DNS server", "An RTP mixer by definition"],
+      "answer": 1,
+      "why": "A signaling B2BUA terminates one dialog and creates another. Media may be anchored or not. RFC 5853 is the requirements discussion, not a wire protocol.",
+      "cite": { "label": "RFC 7092", "url": "https://www.rfc-editor.org/rfc/rfc7092" }
+    },
+    {
+      "q": "ICE candidate types you should be able to name are:",
+      "choices": ["host, server-reflexive, and relay", "primary, secondary, tertiary", "A, B, and C attestation", "INVITE, ACK, and BYE"],
+      "answer": 0,
+      "why": "Host is local, server-reflexive comes from STUN, relay comes from TURN. RFC 8445 is the ICE specification.",
+      "cite": { "label": "RFC 8445", "url": "https://www.rfc-editor.org/rfc/rfc8445" }
+    },
+    {
+      "q": "SIPREC separates which two roles?",
+      "choices": ["UAC and UAS only", "Session recording client and session recording server", "STUN client and TURN server", "Registrar and redirect server"],
+      "answer": 1,
+      "why": "The SRC is the application that has the communication session. The SRS is the recorder. Metadata is RFC 7865.",
+      "cite": { "label": "RFC 7866", "url": "https://www.rfc-editor.org/rfc/rfc7866" }
+    },
+    {
+      "q": "Which header carries a STIR PASSporT?",
+      "choices": ["Via", "Identity", "Contact", "Route"],
+      "answer": 1,
+      "why": "RFC 8224 defines the Identity header. SHAKEN is an ATIS profile of that work, not a different SIP method.",
+      "cite": { "label": "RFC 8224", "url": "https://www.rfc-editor.org/rfc/rfc8224" }
+    },
+    {
+      "q": "A call drops near 30 minutes and the traces show Session-Expires. What do you read next?",
+      "choices": ["RFC 4028 session timers", "RFC 4733 DTMF", "RFC 4975 MSRP", "The NTP RFC only"],
+      "answer": 0,
+      "why": "Session timers refresh a dialog with UPDATE or re-INVITE. A missing refresh ends the session.",
+      "cite": { "label": "RFC 4028", "url": "https://www.rfc-editor.org/rfc/rfc4028" }
+    },
+    {
+      "q": "Why is a CRM not a SIP element?",
+      "choices": ["Because it cannot store a phone number", "Because screen pop uses data the contact center already has; it does not have to be a dialog endpoint", "Because RFC 3261 forbids databases", "Because ANI is illegal to log"],
+      "answer": 1,
+      "why": "ANI, DNIS, and case ids may arrive in SIP or in a later CTI event. The CRM is a neighbor, not a proxy.",
+      "cite": { "label": "RFC 3325", "url": "https://www.rfc-editor.org/rfc/rfc3325" }
+    }
+  ]
+}

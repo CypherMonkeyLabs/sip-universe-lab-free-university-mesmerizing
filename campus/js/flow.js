@@ -31,10 +31,14 @@ export function ladderSVG(flow, active) {
     const y = top + i * row + 28;
     const on = i === active ? "is-on" : i < active ? "is-done" : "";
     const mid = (x1 + x2) / 2;
+    const travel = i === active && !prefersReduced()
+      ? `<circle r="5" fill="var(--cc-accent-3)"><animate attributeName="cx" from="${x1}" to="${x2}" dur="0.9s" repeatCount="indefinite"></animate><animate attributeName="cy" from="${y}" to="${y}" dur="0.9s" repeatCount="indefinite"></animate></circle>`
+      : "";
     return `<g class="hop ${on} kind-${esc(step.kind || "req")}">
       <line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="hop-line"></line>
       <polygon points="${x2},${y} ${x2 - Math.sign(x2 - x1) * 10},${y - 5} ${x2 - Math.sign(x2 - x1) * 10},${y + 5}" class="arrow-head"></polygon>
       <text x="${mid}" y="${y - 8}" text-anchor="middle" class="hop-label">${esc(step.label)}</text>
+      ${travel}
     </g>`;
   }).join("");
   return `<svg class="ladder" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(flow.title || "SIP ladder")}">

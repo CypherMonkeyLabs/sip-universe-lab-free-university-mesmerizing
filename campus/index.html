@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="observatory" data-font="md">
+<html lang="en" data-theme="futuristic" data-font="md">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SIP Universe</title>
-  <meta name="description" content="SIP Universe is a field guide to SIP, SDP, RTP/SRTP, and session border controllers, with ladders, a message dissector, an offer/answer negotiator, and a 3D topology.">
-  <meta name="theme-color" content="#070b14">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%23070b14' width='32' height='32' rx='6'/%3E%3Cpath d='M6 16h8M18 10l8 6-8 6' stroke='%233ddcff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <meta name="description" content="SIP Universe is a field guide to SIP, SDP, RTP/SRTP, NAT, ICE, and session border controllers, with ladders, labs, and cited sources.">
+  <meta name="theme-color" content="#07111c">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%2307111c' width='32' height='32' rx='6'/%3E%3Cpath d='M6 16h8M18 10l8 6-8 6' stroke='%233ddcff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/flagship.css">
   <script>
     try {
       var saved = JSON.parse(localStorage.getItem("sip-universe-settings") || "{}");
@@ -20,31 +21,81 @@
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
+  <div class="read-progress" id="read-progress"></div>
   <div class="shell">
-    <header class="topbar">
-      <a class="brand" href="#/">
-        <span class="mark" aria-hidden="true"></span>
-        <span><strong>SIP Universe</strong><small>Signaling, media, borders</small></span>
-      </a>
-      <form class="search" id="search-form" role="search">
-        <label class="sr-only" for="q">Search lessons</label>
-        <input id="q" name="q" type="search" placeholder="Search PRACK, CUBE, 488…" autocomplete="off">
-      </form>
-      <div class="top-actions">
-        <span class="progress-pill" id="progress-pill">0 read</span>
-        <button type="button" id="open-settings">Settings</button>
-      </div>
-    </header>
+    <div class="site-head">
+      <header class="topbar">
+        <a class="brand" href="#/">
+          <span class="mark" aria-hidden="true"></span>
+          <span><strong>SIP Universe</strong><small>Signaling, media, borders</small></span>
+        </a>
+        <form class="search" id="search-form" role="search">
+          <label class="sr-only" for="q">Search lessons</label>
+          <input id="q" name="q" type="search" placeholder="Search PRACK, CUBE, 488…" autocomplete="off">
+        </form>
+        <div class="top-actions">
+          <span class="progress-pill" id="progress-pill">0 read</span>
+          <button type="button" id="open-settings">Settings</button>
+          <button type="button" data-offline>Offline</button>
+        </div>
+      </header>
+      <nav class="linkbar" aria-label="CypherMonkey">
+        <a href="https://cyphermonkeylabs.com" rel="noopener noreferrer">Labs</a>
+        <a href="https://linktr.ee/cyphermonkey" rel="noopener noreferrer">Linktree</a>
+        <a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing" rel="noopener noreferrer">Rate, comment, help</a>
+        <a href="https://dev.to/cyphermonkey" rel="noopener noreferrer">DEV</a>
+        <a href="https://huggingface.co/Cypher0x9" rel="noopener noreferrer">Hugging Face</a>
+        <a href="https://x.com/Cypher0x9" rel="noopener noreferrer">X</a>
+        <div class="swatches" role="group" aria-label="Theme">
+          <button type="button" data-set-theme="futuristic" aria-pressed="true"><span class="swatch-label">Futuristic</span></button>
+          <button type="button" data-set-theme="gaming" aria-pressed="false"><span class="swatch-label">Gaming</span></button>
+          <button type="button" data-set-theme="neon" aria-pressed="false"><span class="swatch-label">Neon</span></button>
+          <button type="button" data-set-theme="light" aria-pressed="false"><span class="swatch-label">Light</span></button>
+        </div>
+        <div class="mascot" id="mascot" data-pose="wave">
+          <svg viewBox="0 0 80 96" aria-hidden="true">
+            <ellipse cx="40" cy="78" rx="18" ry="12" fill="var(--cc-accent-3)"/>
+            <circle cx="18" cy="34" r="10" fill="var(--cc-accent-2)"/>
+            <circle cx="62" cy="34" r="10" fill="var(--cc-accent-2)"/>
+            <circle cx="40" cy="36" r="22" fill="var(--cc-accent-1)"/>
+            <circle cx="32" cy="34" r="3" fill="#061018"/>
+            <circle cx="48" cy="34" r="3" fill="#061018"/>
+            <path d="M32 46c4 4 12 4 16 0" stroke="#061018" stroke-width="2" fill="none"/>
+            <g class="arm arm-l"><rect x="8" y="58" width="8" height="22" rx="4" fill="var(--cc-accent-4)"/></g>
+            <g class="arm arm-r"><rect x="64" y="58" width="8" height="22" rx="4" fill="var(--cc-accent-4)"/></g>
+            <path d="M58 80c12 8 18 2 16-6" stroke="var(--cc-accent-2)" stroke-width="3" fill="none"/>
+          </svg>
+          <p class="mascot-line" id="mascot-line">Follow the Via.</p>
+        </div>
+      </nav>
+    </div>
     <div class="layout">
       <nav class="rail" id="rail" aria-label="Primary"></nav>
       <main id="main">
         <p id="announcer" class="sr-only" aria-live="polite"></p>
+        <p id="toast" class="fine" aria-live="polite"></p>
         <h1 id="view-title">SIP Universe</h1>
         <div id="view" aria-busy="true">
           <p class="lede">Loading the field guide…</p>
         </div>
       </main>
     </div>
+    <footer class="site-foot">
+      <p><strong>CypherMonkey</strong> · SIP Universe · independent study campus</p>
+      <p class="fine">Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
+      <p class="foot-links">
+        <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Report a concern / takedown</a>
+        <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Work with us</a>
+        <button type="button" data-offline>Download offline pack</button>
+      </p>
+      <p class="fine" id="pack-status"></p>
+      <nav class="next-labs" aria-label="Other labs">
+        <a href="https://github.com/cipher0x9/uc-lab-free-university" rel="noopener noreferrer">UC Lab</a>
+        <a href="https://github.com/cipher0x9/ai-lab-free-university-mesmerizing" rel="noopener noreferrer">AI Lab</a>
+        <a href="https://cypherwebex-canon-test.vercel.app" rel="noopener noreferrer">Webex Canon</a>
+        <a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing" rel="noopener noreferrer">This repo</a>
+      </nav>
+    </footer>
   </div>
   <nav class="bottom" id="bottom" aria-label="Mobile"></nav>
   <dialog id="settings" aria-labelledby="settings-title">
@@ -52,6 +103,10 @@
       <h2 id="settings-title">Settings</h2>
       <fieldset>
         <legend>Theme</legend>
+        <label><input type="radio" name="theme" value="futuristic"> Futuristic</label>
+        <label><input type="radio" name="theme" value="gaming"> Gaming</label>
+        <label><input type="radio" name="theme" value="neon"> Neon</label>
+        <label><input type="radio" name="theme" value="light"> Light</label>
         <label><input type="radio" name="theme" value="observatory"> Observatory</label>
         <label><input type="radio" name="theme" value="daylight"> Daylight</label>
         <label><input type="radio" name="theme" value="contrast"> High contrast</label>
@@ -80,6 +135,11 @@
   <dialog id="more" aria-labelledby="more-title">
     <h2 id="more-title">More</h2>
     <div class="more-list" id="more-list"></div>
+    <form method="dialog"><button type="submit" class="primary">Close</button></form>
+  </dialog>
+  <dialog id="egg" aria-labelledby="egg-title">
+    <h2 id="egg-title">Branch cookie</h2>
+    <p>CypherMonkey found the joystick code. The mascot takes a bow. The protocol does not change.</p>
     <form method="dialog"><button type="submit" class="primary">Close</button></form>
   </dialog>
   <noscript><p>SIP Universe’s router needs JavaScript. The track files are in <a href="data/catalog.json">data/catalog.json</a>.</p></noscript>

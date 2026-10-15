@@ -89,6 +89,26 @@ if (!samples.messages.invite || !samples.sdp.offer || !samples.sandbox.rules || 
 }
 if (!catalog.preview || !catalog.preview.steps) problems.push("preview");
 
+const ports = load("ports.json");
+const guide = load("fieldguide.json");
+const daily = load("daily.json");
+if (ports.rows.length < 12) problems.push("ports rows");
+if (!ports.matrix.length || !ports.quiz.length) problems.push("ports matrix");
+const requiredGuide = ["fundamentals", "architecture", "deployment", "migration", "configuration", "troubleshooting", "ports", "trunking", "wfm", "recording", "e911", "analytics", "crm", "ai-agents", "security", "licensing", "roadmap", "integrations", "career"];
+for (const id of requiredGuide) {
+  if (!guide.sections.some((section) => section.id === id)) problems.push(`guide ${id}`);
+}
+if (daily.items.length < 8) problems.push("daily");
+const manifest = JSON.parse(readFileSync(join(root, "campus", "downloads", "manifest.json"), "utf8"));
+if (manifest.items.length < 8) problems.push("downloads");
+for (const item of manifest.items) {
+  for (const key of ["html", "pdf", "png", "json"]) {
+    if (item[key] && !statSync(join(root, "campus", item[key]), { throwIfNoEntry: false })) problems.push(`missing ${item[key]}`);
+  }
+}
+const indexHtml = readFileSync(join(root, "campus", "index.html"), "utf8").toLowerCase();
+if (indexHtml.includes("linkedin") || indexHtml.includes("mailto:")) problems.push("chrome contact policy");
+
 const shell = ["index.html", "css/app.css", "js/app.js", "js/draw.js", "js/audio.js", "js/flow.js", "data/catalog.json"]
   .map((rel) => statSync(join(root, "campus", rel)).size);
 const shellBytes = shell.reduce((sum, n) => sum + n, 0);

@@ -1,7 +1,7 @@
 const KEY = "sip-universe-settings";
 
 export const DEFAULTS = {
-  theme: "observatory",
+  theme: "futuristic",
   sfx: false,
   narration: false,
   voiceURI: "",
@@ -50,7 +50,10 @@ export function applySettings() {
   root.dataset.motion = settings.motion || "full";
   const theme = document.querySelector('meta[name="theme-color"]');
   if (theme) {
-    const colors = { observatory: "#070b14", daylight: "#f4f7fb", contrast: "#000000", phosphor: "#04140c" };
+    const colors = {
+      futuristic: "#07111c", gaming: "#120814", neon: "#05060a", light: "#f6f1e7",
+      observatory: "#070b14", daylight: "#f4f7fb", contrast: "#000000", phosphor: "#04140c",
+    };
     theme.setAttribute("content", colors[settings.theme] || "#070b14");
   }
 }

@@ -75,7 +75,13 @@ Example messages are synthetic. Addresses come from the documentation ranges in 
 
 ## License
 
-Code is MIT. Curriculum prose is CC BY 4.0. Three.js is MIT. See `LICENSE`.
+Code is MIT. Curriculum prose is CC BY-NC-SA 4.0. Three.js is MIT. See `LICENSE`.
+
+Cheat sheets, the flashcard deck, and `downloads/manifest.json` are rebuilt with:
+
+```bash
+node scripts/build_downloads.mjs
+```
 
 ## Screenshots
 

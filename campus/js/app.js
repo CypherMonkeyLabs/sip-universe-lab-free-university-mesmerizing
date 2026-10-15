@@ -4,6 +4,7 @@ import {
   loadSettings, getSettings, saveSettings, applySettings, onSettings,
   playTone, narrate, stopNarration, fillVoiceSelect,
 } from "./audio.js";
+import { tryFieldRoute, bindChrome, noteBadge, searchField } from "./field.js";
 
 const view = document.querySelector("#view");
 const titleEl = document.querySelector("#view-title");
@@ -17,17 +18,27 @@ const NAV = [
   { href: "#/", label: "Home", group: "Learn", mobile: "Home" },
   { href: "#/tracks", label: "Tracks", group: "Learn", mobile: "Tracks" },
   { href: "#/labs", label: "Labs", group: "Learn" },
+  { href: "#/guide", label: "Field guide", group: "Learn" },
   { href: "#/boss", label: "Boss incidents", group: "Learn" },
   { href: "#/interview", label: "Interview", group: "Learn" },
+  { href: "#/play", label: "Practice", group: "Learn" },
   { href: "#/tools/ladder", label: "Ladders", group: "Tools", mobile: "Tools" },
   { href: "#/tools/dissector", label: "Dissector", group: "Tools" },
   { href: "#/tools/sdp", label: "SDP negotiator", group: "Tools" },
   { href: "#/tools/sandbox", label: "Normalization", group: "Tools" },
   { href: "#/tools/capture", label: "Capture bench", group: "Tools" },
+  { href: "#/play/builder", label: "Flow builder", group: "Tools" },
+  { href: "#/explorer", label: "Flow explorer", group: "Tools" },
   { href: "#/topology", label: "3D topology", group: "Tools", mobile: "Map" },
+  { href: "#/atlas", label: "Diagram atlas", group: "Field" },
+  { href: "#/ports", label: "Ports", group: "Field" },
   { href: "#/glossary", label: "Glossary", group: "Field" },
   { href: "#/ecosystem", label: "Ecosystem", group: "Field" },
   { href: "#/certs", label: "Certifications", group: "Field" },
+  { href: "#/career", label: "Career", group: "Field" },
+  { href: "#/roadmap", label: "Roadmap", group: "Field" },
+  { href: "#/downloads", label: "Cheat codes", group: "Field" },
+  { href: "#/badges", label: "Badges", group: "Field" },
   { href: "#/faults", label: "Faults", group: "Field" },
 ];
 
@@ -47,6 +58,9 @@ function mark(track, lesson, patch) {
   const key = lessonKey(track, lesson);
   data.lessons[key] = { ...(data.lessons[key] || {}), ...patch };
   saveProgress(data);
+  if (patch.read) noteBadge("read");
+  if (patch.quizN && patch.quiz / patch.quizN >= 0.8) noteBadge("quiz");
+  if (patch.lab) noteBadge("lab");
 }
 function updatePill() {
   const data = progress();
@@ -92,11 +106,11 @@ function paintNav(path) {
   const mobile = [
     { href: "#/", label: "Home" },
     { href: "#/tracks", label: "Tracks" },
-    { href: "#/tools", label: "Tools" },
+    { href: "#/play", label: "Play" },
     { href: "#/topology", label: "Map" },
   ];
   bottom.innerHTML = mobile.map((item) => {
-    const current = path === item.href || (item.href === "#/tools" && path.startsWith("#/tools")) ? ' aria-current="page"' : "";
+    const current = path === item.href || (item.href === "#/play" && path.startsWith("#/play")) ? ' aria-current="page"' : "";
     return `<a href="${item.href}"${current}>${esc(item.label)}</a>`;
   }).join("") + `<button type="button" id="open-more">More</button>`;
   bottom.querySelector("#open-more").addEventListener("click", () => {
@@ -139,29 +153,35 @@ function mountCheck(host, check, onPass) {
   });
 }
 
-function renderHome() {
+async function renderHome() {
   setTitle("SIP Universe");
   const stats = catalog.stats;
   const preview = catalog.preview;
   view.innerHTML = `
-    <p class="lede">A field guide to SIP, SDP, RTP/SRTP, and the session border controllers that sit between enterprises, carriers, and cloud voice. Every claim in a lesson links to an RFC or a vendor document.</p>
+    <p class="lede">A field guide to SIP, SDP, RTP/SRTP, NAT, ICE, and the session border controllers between enterprises, carriers, and cloud voice. Lessons cite an RFC or a vendor document.</p>
     <div class="stat-row">
       <div class="stat"><b>${stats.tracks}</b> tracks</div>
       <div class="stat"><b>${stats.lessons}</b> lessons</div>
       <div class="stat"><b>${stats.quizzes}</b> quiz items</div>
+      <div class="stat"><b>${stats.cards}</b> flashcards</div>
       <div class="stat"><b>${stats.labs}</b> labs</div>
-      <div class="stat"><b>${stats.faults}</b> faults</div>
+      <div class="stat"><b>${stats.glossary}</b> glossary terms</div>
     </div>
-    <div class="hero-grid">
+    <div class="hero-stage">
+      <div class="orb orb-a" aria-hidden="true"></div>
+      <div class="orb orb-b" aria-hidden="true"></div>
       <div>
-        <p>Start in Foundations if you can subnet and have not lived in RFC 3261. Open Troubleshooting or the capture bench if a trunk is already on fire.</p>
+        <p>Start in Foundations if you can subnet and have not lived in RFC 3261. Open the field guide for cutover, emergency calling, and the neighbor systems. Open a bench if a trunk is already on fire.</p>
         <div class="row-actions">
           <a class="btn primary" href="#/track/foundations">Start at the protocol</a>
-          <a class="btn" href="#/topology">Open the 3D border map</a>
+          <a class="btn" href="#/atlas">Open the diagram atlas</a>
+          <a class="btn" href="#/ports">Ports and firewalls</a>
         </div>
       </div>
       <div id="home-flow"></div>
     </div>
+    <h2>Signal, in motion</h2>
+    <div id="home-atlas"></div>
     <h2>Tracks</h2>
     <div class="card-grid">${catalog.tracks.map(trackCard).join("")}</div>
     <h2>Benches</h2>
@@ -171,10 +191,15 @@ function renderHome() {
       ${bench("SDP negotiator", "Offer/answer codec, direction, and port 0.", "#/tools/sdp")}
       ${bench("Normalization", "CUBE SIP profile and Acme header-rule subsets.", "#/tools/sandbox")}
       ${bench("Capture bench", "Synthetic debug ccsip output, one message at a time.", "#/tools/capture")}
+      ${bench("Flow builder", "Assemble your own ladder.", "#/play/builder")}
+      ${bench("Flow explorer", "Click the edge and read the citation.", "#/explorer")}
       ${bench("3D topology", "Enterprise SBC, CUCM, Teams, Webex, and CCaaS paths.", "#/topology")}
     </div>
     <p class="fine">Example messages are synthetic. Addresses use the documentation ranges in <a href="https://www.rfc-editor.org/rfc/rfc5737">RFC 5737</a>. Phone numbers use 555.</p>`;
-  return mountFlow(view.querySelector("#home-flow"), preview);
+  const stop = mountFlow(view.querySelector("#home-flow"), preview);
+  const { mountSpotlight } = await import("./diagrams.js");
+  mountSpotlight(view.querySelector("#home-atlas"));
+  return stop;
 }
 
 function trackCard(track) {
@@ -224,28 +249,39 @@ async function renderLesson(trackId, lessonId) {
   const prev = track.lessons[index - 1];
   const next = track.lessons[index + 1];
   setTitle(lesson.title);
+  const toc = (lesson.sections || []).map((section, i) => `<a href="#sec-${i}">${esc(section.h)}</a>`).join("");
   view.innerHTML = `${crumbs([["Tracks", "#/tracks"], [track.title, `#/track/${track.id}`], [lesson.title]])}
-    <p class="lede">${esc(lesson.summary)}</p>
-    <div class="meta"><span class="chip">${esc(lesson.level || track.level)}</span><span class="chip">${lesson.minutes} min</span></div>
-    ${lesson.objectives ? `<h2>You will be able to</h2><ul>${lesson.objectives.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>` : ""}
-    ${illustration(lesson.illustration)}
-    <h2>Read</h2>
-    ${(lesson.sections || []).map((section) => `<section><h3>${esc(section.h)}</h3>${(section.paragraphs || []).map((p) => `<p>${esc(p)}</p>`).join("")}${citeLinks(section.cites)}</section>`).join("")}
-    <h2>Ladder</h2>
-    <p class="fine">Swipe sideways on a small screen. Inspect shows the synthetic message for the highlighted hop.</p>
-    <div id="lesson-flow"></div>
-    <h2>Check yourself</h2>
-    <div id="lesson-quiz"></div>
-    <h2>Flashcards</h2>
-    <div id="lesson-cards"></div>
-    <h2>Lab</h2>
-    <div id="lesson-lab"></div>
-    <h2>Fault and fix</h2>
-    <div id="lesson-fault"></div>
-    <div class="pager">
-      ${prev ? `<a class="btn" href="#/lesson/${esc(track.id)}/${esc(prev.id)}">Previous</a>` : ""}
-      ${next ? `<a class="btn" href="#/lesson/${esc(track.id)}/${esc(next.id)}">Next</a>` : ""}
-      <button type="button" id="mark-read">Mark lesson read</button>
+    <div class="read-layout">
+      <article class="read-pane">
+        <p class="lede">${esc(lesson.summary)}</p>
+        <div class="meta"><span class="chip">${esc(lesson.level || track.level)}</span><span class="chip">${lesson.minutes} min</span></div>
+        ${lesson.objectives ? `<h2>You will be able to</h2><ul>${lesson.objectives.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>` : ""}
+        ${illustration(lesson.illustration)}
+        <h2>Read</h2>
+        ${(lesson.sections || []).map((section, i) => `<section id="sec-${i}"><h3>${esc(section.h)}</h3>${(section.paragraphs || []).map((p) => `<p>${esc(p)}</p>`).join("")}${citeLinks(section.cites)}</section>`).join("")}
+        <h2 id="lesson-ladder">Ladder</h2>
+        <p class="fine">Swipe sideways on a small screen. Inspect shows the synthetic message for the highlighted hop.</p>
+        <div id="lesson-flow"></div>
+        <h2 id="lesson-quiz-h">Check yourself</h2>
+        <div id="lesson-quiz"></div>
+        <h2>Flashcards</h2>
+        <div id="lesson-cards"></div>
+        <h2>Lab</h2>
+        <div id="lesson-lab"></div>
+        <h2>Fault and fix</h2>
+        <div id="lesson-fault"></div>
+        <div class="pager">
+          ${prev ? `<a class="btn" href="#/lesson/${esc(track.id)}/${esc(prev.id)}">Previous</a>` : ""}
+          ${next ? `<a class="btn" href="#/lesson/${esc(track.id)}/${esc(next.id)}">Next</a>` : ""}
+          <button type="button" id="mark-read">Mark lesson read</button>
+        </div>
+      </article>
+      <aside class="read-toc" aria-label="On this page">
+        <h2>On this page</h2>
+        ${toc}
+        <a href="#lesson-ladder">Ladder</a>
+        <a href="#lesson-quiz-h">Quiz</a>
+      </aside>
     </div>`;
   view.querySelector("#mark-read").addEventListener("click", () => { mark(track.id, lesson.id, { read: true }); playTone("ok"); });
   const stopFlow = mountFlow(view.querySelector("#lesson-flow"), lesson.flow);
@@ -362,7 +398,7 @@ function notFound() {
   return () => {};
 }
 
-function renderSearch(params) {
+async function renderSearch(params) {
   const q = (params.get("q") || "").trim();
   setTitle(q ? `Search: ${q}` : "Search");
   const needle = q.toLowerCase();
@@ -375,7 +411,14 @@ function renderSearch(params) {
       }
     }
   }
-  view.innerHTML = `<p class="lede">${q ? `${hits.length} lessons match “${esc(q)}”.` : "Type a header, status code, product, or RFC number."}</p>
+  let guideHits = [];
+  try {
+    const guide = await loadJSON("data/fieldguide.json");
+    guideHits = searchField(guide, q);
+  } catch { guideHits = []; }
+  view.innerHTML = `<p class="lede">${q ? `${hits.length} lessons and ${guideHits.length} guide sections match “${esc(q)}”.` : "Type a header, status code, product, or RFC number."}</p>
+    ${guideHits.length ? `<h2>Field guide</h2><ul>${guideHits.map((hit) => `<li><a href="${esc(hit.href)}">${esc(hit.title)}</a><br><span class="fine">${esc(hit.summary)}</span></li>`).join("")}</ul>` : ""}
+    <h2>Lessons</h2>
     <ul>${hits.map(({ track, lesson }) => `<li><a href="#/lesson/${esc(track.id)}/${esc(lesson.id)}">${esc(lesson.title)}</a> <span class="fine">${esc(track.title)}</span><br><span class="fine">${esc(lesson.summary)}</span></li>`).join("")}</ul>`;
   return () => {};
 }
@@ -557,7 +600,9 @@ async function render() {
   view.setAttribute("aria-busy", "true");
   let stop = () => {};
   try {
-    if (path === "#/" || path === "") stop = await renderHome();
+    const extra = await tryFieldRoute(path, view, { setTitle, catalog });
+    if (extra) stop = extra;
+    else if (path === "#/" || path === "") stop = await renderHome();
     else if (path === "#/tracks") stop = await renderTracks();
     else if (path === "#/labs") stop = await renderLabs();
     else if (path === "#/tools") stop = await renderTools();
@@ -567,7 +612,7 @@ async function render() {
     else if (path === "#/certs") stop = await renderCerts();
     else if (path === "#/interview") stop = await renderInterview();
     else if (path === "#/faults") stop = await renderFaults();
-    else if (path === "#/search") stop = renderSearch(params);
+    else if (path === "#/search") stop = await renderSearch(params);
     else if (path === "#/boss") stop = await renderBoss();
     else {
       let match = path.match(/^#\/track\/([\w-]+)\/?$/);
@@ -643,6 +688,7 @@ async function boot() {
     return;
   }
   updatePill();
+  bindChrome(catalog);
   window.addEventListener("hashchange", render);
   if (!location.hash) location.hash = "#/";
   else render();
@@ -651,7 +697,7 @@ async function boot() {
       navigator.serviceWorker.register("./sw.js").then(() => {
         window.setTimeout(() => {
           catalog.tracks.forEach((track) => { fetch(track.file).catch(() => {}); });
-          ["data/glossary.json", "data/boss.json", "data/interview.json", "data/ecosystem.json", "data/certs.json", "data/labs.json", "data/samples.json"].forEach((path) => {
+          ["data/glossary.json", "data/boss.json", "data/interview.json", "data/ecosystem.json", "data/certs.json", "data/labs.json", "data/samples.json", "data/ports.json", "data/fieldguide.json", "data/daily.json", "downloads/manifest.json"].forEach((path) => {
             fetch(path).catch(() => {});
           });
         }, 8000);
