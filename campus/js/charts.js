@@ -94,7 +94,7 @@ export function chartMarkup(id, catalog, ports) {
 }
 
 export function chartsHTML(catalog, ports) {
-  return `<div class="chart-grid">${CHARTS.map((chart) => `<figure class="chart-card" data-chart="${esc(chart.id)}">
+  return `<div class="chart-grid">${CHARTS.map((chart) => `<figure class="chart-card" id="chart-${esc(chart.id)}" data-chart="${esc(chart.id)}">
       ${chartMarkup(chart.id, catalog, ports)}
       <figcaption><strong>${esc(chart.title)}.</strong> ${esc(chart.source)}</figcaption>
     </figure>`).join("")}</div>`;

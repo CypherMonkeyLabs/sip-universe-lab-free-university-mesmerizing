@@ -1233,66 +1233,9 @@
   }
 
   // campus/js/icons.js
-  var SPECS = {
-    foundations: [[0, 0, 0, 1.4, 1.4, 2.4], [1.6, 0, 0.2, 0.8, 0.8, 1.1], [-0.2, 0, 1.6, 0.7, 0.7, 0.7]],
-    "sip-core": [[0, 0, 0, 1.6, 1.2, 0.45], [0.15, 0.5, 0.15, 1.3, 1, 0.45], [0.3, 1, 0.3, 1, 0.8, 0.45], [0.45, 1.5, 0.45, 0.7, 0.6, 0.4]],
-    "call-flows": [[0, 0, 0, 0.45, 0.45, 2.2], [2.2, 0, 0, 0.45, 0.45, 2.2], [0.2, 1.5, 0.2, 1.8, 0.28, 0.22], [0.2, 0.7, 0.2, 1.8, 0.28, 0.22]],
-    routing: [[0.4, 0, 0.4, 1.5, 1.5, 0.35], [0.9, 0.4, 0.2, 0.35, 1.2, 1.4], [0.2, 0.4, 0.9, 1.2, 0.35, 1.4]],
-    sdp: [[0, 0, 0, 1.7, 0.35, 1.3], [0.3, 0.2, 0.8, 1.5, 0.3, 1.1], [0.6, 0.4, 1.5, 1.2, 0.28, 0.9]],
-    rtp: [[0, 0, 0.2, 0.55, 0.7, 0.7], [0.8, 0, 0, 0.55, 0.7, 1.3], [1.6, 0, 0.3, 0.55, 0.7, 0.9], [2.4, 0, 0.1, 0.55, 0.7, 1.6]],
-    security: [[0.2, 0, 0.2, 1.6, 1.4, 0.4], [0.45, 0.45, 0.45, 1.1, 0.95, 1.5], [0.75, 1.9, 0.75, 0.5, 0.4, 0.45]],
-    nat: [[0, 0, 0, 1.1, 1.3, 1.5], [1.5, 0, 0.4, 1.1, 1.3, 1.5], [0.7, 0.3, 1.3, 0.7, 0.35, 0.35]],
-    sbc: [[0, 0, 0.6, 0.5, 1.4, 1.8], [2, 0, 0.6, 0.5, 1.4, 1.8], [0.5, 0.7, 0.3, 1.5, 0.4, 0.7]],
-    cisco: [[0.3, 0, 0.3, 1.8, 1.8, 0.7], [0.7, 0.75, 0.7, 1, 1, 0.9], [1.05, 1.7, 1.05, 0.35, 0.35, 0.55]],
-    multivendor: [[0, 0, 0, 0.8, 0.8, 0.8], [1.5, 0, 0.4, 0.8, 0.8, 1.2], [0.5, 0, 1.6, 0.8, 0.8, 1.5], [1.7, 0.2, 1.5, 0.6, 0.6, 0.6]],
-    cloud: [[0.2, 0, 0.6, 0.7, 0.7, 0.9], [1, 0.35, 0.3, 0.9, 0.8, 0.7], [1.7, 0.15, 1, 0.75, 0.7, 0.85], [0.8, 0.7, 1.2, 0.6, 0.55, 0.5]],
-    troubleshoot: [[0.8, 0, 0.8, 0.7, 0.7, 0.35], [0.95, 0.4, 0.95, 0.4, 0.4, 1.5], [0.2, 1.5, 0.5, 1.5, 0.28, 0.22]],
-    operations: [[0.15, 0, 0.15, 2, 2, 0.3], [0.7, 0.35, 0.7, 0.9, 0.9, 0.35], [1, 0.75, 1, 0.28, 0.28, 0.9]],
-    ecosystem: [[0.9, 0, 0.9, 0.7, 0.7, 0.7], [0, 0, 0.2, 0.55, 0.55, 0.55], [1.8, 0, 0.3, 0.55, 0.55, 0.9], [0.3, 0, 1.7, 0.55, 0.55, 1.1], [1.6, 0, 1.6, 0.5, 0.5, 0.5]],
-    capstone: [[0.85, 0, 0.85, 0.8, 0.8, 1.6], [0.2, 0.9, 0.85, 2.1, 0.35, 0.35], [0.85, 0.9, 0.2, 0.35, 2.1, 0.35]]
-  };
-  var TONES = [
-    ["var(--cc-accent-1)", "color-mix(in srgb, var(--cc-accent-1) 62%, #05060c)", "color-mix(in srgb, var(--cc-accent-2) 70%, #05060c)"],
-    ["var(--cc-accent-2)", "color-mix(in srgb, var(--cc-accent-2) 60%, #05060c)", "color-mix(in srgb, var(--cc-accent-3) 68%, #05060c)"],
-    ["var(--cc-accent-3)", "color-mix(in srgb, var(--cc-accent-3) 58%, #05060c)", "color-mix(in srgb, var(--cc-accent-4) 70%, #05060c)"],
-    ["var(--cc-accent-4)", "color-mix(in srgb, var(--cc-accent-4) 55%, #05060c)", "color-mix(in srgb, var(--cc-accent-1) 66%, #05060c)"]
-  ];
-  function project(x, y, z) {
-    return [120 + (x - z) * 26, 138 - y * 24 + (x + z) * 13];
-  }
-  function face(points, fill) {
-    const d = points.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" ") + " Z";
-    return `<path d="${d}" fill="${fill}" stroke="rgba(5,8,16,0.55)" stroke-width="1.1" stroke-linejoin="round"></path>`;
-  }
-  function prism(x, y, z, w, d, h, tone) {
-    const colors = TONES[tone % TONES.length];
-    const a = project(x, y, z);
-    const b = project(x + w, y, z);
-    const c = project(x + w, y, z + d);
-    const dp = project(x, y, z + d);
-    const a2 = project(x, y + h, z);
-    const b2 = project(x + w, y + h, z);
-    const c2 = project(x + w, y + h, z + d);
-    const d2 = project(x, y + h, z + d);
-    return face([b, c, c2, b2], colors[1]) + face([a, dp, d2, a2], colors[2]) + face([a2, b2, c2, d2], colors[0]);
-  }
   function iconHTML(id) {
-    const parts = SPECS[id] || SPECS.foundations;
-    const body = parts.map((part, i) => prism(part[0], part[1], part[2], part[3], part[4], part[5], i + id.length % 3)).join("");
-    const safe = String(id).replace(/[^a-z0-9-]/gi, "") || "icon";
-    return `<span class="iso" data-iso="${safe}" aria-hidden="true"><svg viewBox="0 0 240 210">
-    <defs>
-      <radialGradient id="glow-${safe}" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="var(--cc-accent-1)" stop-opacity="0.85"/>
-        <stop offset="100%" stop-color="var(--cc-accent-2)" stop-opacity="0"/>
-      </radialGradient>
-      <filter id="soft-${safe}" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx="0" dy="14" stdDeviation="6" flood-color="#02040a" flood-opacity="0.55"/>
-      </filter>
-    </defs>
-    <ellipse cx="120" cy="168" rx="62" ry="16" fill="url(#glow-${safe})"></ellipse>
-    <g filter="url(#soft-${safe})">${body}</g>
-  </svg></span>`;
+    const safe = String(id || "foundations").replace(/[^a-z0-9-]/gi, "") || "foundations";
+    return `<span class="iso glyph-hold"><canvas class="glyph-view" data-glyph="${safe}" width="192" height="192" aria-hidden="true"></canvas></span>`;
   }
 
   // campus/js/play.js
@@ -1701,7 +1644,7 @@
     return "";
   }
   function chartsHTML(catalog2, ports) {
-    return `<div class="chart-grid">${CHARTS.map((chart) => `<figure class="chart-card" data-chart="${esc(chart.id)}">
+    return `<div class="chart-grid">${CHARTS.map((chart) => `<figure class="chart-card" id="chart-${esc(chart.id)}" data-chart="${esc(chart.id)}">
       ${chartMarkup(chart.id, catalog2, ports)}
       <figcaption><strong>${esc(chart.title)}.</strong> ${esc(chart.source)}</figcaption>
     </figure>`).join("")}</div>`;
@@ -2339,27 +2282,50 @@
     if (path === "#/atlas") {
       ctx2.setTitle("Diagram atlas");
       const animated = ATLAS.filter((item) => item.animated).length;
-      view2.innerHTML = `<p class="lede">${ATLAS.length} diagrams, ${animated} of them animated call, signal, or data flows. Reduced motion keeps the drawing and drops the traveling packet.</p>
-      <div class="atlas-grid">${ATLAS.map(figureHTML).join("")}</div>`;
+      const notes = ATLAS.slice(0, 8).map((item) => `<li><a href="#atlas-${esc(item.id)}">${esc(item.title)}</a></li>`).join("");
+      view2.innerHTML = `<div class="split-stage"><div class="split-main">
+      <p class="lede">${ATLAS.length} diagrams, ${animated} of them animated call, signal, or data flows. Reduced motion keeps the drawing and drops the traveling packet.</p>
+      <div class="atlas-grid">${ATLAS.map(figureHTML).join("")}</div>
+    </div><aside class="side-stage">
+      <canvas class="glyph-view side-live" data-glyph="sip-core" width="320" height="320" aria-hidden="true"></canvas>
+      <h2>Read these first</h2>
+      <ol>${notes}</ol>
+      <p class="fine">Enlarge a ladder to play, pause, and step the packet. The caption says why that hop matters.</p>
+    </aside></div>`;
       return () => {
       };
     }
     if (path === "#/flows") {
       ctx2.setTitle("Flows");
       const flows = ATLAS.filter((item) => item.animated);
-      view2.innerHTML = `<p class="lede">${flows.length} animated flows: INVITE, REGISTER, transfer, hold, forking, early media, NAT, TLS, and SRTP among them.</p>
+      const notes = flows.slice(0, 8).map((item) => `<li><a href="#atlas-${esc(item.id)}">${esc(item.title)}</a><span class="fine"> ${esc(item.caption)}</span></li>`).join("");
+      view2.innerHTML = `<div class="split-stage"><div class="split-main">
+      <p class="lede">${flows.length} animated flows: INVITE, REGISTER, transfer, hold, forking, early media, NAT, TLS, and SRTP among them.</p>
       ${paradeHTML()}
-      <div class="atlas-grid">${flows.map(figureHTML).join("")}</div>`;
+      <div class="atlas-grid">${flows.map(figureHTML).join("")}</div>
+    </div><aside class="side-stage">
+      <canvas class="glyph-view side-live" data-glyph="call-flows" width="320" height="320" aria-hidden="true"></canvas>
+      <h2>Why these flows</h2>
+      <ol>${notes}</ol>
+    </aside></div>`;
       return bindParade(view2);
     }
     if (path === "#/charts") {
       const ports = await loadJSON("data/ports.json");
       ctx2.setTitle("Charts");
-      view2.innerHTML = `<p class="lede">${CHARTS.length} charts from the catalog, the ports table, and lesson tags. The topic map uses markmap.</p>
+      const notes = CHARTS.map((chart) => `<li><a href="#chart-${esc(chart.id)}">${esc(chart.title)}</a><span class="fine"> ${esc(chart.source)}</span></li>`).join("");
+      view2.innerHTML = `<div class="split-stage"><div class="split-main">
+      <p class="lede">${CHARTS.length} charts from the catalog, the ports table, and lesson tags. The topic map uses markmap.</p>
       ${paradeHTML()}
       ${chartsHTML(ctx2.catalog, ports)}
       <h2>Topic map</h2>
-      <div id="mind-host"></div>`;
+      <div id="mind-host"></div>
+    </div><aside class="side-stage">
+      <canvas class="glyph-view side-live" data-glyph="operations" width="320" height="320" aria-hidden="true"></canvas>
+      <h2>Where the numbers come from</h2>
+      <ol>${notes}</ol>
+      <p class="fine">Hover a bar for the value. The source line under each chart is the citation.</p>
+    </aside></div>`;
       paintRoughTotals(view2, ctx2.catalog);
       animateCharts(view2);
       const stopMind = mountMind(view2.querySelector("#mind-host"));
@@ -2640,7 +2606,7 @@
   }
   function parseMedia(text2) {
     const lines = String(text2 || "").replace(/\r/g, "").split("\n").map((l) => l.trim()).filter((l) => l.length);
-    const session = [];
+    const session2 = [];
     const media = [];
     let cur = null;
     for (const line of lines) {
@@ -2671,10 +2637,10 @@
           cur.dir = line.slice(2);
         }
       } else {
-        session.push(line);
+        session2.push(line);
       }
     }
-    return { session, media };
+    return { session: session2, media };
   }
   function codecName(pt, rtpmap) {
     if (rtpmap[pt]) return rtpmap[pt].split("/")[0].toUpperCase();
@@ -3210,7 +3176,7 @@
     return `<svg class="topo-flat" viewBox="0 0 ${w} ${h}" role="img" aria-label="Flat SBC topology">
     <rect width="${w}" height="${h}" class="ladder-bg"></rect>${lines}${dots}</svg>`;
   }
-  function makeLabel(THREE, text2) {
+  function makeLabel(THREE2, text2) {
     const canvas = document.createElement("canvas");
     canvas.width = 256;
     canvas.height = 64;
@@ -3222,8 +3188,8 @@
     g.textAlign = "center";
     g.textBaseline = "middle";
     g.fillText(text2, 128, 32);
-    const tex = new THREE.CanvasTexture(canvas);
-    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true }));
+    const tex = new THREE2.CanvasTexture(canvas);
+    const sprite = new THREE2.Sprite(new THREE2.SpriteMaterial({ map: tex, transparent: true }));
     sprite.scale.set(1.8, 0.45, 1);
     return sprite;
   }
@@ -3240,7 +3206,7 @@
   async function mountTopology(host) {
     let failure = "none";
     let frame = 0;
-    let renderer = null;
+    let renderer2 = null;
     let stop = false;
     host.innerHTML = `
     <div class="topo-layout">
@@ -3261,19 +3227,19 @@
     nodeList.innerHTML = NODES.map((n) => `<li><button type="button" data-node="${esc(n.id)}">${esc(n.label)}</button></li>`).join("");
     const meshes = /* @__PURE__ */ new Map();
     const lines = [];
-    let scene = null;
-    let camera = null;
-    let THREE = null;
+    let scene2 = null;
+    let camera2 = null;
+    let THREE2 = null;
     const sph = { r: 13.5, theta: 0.5, phi: 1.05 };
-    const reduced3 = prefersReduced();
+    const reduced4 = prefersReduced();
     function placeCamera() {
-      if (!camera) return;
-      camera.position.set(
+      if (!camera2) return;
+      camera2.position.set(
         sph.r * Math.sin(sph.phi) * Math.sin(sph.theta),
         sph.r * Math.cos(sph.phi),
         sph.r * Math.sin(sph.phi) * Math.cos(sph.theta)
       );
-      camera.lookAt(0, 0.4, 0);
+      camera2.lookAt(0, 0.4, 0);
     }
     function colorFor(state) {
       if (state === "down") return 16731498;
@@ -3304,62 +3270,62 @@
       host.querySelector("#topo-detail").innerHTML = `<h3>${esc(node.label)}</h3><p>Select a failure to see how this node\u2019s paths change. Labels are a teaching map, not a discovery scan.</p>`;
     });
     applyFailure();
-    if (reduced3) {
+    if (reduced4) {
       host.querySelector("#topo-mode").textContent = "Reduced motion is on, so the flat map is the view. Turn motion back on in Settings to orbit the 3D model.";
       return () => {
       };
     }
     try {
-      THREE = await loadThree();
+      THREE2 = await loadThree();
       if (stop) return () => {
       };
       const canvas = host.querySelector("#topo-canvas");
       const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
       if (!gl) throw new Error("no webgl");
       canvas.hidden = false;
-      scene = new THREE.Scene();
-      scene.fog = new THREE.Fog(461588, 16, 32);
-      camera = new THREE.PerspectiveCamera(48, 1, 0.1, 80);
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      scene.add(new THREE.AmbientLight(8956637, 0.55));
-      const key = new THREE.PointLight(4054271, 18, 30);
+      scene2 = new THREE2.Scene();
+      scene2.fog = new THREE2.Fog(461588, 16, 32);
+      camera2 = new THREE2.PerspectiveCamera(48, 1, 0.1, 80);
+      renderer2 = new THREE2.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer2.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      scene2.add(new THREE2.AmbientLight(8956637, 0.55));
+      const key = new THREE2.PointLight(4054271, 18, 30);
       key.position.set(4, 6, 4);
-      scene.add(key);
-      const rim = new THREE.PointLight(16731533, 10, 24);
+      scene2.add(key);
+      const rim = new THREE2.PointLight(16731533, 10, 24);
       rim.position.set(-4, 2, -3);
-      scene.add(rim);
+      scene2.add(rim);
       NODES.forEach((n) => {
-        const mesh = new THREE.Mesh(
-          new THREE.SphereGeometry(0.28, 24, 18),
-          new THREE.MeshStandardMaterial({ color: 1192004, emissive: 4054271, emissiveIntensity: 0.7, roughness: 0.35 })
+        const mesh = new THREE2.Mesh(
+          new THREE2.SphereGeometry(0.28, 24, 18),
+          new THREE2.MeshStandardMaterial({ color: 1192004, emissive: 4054271, emissiveIntensity: 0.7, roughness: 0.35 })
         );
         mesh.position.set(n.x, n.y, n.z);
-        const label = makeLabel(THREE, n.label);
+        const label = makeLabel(THREE2, n.label);
         label.position.set(n.x, n.y + 0.55, n.z);
-        scene.add(mesh);
-        scene.add(label);
+        scene2.add(mesh);
+        scene2.add(label);
         meshes.set(n.id, mesh);
       });
       LINKS2.forEach(([a, b, kind]) => {
         const na = nodeById(a);
         const nb = nodeById(b);
-        const geo = new THREE.BufferGeometry().setFromPoints([
-          new THREE.Vector3(na.x, na.y, na.z),
-          new THREE.Vector3(nb.x, nb.y, nb.z)
+        const geo = new THREE2.BufferGeometry().setFromPoints([
+          new THREE2.Vector3(na.x, na.y, na.z),
+          new THREE2.Vector3(nb.x, nb.y, nb.z)
         ]);
-        const mat = new THREE.LineBasicMaterial({ color: 4054271 });
-        const line = new THREE.Line(geo, mat);
-        scene.add(line);
+        const mat = new THREE2.LineBasicMaterial({ color: 4054271 });
+        const line = new THREE2.Line(geo, mat);
+        scene2.add(line);
         lines.push({ kind, line });
       });
       const stage = host.querySelector("#topo-stage");
       const resize = () => {
         const w = stage.clientWidth || 640;
         const h = 420;
-        renderer.setSize(w, h, false);
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
+        renderer2.setSize(w, h, false);
+        camera2.aspect = w / h;
+        camera2.updateProjectionMatrix();
       };
       resize();
       placeCamera();
@@ -3394,7 +3360,7 @@
         frame = requestAnimationFrame(loop);
         if (!dragging) sph.theta += 15e-4;
         placeCamera();
-        renderer.render(scene, camera);
+        renderer2.render(scene2, camera2);
       };
       loop();
       window.addEventListener("resize", resize);
@@ -3403,7 +3369,7 @@
         stop = true;
         cancelAnimationFrame(frame);
         window.removeEventListener("resize", resize);
-        renderer.dispose();
+        renderer2.dispose();
       };
     } catch {
       host.querySelector("#topo-mode").textContent = "WebGL is unavailable. The flat map is the working view.";
@@ -3415,6 +3381,42 @@
 
   // campus/js/hero.js
   var LABELS = ["UA", "SBC", "DNS", "PSTN", "TURN", "RTP"];
+  var VERT = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+  var EXTRACT = `
+  uniform sampler2D tDiffuse;
+  uniform float threshold;
+  varying vec2 vUv;
+  void main() {
+    vec4 color = texture2D(tDiffuse, vUv);
+    float luma = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+    float keep = smoothstep(threshold, threshold + 0.4, luma);
+    gl_FragColor = vec4(color.rgb * keep, 1.0);
+  }
+`;
+  var BLUR = `
+  uniform sampler2D tDiffuse;
+  uniform vec2 direction;
+  varying vec2 vUv;
+  void main() {
+    vec3 acc = vec3(0.0);
+    float sum = 0.0;
+    for (int i = -6; i <= 6; i++) {
+      float wgt = exp(-float(i * i) / 14.0);
+      acc += texture2D(tDiffuse, vUv + direction * float(i)).rgb * wgt;
+      sum += wgt;
+    }
+    gl_FragColor = vec4(acc / sum, 1.0);
+  }
+`;
+  var session = null;
+  var flyArmed = false;
+  var looseFly = null;
   function reduced2() {
     return document.documentElement.dataset.motion === "reduce";
   }
@@ -3457,10 +3459,119 @@
     ctx2.fillText(text2, 128, 36);
     return canvas;
   }
+  function makeTarget(THREE2, w, h) {
+    const target = new THREE2.WebGLRenderTarget(w, h, { depthBuffer: true });
+    return target;
+  }
+  function bloomKit(THREE2) {
+    const scene2 = new THREE2.Scene();
+    const camera2 = new THREE2.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const mesh = new THREE2.Mesh(new THREE2.PlaneGeometry(2, 2));
+    scene2.add(mesh);
+    const extract = new THREE2.ShaderMaterial({
+      uniforms: { tDiffuse: { value: null }, threshold: { value: 0.42 } },
+      vertexShader: VERT,
+      fragmentShader: EXTRACT,
+      depthTest: false,
+      depthWrite: false
+    });
+    const blur = new THREE2.ShaderMaterial({
+      uniforms: { tDiffuse: { value: null }, direction: { value: new THREE2.Vector2(1, 0) } },
+      vertexShader: VERT,
+      fragmentShader: BLUR,
+      depthTest: false,
+      depthWrite: false
+    });
+    const composite = new THREE2.ShaderMaterial({
+      uniforms: { tBloom: { value: null }, strength: { value: 1.85 } },
+      vertexShader: VERT,
+      fragmentShader: `
+      uniform sampler2D tBloom;
+      uniform float strength;
+      varying vec2 vUv;
+      void main() {
+        gl_FragColor = vec4(texture2D(tBloom, vUv).rgb * strength, 1.0);
+      }
+    `,
+      transparent: true,
+      blending: THREE2.AdditiveBlending,
+      depthTest: false,
+      depthWrite: false
+    });
+    return { scene: scene2, camera: camera2, mesh, extract, blur, composite };
+  }
+  function armFly() {
+    if (reduced2()) return;
+    if (session && !session.flying) {
+      flyArmed = true;
+      return;
+    }
+    if (!session && !looseFly) startLooseFly();
+  }
+  function startLooseFly() {
+    if (!hasWebGL()) return;
+    loadThree2().then((THREE2) => {
+      if (session || looseFly || reduced2()) return;
+      const canvas = document.createElement("canvas");
+      canvas.className = "hero-canvas is-fly";
+      document.body.appendChild(canvas);
+      let renderer2;
+      try {
+        renderer2 = new THREE2.WebGLRenderer({ canvas, antialias: true, alpha: false });
+      } catch {
+        canvas.remove();
+        return;
+      }
+      const scene2 = new THREE2.Scene();
+      const camera2 = new THREE2.PerspectiveCamera(52, 1, 0.1, 80);
+      const bg = cssHex("--cc-bg", "#07101f");
+      scene2.background = new THREE2.Color(bg);
+      renderer2.setClearColor(bg, 1);
+      renderer2.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+      renderer2.setSize(window.innerWidth, window.innerHeight, false);
+      camera2.aspect = window.innerWidth / window.innerHeight;
+      camera2.updateProjectionMatrix();
+      const wire = new THREE2.Mesh(
+        new THREE2.IcosahedronGeometry(1.8, 1),
+        new THREE2.MeshBasicMaterial({ color: cssHex("--cc-accent-1", "#7af0ff"), wireframe: true })
+      );
+      scene2.add(wire);
+      [3.2, 4.3, 5.4].forEach((radius, i) => {
+        const ring = new THREE2.Mesh(
+          new THREE2.TorusGeometry(radius, 0.04, 8, 64),
+          new THREE2.MeshBasicMaterial({ color: cssHex(i === 1 ? "--cc-accent-2" : "--cc-accent-3", "#ff8bd2") })
+        );
+        ring.rotation.x = 1.1 + i * 0.3;
+        scene2.add(ring);
+      });
+      const started = performance.now();
+      looseFly = { renderer: renderer2, scene: scene2, canvas };
+      const tick = (now) => {
+        if (!looseFly) return;
+        const u = Math.min(1, (now - started) / 720);
+        wire.rotation.y = u * 2.4;
+        camera2.position.set(Math.sin(u * Math.PI) * 3.2, 0.4 + u * 0.6, 9 - u * 7.2);
+        camera2.lookAt(0, 0.8, 0);
+        renderer2.render(scene2, camera2);
+        if (u < 1) requestAnimationFrame(tick);
+        else {
+          renderer2.dispose();
+          scene2.traverse((obj) => {
+            if (obj.geometry) obj.geometry.dispose();
+            if (obj.material) obj.material.dispose();
+          });
+          canvas.remove();
+          looseFly = null;
+        }
+      };
+      requestAnimationFrame(tick);
+    }).catch(() => {
+    });
+  }
   async function mountHero(host) {
     const glass = host.innerHTML;
     host.innerHTML = `<div class="hero-bleed" data-hero="pending">
-    <p class="sr-only">A three-dimensional call path. A user agent, an SBC, DNS, PSTN, TURN, and RTP orbit a glowing globe on a neon grid.</p>
+    <p class="sr-only">A three-dimensional call path. A user agent, an SBC, DNS, PSTN, TURN, and RTP orbit a glowing globe. No fog. The nodes stay sharp.</p>
     <canvas class="hero-canvas" aria-hidden="true"></canvas>
     <div class="hero-fallback" hidden>${fallbackMarkup()}</div>
     <div class="hero-glass">${glass}</div>
@@ -3485,143 +3596,200 @@
       return () => {
       };
     }
-    let THREE;
+    let THREE2;
     try {
-      THREE = await loadThree2();
+      THREE2 = await loadThree2();
     } catch {
       showFallback();
       return () => {
       };
     }
-    if (!THREE || !host.isConnected) {
+    if (!THREE2 || !host.isConnected) {
       showFallback();
       return () => {
       };
     }
-    let renderer;
+    let renderer2;
     try {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
+      renderer2 = new THREE2.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
     } catch {
       showFallback();
       return () => {
       };
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer2.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
     bleed.dataset.hero = "webgl";
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 120);
-    camera.position.set(0.2, 2.15, 12.2);
-    const palette = () => ({
+    bleed.dataset.bloom = "0";
+    const scene2 = new THREE2.Scene();
+    const camera2 = new THREE2.PerspectiveCamera(52, 1, 0.1, 80);
+    camera2.position.set(0, -0.55, 6.2);
+    const palette2 = () => ({
       bg: cssHex("--cc-bg", "#0b1020"),
       a: cssHex("--cc-accent-1", "#39ff14"),
       b: cssHex("--cc-accent-2", "#ff2bd6"),
       c: cssHex("--cc-accent-3", "#00e5ff"),
       d: cssHex("--cc-accent-4", "#ffe600")
     });
-    const colors = palette();
-    scene.background = new THREE.Color(colors.bg);
-    scene.fog = new THREE.Fog(colors.bg, 24, 72);
-    renderer.setClearColor(colors.bg, 1);
-    const globe = new THREE.Group();
-    const wire = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(2.35, 1),
-      new THREE.MeshBasicMaterial({ color: colors.a, wireframe: true })
+    const colors = palette2();
+    scene2.background = new THREE2.Color(colors.bg);
+    scene2.fog = null;
+    renderer2.setClearColor(colors.bg, 1);
+    const globe = new THREE2.Group();
+    globe.position.y = 1.7;
+    const wire = new THREE2.Mesh(
+      new THREE2.IcosahedronGeometry(1.85, 1),
+      new THREE2.MeshBasicMaterial({ color: colors.a, wireframe: true })
     );
-    const core = new THREE.Mesh(
-      new THREE.SphereGeometry(1.55, 28, 28),
-      new THREE.MeshBasicMaterial({ color: colors.c, transparent: true, opacity: 0.38, blending: THREE.AdditiveBlending, depthWrite: false })
+    const core = new THREE2.Mesh(
+      new THREE2.SphereGeometry(1.25, 28, 28),
+      new THREE2.MeshBasicMaterial({ color: colors.c, transparent: true, opacity: 0.55, blending: THREE2.AdditiveBlending, depthWrite: false })
     );
-    globe.add(wire, core);
-    scene.add(globe);
-    const rings = [4.1, 5.4, 6.6].map((radius, i) => {
-      const mesh = new THREE.Mesh(
-        new THREE.TorusGeometry(radius, 0.028, 12, 96),
-        new THREE.MeshBasicMaterial({ color: [colors.b, colors.c, colors.d][i] })
+    const halo = new THREE2.Mesh(
+      new THREE2.SphereGeometry(2.15, 24, 24),
+      new THREE2.MeshBasicMaterial({ color: colors.b, transparent: true, opacity: 0.16, blending: THREE2.AdditiveBlending, depthWrite: false })
+    );
+    globe.add(wire, core, halo);
+    scene2.add(globe);
+    const rings = [3.05, 4.05, 5.15].map((radius, i) => {
+      const mesh = new THREE2.Mesh(
+        new THREE2.TorusGeometry(radius, 0.045, 12, 96),
+        new THREE2.MeshBasicMaterial({ color: [colors.b, colors.c, colors.d][i] })
       );
-      mesh.rotation.x = 1.15 + i * 0.28;
+      mesh.position.y = 1.7;
+      mesh.rotation.x = 1.05 + i * 0.22;
       mesh.rotation.y = i * 0.4;
-      scene.add(mesh);
+      scene2.add(mesh);
       return mesh;
     });
-    const grid = new THREE.GridHelper(48, 24, colors.a, colors.b);
-    grid.position.y = -3.2;
+    const grid = new THREE2.GridHelper(28, 18, colors.a, colors.b);
+    grid.position.y = -1.6;
     if (grid.material) {
       const mats = Array.isArray(grid.material) ? grid.material : [grid.material];
       mats.forEach((mat) => {
         mat.transparent = true;
-        mat.opacity = 0.45;
+        mat.opacity = 0.55;
       });
     }
-    scene.add(grid);
-    const count = 1100;
+    scene2.add(grid);
+    const count = 900;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i += 1) {
-      const radius = 8 + Math.random() * 18;
+      const radius = 2.2 + Math.random() * 6.5;
       const theta = Math.random() * Math.PI * 2;
-      positions[i * 3] = Math.cos(theta) * radius;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 14;
-      positions[i * 3 + 2] = Math.sin(theta) * radius;
+      const phi = Math.acos(2 * Math.random() - 1);
+      positions[i * 3] = Math.sin(phi) * Math.cos(theta) * radius;
+      positions[i * 3 + 1] = Math.cos(phi) * radius * 0.75 + 1.1;
+      positions[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * radius;
     }
-    const pointsGeo = new THREE.BufferGeometry();
-    pointsGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    const points = new THREE.Points(pointsGeo, new THREE.PointsMaterial({
+    const pointsGeo = new THREE2.BufferGeometry();
+    pointsGeo.setAttribute("position", new THREE2.BufferAttribute(positions, 3));
+    const points = new THREE2.Points(pointsGeo, new THREE2.PointsMaterial({
       color: colors.c,
-      size: 0.07,
+      size: 0.055,
       transparent: true,
-      opacity: 0.9,
-      blending: THREE.AdditiveBlending,
+      opacity: 1,
+      blending: THREE2.AdditiveBlending,
       depthWrite: false
     }));
-    scene.add(points);
-    const orbit = new THREE.Group();
+    scene2.add(points);
+    const orbit = new THREE2.Group();
     const nodeMats = [];
     const shellMats = [];
     const labelMats = [];
     LABELS.forEach((name, i) => {
       const tone = [colors.a, colors.b, colors.c, colors.d, colors.a, colors.b][i];
-      const group = new THREE.Group();
-      const bodyMat = new THREE.MeshStandardMaterial({ color: tone, emissive: tone, emissiveIntensity: 0.65, roughness: 0.35, metalness: 0.15 });
-      const shellMat = new THREE.MeshBasicMaterial({ color: tone, transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending, depthWrite: false });
+      const group = new THREE2.Group();
+      const bodyMat = new THREE2.MeshStandardMaterial({ color: tone, emissive: tone, emissiveIntensity: 0.9, roughness: 0.28, metalness: 0.12 });
+      const shellMat = new THREE2.MeshBasicMaterial({ color: tone, transparent: true, opacity: 0.4, blending: THREE2.AdditiveBlending, depthWrite: false });
       nodeMats.push(bodyMat);
       shellMats.push(shellMat);
-      const body = new THREE.Mesh(new THREE.SphereGeometry(0.38, 20, 20), bodyMat);
-      const shell = new THREE.Mesh(new THREE.SphereGeometry(0.62, 16, 16), shellMat);
-      const tex = new THREE.CanvasTexture(paintLabel(name, "#f7fbff"));
-      const labelMat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+      group.add(new THREE2.Mesh(new THREE2.SphereGeometry(0.28, 18, 18), bodyMat));
+      group.add(new THREE2.Mesh(new THREE2.SphereGeometry(0.5, 14, 14), shellMat));
+      const tex = new THREE2.CanvasTexture(paintLabel(name, "#f7fbff"));
+      const labelMat = new THREE2.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
       labelMats.push(labelMat);
-      const sprite = new THREE.Sprite(labelMat);
-      sprite.position.y = 0.95;
-      sprite.scale.set(2.4, 0.68, 1);
-      group.add(body, shell, sprite);
+      const sprite = new THREE2.Sprite(labelMat);
+      sprite.position.y = 0.72;
+      sprite.scale.set(1.8, 0.5, 1);
+      group.add(sprite);
       const angle = i / LABELS.length * Math.PI * 2;
-      group.position.set(Math.cos(angle) * 7.2, Math.sin(angle * 2) * 0.6, Math.sin(angle) * 7.2);
-      group.userData.angle = angle;
+      group.position.set(Math.cos(angle) * 4.2, 1.7 + Math.sin(angle * 2) * 1.15, Math.sin(angle) * 4.2);
       orbit.add(group);
     });
-    scene.add(orbit);
+    scene2.add(orbit);
+    const lineMat = new THREE2.LineBasicMaterial({ color: colors.a });
     const linePositions = [];
     LABELS.forEach((_, i) => {
       const a = i / LABELS.length * Math.PI * 2;
       const b = (i + 1) / LABELS.length * Math.PI * 2;
-      linePositions.push(Math.cos(a) * 7.2, 0.2, Math.sin(a) * 7.2, Math.cos(b) * 7.2, 0.2, Math.sin(b) * 7.2);
+      linePositions.push(Math.cos(a) * 4.2, 1.7, Math.sin(a) * 4.2, Math.cos(b) * 4.2, 1.7, Math.sin(b) * 4.2);
     });
-    const lineGeo = new THREE.BufferGeometry();
-    lineGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(linePositions), 3));
-    const lineMat = new THREE.LineBasicMaterial({ color: colors.a, transparent: true, opacity: 0.7 });
-    scene.add(new THREE.LineSegments(lineGeo, lineMat));
-    const key = new THREE.PointLight(colors.b, 18, 48);
-    key.position.set(6, 8, 8);
-    const fill = new THREE.PointLight(colors.c, 14, 48);
-    fill.position.set(-8, 3, 6);
-    scene.add(new THREE.AmbientLight(16777215, 0.38), key, fill);
-    const accents = [wire.material, core.material, ...rings.map((ring) => ring.material), points.material, lineMat, ...nodeMats, ...shellMats];
+    const lineGeo = new THREE2.BufferGeometry();
+    lineGeo.setAttribute("position", new THREE2.BufferAttribute(new Float32Array(linePositions), 3));
+    scene2.add(new THREE2.LineSegments(lineGeo, lineMat));
+    const key = new THREE2.PointLight(colors.b, 16, 30);
+    key.position.set(4, 5, 6);
+    const fill = new THREE2.PointLight(colors.c, 12, 30);
+    fill.position.set(-5, 2, 4);
+    scene2.add(new THREE2.AmbientLight(16777215, 0.45), key, fill);
+    const kit = bloomKit(THREE2);
+    let rtScene = makeTarget(THREE2, 8, 8);
+    let rtA = makeTarget(THREE2, 4, 4);
+    let rtB = makeTarget(THREE2, 4, 4);
+    let bloomOn = true;
+    const resizeTargets = (w, h) => {
+      const ratio = Math.min(window.devicePixelRatio || 1, 1.25);
+      const dw = Math.max(2, Math.floor(w * ratio));
+      const dh = Math.max(2, Math.floor(h * ratio));
+      rtScene.setSize(dw, dh);
+      rtA.setSize(Math.max(2, Math.floor(dw / 4)), Math.max(2, Math.floor(dh / 4)));
+      rtB.setSize(Math.max(2, Math.floor(dw / 4)), Math.max(2, Math.floor(dh / 4)));
+    };
+    const renderFrame = () => {
+      const box2 = canvas.getBoundingClientRect();
+      const w = Math.max(2, box2.width || window.innerWidth);
+      const h = Math.max(2, box2.height || window.innerHeight);
+      if (camera2.aspect !== w / h) {
+        camera2.aspect = w / h;
+        camera2.updateProjectionMatrix();
+        renderer2.setSize(w, h, false);
+        resizeTargets(w, h);
+      }
+      renderer2.autoClear = true;
+      renderer2.setRenderTarget(null);
+      renderer2.render(scene2, camera2);
+      if (!bloomOn) return;
+      renderer2.setRenderTarget(rtScene);
+      renderer2.render(scene2, camera2);
+      kit.mesh.material = kit.extract;
+      kit.extract.uniforms.tDiffuse.value = rtScene.texture;
+      renderer2.setRenderTarget(rtA);
+      renderer2.render(kit.scene, kit.camera);
+      kit.mesh.material = kit.blur;
+      kit.blur.uniforms.tDiffuse.value = rtA.texture;
+      kit.blur.uniforms.direction.value.set(1 / Math.max(1, rtA.width), 0);
+      renderer2.setRenderTarget(rtB);
+      renderer2.render(kit.scene, kit.camera);
+      kit.blur.uniforms.tDiffuse.value = rtB.texture;
+      kit.blur.uniforms.direction.value.set(0, 1 / Math.max(1, rtB.height));
+      renderer2.setRenderTarget(rtA);
+      renderer2.render(kit.scene, kit.camera);
+      kit.mesh.material = kit.composite;
+      kit.composite.uniforms.tBloom.value = rtA.texture;
+      renderer2.autoClear = false;
+      renderer2.setRenderTarget(null);
+      renderer2.render(kit.scene, kit.camera);
+      renderer2.autoClear = true;
+      bleed.dataset.bloom = "1";
+    };
     const applyPalette = () => {
-      const next = palette();
-      scene.background.set(next.bg);
-      scene.fog.color.set(next.bg);
-      renderer.setClearColor(next.bg, 1);
+      const next = palette2();
+      scene2.background.set(next.bg);
+      scene2.fog = null;
+      renderer2.setClearColor(next.bg, 1);
       wire.material.color.set(next.a);
       core.material.color.set(next.c);
+      halo.material.color.set(next.b);
       rings[0].material.color.set(next.b);
       rings[1].material.color.set(next.c);
       rings[2].material.color.set(next.d);
@@ -3637,67 +3805,44 @@
       shellMats.forEach((mat, i) => mat.color.set(tones[i]));
       const gridMats = Array.isArray(grid.material) ? grid.material : [grid.material];
       gridMats.forEach((mat, i) => mat.color && mat.color.set(i === 0 ? next.a : next.b));
-      void accents;
     };
-    let raf = 0;
+    let raf2 = 0;
     let stop = false;
     let t2 = 0;
     const pointer = { x: 0, y: 0 };
     let scrollY = window.scrollY || 0;
+    const homePose = () => ({ x: pointer.x * 0.55, y: -0.55 + pointer.y * -0.2, z: 6.2 });
     const onPtr = (event) => {
-      const w = window.innerWidth || 1;
-      const h = window.innerHeight || 1;
-      pointer.x = (event.clientX / w - 0.5) * 2;
-      pointer.y = (event.clientY / h - 0.5) * 2;
+      pointer.x = (event.clientX / (window.innerWidth || 1) - 0.5) * 2;
+      pointer.y = (event.clientY / (window.innerHeight || 1) - 0.5) * 2;
     };
     const onScroll = () => {
       scrollY = window.scrollY || 0;
     };
     window.addEventListener("pointermove", onPtr, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
-    const resize = () => {
-      const w = bleed.clientWidth || window.innerWidth;
-      const h = bleed.clientHeight || window.innerHeight;
-      if (!w || !h) return;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h, false);
-    };
-    const ro = new ResizeObserver(resize);
+    const ro = new ResizeObserver(() => renderFrame());
     ro.observe(bleed);
-    resize();
     const unsettings = onSettings(applyPalette);
-    const tick = () => {
-      if (stop) return;
-      raf = requestAnimationFrame(tick);
-      if (document.hidden) return;
-      t2 += 5e-3;
-      const drift = t2 * 0.35;
-      globe.rotation.y = drift;
-      globe.rotation.x = Math.sin(t2 * 0.4) * 0.12;
-      rings.forEach((ring, i) => {
-        ring.rotation.z = drift * (0.35 + i * 0.12);
-      });
-      orbit.rotation.y = drift * 0.55;
-      points.rotation.y = drift * 0.08;
-      const px = pointer.x * 1.8 + Math.sin(t2 * 0.15) * 0.9;
-      const py = 2.05 + pointer.y * -0.7 - Math.min(scrollY, 700) * 25e-4;
-      const pz = 12.2 + pointer.y * 0.5;
-      camera.position.x += (px - camera.position.x) * 0.04;
-      camera.position.y += (py - camera.position.y) * 0.04;
-      camera.position.z += (pz - camera.position.z) * 0.04;
-      camera.lookAt(0, 0.85, 0);
-      renderer.render(scene, camera);
-    };
-    tick();
-    return () => {
+    camera2.lookAt(0, 0.15, 0);
+    try {
+      resizeTargets(bleed.clientWidth || window.innerWidth, bleed.clientHeight || window.innerHeight);
+      renderFrame();
+    } catch {
+      bloomOn = false;
+      renderer2.setRenderTarget(null);
+      renderer2.render(scene2, camera2);
+    }
+    const current = { renderer: renderer2, scene: scene2, camera: camera2, canvas, bleed, flying: false, flyStart: 0 };
+    session = current;
+    const hardDispose = () => {
       stop = true;
-      if (raf) cancelAnimationFrame(raf);
+      if (raf2) cancelAnimationFrame(raf2);
       window.removeEventListener("pointermove", onPtr);
       window.removeEventListener("scroll", onScroll);
       ro.disconnect();
       unsettings();
-      scene.traverse((obj) => {
+      scene2.traverse((obj) => {
         if (obj.geometry) obj.geometry.dispose();
         if (obj.material) {
           const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
@@ -3710,7 +3855,410 @@
       labelMats.forEach((mat) => {
         if (mat.map) mat.map.dispose();
       });
-      renderer.dispose();
+      rtScene.dispose();
+      rtA.dispose();
+      rtB.dispose();
+      kit.extract.dispose();
+      kit.blur.dispose();
+      kit.composite.dispose();
+      renderer2.dispose();
+      canvas.classList.remove("is-fly");
+      if (canvas.parentElement === document.body) canvas.remove();
+      if (session === current) session = null;
+    };
+    const tick = (now) => {
+      if (stop && !current.flying) return;
+      raf2 = requestAnimationFrame(tick);
+      if (document.hidden) return;
+      t2 += 6e-3;
+      globe.rotation.y = t2 * 0.35;
+      rings.forEach((ring, i) => {
+        ring.rotation.z = t2 * (0.25 + i * 0.08);
+      });
+      orbit.rotation.y = t2 * 0.28;
+      if (current.flying) {
+        const u = Math.min(1, (now - current.flyStart) / 720);
+        const dive = Math.sin(u * Math.PI);
+        camera2.position.set(dive * 2.2, -0.2 + u * 0.8, 6.2 - u * 5.4);
+        camera2.lookAt(0, 1.7, 0);
+        try {
+          renderFrame();
+        } catch {
+          bloomOn = false;
+        }
+        if (u >= 1) hardDispose();
+        return;
+      }
+      const pose = homePose();
+      pose.y -= Math.min(scrollY, 500) * 15e-4;
+      camera2.position.x += (pose.x - camera2.position.x) * 0.08;
+      camera2.position.y += (pose.y - camera2.position.y) * 0.08;
+      camera2.position.z += (pose.z - camera2.position.z) * 0.08;
+      camera2.lookAt(0, 0.15, 0);
+      try {
+        renderFrame();
+      } catch {
+        bloomOn = false;
+      }
+    };
+    tick(performance.now());
+    return () => {
+      window.removeEventListener("pointermove", onPtr);
+      window.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+      unsettings();
+      if (flyArmed && session === current && !current.flying) {
+        flyArmed = false;
+        current.flying = true;
+        current.flyStart = performance.now();
+        canvas.classList.add("is-fly");
+        document.body.appendChild(canvas);
+        return;
+      }
+      hardDispose();
+    };
+  }
+
+  // campus/js/glyphs.js
+  var ORDER = [
+    "foundations",
+    "sip-core",
+    "call-flows",
+    "routing",
+    "sdp",
+    "rtp",
+    "security",
+    "nat",
+    "sbc",
+    "cisco",
+    "multivendor",
+    "cloud",
+    "troubleshoot",
+    "operations",
+    "ecosystem",
+    "capstone"
+  ];
+  function reduced3() {
+    return document.documentElement.dataset.motion === "reduce";
+  }
+  function loadThree3() {
+    if (window.THREE) return Promise.resolve(window.THREE);
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "vendor/three.min.js";
+      script.onload = () => window.THREE ? resolve(window.THREE) : reject(new Error("Three.js missing"));
+      script.onerror = () => reject(new Error("Three.js did not load"));
+      document.head.appendChild(script);
+    });
+  }
+  function cssHex2(name, fallback) {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return /^#[0-9a-fA-F]{6}$/.test(raw) ? raw : fallback;
+  }
+  function lit(THREE2, color, emissive) {
+    return new THREE2.MeshStandardMaterial({
+      color,
+      emissive: emissive || color,
+      emissiveIntensity: 0.85,
+      roughness: 0.32,
+      metalness: 0.2
+    });
+  }
+  function glow(THREE2, color) {
+    return new THREE2.MeshBasicMaterial({
+      color,
+      transparent: true,
+      opacity: 0.45,
+      blending: THREE2.AdditiveBlending,
+      depthWrite: false
+    });
+  }
+  function build(THREE2, id, colors) {
+    const g = new THREE2.Group();
+    const A = colors[0];
+    const B = colors[1];
+    const C = colors[2];
+    const add = (...meshes) => meshes.forEach((mesh) => g.add(mesh));
+    if (id === "foundations") {
+      const ear = new THREE2.Mesh(new THREE2.SphereGeometry(0.32, 18, 18), lit(THREE2, A));
+      ear.scale.set(1, 1, 0.42);
+      ear.position.set(-0.62, 0.48, 0);
+      const mouth = new THREE2.Mesh(new THREE2.SphereGeometry(0.26, 18, 18), lit(THREE2, C));
+      mouth.scale.set(1, 1, 0.42);
+      mouth.position.set(0.62, -0.48, 0);
+      const grip = new THREE2.Mesh(new THREE2.TorusGeometry(0.62, 0.09, 12, 24, Math.PI), lit(THREE2, B));
+      grip.rotation.z = -0.55;
+      add(ear, mouth, grip);
+    } else if (id === "sip-core") {
+      for (let i = 0; i < 4; i += 1) {
+        const sheet = new THREE2.Mesh(new THREE2.PlaneGeometry(1.1, 0.72), lit(THREE2, i % 2 ? B : A));
+        sheet.position.set(0, i * 0.12, i * 0.08);
+        sheet.rotation.x = -0.4;
+        sheet.rotation.y = i * 0.18;
+        add(sheet);
+      }
+    } else if (id === "call-flows") {
+      const left = new THREE2.Mesh(new THREE2.CylinderGeometry(0.05, 0.05, 1.7, 8), lit(THREE2, A));
+      const right = left.clone();
+      left.position.x = -0.55;
+      right.position.x = 0.55;
+      add(left, right);
+      for (let i = 0; i < 4; i += 1) {
+        const rung = new THREE2.Mesh(new THREE2.CylinderGeometry(0.035, 0.035, 1.1, 8), lit(THREE2, i % 2 ? C : B));
+        rung.rotation.z = Math.PI / 2;
+        rung.position.y = 0.55 - i * 0.38;
+        add(rung);
+      }
+    } else if (id === "routing") {
+      const shaft = new THREE2.Mesh(new THREE2.CylinderGeometry(0.06, 0.06, 1.1, 8), lit(THREE2, A));
+      const head = new THREE2.Mesh(new THREE2.ConeGeometry(0.28, 0.45, 12), lit(THREE2, B));
+      head.position.y = 0.75;
+      const fork = new THREE2.Mesh(new THREE2.ConeGeometry(0.16, 0.36, 10), lit(THREE2, C));
+      fork.position.set(0.45, 0.15, 0);
+      fork.rotation.z = -0.9;
+      add(shaft, head, fork);
+    } else if (id === "sdp") {
+      const offer = new THREE2.Mesh(new THREE2.PlaneGeometry(0.9, 1.15), lit(THREE2, A));
+      const answer = new THREE2.Mesh(new THREE2.PlaneGeometry(0.9, 1.15), lit(THREE2, C));
+      offer.rotation.set(-0.5, -0.4, 0.1);
+      answer.rotation.set(-0.45, 0.5, -0.1);
+      answer.position.set(0.25, 0.05, 0.2);
+      add(offer, answer);
+    } else if (id === "rtp") {
+      for (let i = 0; i < 18; i += 1) {
+        const bead = new THREE2.Mesh(new THREE2.SphereGeometry(0.07, 10, 10), lit(THREE2, i % 2 ? B : A));
+        bead.position.set(-0.9 + i * 0.1, Math.sin(i * 0.55) * 0.45, Math.cos(i * 0.4) * 0.15);
+        add(bead);
+      }
+    } else if (id === "security") {
+      const body = new THREE2.Mesh(new THREE2.CylinderGeometry(0.38, 0.42, 0.7, 16), lit(THREE2, A));
+      body.position.y = -0.25;
+      const shackle = new THREE2.Mesh(new THREE2.TorusGeometry(0.32, 0.07, 12, 24, Math.PI), lit(THREE2, C));
+      shackle.rotation.z = Math.PI;
+      shackle.position.y = 0.2;
+      const key = new THREE2.Mesh(new THREE2.SphereGeometry(0.1, 10, 10), glow(THREE2, B));
+      add(body, shackle, key);
+    } else if (id === "nat") {
+      const tower = new THREE2.Mesh(new THREE2.CylinderGeometry(0.22, 0.32, 1.15, 10), lit(THREE2, A));
+      const dish = new THREE2.Mesh(new THREE2.TorusGeometry(0.46, 0.05, 10, 24), lit(THREE2, C));
+      dish.rotation.x = 1.15;
+      dish.position.y = 0.72;
+      const lamp = new THREE2.Mesh(new THREE2.SphereGeometry(0.09, 12, 12), glow(THREE2, B));
+      lamp.position.set(0.18, 0.15, 0.28);
+      add(tower, dish, lamp);
+    } else if (id === "sbc") {
+      const arch = new THREE2.Mesh(new THREE2.TorusGeometry(0.7, 0.09, 12, 28, Math.PI), lit(THREE2, A));
+      arch.rotation.z = Math.PI;
+      arch.position.y = 0.15;
+      const postL = new THREE2.Mesh(new THREE2.CylinderGeometry(0.08, 0.08, 0.9, 8), lit(THREE2, B));
+      const postR = postL.clone();
+      postL.position.set(-0.7, -0.3, 0);
+      postR.position.set(0.7, -0.3, 0);
+      add(arch, postL, postR);
+    } else if (id === "cisco") {
+      const chassis = new THREE2.Mesh(new THREE2.BoxGeometry(1.5, 0.28, 0.9), lit(THREE2, A));
+      const antenna = new THREE2.Mesh(new THREE2.ConeGeometry(0.08, 0.55, 8), lit(THREE2, C));
+      antenna.position.set(0.45, 0.4, 0.2);
+      const lamp = new THREE2.Mesh(new THREE2.SphereGeometry(0.08, 10, 10), glow(THREE2, B));
+      lamp.position.set(-0.5, 0.2, 0.4);
+      add(chassis, antenna, lamp);
+    } else if (id === "multivendor") {
+      const ico = new THREE2.Mesh(new THREE2.IcosahedronGeometry(0.32, 0), lit(THREE2, A));
+      const cone = new THREE2.Mesh(new THREE2.ConeGeometry(0.26, 0.55, 10), lit(THREE2, B));
+      const knot = new THREE2.Mesh(new THREE2.TorusGeometry(0.22, 0.07, 8, 16), lit(THREE2, C));
+      ico.position.x = -0.55;
+      cone.position.set(0.55, -0.05, 0);
+      knot.position.set(0, 0.15, 0.2);
+      add(ico, cone, knot);
+    } else if (id === "cloud") {
+      [[0, 0, 0, 0.42], [-0.4, -0.05, 0.1, 0.3], [0.42, -0.02, 0, 0.32], [0.05, 0.22, -0.1, 0.28]].forEach(([x, y, z, r], i) => {
+        const puff = new THREE2.Mesh(new THREE2.SphereGeometry(r, 16, 16), lit(THREE2, i % 2 ? C : A));
+        puff.position.set(x, y, z);
+        add(puff);
+      });
+    } else if (id === "troubleshoot") {
+      const rim = new THREE2.Mesh(new THREE2.TorusGeometry(0.38, 0.07, 12, 24), lit(THREE2, A));
+      const lens = new THREE2.Mesh(new THREE2.CircleGeometry(0.3, 20), glow(THREE2, C));
+      const handle = new THREE2.Mesh(new THREE2.CylinderGeometry(0.06, 0.06, 0.7, 8), lit(THREE2, B));
+      handle.position.set(0.45, -0.45, 0);
+      handle.rotation.z = 0.8;
+      add(rim, lens, handle);
+    } else if (id === "operations") {
+      const dial = new THREE2.Mesh(new THREE2.TorusGeometry(0.62, 0.08, 12, 28), lit(THREE2, A));
+      const face = new THREE2.Mesh(new THREE2.CircleGeometry(0.5, 24), lit(THREE2, B));
+      const needle = new THREE2.Mesh(new THREE2.ConeGeometry(0.06, 0.55, 8), lit(THREE2, C));
+      needle.rotation.z = -0.6;
+      needle.position.set(0.1, 0.12, 0.05);
+      add(dial, face, needle);
+    } else if (id === "ecosystem") {
+      const hub2 = new THREE2.Mesh(new THREE2.OctahedronGeometry(0.28), lit(THREE2, A));
+      add(hub2);
+      for (let i = 0; i < 5; i += 1) {
+        const moon = new THREE2.Mesh(new THREE2.SphereGeometry(0.12, 10, 10), lit(THREE2, i % 2 ? C : B));
+        const ang = i / 5 * Math.PI * 2;
+        moon.position.set(Math.cos(ang) * 0.7, Math.sin(ang) * 0.45, Math.sin(ang) * 0.3);
+        add(moon);
+      }
+    } else {
+      const knot = new THREE2.Mesh(new THREE2.TorusKnotGeometry(0.42, 0.12, 80, 12), lit(THREE2, A));
+      const halo = new THREE2.Mesh(new THREE2.TorusGeometry(0.7, 0.03, 8, 32), glow(THREE2, C));
+      halo.rotation.x = Math.PI / 2;
+      add(knot, halo);
+    }
+    return g;
+  }
+  function drawFlat(canvas, id) {
+    const ctx2 = canvas.getContext("2d");
+    if (!ctx2) return;
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx2.clearRect(0, 0, w, h);
+    const accent = cssHex2("--cc-accent-1", "#7af0ff");
+    const alt = cssHex2("--cc-accent-2", "#ff8bd2");
+    ctx2.strokeStyle = accent;
+    ctx2.fillStyle = alt;
+    ctx2.lineWidth = 6;
+    ctx2.lineJoin = "round";
+    ctx2.save();
+    ctx2.translate(w / 2, h / 2);
+    if (id === "foundations") {
+      ctx2.beginPath();
+      ctx2.arc(-36, -28, 16, 0, Math.PI * 2);
+      ctx2.arc(36, 28, 14, 0, Math.PI * 2);
+      ctx2.stroke();
+      ctx2.beginPath();
+      ctx2.moveTo(-22, -16);
+      ctx2.quadraticCurveTo(0, 8, 24, 16);
+      ctx2.stroke();
+    } else if (id === "nat") {
+      ctx2.fillRect(-16, -40, 32, 70);
+      ctx2.beginPath();
+      ctx2.ellipse(0, -48, 28, 10, 0, 0, Math.PI * 2);
+      ctx2.stroke();
+    } else if (id === "rtp") {
+      ctx2.beginPath();
+      for (let i = 0; i <= 20; i += 1) ctx2.lineTo(-80 + i * 8, Math.sin(i) * 36);
+      ctx2.stroke();
+    } else if (id === "security") {
+      ctx2.strokeRect(-28, -10, 56, 48);
+      ctx2.beginPath();
+      ctx2.arc(0, -10, 18, Math.PI, 0);
+      ctx2.stroke();
+    } else if (id === "sbc") {
+      ctx2.beginPath();
+      ctx2.arc(0, 10, 40, Math.PI, 0);
+      ctx2.stroke();
+    } else if (id === "cloud") {
+      ctx2.beginPath();
+      ctx2.arc(-16, 6, 22, 0, Math.PI * 2);
+      ctx2.arc(16, 4, 26, 0, Math.PI * 2);
+      ctx2.fill();
+    } else if (id === "troubleshoot") {
+      ctx2.beginPath();
+      ctx2.arc(-6, -8, 24, 0, Math.PI * 2);
+      ctx2.stroke();
+      ctx2.beginPath();
+      ctx2.moveTo(12, 12);
+      ctx2.lineTo(36, 36);
+      ctx2.stroke();
+    } else {
+      ctx2.beginPath();
+      ctx2.arc(0, 0, 34, 0, Math.PI * 2);
+      ctx2.stroke();
+      ctx2.fillRect(-6, -28, 12, 56);
+    }
+    ctx2.restore();
+  }
+  var renderer = null;
+  var scene = null;
+  var camera = null;
+  var THREE = null;
+  var raf = 0;
+  var cursor = 0;
+  var cache2 = /* @__PURE__ */ new Map();
+  function palette() {
+    return [cssHex2("--cc-accent-1", "#7af0ff"), cssHex2("--cc-accent-2", "#c9a6ff"), cssHex2("--cc-accent-3", "#ff8bd2")];
+  }
+  function ensure(T) {
+    if (renderer) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = 192;
+    canvas.height = 192;
+    renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+    renderer.setSize(192, 192, false);
+    renderer.setClearColor(0, 0);
+    scene = new T.Scene();
+    camera = new T.PerspectiveCamera(35, 1, 0.1, 20);
+    camera.position.set(1.35, 0.95, 2.35);
+    camera.lookAt(0, 0, 0);
+    scene.add(new T.AmbientLight(16777215, 0.55));
+    const key = new T.PointLight(16777215, 12, 12);
+    key.position.set(2, 3, 3);
+    scene.add(key);
+  }
+  function paintOne(host) {
+    const id = ORDER.includes(host.dataset.glyph) ? host.dataset.glyph : "capstone";
+    const colors = palette();
+    const key = `${id}:${colors.join(",")}`;
+    let group = cache2.get(id);
+    if (!group || group.userData.key !== key) {
+      if (group) {
+        scene.remove(group);
+        group.traverse((obj) => {
+          if (obj.geometry) obj.geometry.dispose();
+          if (obj.material) obj.material.dispose();
+        });
+      }
+      group = build(THREE, id, colors);
+      group.userData.key = key;
+      cache2.set(id, group);
+    }
+    cache2.forEach((item) => {
+      item.visible = item === group;
+    });
+    if (!group.parent) scene.add(group);
+    group.rotation.y += 0.05;
+    renderer.render(scene, camera);
+    const ctx2 = host.getContext("2d");
+    if (ctx2) ctx2.drawImage(renderer.domElement, 0, 0, host.width, host.height);
+  }
+  function mountGlyphs(root) {
+    const hosts = [...root.querySelectorAll(".glyph-view")];
+    if (!hosts.length) return () => {
+    };
+    let dead = false;
+    hosts.forEach((host) => drawFlat(host, host.dataset.glyph || ""));
+    const loop = () => {
+      if (dead) return;
+      raf = requestAnimationFrame(loop);
+      if (!renderer || document.hidden || reduced3()) return;
+      const batch = Math.min(4, hosts.length);
+      for (let n = 0; n < batch; n += 1) {
+        const host = hosts[cursor % hosts.length];
+        cursor += 1;
+        if (!host.isConnected) continue;
+        try {
+          paintOne(host);
+        } catch {
+          drawFlat(host, host.dataset.glyph || "");
+        }
+      }
+    };
+    loadThree3().then((T) => {
+      if (dead) return;
+      THREE = T;
+      try {
+        ensure(T);
+      } catch {
+        return;
+      }
+      if (!reduced3()) loop();
+      else hosts.forEach((host) => paintOne(host));
+    }).catch(() => {
+    });
+    return () => {
+      dead = true;
+      if (raf) cancelAnimationFrame(raf);
     };
   }
 
@@ -3891,7 +4439,7 @@
       ${paradeHTML()}
       <section class="architect" id="architect">
         <h2 data-i18n="audioTitle">Architect notes</h2>
-        <p>Two short clips. Signal and Border walk the campus: how to view it, practise, and share it. Spoken with eSpeak NG 1.51. A low pad sits under the voices.</p>
+        <p>Two short clips. Signal and Border walk the campus: how to view it, practise, and share it. The player is ready for a later recording at the same file names. The clips shipped today were spoken with eSpeak NG 1.51, with a quiet pad underneath.</p>
         <audio id="architect-use" controls preload="none" src="audio/architect-use.mp3"></audio>
         <audio id="architect-share" controls preload="none" src="audio/architect-share.mp3"></audio>
         <p class="fine">Scripts: <a href="audio/scripts/architect-use.md">how to view</a> \xB7 <a href="audio/scripts/architect-share.md">how to practise and share</a>.</p>
@@ -4377,12 +4925,19 @@
   }
   async function render() {
     const gen = ++routeGen;
+    const parsed = parseHash();
+    if (render.last && render.last !== parsed.path) {
+      armFly();
+      window.scrollTo(0, 0);
+    }
+    render.last = parsed.path;
     cleanup();
     cleanup = () => {
     };
     stopNarration();
-    const { path, params } = parseHash();
+    const { path, params } = parsed;
     document.body.classList.toggle("is-home", path === "#/" || path === "");
+    document.body.classList.toggle("is-stage", path === "#/atlas" || path === "#/flows" || path === "#/charts");
     paintNav(path);
     view.setAttribute("aria-busy", "true");
     let stop = () => {
@@ -4422,7 +4977,12 @@
       if (typeof stop === "function") stop();
       return;
     }
-    cleanup = typeof stop === "function" ? stop : () => {
+    const stopGlyphs = mountGlyphs(view);
+    const stopRoute = typeof stop === "function" ? stop : () => {
+    };
+    cleanup = () => {
+      stopRoute();
+      stopGlyphs();
     };
     view.removeAttribute("aria-busy");
     titleEl.setAttribute("tabindex", "-1");

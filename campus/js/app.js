@@ -11,8 +11,9 @@ import * as tools from "./tools.js";
 import { mountTopology } from "./topology.js";
 import { paradeHTML, bindParade, animateStats, burst } from "./fx.js";
 import { chartsHTML, paintRoughTotals, trackMinutesChart, bindChartTips, animateCharts } from "./charts.js";
-import { mountHero } from "./hero.js";
+import { mountHero, armFly } from "./hero.js";
 import { iconHTML } from "./icons.js";
+import { mountGlyphs } from "./glyphs.js";
 import { applyLang } from "./i18n.js";
 
 const view = document.querySelector("#view");
@@ -191,7 +192,7 @@ async function renderHome() {
       ${paradeHTML()}
       <section class="architect" id="architect">
         <h2 data-i18n="audioTitle">Architect notes</h2>
-        <p>Two short clips. Signal and Border walk the campus: how to view it, practise, and share it. Spoken with eSpeak NG 1.51. A low pad sits under the voices.</p>
+        <p>Two short clips. Signal and Border walk the campus: how to view it, practise, and share it. The player is ready for a later recording at the same file names. The clips shipped today were spoken with eSpeak NG 1.51, with a quiet pad underneath.</p>
         <audio id="architect-use" controls preload="none" src="audio/architect-use.mp3"></audio>
         <audio id="architect-share" controls preload="none" src="audio/architect-share.mp3"></audio>
         <p class="fine">Scripts: <a href="audio/scripts/architect-use.md">how to view</a> · <a href="audio/scripts/architect-share.md">how to practise and share</a>.</p>
@@ -649,11 +650,18 @@ async function renderLabs() {
 
 async function render() {
   const gen = ++routeGen;
+  const parsed = parseHash();
+  if (render.last && render.last !== parsed.path) {
+    armFly();
+    window.scrollTo(0, 0);
+  }
+  render.last = parsed.path;
   cleanup();
   cleanup = () => {};
   stopNarration();
-  const { path, params } = parseHash();
+  const { path, params } = parsed;
   document.body.classList.toggle("is-home", path === "#/" || path === "");
+  document.body.classList.toggle("is-stage", path === "#/atlas" || path === "#/flows" || path === "#/charts");
   paintNav(path);
   view.setAttribute("aria-busy", "true");
   let stop = () => {};
@@ -688,7 +696,9 @@ async function render() {
     stop = () => {};
   }
   if (gen !== routeGen) { if (typeof stop === "function") stop(); return; }
-  cleanup = typeof stop === "function" ? stop : () => {};
+  const stopGlyphs = mountGlyphs(view);
+  const stopRoute = typeof stop === "function" ? stop : () => {};
+  cleanup = () => { stopRoute(); stopGlyphs(); };
   view.removeAttribute("aria-busy");
   titleEl.setAttribute("tabindex", "-1");
   applyLang(getSettings().lang || document.documentElement.lang || "en");

@@ -1,6 +1,42 @@
 import { onSettings } from "./audio.js";
 
 const LABELS = ["UA", "SBC", "DNS", "PSTN", "TURN", "RTP"];
+const VERT = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const EXTRACT = `
+  uniform sampler2D tDiffuse;
+  uniform float threshold;
+  varying vec2 vUv;
+  void main() {
+    vec4 color = texture2D(tDiffuse, vUv);
+    float luma = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+    float keep = smoothstep(threshold, threshold + 0.4, luma);
+    gl_FragColor = vec4(color.rgb * keep, 1.0);
+  }
+`;
+const BLUR = `
+  uniform sampler2D tDiffuse;
+  uniform vec2 direction;
+  varying vec2 vUv;
+  void main() {
+    vec3 acc = vec3(0.0);
+    float sum = 0.0;
+    for (int i = -6; i <= 6; i++) {
+      float wgt = exp(-float(i * i) / 14.0);
+      acc += texture2D(tDiffuse, vUv + direction * float(i)).rgb * wgt;
+      sum += wgt;
+    }
+    gl_FragColor = vec4(acc / sum, 1.0);
+  }
+`;
+let session = null;
+let flyArmed = false;
+let looseFly = null;
 
 function reduced() {
   return document.documentElement.dataset.motion === "reduce";
@@ -50,10 +86,122 @@ function paintLabel(text, color) {
   return canvas;
 }
 
+function makeTarget(THREE, w, h) {
+  const target = new THREE.WebGLRenderTarget(w, h, { depthBuffer: true });
+  return target;
+}
+
+function bloomKit(THREE) {
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2));
+  scene.add(mesh);
+  const extract = new THREE.ShaderMaterial({
+    uniforms: { tDiffuse: { value: null }, threshold: { value: 0.42 } },
+    vertexShader: VERT,
+    fragmentShader: EXTRACT,
+    depthTest: false,
+    depthWrite: false,
+  });
+  const blur = new THREE.ShaderMaterial({
+    uniforms: { tDiffuse: { value: null }, direction: { value: new THREE.Vector2(1, 0) } },
+    vertexShader: VERT,
+    fragmentShader: BLUR,
+    depthTest: false,
+    depthWrite: false,
+  });
+  const composite = new THREE.ShaderMaterial({
+    uniforms: { tBloom: { value: null }, strength: { value: 1.85 } },
+    vertexShader: VERT,
+    fragmentShader: `
+      uniform sampler2D tBloom;
+      uniform float strength;
+      varying vec2 vUv;
+      void main() {
+        gl_FragColor = vec4(texture2D(tBloom, vUv).rgb * strength, 1.0);
+      }
+    `,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthTest: false,
+    depthWrite: false,
+  });
+  return { scene, camera, mesh, extract, blur, composite };
+}
+
+export function armFly() {
+  if (reduced()) return;
+  if (session && !session.flying) {
+    flyArmed = true;
+    return;
+  }
+  if (!session && !looseFly) startLooseFly();
+}
+
+function startLooseFly() {
+  if (!hasWebGL()) return;
+  loadThree().then((THREE) => {
+    if (session || looseFly || reduced()) return;
+    const canvas = document.createElement("canvas");
+    canvas.className = "hero-canvas is-fly";
+    document.body.appendChild(canvas);
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    } catch {
+      canvas.remove();
+      return;
+    }
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 80);
+    const bg = cssHex("--cc-bg", "#07101f");
+    scene.background = new THREE.Color(bg);
+    renderer.setClearColor(bg, 1);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    const wire = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(1.8, 1),
+      new THREE.MeshBasicMaterial({ color: cssHex("--cc-accent-1", "#7af0ff"), wireframe: true }),
+    );
+    scene.add(wire);
+    [3.2, 4.3, 5.4].forEach((radius, i) => {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(radius, 0.04, 8, 64),
+        new THREE.MeshBasicMaterial({ color: cssHex(i === 1 ? "--cc-accent-2" : "--cc-accent-3", "#ff8bd2") }),
+      );
+      ring.rotation.x = 1.1 + i * 0.3;
+      scene.add(ring);
+    });
+    const started = performance.now();
+    looseFly = { renderer, scene, canvas };
+    const tick = (now) => {
+      if (!looseFly) return;
+      const u = Math.min(1, (now - started) / 720);
+      wire.rotation.y = u * 2.4;
+      camera.position.set(Math.sin(u * Math.PI) * 3.2, 0.4 + u * 0.6, 9 - u * 7.2);
+      camera.lookAt(0, 0.8, 0);
+      renderer.render(scene, camera);
+      if (u < 1) requestAnimationFrame(tick);
+      else {
+        renderer.dispose();
+        scene.traverse((obj) => {
+          if (obj.geometry) obj.geometry.dispose();
+          if (obj.material) obj.material.dispose();
+        });
+        canvas.remove();
+        looseFly = null;
+      }
+    };
+    requestAnimationFrame(tick);
+  }).catch(() => {});
+}
+
 export async function mountHero(host) {
   const glass = host.innerHTML;
   host.innerHTML = `<div class="hero-bleed" data-hero="pending">
-    <p class="sr-only">A three-dimensional call path. A user agent, an SBC, DNS, PSTN, TURN, and RTP orbit a glowing globe on a neon grid.</p>
+    <p class="sr-only">A three-dimensional call path. A user agent, an SBC, DNS, PSTN, TURN, and RTP orbit a glowing globe. No fog. The nodes stay sharp.</p>
     <canvas class="hero-canvas" aria-hidden="true"></canvas>
     <div class="hero-fallback" hidden>${fallbackMarkup()}</div>
     <div class="hero-glass">${glass}</div>
@@ -99,12 +247,13 @@ export async function mountHero(host) {
     showFallback();
     return () => {};
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
   bleed.dataset.hero = "webgl";
+  bleed.dataset.bloom = "0";
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 120);
-  camera.position.set(0.2, 2.15, 12.2);
+  const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 80);
+  camera.position.set(0, -0.55, 6.2);
 
   const palette = () => ({
     bg: cssHex("--cc-bg", "#0b1020"),
@@ -113,59 +262,65 @@ export async function mountHero(host) {
     c: cssHex("--cc-accent-3", "#00e5ff"),
     d: cssHex("--cc-accent-4", "#ffe600"),
   });
-
   const colors = palette();
   scene.background = new THREE.Color(colors.bg);
-  scene.fog = new THREE.Fog(colors.bg, 24, 72);
+  scene.fog = null;
   renderer.setClearColor(colors.bg, 1);
 
   const globe = new THREE.Group();
+  globe.position.y = 1.7;
   const wire = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(2.35, 1),
+    new THREE.IcosahedronGeometry(1.85, 1),
     new THREE.MeshBasicMaterial({ color: colors.a, wireframe: true }),
   );
   const core = new THREE.Mesh(
-    new THREE.SphereGeometry(1.55, 28, 28),
-    new THREE.MeshBasicMaterial({ color: colors.c, transparent: true, opacity: 0.38, blending: THREE.AdditiveBlending, depthWrite: false }),
+    new THREE.SphereGeometry(1.25, 28, 28),
+    new THREE.MeshBasicMaterial({ color: colors.c, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false }),
   );
-  globe.add(wire, core);
+  const halo = new THREE.Mesh(
+    new THREE.SphereGeometry(2.15, 24, 24),
+    new THREE.MeshBasicMaterial({ color: colors.b, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false }),
+  );
+  globe.add(wire, core, halo);
   scene.add(globe);
 
-  const rings = [4.1, 5.4, 6.6].map((radius, i) => {
+  const rings = [3.05, 4.05, 5.15].map((radius, i) => {
     const mesh = new THREE.Mesh(
-      new THREE.TorusGeometry(radius, 0.028, 12, 96),
+      new THREE.TorusGeometry(radius, 0.045, 12, 96),
       new THREE.MeshBasicMaterial({ color: [colors.b, colors.c, colors.d][i] }),
     );
-    mesh.rotation.x = 1.15 + i * 0.28;
+    mesh.position.y = 1.7;
+    mesh.rotation.x = 1.05 + i * 0.22;
     mesh.rotation.y = i * 0.4;
     scene.add(mesh);
     return mesh;
   });
 
-  const grid = new THREE.GridHelper(48, 24, colors.a, colors.b);
-  grid.position.y = -3.2;
+  const grid = new THREE.GridHelper(28, 18, colors.a, colors.b);
+  grid.position.y = -1.6;
   if (grid.material) {
     const mats = Array.isArray(grid.material) ? grid.material : [grid.material];
-    mats.forEach((mat) => { mat.transparent = true; mat.opacity = 0.45; });
+    mats.forEach((mat) => { mat.transparent = true; mat.opacity = 0.55; });
   }
   scene.add(grid);
 
-  const count = 1100;
+  const count = 900;
   const positions = new Float32Array(count * 3);
   for (let i = 0; i < count; i += 1) {
-    const radius = 8 + Math.random() * 18;
+    const radius = 2.2 + Math.random() * 6.5;
     const theta = Math.random() * Math.PI * 2;
-    positions[i * 3] = Math.cos(theta) * radius;
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 14;
-    positions[i * 3 + 2] = Math.sin(theta) * radius;
+    const phi = Math.acos(2 * Math.random() - 1);
+    positions[i * 3] = Math.sin(phi) * Math.cos(theta) * radius;
+    positions[i * 3 + 1] = Math.cos(phi) * radius * 0.75 + 1.1;
+    positions[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * radius;
   }
   const pointsGeo = new THREE.BufferGeometry();
   pointsGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   const points = new THREE.Points(pointsGeo, new THREE.PointsMaterial({
     color: colors.c,
-    size: 0.07,
+    size: 0.055,
     transparent: true,
-    opacity: 0.9,
+    opacity: 1,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
   }));
@@ -178,51 +333,103 @@ export async function mountHero(host) {
   LABELS.forEach((name, i) => {
     const tone = [colors.a, colors.b, colors.c, colors.d, colors.a, colors.b][i];
     const group = new THREE.Group();
-    const bodyMat = new THREE.MeshStandardMaterial({ color: tone, emissive: tone, emissiveIntensity: 0.65, roughness: 0.35, metalness: 0.15 });
-    const shellMat = new THREE.MeshBasicMaterial({ color: tone, transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending, depthWrite: false });
+    const bodyMat = new THREE.MeshStandardMaterial({ color: tone, emissive: tone, emissiveIntensity: 0.9, roughness: 0.28, metalness: 0.12 });
+    const shellMat = new THREE.MeshBasicMaterial({ color: tone, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending, depthWrite: false });
     nodeMats.push(bodyMat);
     shellMats.push(shellMat);
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.38, 20, 20), bodyMat);
-    const shell = new THREE.Mesh(new THREE.SphereGeometry(0.62, 16, 16), shellMat);
+    group.add(new THREE.Mesh(new THREE.SphereGeometry(0.28, 18, 18), bodyMat));
+    group.add(new THREE.Mesh(new THREE.SphereGeometry(0.5, 14, 14), shellMat));
     const tex = new THREE.CanvasTexture(paintLabel(name, "#f7fbff"));
     const labelMat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
     labelMats.push(labelMat);
     const sprite = new THREE.Sprite(labelMat);
-    sprite.position.y = 0.95;
-    sprite.scale.set(2.4, 0.68, 1);
-    group.add(body, shell, sprite);
+    sprite.position.y = 0.72;
+    sprite.scale.set(1.8, 0.5, 1);
+    group.add(sprite);
     const angle = (i / LABELS.length) * Math.PI * 2;
-    group.position.set(Math.cos(angle) * 7.2, Math.sin(angle * 2) * 0.6, Math.sin(angle) * 7.2);
-    group.userData.angle = angle;
+    group.position.set(Math.cos(angle) * 4.2, 1.7 + Math.sin(angle * 2) * 1.15, Math.sin(angle) * 4.2);
     orbit.add(group);
   });
   scene.add(orbit);
 
+  const lineMat = new THREE.LineBasicMaterial({ color: colors.a });
   const linePositions = [];
   LABELS.forEach((_, i) => {
     const a = (i / LABELS.length) * Math.PI * 2;
     const b = ((i + 1) / LABELS.length) * Math.PI * 2;
-    linePositions.push(Math.cos(a) * 7.2, 0.2, Math.sin(a) * 7.2, Math.cos(b) * 7.2, 0.2, Math.sin(b) * 7.2);
+    linePositions.push(Math.cos(a) * 4.2, 1.7, Math.sin(a) * 4.2, Math.cos(b) * 4.2, 1.7, Math.sin(b) * 4.2);
   });
   const lineGeo = new THREE.BufferGeometry();
   lineGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(linePositions), 3));
-  const lineMat = new THREE.LineBasicMaterial({ color: colors.a, transparent: true, opacity: 0.7 });
   scene.add(new THREE.LineSegments(lineGeo, lineMat));
 
-  const key = new THREE.PointLight(colors.b, 18, 48);
-  key.position.set(6, 8, 8);
-  const fill = new THREE.PointLight(colors.c, 14, 48);
-  fill.position.set(-8, 3, 6);
-  scene.add(new THREE.AmbientLight(0xffffff, 0.38), key, fill);
+  const key = new THREE.PointLight(colors.b, 16, 30);
+  key.position.set(4, 5, 6);
+  const fill = new THREE.PointLight(colors.c, 12, 30);
+  fill.position.set(-5, 2, 4);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.45), key, fill);
 
-  const accents = [wire.material, core.material, ...rings.map((ring) => ring.material), points.material, lineMat, ...nodeMats, ...shellMats];
+  const kit = bloomKit(THREE);
+  let rtScene = makeTarget(THREE, 8, 8);
+  let rtA = makeTarget(THREE, 4, 4);
+  let rtB = makeTarget(THREE, 4, 4);
+  let bloomOn = true;
+
+  const resizeTargets = (w, h) => {
+    const ratio = Math.min(window.devicePixelRatio || 1, 1.25);
+    const dw = Math.max(2, Math.floor(w * ratio));
+    const dh = Math.max(2, Math.floor(h * ratio));
+    rtScene.setSize(dw, dh);
+    rtA.setSize(Math.max(2, Math.floor(dw / 4)), Math.max(2, Math.floor(dh / 4)));
+    rtB.setSize(Math.max(2, Math.floor(dw / 4)), Math.max(2, Math.floor(dh / 4)));
+  };
+
+  const renderFrame = () => {
+    const box = canvas.getBoundingClientRect();
+    const w = Math.max(2, box.width || window.innerWidth);
+    const h = Math.max(2, box.height || window.innerHeight);
+    if (camera.aspect !== w / h) {
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+      resizeTargets(w, h);
+    }
+    renderer.autoClear = true;
+    renderer.setRenderTarget(null);
+    renderer.render(scene, camera);
+    if (!bloomOn) return;
+    renderer.setRenderTarget(rtScene);
+    renderer.render(scene, camera);
+    kit.mesh.material = kit.extract;
+    kit.extract.uniforms.tDiffuse.value = rtScene.texture;
+    renderer.setRenderTarget(rtA);
+    renderer.render(kit.scene, kit.camera);
+    kit.mesh.material = kit.blur;
+    kit.blur.uniforms.tDiffuse.value = rtA.texture;
+    kit.blur.uniforms.direction.value.set(1 / Math.max(1, rtA.width), 0);
+    renderer.setRenderTarget(rtB);
+    renderer.render(kit.scene, kit.camera);
+    kit.blur.uniforms.tDiffuse.value = rtB.texture;
+    kit.blur.uniforms.direction.value.set(0, 1 / Math.max(1, rtB.height));
+    renderer.setRenderTarget(rtA);
+    renderer.render(kit.scene, kit.camera);
+    kit.mesh.material = kit.composite;
+    kit.composite.uniforms.tBloom.value = rtA.texture;
+    renderer.autoClear = false;
+    renderer.setRenderTarget(null);
+    renderer.render(kit.scene, kit.camera);
+    renderer.autoClear = true;
+    bleed.dataset.bloom = "1";
+  };
+
   const applyPalette = () => {
     const next = palette();
     scene.background.set(next.bg);
-    scene.fog.color.set(next.bg);
+    scene.fog = null;
     renderer.setClearColor(next.bg, 1);
     wire.material.color.set(next.a);
     core.material.color.set(next.c);
+    halo.material.color.set(next.b);
     rings[0].material.color.set(next.b);
     rings[1].material.color.set(next.c);
     rings[2].material.color.set(next.d);
@@ -235,7 +442,6 @@ export async function mountHero(host) {
     shellMats.forEach((mat, i) => mat.color.set(tones[i]));
     const gridMats = Array.isArray(grid.material) ? grid.material : [grid.material];
     gridMats.forEach((mat, i) => mat.color && mat.color.set(i === 0 ? next.a : next.b));
-    void accents;
   };
 
   let raf = 0;
@@ -243,52 +449,31 @@ export async function mountHero(host) {
   let t = 0;
   const pointer = { x: 0, y: 0 };
   let scrollY = window.scrollY || 0;
+  const homePose = () => ({ x: pointer.x * 0.55, y: -0.55 + pointer.y * -0.2, z: 6.2 });
   const onPtr = (event) => {
-    const w = window.innerWidth || 1;
-    const h = window.innerHeight || 1;
-    pointer.x = (event.clientX / w - 0.5) * 2;
-    pointer.y = (event.clientY / h - 0.5) * 2;
+    pointer.x = (event.clientX / (window.innerWidth || 1) - 0.5) * 2;
+    pointer.y = (event.clientY / (window.innerHeight || 1) - 0.5) * 2;
   };
   const onScroll = () => { scrollY = window.scrollY || 0; };
   window.addEventListener("pointermove", onPtr, { passive: true });
   window.addEventListener("scroll", onScroll, { passive: true });
-
-  const resize = () => {
-    const w = bleed.clientWidth || window.innerWidth;
-    const h = bleed.clientHeight || window.innerHeight;
-    if (!w || !h) return;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h, false);
-  };
-  const ro = new ResizeObserver(resize);
+  const ro = new ResizeObserver(() => renderFrame());
   ro.observe(bleed);
-  resize();
-
   const unsettings = onSettings(applyPalette);
-  const tick = () => {
-    if (stop) return;
-    raf = requestAnimationFrame(tick);
-    if (document.hidden) return;
-    t += 0.005;
-    const drift = t * 0.35;
-    globe.rotation.y = drift;
-    globe.rotation.x = Math.sin(t * 0.4) * 0.12;
-    rings.forEach((ring, i) => { ring.rotation.z = drift * (0.35 + i * 0.12); });
-    orbit.rotation.y = drift * 0.55;
-    points.rotation.y = drift * 0.08;
-    const px = pointer.x * 1.8 + Math.sin(t * 0.15) * 0.9;
-    const py = 2.05 + pointer.y * -0.7 - Math.min(scrollY, 700) * 0.0025;
-    const pz = 12.2 + pointer.y * 0.5;
-    camera.position.x += (px - camera.position.x) * 0.04;
-    camera.position.y += (py - camera.position.y) * 0.04;
-    camera.position.z += (pz - camera.position.z) * 0.04;
-    camera.lookAt(0, 0.85, 0);
+  camera.lookAt(0, 0.15, 0);
+  try {
+    resizeTargets(bleed.clientWidth || window.innerWidth, bleed.clientHeight || window.innerHeight);
+    renderFrame();
+  } catch {
+    bloomOn = false;
+    renderer.setRenderTarget(null);
     renderer.render(scene, camera);
-  };
-  tick();
+  }
 
-  return () => {
+  const current = { renderer, scene, camera, canvas, bleed, flying: false, flyStart: 0 };
+  session = current;
+
+  const hardDispose = () => {
     stop = true;
     if (raf) cancelAnimationFrame(raf);
     window.removeEventListener("pointermove", onPtr);
@@ -306,6 +491,58 @@ export async function mountHero(host) {
       }
     });
     labelMats.forEach((mat) => { if (mat.map) mat.map.dispose(); });
+    rtScene.dispose();
+    rtA.dispose();
+    rtB.dispose();
+    kit.extract.dispose();
+    kit.blur.dispose();
+    kit.composite.dispose();
     renderer.dispose();
+    canvas.classList.remove("is-fly");
+    if (canvas.parentElement === document.body) canvas.remove();
+    if (session === current) session = null;
+  };
+
+  const tick = (now) => {
+    if (stop && !current.flying) return;
+    raf = requestAnimationFrame(tick);
+    if (document.hidden) return;
+    t += 0.006;
+    globe.rotation.y = t * 0.35;
+    rings.forEach((ring, i) => { ring.rotation.z = t * (0.25 + i * 0.08); });
+    orbit.rotation.y = t * 0.28;
+    if (current.flying) {
+      const u = Math.min(1, (now - current.flyStart) / 720);
+      const dive = Math.sin(u * Math.PI);
+      camera.position.set(dive * 2.2, -0.2 + u * 0.8, 6.2 - u * 5.4);
+      camera.lookAt(0, 1.7, 0);
+      try { renderFrame(); } catch { bloomOn = false; }
+      if (u >= 1) hardDispose();
+      return;
+    }
+    const pose = homePose();
+    pose.y -= Math.min(scrollY, 500) * 0.0015;
+    camera.position.x += (pose.x - camera.position.x) * 0.08;
+    camera.position.y += (pose.y - camera.position.y) * 0.08;
+    camera.position.z += (pose.z - camera.position.z) * 0.08;
+    camera.lookAt(0, 0.15, 0);
+    try { renderFrame(); } catch { bloomOn = false; }
+  };
+  tick(performance.now());
+
+  return () => {
+    window.removeEventListener("pointermove", onPtr);
+    window.removeEventListener("scroll", onScroll);
+    ro.disconnect();
+    unsettings();
+    if (flyArmed && session === current && !current.flying) {
+      flyArmed = false;
+      current.flying = true;
+      current.flyStart = performance.now();
+      canvas.classList.add("is-fly");
+      document.body.appendChild(canvas);
+      return;
+    }
+    hardDispose();
   };
 }
