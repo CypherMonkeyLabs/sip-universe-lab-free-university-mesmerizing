@@ -1,0 +1,2183 @@
+{
+ "id": "sip-core",
+ "title": "SIP core: messages, transactions, dialogs",
+ "summary": "Roles, methods, headers, transaction timers, dialog identity, and the transports those rules sit on.",
+ "level": "Core",
+ "order": 2,
+ "lessons": [
+  {
+   "id": "roles",
+   "title": "Roles a trace is actually showing",
+   "minutes": 13,
+   "tags": [
+    "roles",
+    "proxy",
+    "b2bua"
+   ],
+   "summary": "A trace shows a user agent, a proxy, a registrar, a redirect server, or a B2BUA, and products often combine those roles.",
+   "objectives": [
+    "Separate UAC and UAS from the box name",
+    "Predict what a redirect server leaves behind",
+    "Recognize a B2BUA by the second dialog"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Who speaks SIP",
+    "caption": "The location service is a database the proxy consults. It is not a request method.",
+    "layers": [
+     {
+      "name": "UAC / UAS",
+      "detail": "Builds the request or the response"
+     },
+     {
+      "name": "Proxy",
+      "detail": "Forwards, adds Via, decrements Max-Forwards"
+     },
+     {
+      "name": "Registrar",
+      "detail": "Stores Contact bindings from REGISTER"
+     },
+     {
+      "name": "B2BUA",
+      "detail": "Two dialogs joined by the application"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "The same box changes roles per request",
+     "paragraphs": [
+      "The UAC is the role that creates a request. The UAS is the role that creates the response. A phone is a UAC for the INVITE it sends and a UAS for the INVITE it answers.",
+      "A stateful proxy maintains the transaction, adds a Via with its own branch, and decrements Max-Forwards. A stateless proxy forwards without that transaction state and does not generate its own 100 Trying. A redirect server returns 3xx with a Contact and does not stay in the dialog."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 3261 §16",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+      },
+      {
+       "label": "RFC 3261 §8",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+      }
+     ]
+    },
+    {
+     "h": "Registrar, location service, B2BUA",
+     "paragraphs": [
+      "The registrar accepts REGISTER and writes bindings into a location service. The proxy reads that location service when it retargets. RFC 3261 keeps those roles separate even when one product runs both.",
+      "A B2BUA is a UAS glued to a UAC. It usually creates a new Call-ID on the outgoing side. RFC 7092 classifies that behavior, and RFC 5853 describes SBC requirements. If the Call-ID changes in the middle of the ladder, you are not looking at a pure proxy."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §10",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+      },
+      {
+       "label": "RFC 7092",
+       "url": "https://www.rfc-editor.org/rfc/rfc7092"
+      },
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Redirect steps out, proxy stays",
+    "parties": [
+     "UA",
+     "Redirect",
+     "Proxy",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The redirect server is the UAS for this transaction only.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKred1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "302",
+      "kind": "res",
+      "note": "302 gives a Contact and creates no ongoing dialog to stay in.",
+      "message": "SIP/2.0 302 Moved Temporarily\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKred1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=red9\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The non-2xx ACK uses the INVITE branch. The redirect server is done.",
+      "message": "ACK sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKred1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=red9\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "A new transaction, new branch, new Call-ID, aimed at the Contact.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKprox1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: b7c8d9e0f1@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The proxy generates 100. It will not relay a downstream 100.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKprox1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: b7c8d9e0f1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 3,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Proxy Via on top, Max-Forwards 69, Contact left as the caller's.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKprox2\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKprox1\nMax-Forwards: 69\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: b7c8d9e0f1@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 3,
+      "to": 2,
+      "label": "200",
+      "kind": "res",
+      "note": "The peer is the UAS. Its Contact becomes the remote target.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKprox2\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKprox1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: b7c8d9e0f1@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 197\n\nv=0\no=peer 10 11 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The UAC is",
+     "choices": [
+      "The role that creates the request",
+      "Always the phone on the right",
+      "The registrar",
+      "The DNS server"
+     ],
+     "answer": 0,
+     "why": "The same device is a UAS when it answers.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    },
+    {
+     "q": "A redirect server",
+     "choices": [
+      "Returns 3xx and leaves the path",
+      "Must record-route",
+      "Stores RTP",
+      "Sends BYE later"
+     ],
+     "answer": 0,
+     "why": "The Contact in the 3xx is the next Request-URI. The redirect server does not proxy the call.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "A stateful proxy",
+     "choices": [
+      "Keeps transaction state and can generate 100 Trying",
+      "Never adds Via",
+      "Ignores Max-Forwards",
+      "Must transcode"
+     ],
+     "answer": 0,
+     "why": "A stateless proxy does not hold that state and does not generate 100.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "Registrar and proxy in RFC 3261 are",
+     "choices": [
+      "Separate roles that products often combine",
+      "Two names for the same transaction",
+      "Both required on every INVITE",
+      "Defined in RFC 7118"
+     ],
+     "answer": 0,
+     "why": "REGISTER writes bindings. The proxy consults a location service.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    },
+    {
+     "q": "A strong sign of a B2BUA is",
+     "choices": [
+      "A new Call-ID on the outgoing leg",
+      "A decremented Max-Forwards only",
+      "A single Via added",
+      "A 100 Trying"
+     ],
+     "answer": 0,
+     "why": "A pure proxy preserves Call-ID. RFC 7092 describes the B2BUA.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "q": "The location service",
+     "choices": [
+      "Is the store of bindings a proxy consults",
+      "Is a SIP method",
+      "Carries RTP",
+      "Is the To tag"
+     ],
+     "answer": 0,
+     "why": "It is logical state. REGISTER is how a UA writes it.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "UAC",
+     "back": "Creates a request. Defined with the rest of the user-agent rules.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    },
+    {
+     "front": "Stateful proxy",
+     "back": "Transaction state, own Via branch, own 100 Trying.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "front": "Redirect",
+     "back": "3xx and a Contact, then it is out of the call.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "B2BUA",
+     "back": "UAS plus UAC. Expect a second dialog. See RFC 7092.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Who is still on the ladder?",
+    "kind": "ladder",
+    "prompt": "After the ACK of the 302, which role is finished?",
+    "steps": [
+     "Step through the 302 and its ACK.",
+     "Start the second INVITE.",
+     "Name the role that does not appear again."
+    ],
+    "check": {
+     "q": "After the ACK of the 302, the redirect server",
+     "choices": [
+      "Is finished and is not on the second call",
+      "Becomes the registrar",
+      "Must send UPDATE",
+      "Owns the RTP"
+     ],
+     "answer": 0,
+     "why": "A redirect server does not proxy the follow-up INVITE.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   },
+   "fault": {
+    "title": "Proxy that changed Call-ID",
+    "symptom": "The ladder is documented as a pure proxy, but the outgoing INVITE has a different Call-ID and a different From tag.",
+    "log": "IN: Call-ID: a84b4c76e66710@example.com From tag=9fxced76sl\nOUT: Call-ID: b7c8d9e0f1@example.com From tag=edge99\nVia count increased, Max-Forwards decreased",
+    "choices": [
+     "This leg is a B2BUA, not a pure proxy",
+     "Call-ID must change at every proxy",
+     "Max-Forwards caused a new dialog id",
+     "UDP rewrites Call-ID"
+    ],
+    "answer": 0,
+    "why": "A proxy preserves Call-ID, From tag, and To tag. A new Call-ID means a new dialog created by a UAC inside a B2BUA.",
+    "cause": "The box terminated the incoming dialog and originated another.",
+    "fix": "Trace both Call-IDs as two dialogs. Cite RFC 7092 if the design claimed this hop was a proxy.",
+    "cites": [
+     {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     },
+     {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "methods-and-codes",
+   "title": "Methods and status codes",
+   "minutes": 14,
+   "tags": [
+    "methods",
+    "responses"
+   ],
+   "summary": "The core methods are INVITE, ACK, OPTIONS, BYE, CANCEL, and REGISTER, and status codes fall into six classes.",
+   "objectives": [
+    "Place a code in the 1xx through 6xx classes",
+    "Match ACK and CANCEL to the INVITE they belong to",
+    "Separate 401 from 407"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Classes you will say out loud",
+    "caption": "The reason phrase is a hint. The code is the rule.",
+    "columns": [
+     "Class",
+     "Meaning",
+     "Examples"
+    ],
+    "rows": [
+     [
+      "1xx",
+      "Provisional, not final",
+      "100, 180, 183"
+     ],
+     [
+      "2xx",
+      "Success",
+      "200, 202"
+     ],
+     [
+      "3xx",
+      "Redirection",
+      "301, 302"
+     ],
+     [
+      "4xx",
+      "This sender can often fix it",
+      "401, 407, 486, 487"
+     ],
+     [
+      "5xx",
+      "This server failed",
+      "500, 503"
+     ],
+     [
+      "6xx",
+      "Global failure",
+      "603, 604"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Core methods",
+     "paragraphs": [
+      "RFC 3261 defines INVITE, ACK, OPTIONS, BYE, CANCEL, and REGISTER. INVITE sets up a session. ACK finishes the INVITE handshake. BYE ends a confirmed dialog. CANCEL asks to abandon an INVITE that has no final response yet.",
+      "OPTIONS asks for capabilities and does not set up a session. REGISTER writes bindings. PRACK, UPDATE, and REFER are extension methods: RFC 3262, RFC 3311, and RFC 3515. They do not replace the six."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 3261 §11",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+      },
+      {
+       "label": "RFC 3262",
+       "url": "https://www.rfc-editor.org/rfc/rfc3262"
+      },
+      {
+       "label": "RFC 3311",
+       "url": "https://www.rfc-editor.org/rfc/rfc3311"
+      },
+      {
+       "label": "RFC 3515",
+       "url": "https://www.rfc-editor.org/rfc/rfc3515"
+      }
+     ]
+    },
+    {
+     "h": "Codes that change a trace",
+     "paragraphs": [
+      "100 Trying is hop by hop. 180 means ringing. 183 means session progress and often carries early media SDP. 200 OK is success. 302 moves you to a Contact.",
+      "401 Unauthorized challenges a UAS or registrar with WWW-Authenticate. 407 Proxy Authentication Required challenges a proxy. 486 is Busy Here. 487 is Request Terminated, the usual final response after a successful CANCEL. 603 Decline is a global rejection. Section 22 is the authentication chapter."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      },
+      {
+       "label": "RFC 3261 §22",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Busy is final",
+    "parties": [
+     "UA",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "INVITE is the session request. CSeq method token is INVITE.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKbusy1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 is provisional. The transaction is still open.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKbusy1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "180 is also provisional. A To tag creates an early dialog.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKbusy1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "486",
+      "kind": "err",
+      "note": "486 Busy Here is a final 4xx. The early dialog does not become confirmed.",
+      "message": "SIP/2.0 486 Busy Here\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKbusy1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The ACK for a non-2xx reuses the INVITE branch. CSeq is 1 ACK.",
+      "message": "ACK sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKbusy1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "CANCEL applies to",
+     "choices": [
+      "An INVITE that has no final response yet",
+      "Any confirmed dialog",
+      "A REGISTER refresh",
+      "An OPTIONS keepalive"
+     ],
+     "answer": 0,
+     "why": "BYE is the method that ends a confirmed dialog.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "486 Busy Here is",
+     "choices": [
+      "A final 4xx",
+      "A provisional response",
+      "A global failure",
+      "Success"
+     ],
+     "answer": 0,
+     "why": "The call will not proceed on this response. ACK it inside the INVITE transaction.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "401 differs from 407 because",
+     "choices": [
+      "401 challenges the UAS or registrar, 407 challenges a proxy",
+      "401 is only for UDP",
+      "407 means busy",
+      "They are the same header"
+     ],
+     "answer": 0,
+     "why": "WWW-Authenticate versus Proxy-Authenticate. Section 22.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "q": "OPTIONS is used to",
+     "choices": [
+      "Query capabilities",
+      "Carry the audio",
+      "End a dialog",
+      "Replace REGISTER"
+     ],
+     "answer": 0,
+     "why": "Section 11. A 200 OK may include Allow.",
+     "cite": {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    },
+    {
+     "q": "487 Request Terminated is the usual final response",
+     "choices": [
+      "To the INVITE after CANCEL",
+      "To a successful REGISTER",
+      "To a 2xx ACK",
+      "To a DNS lookup"
+     ],
+     "answer": 0,
+     "why": "The CANCEL itself gets 200 OK. The INVITE gets 487, then a non-2xx ACK.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "603 Decline is",
+     "choices": [
+      "A 6xx global failure",
+      "A hop-by-hop 100",
+      "A redirect",
+      "A session timer refresh"
+     ],
+     "answer": 0,
+     "why": "A forking proxy treats 6xx as a reason to stop other branches.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "INVITE / ACK / BYE",
+     "back": "Set up, complete the handshake, and end a confirmed dialog.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "CANCEL",
+     "back": "Abandon an unanswered INVITE. It is not BYE.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "401 vs 407",
+     "back": "UAS or registrar challenge versus proxy challenge.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "front": "1xx",
+     "back": "Provisional. The transaction is still waiting for a final response.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Class the code",
+    "kind": "dissect",
+    "prompt": "Dissect the final response in this lab message, which is the 486.",
+    "steps": [
+     "Dissect the 486.",
+     "Read the CSeq.",
+     "Note that a 4xx is final."
+    ],
+    "message": "SIP/2.0 486 Busy Here\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKbusy1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n",
+    "check": {
+     "q": "486 belongs to which class?",
+     "choices": [
+      "4xx request failure",
+      "1xx provisional",
+      "2xx success",
+      "6xx global"
+     ],
+     "answer": 0,
+     "why": "Busy Here is local to this UAS. 603 would be the global form.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    }
+   },
+   "fault": {
+    "title": "BYE used to cancel a setup",
+    "symptom": "The caller hears ringing and the trace shows BYE with no To tag, then 481.",
+    "log": "BYE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKbye1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 BYE\nContent-Length: 0\n\nSIP/2.0 481 Call/Transaction Does Not Exist",
+    "choices": [
+     "BYE needs an established dialog. CANCEL is the method while INVITE is unanswered",
+     "481 means the codec failed",
+     "CSeq 2 is illegal",
+     "Max-Forwards must be 0 on BYE"
+    ],
+    "answer": 0,
+    "why": "There is no confirmed dialog to end. The INVITE is still outstanding, so CANCEL matches that transaction.",
+    "cause": "BYE was sent with no To tag, outside a dialog.",
+    "fix": "Send CANCEL with the INVITE's branch and CSeq number, then ACK the 487.",
+    "cites": [
+     {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     },
+     {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "headers-and-compact",
+   "title": "Headers and compact forms",
+   "minutes": 14,
+   "tags": [
+    "headers",
+    "compact"
+   ],
+   "summary": "Compact header names are aliases from RFC 3261, with a few more aliases defined in the extension RFCs.",
+   "objectives": [
+    "Expand the RFC 3261 compact forms",
+    "Keep extension compact forms with their RFCs",
+    "See why rewriting From or To breaks dialog matching"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Compact names",
+    "caption": "One character is the whole header name. Unknown one-letter names are not a license to invent aliases.",
+    "columns": [
+     "Compact",
+     "Header",
+     "Where it is defined"
+    ],
+    "rows": [
+     [
+      "c, e, f, i",
+      "Content-Type, Content-Encoding, From, Call-ID",
+      "RFC 3261"
+     ],
+     [
+      "k, l, m, s",
+      "Supported, Content-Length, Contact, Subject",
+      "RFC 3261"
+     ],
+     [
+      "t, v",
+      "To, Via",
+      "RFC 3261"
+     ],
+     [
+      "o, u",
+      "Event, Allow-Events",
+      "RFC 6665"
+     ],
+     [
+      "r, b",
+      "Refer-To, Referred-By",
+      "RFC 3515"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Long form and short form are one header",
+     "paragraphs": [
+      "A header is a name, a colon, and a value. RFC 3261 defines compact forms for ten headers: c Content-Type, e Content-Encoding, f From, i Call-ID, k Supported, l Content-Length, m Contact, s Subject, t To, and v Via.",
+      "The compact form is only a size alias. f is From, including the tag. A parser that stores the long name and a parser that stores the short name are talking about the same field. Section 7.3.3 and section 20 are the citations."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §7",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-7"
+      },
+      {
+       "label": "RFC 3261 §20",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+      }
+     ]
+    },
+    {
+     "h": "Extensions added four more",
+     "paragraphs": [
+      "Event's compact form is o, and Allow-Events is u. Those two come from RFC 6665, not from the base list. Refer-To is r and Referred-By is b, from RFC 3515.",
+      "Rewriting From, To, or Call-ID is not a compact-form conversion. Those fields are the dialog identity. A SIP profile that substitutes a different URI into From will make the peer's later requests fail to match the dialog."
+     ],
+     "cites": [
+      {
+       "label": "RFC 6665",
+       "url": "https://www.rfc-editor.org/rfc/rfc6665"
+      },
+      {
+       "label": "RFC 3515",
+       "url": "https://www.rfc-editor.org/rfc/rfc3515"
+      },
+      {
+       "label": "RFC 3261 §12",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Compact request, long response",
+    "parties": [
+     "UA",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "v, f, t, i, m, and l are the compact names. The branch cookie is still required.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nv: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKcmp1\nMax-Forwards: 70\nf: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nt: <sip:+15551212@example.com>\ni: compact-1@example.com\nCSeq: 1 INVITE\nm: <sip:alice@203.0.113.10>\nl: 0\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The response uses the long names. It matches on the branch, not on the spelling of Via.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKcmp1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "To now has a tag. The compact t on the request was the same To header.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKcmp1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The ACK is written in long form. CSeq is 1 ACK.",
+      "message": "ACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKcmpAck\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The compact form of Call-ID is",
+     "choices": [
+      "i",
+      "c",
+      "m",
+      "o"
+     ],
+     "answer": 0,
+     "why": "c is Content-Type. o is Event, from RFC 6665.",
+     "cite": {
+      "label": "RFC 3261 §20",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+     }
+    },
+    {
+     "q": "The compact form of Contact is",
+     "choices": [
+      "m",
+      "c",
+      "f",
+      "v"
+     ],
+     "answer": 0,
+     "why": "m is Contact. c is Content-Type.",
+     "cite": {
+      "label": "RFC 3261 §20",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+     }
+    },
+    {
+     "q": "Event's compact form o is defined in",
+     "choices": [
+      "RFC 6665",
+      "RFC 3261",
+      "RFC 3515",
+      "RFC 3966"
+     ],
+     "answer": 0,
+     "why": "Do not add o to the base list of ten.",
+     "cite": {
+      "label": "RFC 6665",
+      "url": "https://www.rfc-editor.org/rfc/rfc6665"
+     }
+    },
+    {
+     "q": "Refer-To's compact form is",
+     "choices": [
+      "r, from RFC 3515",
+      "r, from RFC 3261",
+      "b, from RFC 3261",
+      "t"
+     ],
+     "answer": 0,
+     "why": "b is Referred-By, also RFC 3515. t is To.",
+     "cite": {
+      "label": "RFC 3515",
+      "url": "https://www.rfc-editor.org/rfc/rfc3515"
+     }
+    },
+    {
+     "q": "Compact form changes",
+     "choices": [
+      "Only the header name on the wire",
+      "The dialog id",
+      "The transaction branch rules",
+      "The SDP offer"
+     ],
+     "answer": 0,
+     "why": "f and From are the same header. The tag inside the value still identifies the dialog.",
+     "cite": {
+      "label": "RFC 3261 §7",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-7"
+     }
+    },
+    {
+     "q": "A profile that replaces the From URI",
+     "choices": [
+      "Can prevent the peer from matching the dialog",
+      "Is required by compact form",
+      "Fixes Max-Forwards",
+      "Converts Via to v"
+     ],
+     "answer": 0,
+     "why": "From tag and From URI are dialog state. Compact form does not ask you to edit them.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "v / f / t / i",
+     "back": "Via, From, To, Call-ID.",
+     "cite": {
+      "label": "RFC 3261 §20",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+     }
+    },
+    {
+     "front": "m / l / c / k",
+     "back": "Contact, Content-Length, Content-Type, Supported.",
+     "cite": {
+      "label": "RFC 3261 §20",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+     }
+    },
+    {
+     "front": "o and u",
+     "back": "Event and Allow-Events. RFC 6665.",
+     "cite": {
+      "label": "RFC 6665",
+      "url": "https://www.rfc-editor.org/rfc/rfc6665"
+     }
+    },
+    {
+     "front": "r and b",
+     "back": "Refer-To and Referred-By. RFC 3515.",
+     "cite": {
+      "label": "RFC 3515",
+      "url": "https://www.rfc-editor.org/rfc/rfc3515"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Rewrite From on purpose",
+    "kind": "sandbox",
+    "dialect": "cube",
+    "prompt": "Run the profile. It is legal syntax and a dangerous edit. See which URI the From header contains afterward.",
+    "steps": [
+     "Read the rule.",
+     "Run it on the INVITE.",
+     "Compare the From URI with the original."
+    ],
+    "rules": "request INVITE sip-header From modify \"alice@example.com\" \"+15551212@example.com\"",
+    "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 0\n",
+    "check": {
+     "q": "The profile replaces alice@example.com inside From with",
+     "choices": [
+      "+15551212@example.com",
+      "a new To tag",
+      "z9hG4bK",
+      "Content-Length"
+     ],
+     "answer": 0,
+     "why": "The teaching profile substitutes the user. The dialog id still depends on the original From.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    }
+   },
+   "fault": {
+    "title": "481 after a From rewrite",
+    "symptom": "The SBC rewrites the From URI on the INVITE. The callee answers, and the caller's ACK gets 481.",
+    "log": "request INVITE sip-header From modify \"alice@example.com\" \"+15551212@example.com\"\nACK sip:+15551212@192.0.2.40 SIP/2.0\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nSIP/2.0 481 Call/Transaction Does Not Exist",
+    "choices": [
+     "The dialog was created with a different From URI than the ACK presents",
+     "481 means UDP fragmentation",
+     "Compact form forbids ACK",
+     "Max-Forwards expired"
+    ],
+    "answer": 0,
+    "why": "The peer stored the From it was given. The ACK still has the caller's original From.",
+    "cause": "A SIP profile changed From on one hop only.",
+    "fix": "Stop rewriting From and To. If a number must change, change the Request-URI or a diversion identity and leave the dialog tags intact.",
+    "cites": [
+     {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     },
+     {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "transactions",
+   "title": "Transactions and the branch cookie",
+   "minutes": 15,
+   "tags": [
+    "transaction",
+    "branch"
+   ],
+   "summary": "A transaction is identified by the branch, and a retransmission repeats that branch instead of starting a new one.",
+   "objectives": [
+    "Use the branch as the transaction id",
+    "Separate a retransmission from a new request",
+    "Apply the ACK branch rule for 2xx and non-2xx"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "INVITE client transaction",
+    "caption": "Calling retransmits. Proceeding waits. A 2xx is handed to the transaction user because its ACK is a new transaction.",
+    "nodes": [
+     "Calling",
+     "Proceeding",
+     "Completed",
+     "Terminated"
+    ]
+   },
+   "sections": [
+    {
+     "h": "One branch, one transaction",
+     "paragraphs": [
+      "The branch parameter identifies the transaction. An implementation of RFC 3261 starts it with z9hG4bK and makes the rest unique across space and time. A retransmission sends the same request again, including that branch.",
+      "CANCEL is an exception: it uses the same branch as the INVITE it cancels. The ACK for a non-2xx final response uses that same branch too. The ACK for a 2xx does not. It is a different transaction, so it gets a new branch."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §8.1.1.7",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+      },
+      {
+       "label": "RFC 3261 §17",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+      }
+     ]
+    },
+    {
+     "h": "INVITE is the special state machine",
+     "paragraphs": [
+      "On UDP the client starts in Calling, retransmits at T1 doubling, and starts Timer B at 64 times T1. A provisional response moves it to Proceeding and stops those retransmissions. If Timer B fires, the client must not invent an ACK.",
+      "The overview in section 17 calls INVITE a three-way handshake. RFC 6026 corrects the 2xx path: the transaction user sends the end-to-end ACK, and the transaction layer absorbs late 2xx responses. The non-2xx ACK is still generated hop by hop inside the INVITE transaction."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §17",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+      },
+      {
+       "label": "RFC 6026",
+       "url": "https://www.rfc-editor.org/rfc/rfc6026"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Retransmit, then a new ACK branch",
+    "parties": [
+     "UA",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Calling state. Timer A starts at T1 on UDP. Branch z9hG4bKtx01.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKtx01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Timer A fired. Same branch, so this is the same transaction, not a new call.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKtx01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Proceeding. Retransmissions of the INVITE stop. Still no To tag on this 100.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKtx01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Final 2xx. The Via branch still names the INVITE transaction.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKtx01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 197\n\nv=0\no=peer 10 11 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "New branch z9hG4bKtxAck. CSeq number stays 1 and the method token is ACK.",
+      "message": "ACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKtxAck\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A retransmission is recognized by",
+     "choices": [
+      "The same branch on the same request",
+      "A new Call-ID",
+      "A larger Max-Forwards",
+      "A new To tag"
+     ],
+     "answer": 0,
+     "why": "The transaction id does not change when Timer A fires.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "q": "The ACK for a 200 OK",
+     "choices": [
+      "Uses a new branch",
+      "Reuses the INVITE branch",
+      "Has no Via",
+      "Uses CSeq method INVITE"
+     ],
+     "answer": 0,
+     "why": "It is its own transaction. The CSeq number still matches the INVITE.",
+     "cite": {
+      "label": "RFC 3261 §8.1.1.7",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+     }
+    },
+    {
+     "q": "The ACK for a 486",
+     "choices": [
+      "Reuses the INVITE branch",
+      "Must use a new branch",
+      "Is end to end through every proxy as a new transaction",
+      "Carries SDP"
+     ],
+     "answer": 0,
+     "why": "Non-2xx ACK stays inside the INVITE transaction and is hop by hop.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "q": "If Timer B fires, the INVITE client",
+     "choices": [
+      "Must not generate an ACK",
+      "Sends ACK immediately",
+      "Sends BYE",
+      "Sends REGISTER"
+     ],
+     "answer": 0,
+     "why": "There is no final response to acknowledge. The transaction user learns about the timeout.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "q": "RFC 6026",
+     "choices": [
+      "Corrects INVITE 2xx handling",
+      "Defines the tel URI",
+      "Sets the UDP port",
+      "Obsoletes Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "The 2xx ACK stays end to end. The transaction layer's job is to absorb the late responses.",
+     "cite": {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    },
+    {
+     "q": "CANCEL's branch is",
+     "choices": [
+      "The same value as the INVITE it cancels",
+      "Always a new cookie",
+      "Taken from the To tag",
+      "Omitted"
+     ],
+     "answer": 0,
+     "why": "That is how the server transaction finds the INVITE to abandon.",
+     "cite": {
+      "label": "RFC 3261 §8.1.1.7",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Branch",
+     "back": "Transaction identifier. Cookie z9hG4bK plus a unique token.",
+     "cite": {
+      "label": "RFC 3261 §8.1.1.7",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+     }
+    },
+    {
+     "front": "Retransmission",
+     "back": "Same message, same branch, sent again by the transaction timer.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "front": "2xx ACK",
+     "back": "New transaction, new branch, end to end. CSeq number matches the INVITE.",
+     "cite": {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    },
+    {
+     "front": "Timer B",
+     "back": "INVITE transaction timeout, 64 times T1. No ACK is generated.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Compare the two branches",
+    "kind": "ladder",
+    "prompt": "Inspect the retransmitted INVITE and the ACK. Decide which hop starts a new transaction.",
+    "steps": [
+     "Step to the second INVITE.",
+     "Compare its branch with the first.",
+     "Inspect the ACK branch."
+    ],
+    "check": {
+     "q": "Which hop is a new transaction?",
+     "choices": [
+      "The ACK, because the branch changed",
+      "The second INVITE",
+      "The 100 Trying",
+      "Both INVITEs and the ACK"
+     ],
+     "answer": 0,
+     "why": "The second INVITE repeats z9hG4bKtx01. The ACK uses z9hG4bKtxAck.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    }
+   },
+   "fault": {
+    "title": "2xx ACK reused the INVITE branch",
+    "symptom": "The UAS keeps retransmitting 200 OK. The ACK is on the wire with the INVITE's branch.",
+    "log": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKtx01\nCSeq: 1 INVITE\n\nACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKtx01\nCSeq: 1 ACK",
+    "choices": [
+     "The 2xx ACK must be a new transaction with a new branch",
+     "200 OK forbids ACK",
+     "CSeq number 1 is wrong for ACK",
+     "The UAS should retransmit ACK"
+    ],
+    "answer": 0,
+    "why": "Reusing the INVITE branch makes this ACK look like part of the INVITE transaction, which is the non-2xx rule.",
+    "cause": "The UAC copied the INVITE branch onto a 2xx ACK.",
+    "fix": "Send the ACK with a fresh z9hG4bK branch, the dialog route set, and CSeq 1 ACK. Read RFC 6026 if the 200 OK still repeats.",
+    "cites": [
+     {
+      "label": "RFC 3261 §8.1.1.7",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+     },
+     {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "dialogs",
+   "title": "Dialog identity",
+   "minutes": 14,
+   "tags": [
+    "dialog",
+    "tags"
+   ],
+   "summary": "A dialog is identified by Call-ID, the From tag, and the To tag, and the initial request has no To tag.",
+   "objectives": [
+    "Name the three dialog-id components",
+    "Tell an early dialog from a confirmed dialog",
+    "Increment CSeq for a new request inside the dialog"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Dialog states",
+    "caption": "No dialog exists until a response carries a To tag. BYE moves a confirmed dialog to terminated.",
+    "nodes": [
+     "No dialog",
+     "Early",
+     "Confirmed",
+     "Terminated"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Three values, one dialog",
+     "paragraphs": [
+      "Dialog identity is the Call-ID, the From tag, and the To tag. At the UAC the local tag is the From tag and the remote tag is the To tag. At the UAS the local and remote tags are swapped, and the three values are the same set.",
+      "A request outside a dialog has no To tag. The UAS puts the tag on the response that creates the dialog. A 100 Trying SHOULD NOT add that tag. A 180 or 183 that includes a tag creates an early dialog. A 2xx to the INVITE confirms it."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §12",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+      },
+      {
+       "label": "RFC 3261 §13",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+      }
+     ]
+    },
+    {
+     "h": "Targets and sequence numbers",
+     "paragraphs": [
+      "The remote target is the Contact URI from the other side. Later requests in the dialog use that URI as the Request-URI, and they carry both tags. The route set, if Record-Route was present, is stored with the dialog.",
+      "The CSeq number increases for each new request the UAC sends inside the dialog. ACK and CANCEL are the exceptions that keep the INVITE's number and change only the method token. BYE is a new request, so its CSeq number is higher, and it is how a confirmed dialog ends."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §12",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+      },
+      {
+       "label": "RFC 3261 §8",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Early, then confirmed, then BYE",
+    "parties": [
+     "UA",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "No To tag. There is no dialog yet. From tag and Call-ID are already chosen.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdlg1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "To tag 314159 creates an early dialog. Contact is the remote target.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdlg1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The same To tag confirms the dialog. A different tag would be a different dialog.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdlg1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 197\n\nv=0\no=peer 10 11 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "Both tags are present. This 2xx ACK uses a new branch.",
+      "message": "ACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdlgAck\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "BYE",
+      "kind": "req",
+      "note": "CSeq 2 BYE. A new transaction inside the confirmed dialog.",
+      "message": "BYE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdlgBye\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 BYE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK for the BYE. The dialog is terminated.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdlgBye\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 BYE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The dialog id is",
+     "choices": [
+      "Call-ID + From tag + To tag",
+      "Via branch only",
+      "Max-Forwards + CSeq",
+      "SDP origin line"
+     ],
+     "answer": 0,
+     "why": "The branch is the transaction. The tags are the dialog.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "q": "An early dialog begins when",
+     "choices": [
+      "A provisional response contains a To tag",
+      "The INVITE is sent",
+      "100 Trying is received",
+      "ACK is sent"
+     ],
+     "answer": 0,
+     "why": "100 Trying should not be the response that adds the tag.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "q": "The initial INVITE's To header",
+     "choices": [
+      "Has no tag",
+      "Copies the From tag",
+      "Contains the Call-ID",
+      "Contains lr"
+     ],
+     "answer": 0,
+     "why": "The request is outside a dialog until the UAS answers with a tag.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    },
+    {
+     "q": "BYE uses",
+     "choices": [
+      "A higher CSeq number than the INVITE",
+      "The INVITE's CSeq number",
+      "No Call-ID",
+      "A new From tag"
+     ],
+     "answer": 0,
+     "why": "ACK and CANCEL keep the INVITE number. BYE is a new request.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "q": "At the UAS, the local tag is",
+     "choices": [
+      "The To tag it created",
+      "The From tag",
+      "The branch",
+      "The Contact user"
+     ],
+     "answer": 0,
+     "why": "Local and remote are swapped relative to the UAC. The three values match.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "q": "The remote target comes from",
+     "choices": [
+      "The other side's Contact",
+      "The top Via",
+      "Max-Forwards",
+      "The Subject header"
+     ],
+     "answer": 0,
+     "why": "Mid-dialog Request-URI is that target, unless loose routing says otherwise about Route.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Call-ID + tags",
+     "back": "The dialog id. Both tags are required once the dialog exists.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "front": "Early",
+     "back": "Provisional response with a To tag. Not confirmed yet.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "front": "Confirmed",
+     "back": "A 2xx to INVITE. BYE is now the teardown.",
+     "cite": {
+      "label": "RFC 3261 §13",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+     }
+    },
+    {
+     "front": "CSeq",
+     "back": "Increments for new in-dialog requests. ACK and CANCEL keep the INVITE number.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Find the dialog id",
+    "kind": "dissect",
+    "prompt": "Dissect the 180. List the three values that identify the early dialog.",
+    "steps": [
+     "Dissect the 180.",
+     "Read Call-ID, From tag, and To tag.",
+     "Note that 100 would not have been enough."
+    ],
+    "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdlg1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 0\n",
+    "check": {
+     "q": "Which value is new on the 180 compared with the INVITE?",
+     "choices": [
+      "The To tag",
+      "The Call-ID",
+      "The From tag",
+      "The branch cookie"
+     ],
+     "answer": 0,
+     "why": "Call-ID and the From tag were on the request. The To tag creates the early dialog.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    }
+   },
+   "fault": {
+    "title": "Two To tags, one Call-ID",
+    "symptom": "The UAC treats a second 180 with a different To tag as a retransmission of the first.",
+    "log": "180 Ringing\nCall-ID: a84b4c76e66710@example.com\nFrom tag=9fxced76sl\nTo tag=314159\n\n180 Ringing\nCall-ID: a84b4c76e66710@example.com\nFrom tag=9fxced76sl\nTo tag=999001",
+    "choices": [
+     "These are two early dialogs created by forking",
+     "To tags are random padding",
+     "Call-ID must change when the tag changes",
+     "The second 180 is illegal"
+    ],
+    "answer": 0,
+    "why": "Same Call-ID and From tag with a different To tag is a different dialog. Forking does this on purpose.",
+    "cause": "The UAC keyed only on Call-ID.",
+    "fix": "Key early dialogs on all three values. Be ready for more than one To tag when a proxy forks.",
+    "cites": [
+     {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     },
+     {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "three-clocks",
+   "title": "T1, the transaction timeout, and Timer C",
+   "minutes": 13,
+   "tags": [
+    "timers",
+    "t1"
+   ],
+   "summary": "T1 seeds retransmissions, 64 times T1 ends the transaction, and Timer C is the proxy's longer INVITE arm.",
+   "objectives": [
+    "State the defaults for T1, T2, and T4",
+    "Compute Timer B as 64 times T1",
+    "Keep Timer C separate from Timer B"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Clocks from the timer table",
+    "caption": "Change T1 and every timer that scales with it changes. Timer C does not use that formula.",
+    "columns": [
+     "Clock",
+     "Default",
+     "Job"
+    ],
+    "rows": [
+     [
+      "T1",
+      "500 ms",
+      "RTT estimate, first retransmission gap"
+     ],
+     [
+      "64*T1",
+      "32 s at the default",
+      "Timer B and Timer F give-up"
+     ],
+     [
+      "Timer C",
+      "more than 3 min",
+      "Proxy wait for a final INVITE response"
+     ],
+     [
+      "T2 / T4",
+      "4 s / 5 s",
+      "Retransmit cap, and time left in the network"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "T1 is the retransmission seed",
+     "paragraphs": [
+      "T1 is an estimate of the round trip and defaults to 500 ms. On UDP, Timer A starts at T1 and doubles after each INVITE retransmission while the client is in Calling. A reliable transport does not start Timer A.",
+      "T2 defaults to 4 seconds and caps the spacing of non-INVITE retransmissions and of INVITE response retransmissions. T4 defaults to 5 seconds and is the time a message may still be in the network. Timer I and Timer K use T4 on UDP so a stray retransmission can be absorbed."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §17",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+      }
+     ]
+    },
+    {
+     "h": "When to stop waiting",
+     "paragraphs": [
+      "Timer B is the INVITE transaction timeout and Timer F is the non-INVITE transaction timeout. Both are 64 times T1, which is 32 seconds at the default. Seven UDP transmissions fit in that window. If Timer B fires, the client does not generate an ACK.",
+      "Timer C belongs to the proxy, not to that formula. It is how long a proxy will wait for a final response to INVITE, and the table sets it at more than 3 minutes. A proxy that abandons an INVITE at 32 seconds is applying Timer B's number to Timer C's job."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §17",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+      },
+      {
+       "label": "RFC 3261 §16",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Retransmit until 100, then wait",
+    "parties": [
+     "UA",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "t=0. Timer A is 500 ms. Timer B is 32 seconds at the default T1.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKclk1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Timer A fired at 500 ms and is reset to 1 second. Same branch.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKclk1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Next gap is 1 second. The gaps double: 500 ms, 1 s, 2 s, and so on.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKclk1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Proceeding. Timer A stops. Timer B is still running until a final response.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKclk1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Final response before Timer B. The transaction can complete.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKclk1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The 2xx ACK is not on Timer A. Timer A was for the INVITE.",
+      "message": "ACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKclkAck\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The default T1 is",
+     "choices": [
+      "500 ms",
+      "4 seconds",
+      "5 seconds",
+      "3 minutes"
+     ],
+     "answer": 0,
+     "why": "T2 is 4 seconds. T4 is 5 seconds. Timer C is more than 3 minutes.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "q": "Timer B is",
+     "choices": [
+      "64 times T1",
+      "T1",
+      "Timer C",
+      "Always 4 seconds"
+     ],
+     "answer": 0,
+     "why": "At the default T1 that is 32 seconds, enough for seven UDP transmissions.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "q": "Timer A",
+     "choices": [
+      "Retransmits the INVITE on UDP and is not started on a reliable transport",
+      "Is the proxy's 3 minute timer",
+      "Acknowledges 200 OK",
+      "Is T4"
+     ],
+     "answer": 0,
+     "why": "A provisional response stops those retransmissions.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "q": "T2 and T4 default to",
+     "choices": [
+      "4 seconds and 5 seconds",
+      "500 ms and 500 ms",
+      "32 seconds and 32 seconds",
+      "70 and 0"
+     ],
+     "answer": 0,
+     "why": "T2 caps retransmit spacing. T4 is the network lifetime used by the short wait timers.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "q": "Timer C is",
+     "choices": [
+      "The proxy INVITE timer, longer than 3 minutes",
+      "64 times T1",
+      "The 2xx ACK timer",
+      "Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "Do not copy Timer B's 32 seconds into the proxy arm.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "When Timer B fires the client",
+     "choices": [
+      "Reports a timeout and does not send ACK",
+      "Sends ACK",
+      "Sends 100 Trying",
+      "Doubles T4"
+     ],
+     "answer": 0,
+     "why": "ACK requires a final response. A timeout is not one.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "T1 = 500 ms",
+     "back": "Default RTT estimate. Timer A starts here on UDP.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "front": "64*T1",
+     "back": "Timer B for INVITE and Timer F for non-INVITE.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "front": "T2 = 4 s, T4 = 5 s",
+     "back": "Retransmit cap, and how long a message may remain in the network.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "front": "Timer C",
+     "back": "Proxy timer for an unanswered INVITE. More than 3 minutes.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Count the gaps",
+    "kind": "ladder",
+    "prompt": "The second and third arrows are retransmissions. State the first Timer A value.",
+    "steps": [
+     "Step the first three INVITEs.",
+     "Note that the branch does not change.",
+     "Name the timer that stops when 100 arrives."
+    ],
+    "check": {
+     "q": "The first retransmission gap is",
+     "choices": [
+      "T1, default 500 ms",
+      "Timer C, 3 minutes",
+      "T4, 5 seconds",
+      "Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "Timer A starts at T1 and doubles. 100 Trying stops it.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    }
+   },
+   "fault": {
+    "title": "Proxy gave up at 32 seconds",
+    "symptom": "A proxy cancels every INVITE at 32 seconds while the downstream phone is still ringing. The operator calls it Timer C.",
+    "log": "Proxy log: Timer C expired at 32000 ms, sending CANCEL\nDownstream: 180 Ringing still in flight\nT1=500ms",
+    "choices": [
+     "Timer C is more than 3 minutes. 32 seconds is Timer B",
+     "Timer C is defined as T1",
+     "180 Ringing clears Timer C immediately and forbids CANCEL",
+     "T4 is 32 seconds"
+    ],
+    "answer": 0,
+    "why": "Timer B is 64 times T1 on the transaction. The proxy's INVITE arm is Timer C.",
+    "cause": "The proxy used the transaction give-up number for the proxy timer.",
+    "fix": "Set Timer C above 3 minutes unless you have a measured reason and a documented peer requirement. Leave Timer B at 64 times T1.",
+    "cites": [
+     {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     },
+     {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "transports",
+   "title": "UDP, TCP, TLS, and WebSocket",
+   "minutes": 13,
+   "tags": [
+    "udp",
+    "tcp",
+    "tls",
+    "websocket"
+   ],
+   "summary": "The transport is a property of the hop, written in Via, and it changes retransmission and framing rather than the SIP methods.",
+   "objectives": [
+    "Match UDP, TCP, and TLS to their default ports",
+    "Use Content-Length as the stream framing",
+    "Read a teaching dial-peer and trusted list"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Same SIP, different hop",
+    "caption": "A proxy can receive UDP and send TCP. Each Via records the transport that hop actually used.",
+    "layers": [
+     {
+      "name": "UDP 5060",
+      "detail": "Datagram. Transaction timers retransmit."
+     },
+     {
+      "name": "TCP 5060",
+      "detail": "Stream. Content-Length frames messages."
+     },
+     {
+      "name": "TLS 5061",
+      "detail": "TCP plus a protected connection."
+     },
+     {
+      "name": "WS / WSS",
+      "detail": "RFC 7118. Methods stay the same."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "What Via is promising",
+     "paragraphs": [
+      "The transport token and the sent-by value are written after the sender picks how to reach the next hop. The response is sent back toward that Via. If the packet arrives from a different address, the receiver adds a received parameter.",
+      "RFC 3581 adds rport so the response can go to the source port the request actually used. That is symmetric response routing. It does not replace a registration or a GRUU when you need to reach the UA later."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §18",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+      },
+      {
+       "label": "RFC 3581",
+       "url": "https://www.rfc-editor.org/rfc/rfc3581"
+      }
+     ]
+    },
+    {
+     "h": "Framing, TLS, and a small config",
+     "paragraphs": [
+      "On TCP and TLS the parser reads Content-Length bytes of body after the blank line. UDP should carry Content-Length too, so the same parser works. TLS on 5061 protects SIP. It does not by itself encrypt RTP.",
+      "A teaching dial-peer uses session protocol sipv2 and a session target. An IP address trusted list names who may present SIP to the box. debug ccsip messages is how you print the SIP that peer sends. WebSocket uses the same messages with WS or WSS."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §18",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+      },
+      {
+       "label": "RFC 7118",
+       "url": "https://www.rfc-editor.org/rfc/rfc7118"
+      },
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      },
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "UDP in, TCP out",
+    "parties": [
+     "UA",
+     "SBC",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Via says UDP. The transaction will retransmit if no response comes.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKudp1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Type: application/sdp\nContent-Length: 242\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The SBC generates 100 on the UDP hop. Timer A at the UA can stop.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKudp1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The next Via says TCP. This hop does not retransmit the INVITE at the SIP layer.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/TCP 203.0.113.20;branch=z9hG4bKtcp1\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKudp1\nMax-Forwards: 69\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Type: application/sdp\nContent-Length: 242\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer takes the Via stack back. TCP framing used Content-Length.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/TCP 203.0.113.20;branch=z9hG4bKtcp1\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKudp1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Type: application/sdp\nContent-Length: 197\n\nv=0\no=peer 10 11 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "SIP over TLS defaults to port",
+     "choices": [
+      "5061",
+      "5060",
+      "443 in RFC 3261",
+      "5062"
+     ],
+     "answer": 0,
+     "why": "5060 remains UDP and TCP. WebSocket is a separate specification.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    },
+    {
+     "q": "rport, from RFC 3581, is",
+     "choices": [
+      "Symmetric response routing back to the source port",
+      "A codec",
+      "The magic cookie",
+      "A dialog tag"
+     ],
+     "answer": 0,
+     "why": "The server reflects the port it observed. It is not a registration.",
+     "cite": {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    },
+    {
+     "q": "A stream transport frames SIP with",
+     "choices": [
+      "Content-Length",
+      "Timer A",
+      "The To tag",
+      "NAPTR"
+     ],
+     "answer": 0,
+     "why": "There is no datagram boundary on TCP or TLS.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    },
+    {
+     "q": "Changing UDP to TCP",
+     "choices": [
+      "Changes loss recovery and framing, not the method names",
+      "Requires a new Call-ID by rule",
+      "Disables Max-Forwards",
+      "Turns the proxy into a registrar"
+     ],
+     "answer": 0,
+     "why": "Via records the transport of that hop. Dialog identity is unchanged.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    },
+    {
+     "q": "debug ccsip messages is",
+     "choices": [
+      "The IOS command that prints SIP as the box handles it",
+      "An RFC 3261 header",
+      "A DNS record",
+      "A compact form of Via"
+     ],
+     "answer": 0,
+     "why": "It is a teaching debug command, not a protocol element.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "An address trusted list is used to",
+     "choices": [
+      "Name which sources may present SIP to the box",
+      "Set T1",
+      "Store the To tag",
+      "Replace Contact"
+     ],
+     "answer": 0,
+     "why": "Toll-fraud guidance treats unlisted sources as untrusted.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Via transport",
+     "back": "UDP, TCP, TLS, WS, or WSS for this hop.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    },
+    {
+     "front": "received / rport",
+     "back": "Response address and, with RFC 3581, the source port.",
+     "cite": {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    },
+    {
+     "front": "session protocol sipv2",
+     "back": "Dial-peer command that selects SIP for that peer.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "front": "ip address trusted list",
+     "back": "Sources allowed to present SIP. See the toll-fraud guidance.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the teaching config",
+    "kind": "config",
+    "prompt": "The config is a dial-peer, a trusted source, an empty profile, and one debug command.",
+    "steps": [
+     "Find the session target.",
+     "Find the trusted address.",
+     "Name the command that prints SIP."
+    ],
+    "config": "voice service voip\n ip address trusted list\n  ipv4 192.0.2.40\n!\ndial-peer voice 10 voip\n destination-pattern +15551212\n session protocol sipv2\n session target ipv4:192.0.2.40\n!\nvoice class sip-profiles 1\n!\ndebug ccsip messages\n",
+    "check": {
+     "q": "Which command prints SIP messages on this box?",
+     "choices": [
+      "debug ccsip messages",
+      "session protocol sipv2",
+      "destination-pattern +15551212",
+      "voice class sip-profiles 1"
+     ],
+     "answer": 0,
+     "why": "session protocol sipv2 selects SIP. The debug command is what displays the messages.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "UDP timers on a TCP hop",
+    "symptom": "A proxy logs Timer A retransmissions for an INVITE whose top Via is TCP, and the peer sees duplicates.",
+    "log": "Via: SIP/2.0/TCP 203.0.113.20;branch=z9hG4bKtcp1\nLog: Timer A fired, retransmitting INVITE, T1=500ms",
+    "choices": [
+     "Timer A is for unreliable transports. TCP does not start it",
+     "TCP requires Timer A by RFC 3261",
+     "Max-Forwards replaces Timer A",
+     "5061 means retransmit faster"
+    ],
+    "answer": 0,
+    "why": "Reliable transports rely on the connection. The SIP layer does not run Timer A.",
+    "cause": "The transaction code ignored the transport token.",
+    "fix": "Start Timer A only for unreliable transports. Keep Timer B for both, and use Content-Length on the TCP hop.",
+    "cites": [
+     {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     },
+     {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    ]
+   },
+   "level": "Core"
+  }
+ ]
+}

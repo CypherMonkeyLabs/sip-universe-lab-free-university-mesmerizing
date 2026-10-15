@@ -1,0 +1,2096 @@
+{
+ "id": "sbc",
+ "title": "Session border controllers",
+ "summary": "Deployment requirements, the B2BUA role, and the functions whose limits stay on the vendor datasheet.",
+ "level": "Advanced",
+ "order": 9,
+ "lessons": [
+  {
+   "id": "requirements-5853",
+   "title": "RFC 5853 is requirements, not a protocol",
+   "minutes": 14,
+   "tags": [
+    "sbc",
+    "rfc5853"
+   ],
+   "summary": "RFC 5853 collects requirements from SBC deployments. It does not define an SBC wire protocol.",
+   "objectives": [
+    "Classify RFC 5853 as informational",
+    "Name functions operators ask an SBC to perform",
+    "Keep those functions separate from SIP methods"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Requirements sit above SIP",
+    "caption": "RFC 5853 describes deployments. SIP, SDP, and RTP keep their own specifications.",
+    "layers": [
+     {
+      "name": "RFC 5853",
+      "detail": "Informational requirements from deployments"
+     },
+     {
+      "name": "SIP",
+      "detail": "INVITE, responses, dialogs, OPTIONS"
+     },
+     {
+      "name": "SDP and RTP",
+      "detail": "Offer, answer, and the media packets"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "No SBC protocol RFC",
+     "paragraphs": [
+      "There is no single protocol RFC that defines an SBC. RFC 5853 is informational requirements gathered from SBC deployments.",
+      "The document does not add a SIP method, a response code, or a header that every SBC must speak. INVITE, OPTIONS, and 200 OK remain the RFC 3261 messages you already read."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      },
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      }
+     ]
+    },
+    {
+     "h": "Functions the deployments asked for",
+     "paragraphs": [
+      "Topology hiding, media anchoring, media bypass, transcoding, DTMF interworking, OPTIONS keepalives, and call admission show up as deployment functions. Each one is implemented by a product, on top of SIP and RTP.",
+      "Session limits and calls-per-second figures are platform-specific and must come from the vendor datasheet. This track does not invent a counter name or a formula for them."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      },
+      {
+       "label": "RFC 7092",
+       "url": "https://www.rfc-editor.org/rfc/rfc7092"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Requirements do not change the ladder",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Alice still sends an ordinary INVITE. RFC 5853 does not replace that request.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 216\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying is still hop-by-hop on this leg.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The SBC, acting as a B2BUA, creates the outbound INVITE.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 216\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 Ringing is still a provisional response.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "The caller leg learns that the far side is alerting.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK still carries the answer SDP on the far leg.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 199\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The caller receives 200 OK only after the SBC forwards it.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 199\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK completes the caller dialog. No SBC-specific method appears.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "RFC 5853 is",
+     "choices": [
+      "An informational requirements document",
+      "The protocol specification of an SBC",
+      "A replacement for RFC 3261",
+      "A codec recommendation"
+     ],
+     "answer": 0,
+     "why": "It records what deployments asked SBCs to do. It does not define a new wire protocol.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "Which statement matches the status of an SBC specification?",
+     "choices": [
+      "No single protocol RFC defines an SBC",
+      "RFC 3261 section 4 is the SBC protocol",
+      "RFC 7092 is a media codec list",
+      "ITU-T G.711 is the SBC signaling RFC"
+     ],
+     "answer": 0,
+     "why": "RFC 7092 taxonomizes B2BUAs. G.711 is a codec recommendation.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "Call-capacity numbers for an SBC belong in",
+     "choices": [
+      "The vendor datasheet for that platform",
+      "RFC 5853 as a universal CPS formula",
+      "The SDP m= line",
+      "The Via branch cookie"
+     ],
+     "answer": 0,
+     "why": "Limits are platform-specific. Do not invent a calls-per-second formula.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "Topology hiding is best classified as",
+     "choices": [
+      "A deployment function",
+      "A new SIP method",
+      "A DNS NAPTR flag",
+      "An RTP payload type"
+     ],
+     "answer": 0,
+     "why": "RFC 5853 treats it as a requirement seen in deployments.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "An OPTIONS keepalive uses",
+     "choices": [
+      "The OPTIONS method from RFC 3261",
+      "A method named KEEPALIVE",
+      "REGISTER with Expires 0 only",
+      "A 180 response with no request"
+     ],
+     "answer": 0,
+     "why": "OPTIONS is the standard capability request. The interval is product configuration.",
+     "cite": {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    },
+    {
+     "q": "Media transcoding capacity should be taken from",
+     "choices": [
+      "The platform datasheet",
+      "A formula in RFC 3264",
+      "The Max-Forwards value",
+      "The length of Call-ID"
+     ],
+     "answer": 0,
+     "why": "RFC 3264 defines offer/answer, not a session budget.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 5853",
+     "back": "Informational requirements from SBC deployments. Not an SBC protocol.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "front": "No SBC method",
+     "back": "INVITE and OPTIONS stay as RFC 3261 defined them.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "Datasheet",
+     "back": "Session and transcode limits are platform-specific.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "front": "B2BUA",
+     "back": "The usual SIP role behind an SBC. Taxonomy is RFC 7092.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Find the protocol",
+    "kind": "ladder",
+    "prompt": "Play the ladder. Which start line is an SBC-specific method?",
+    "steps": [
+     "Play the eight hops.",
+     "Read each request start line.",
+     "List the methods you actually see."
+    ],
+    "check": {
+     "q": "Which methods appear in this synthetic call?",
+     "choices": [
+      "INVITE and ACK",
+      "SBCSETUP and INVITE",
+      "REGISTER only",
+      "SUBSCRIBE only"
+     ],
+     "answer": 0,
+     "why": "The ladder is ordinary SIP. RFC 5853 did not add a method.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   },
+   "fault": {
+    "title": "Searching for method SBC",
+    "symptom": "A trace review rejects a healthy call because no SBC method is present.",
+    "log": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nCSeq: 1 INVITE\nCall-ID: a84b4c76e66710@example.com\n",
+    "choices": [
+     "The call is ordinary SIP and RFC 5853 adds no method",
+     "RFC 5853 requires method SBCSETUP",
+     "The branch cookie is an SBC protocol identifier",
+     "Max-Forwards must be 5853"
+    ],
+    "answer": 0,
+    "why": "The start line is a normal INVITE.",
+    "cause": "The reviewer treated an informational requirements RFC as a wire protocol.",
+    "fix": "Read RFC 5853 as deployment requirements. Judge the call with RFC 3261, RFC 3264, and the product guide.",
+    "cites": [
+     {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     },
+     {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "b2bua-7092",
+   "title": "An SBC is commonly a B2BUA",
+   "minutes": 14,
+   "tags": [
+    "b2bua",
+    "rfc7092"
+   ],
+   "summary": "RFC 7092 taxonomizes B2BUAs. An SBC is commonly a UAS on one side and a UAC on the other, not a pure proxy.",
+   "objectives": [
+    "Contrast a B2BUA with a pure proxy",
+    "Point at two dialogs in one call",
+    "Use RFC 7092 as the taxonomy"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Two dialogs, one call",
+    "caption": "The inbound side is a UAS dialog. The outbound side is a new UAC dialog.",
+    "nodes": [
+     "INVITE in",
+     "UAS dialog",
+     "New INVITE",
+     "UAC dialog"
+    ]
+   },
+   "sections": [
+    {
+     "h": "UAS on one side, UAC on the other",
+     "paragraphs": [
+      "A back-to-back user agent receives a request and processes it as a UAS. To continue the call it acts as a UAC and generates a new request.",
+      "RFC 3261 defines that concatenation. RFC 7092 taxonomizes the B2BUAs that products actually build, including SBCs that also touch media."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7092",
+       "url": "https://www.rfc-editor.org/rfc/rfc7092"
+      },
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      }
+     ]
+    },
+    {
+     "h": "Not a pure proxy",
+     "paragraphs": [
+      "A pure proxy forwards the same request and adds its own Via. It does not create a second dialog with a new Call-ID just to hide the first hop.",
+      "An SBC is commonly a B2BUA. The outbound INVITE in this synthetic uses Call-ID b2bua-legb-01@example.com while the caller still uses Call-ID a84b4c76e66710@example.com."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7092",
+       "url": "https://www.rfc-editor.org/rfc/rfc7092"
+      },
+      {
+       "label": "RFC 3261 §16",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Two Call-IDs for one conversation",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Alice’s INVITE is the inbound dialog. Call-ID a84b4c76e66710@example.com.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nUser-Agent: LabPhone/1.0\nRecord-Route: <sip:203.0.113.10;lr>\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The SBC answers as a UAS on that dialog.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The SBC sends a new INVITE as a UAC. The Call-ID is new.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The carrier answers the outbound dialog.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>;tag=carrier77\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 202\n\nv=0\no=carrier 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 24000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The SBC answers Alice on the original dialog.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:sbc@203.0.113.20>\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "RFC 7092 is",
+     "choices": [
+      "A taxonomy of SIP B2BUAs",
+      "The SBC wire protocol",
+      "The RTP profile for G.711",
+      "A DNS locating procedure"
+     ],
+     "answer": 0,
+     "why": "It classifies B2BUAs. It is not a second SIP.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "q": "On the caller side an SBC commonly behaves as a",
+     "choices": [
+      "UAS",
+      "DNS server",
+      "Redirect server only",
+      "Pure stateless proxy"
+     ],
+     "answer": 0,
+     "why": "It must produce responses for the dialog it accepted.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "q": "On the callee side an SBC commonly behaves as a",
+     "choices": [
+      "UAC that generates a new request",
+      "Registrar",
+      "DHCP relay",
+      "RTP mixer with no SIP"
+     ],
+     "answer": 0,
+     "why": "The outbound request is a new client transaction.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "A pure proxy typically",
+     "choices": [
+      "Forwards the request and adds Via",
+      "Mints a new Call-ID and drops the caller Via stack",
+      "Terminates RTP in every call",
+      "Replaces SDP with ISUP"
+     ],
+     "answer": 0,
+     "why": "Via accumulation is proxy behavior. A B2BUA builds a new request.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "In the synthetic ladder the outbound Call-ID is",
+     "choices": [
+      "b2bua-legb-01@example.com",
+      "The same value as Alice’s Call-ID",
+      "Empty",
+      "The branch cookie"
+     ],
+     "answer": 0,
+     "why": "The new Call-ID is the visible sign of the second dialog.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "q": "Dialog state on a B2BUA is",
+     "choices": [
+      "Maintained on each leg it creates",
+      "Forbidden by RFC 3261",
+      "Stored only in DNS",
+      "Optional for INVITE"
+     ],
+     "answer": 0,
+     "why": "RFC 3261 says a B2BUA maintains dialog state and participates in requests on those dialogs.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "B2BUA",
+     "back": "UAS plus UAC. Two dialogs for one call.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "front": "Pure proxy",
+     "back": "Forwards the request and adds Via.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "front": "Call-ID",
+     "back": "Often different on the two legs of an SBC.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "front": "RFC 3261",
+     "back": "Defines the B2BUA as UAS concatenated with UAC.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Dissect the outbound INVITE",
+    "kind": "dissect",
+    "prompt": "This is the SBC’s outbound INVITE. Which Call-ID belongs to the carrier leg?",
+    "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "check": {
+     "q": "The Call-ID on this outbound INVITE is",
+     "choices": [
+      "b2bua-legb-01@example.com",
+      "a84b4c76e66710@example.com",
+      "Missing",
+      "z9hG4bK7766as01"
+     ],
+     "answer": 0,
+     "why": "The carrier leg is a new dialog.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    }
+   },
+   "fault": {
+    "title": "Expecting proxy Via accumulation",
+    "symptom": "The carrier INVITE contains only the SBC Via. The reviewer marks the hop broken.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "choices": [
+     "A B2BUA created a new request, so the caller Via is not forwarded",
+     "RFC 7092 requires every Via from Alice to be copied",
+     "The missing second Via makes the INVITE illegal",
+     "Call-ID must be empty on a B2BUA"
+    ],
+    "answer": 0,
+    "why": "The outbound Via is 203.0.113.20 only.",
+    "cause": "The trace was judged with proxy rules. This SBC is a B2BUA.",
+    "fix": "Compare Call-ID, tags, and Via on the two legs. Use RFC 7092 for the role and RFC 3261 for each dialog.",
+    "cites": [
+     {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     },
+     {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "topology-hiding",
+   "title": "Topology hiding rewrites the addresses you leak",
+   "minutes": 13,
+   "tags": [
+    "topology",
+    "contact",
+    "via"
+   ],
+   "summary": "Topology hiding replaces caller addresses in signaling and, when media is anchored, in SDP.",
+   "objectives": [
+    "Name the headers that leak topology",
+    "See Contact and Via change at the B2BUA",
+    "Leave the rewrite policy in the product guide"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "What this synthetic hides",
+    "caption": "Addresses below are the lab’s documentation addresses.",
+    "columns": [
+     "Field",
+     "Caller leg",
+     "Carrier leg"
+    ],
+    "rows": [
+     [
+      "Via host",
+      "203.0.113.10",
+      "203.0.113.20"
+     ],
+     [
+      "Contact host",
+      "203.0.113.10",
+      "203.0.113.20"
+     ],
+     [
+      "Call-ID",
+      "a84b4c76e66710@example.com",
+      "b2bua-legb-01@example.com"
+     ],
+     [
+      "SDP c=",
+      "203.0.113.10",
+      "203.0.113.20"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "What a caller reveals",
+     "paragraphs": [
+      "Alice’s INVITE in this lab carries Via 203.0.113.10, Contact sip:alice@203.0.113.10, and an SDP c= line of 203.0.113.10. A Record-Route or User-Agent can leak still more.",
+      "A pure proxy would add a Via and forward the rest. Topology hiding is the deployment function that stops those internal names from reaching the carrier."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      },
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      }
+     ]
+    },
+    {
+     "h": "What the carrier is allowed to see",
+     "paragraphs": [
+      "The outbound INVITE uses Via 203.0.113.20, Contact sip:sbc@203.0.113.20, and SDP c=203.0.113.20. The caller Via, the caller Contact, and the User-Agent are not copied.",
+      "Which extra headers a product strips is a configuration choice documented by that vendor. RFC 5853 records the requirement. It does not publish one vendor’s header list."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      },
+      {
+       "label": "RFC 7092",
+       "url": "https://www.rfc-editor.org/rfc/rfc7092"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Hide the caller address",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Caller addresses are still visible on the inside leg.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nUser-Agent: LabPhone/1.0\nRecord-Route: <sip:203.0.113.10;lr>\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The SBC accepts the dialog before it builds the outside request.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The carrier sees the SBC addresses only.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "The carrier Contact stays on the outside leg.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>;tag=carrier77\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Topology hiding is aimed at",
+     "choices": [
+      "Internal addresses and names in signaling",
+      "The RTP sequence number only",
+      "The SDP version character v=",
+      "Max-Forwards counting"
+     ],
+     "answer": 0,
+     "why": "Via, Contact, and SDP c= are the usual leaks.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "On the carrier INVITE in this lesson, Contact is",
+     "choices": [
+      "sip:sbc@203.0.113.20",
+      "sip:alice@203.0.113.10",
+      "Absent",
+      "sip:alice@192.0.2.40"
+     ],
+     "answer": 0,
+     "why": "The B2BUA replaced the caller Contact.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "q": "A pure proxy would typically",
+     "choices": [
+      "Forward Alice’s Contact and add a Via",
+      "Delete every Via",
+      "Remove Call-ID",
+      "Convert INVITE to REGISTER"
+     ],
+     "answer": 0,
+     "why": "Forwarding the Contact is why a proxy does not hide the caller.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "When media is anchored, SDP c= on the outside leg names",
+     "choices": [
+      "The SBC media address",
+      "The phone’s private socket only",
+      "The DNS resolver",
+      "Port 5060 always"
+     ],
+     "answer": 0,
+     "why": "Here that address is 203.0.113.20.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "User-Agent on the carrier INVITE in this synthetic is",
+     "choices": [
+      "Not copied from the phone",
+      "Required to be LabPhone/1.0",
+      "Replaced by the Call-ID",
+      "A mandatory RFC 5853 header"
+     ],
+     "answer": 0,
+     "why": "The outside request omits the phone’s User-Agent.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "The list of headers a given SBC strips is found in",
+     "choices": [
+      "That product’s guide",
+      "RFC 5853 as a fixed mandatory list",
+      "The RTP payload type table",
+      "RFC 3261 section 11 only"
+     ],
+     "answer": 0,
+     "why": "The RFC states the requirement. The product states the knobs.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Via",
+     "back": "Identifies the previous SIP hop. Hide the internal one.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "Contact",
+     "back": "Dialog target. An SBC usually substitutes its own.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "front": "c=",
+     "back": "SDP connection address. Anchoring rewrites it.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "User-Agent",
+     "back": "A common topology leak. Stripping it is a product rule.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Compare Contact hosts",
+    "kind": "dissect",
+    "prompt": "Dissect the carrier INVITE. Which host is in Contact?",
+    "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "check": {
+     "q": "Contact on the carrier INVITE names",
+     "choices": [
+      "203.0.113.20",
+      "203.0.113.10",
+      "198.51.100.30",
+      "No host"
+     ],
+     "answer": 0,
+     "why": "The SBC address replaced the phone address.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    }
+   },
+   "fault": {
+    "title": "Caller Contact leaked",
+    "symptom": "The carrier INVITE still targets the dialog at 203.0.113.10, which is not routed on the carrier side.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 204\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "choices": [
+     "Contact and SDP c= still name the phone, so topology was not hidden",
+     "RFC 3261 forbids Contact on INVITE",
+     "The carrier must use the Via branch as the RTP address",
+     "Call-ID length caused the leak"
+    ],
+    "answer": 0,
+    "why": "Both Contact and c= still say 203.0.113.10.",
+    "cause": "The outbound request was built like a proxy forward of the caller addresses.",
+    "fix": "On an anchoring B2BUA, put the SBC in Contact and in SDP c= before the request leaves toward the carrier. Confirm the header list in the product guide.",
+    "cites": [
+     {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     },
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "media-modes",
+   "title": "Anchor, bypass, transcode, and DTMF",
+   "minutes": 15,
+   "tags": [
+    "media",
+    "dtmf",
+    "sdp"
+   ],
+   "summary": "Anchoring terminates RTP on the SBC. Bypass lets endpoints exchange media. Transcoding and DTMF interworking need the media path.",
+   "objectives": [
+    "Separate anchoring from bypass",
+    "Tie transcoding to an anchored path",
+    "Treat DTMF interworking as a media function"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Four deployment functions",
+    "caption": "Capacity for transcoding is platform-specific.",
+    "columns": [
+     "Function",
+     "Signaling",
+     "Media",
+     "Limit"
+    ],
+    "rows": [
+     [
+      "Anchor",
+      "B2BUA",
+      "RTP ends on the SBC",
+      "Datasheet"
+     ],
+     [
+      "Bypass",
+      "B2BUA",
+      "RTP goes endpoint to endpoint",
+      "Datasheet"
+     ],
+     [
+      "Transcode",
+      "B2BUA",
+      "SBC decodes and encodes",
+      "Datasheet"
+     ],
+     [
+      "DTMF interwork",
+      "May rewrite INFO or events",
+      "telephone-event or in-band",
+      "Datasheet"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Anchoring and bypass",
+     "paragraphs": [
+      "Media anchoring means the SBC terminates RTP and originates a second RTP stream. In this lab the inside c= is 203.0.113.10 and the outside c= is 203.0.113.20.",
+      "Media bypass leaves a path where the endpoints send RTP to each other. The SBC still handles SIP. The product guide is where bypass conditions are written."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 3550",
+       "url": "https://www.rfc-editor.org/rfc/rfc3550"
+      }
+     ]
+    },
+    {
+     "h": "Transcoding and DTMF",
+     "paragraphs": [
+      "Transcoding converts one codec to another, so the SBC must be on the media path. How many sessions a chassis can transcode is platform-specific and must come from the vendor datasheet.",
+      "DTMF interworking converts between RFC 4733 telephone-event and another form the peer understands, such as in-band tones. There is no universal counter for that work in RFC 5853."
+     ],
+     "cites": [
+      {
+       "label": "RFC 4733",
+       "url": "https://www.rfc-editor.org/rfc/rfc4733"
+      },
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Anchored answer SDP",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Alice offers PCMU and PCMA from 203.0.113.10.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 228\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The SBC offers its own address and PCMU.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The carrier answers from 192.0.2.40.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>;tag=carrier77\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 202\n\nv=0\no=carrier 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 24000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Alice is answered from the SBC media address.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:sbc@203.0.113.20>\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Media anchoring means",
+     "choices": [
+      "The SBC terminates RTP and starts a new stream",
+      "SIP is encrypted and RTP is unchanged by definition",
+      "The phone sends RTP to the carrier c= line directly",
+      "REGISTER carries the audio"
+     ],
+     "answer": 0,
+     "why": "Two RTP legs meet at the SBC.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "Media bypass means",
+     "choices": [
+      "Endpoints can exchange RTP while SIP still visits the SBC",
+      "The SBC must transcode G.711 to G.729",
+      "SDP is omitted",
+      "OPTIONS is disabled"
+     ],
+     "answer": 0,
+     "why": "Signaling and media take different paths.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "Transcoding requires",
+     "choices": [
+      "The SBC on the media path",
+      "A pure proxy with no RTP",
+      "Only a DNS change",
+      "Max-Forwards set to 1"
+     ],
+     "answer": 0,
+     "why": "The SBC has to decode one codec and encode another.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "Where do you read how many transcoded sessions a box supports?",
+     "choices": [
+      "The vendor datasheet",
+      "RFC 4733",
+      "The Via branch",
+      "RFC 5853’s mandatory formula"
+     ],
+     "answer": 0,
+     "why": "The RFC does not publish a platform capacity.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "RFC 4733 telephone-event is",
+     "choices": [
+      "An RTP payload for DTMF digits",
+      "A SIP method",
+      "A TLS version",
+      "A B2BUA taxonomy"
+     ],
+     "answer": 0,
+     "why": "Named events ride in RTP. Interworking is an SBC function when the peer differs.",
+     "cite": {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+     }
+    },
+    {
+     "q": "In the anchored ladder, Alice’s 200 OK uses c=",
+     "choices": [
+      "203.0.113.20",
+      "203.0.113.10",
+      "192.0.2.40",
+      "198.51.100.30"
+     ],
+     "answer": 0,
+     "why": "The answer she receives names the SBC, not the carrier.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Anchor",
+     "back": "RTP terminates on the SBC. SDP c= names the SBC.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "front": "Bypass",
+     "back": "SIP through the SBC. Media between endpoints.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "Transcode",
+     "back": "Decode and encode. Capacity is on the datasheet.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "front": "telephone-event",
+     "back": "RFC 4733 DTMF in RTP.",
+     "cite": {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Negotiate an anchored answer",
+    "kind": "sdp",
+    "prompt": "Alice offers PCMU and PCMA. The anchored answer keeps PCMU and telephone-event.",
+    "offer": "v=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv\n",
+    "answer": "v=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv\n",
+    "check": {
+     "q": "Which audio codec is in both the offer and this answer?",
+     "choices": [
+      "PCMU",
+      "PCMA",
+      "G.722",
+      "Opus"
+     ],
+     "answer": 0,
+     "why": "The answer kept payload 0 and dropped payload 8.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   },
+   "fault": {
+    "title": "Bypass addresses on an anchored design",
+    "symptom": "The carrier is supposed to send RTP to the SBC, but the INVITE still advertises the phone.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nContact: <sip:alice@203.0.113.10>\nContent-Type: application/sdp\nc=IN IP4 203.0.113.10\nm=audio 49170 RTP/AVP 0\n",
+    "choices": [
+     "SDP c= and Contact still name the phone, so media will miss the anchor",
+     "PCMU is illegal on an SBC",
+     "c= must be a DNS SRV name",
+     "The m= line disables RTP"
+    ],
+    "answer": 0,
+    "why": "c=IN IP4 203.0.113.10 tells the carrier to send RTP to the phone.",
+    "cause": "The outbound SDP was not rewritten for anchoring.",
+    "fix": "If the design anchors media, advertise the SBC address 203.0.113.20 in c= and the SBC port. If the design is bypass, confirm that the phone address is actually reachable from the carrier.",
+    "cites": [
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     },
+     {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "options-keepalive",
+   "title": "OPTIONS keepalives",
+   "minutes": 12,
+   "tags": [
+    "options",
+    "keepalive"
+   ],
+   "summary": "SBCs probe a peer with OPTIONS. A 200 OK means the peer answered. The interval is product configuration.",
+   "objectives": [
+    "Build a legal OPTIONS",
+    "Read a 200 OK as liveness",
+    "Keep the timer out of the RFC"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "A keepalive, then a call",
+    "caption": "RFC 3261 defines OPTIONS. It does not define the SBC’s repeat timer.",
+    "nodes": [
+     "Send OPTIONS",
+     "Receive 200",
+     "Peer answered",
+     "INVITE may follow"
+    ]
+   },
+   "sections": [
+    {
+     "h": "The request RFC 3261 already defined",
+     "paragraphs": [
+      "OPTIONS queries capabilities. Outside a dialog it is a simple request with its own CSeq method token, which must be OPTIONS.",
+      "In this synthetic the SBC at 203.0.113.20 sends OPTIONS to 192.0.2.40. The 200 OK lists Allow and proves the peer produced a response."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §11",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+      },
+      {
+       "label": "RFC 3261 §8",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+      }
+     ]
+    },
+    {
+     "h": "What the 200 does not standardize",
+     "paragraphs": [
+      "Many SBC deployments send OPTIONS on a timer and treat a missing answer as a down peer. That timer is product configuration.",
+      "RFC 3261 does not publish an SBC keepalive interval, and this lesson does not invent one. Use the guide for the software you run."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §11",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+      },
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "OPTIONS before the next INVITE",
+    "parties": [
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "OPTIONS",
+      "kind": "req",
+      "note": "The keepalive is a normal OPTIONS request.",
+      "message": "OPTIONS sip:192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKoptkeep01\nMax-Forwards: 70\nFrom: <sip:sbc@203.0.113.20>;tag=opt1\nTo: <sip:192.0.2.40>\nCall-ID: opt-keep-1@example.com\nCSeq: 1 OPTIONS\nContact: <sip:sbc@203.0.113.20>\nAccept: application/sdp\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK means the peer answered the probe.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKoptkeep01\nFrom: <sip:sbc@203.0.113.20>;tag=opt1\nTo: <sip:192.0.2.40>;tag=optok1\nCall-ID: opt-keep-1@example.com\nCSeq: 1 OPTIONS\nAllow: INVITE,ACK,CANCEL,BYE,OPTIONS,UPDATE\nAccept: application/sdp\nContact: <sip:192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "A later call is a separate transaction.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying belongs to the INVITE, not to the OPTIONS.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A keepalive OPTIONS uses CSeq method",
+     "choices": [
+      "OPTIONS",
+      "INVITE",
+      "ACK",
+      "BYE"
+     ],
+     "answer": 0,
+     "why": "The method token must match the request line.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    },
+    {
+     "q": "200 OK to OPTIONS means",
+     "choices": [
+      "The peer answered the probe",
+      "The phone is off hook",
+      "Media bypass is enabled",
+      "The datasheet limit was raised"
+     ],
+     "answer": 0,
+     "why": "It is evidence of a SIP response, not a codec budget.",
+     "cite": {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    },
+    {
+     "q": "The repeat interval for SBC OPTIONS is",
+     "choices": [
+      "Product configuration",
+      "Fixed at 1 second by RFC 3261",
+      "Carried in the branch cookie",
+      "Equal to the SDP ptime"
+     ],
+     "answer": 0,
+     "why": "Do not copy a timer from a different product.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "OPTIONS is defined in",
+     "choices": [
+      "RFC 3261",
+      "RFC 3550",
+      "RFC 4733",
+      "ITU-T G.711"
+     ],
+     "answer": 0,
+     "why": "Section 11 describes the method.",
+     "cite": {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    },
+    {
+     "q": "The INVITE after a keepalive is",
+     "choices": [
+      "A new transaction",
+      "The same CSeq as the OPTIONS",
+      "Required to omit Via",
+      "A provisional response"
+     ],
+     "answer": 0,
+     "why": "Different method, different transaction.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "Allow on the 200 OK",
+     "choices": [
+      "Advertises methods the peer claims to support",
+      "Sets the RTP port",
+      "Hides topology",
+      "Replaces Contact"
+     ],
+     "answer": 0,
+     "why": "It is a capability hint in the response.",
+     "cite": {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "OPTIONS",
+     "back": "Capability and liveness request. RFC 3261.",
+     "cite": {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    },
+    {
+     "front": "CSeq method",
+     "back": "Must match the start line. OPTIONS stays OPTIONS.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    },
+    {
+     "front": "200 OK",
+     "back": "The peer answered. The call is a later transaction.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "front": "Interval",
+     "back": "Configured on the product. Not an RFC constant.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Check the OPTIONS CSeq",
+    "kind": "dissect",
+    "prompt": "Dissect this keepalive. What is the CSeq method?",
+    "message": "OPTIONS sip:192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKoptkeep01\nMax-Forwards: 70\nFrom: <sip:sbc@203.0.113.20>;tag=opt1\nTo: <sip:192.0.2.40>\nCall-ID: opt-keep-1@example.com\nCSeq: 1 OPTIONS\nContact: <sip:sbc@203.0.113.20>\nAccept: application/sdp\nContent-Length: 0\n",
+    "check": {
+     "q": "The CSeq method token is",
+     "choices": [
+      "OPTIONS",
+      "INVITE",
+      "ACK",
+      "CANCEL"
+     ],
+     "answer": 0,
+     "why": "It matches the OPTIONS request line.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    }
+   },
+   "fault": {
+    "title": "OPTIONS labeled as INVITE",
+    "symptom": "A peer ignores the keepalive. The request line says OPTIONS and the CSeq says INVITE.",
+    "log": "OPTIONS sip:192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKoptkeep01\nMax-Forwards: 70\nFrom: <sip:sbc@203.0.113.20>;tag=opt1\nTo: <sip:192.0.2.40>\nCall-ID: opt-keep-1@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nContent-Length: 0\n",
+    "choices": [
+     "CSeq method INVITE does not match OPTIONS",
+     "OPTIONS is illegal after RFC 5853",
+     "Max-Forwards 70 disables keepalives",
+     "The peer must answer with 180"
+    ],
+    "answer": 0,
+    "why": "RFC 3261 requires the CSeq method to match the request.",
+    "cause": "The keepalive was built with a copied INVITE CSeq.",
+    "fix": "Send CSeq: 1 OPTIONS. Confirm the method in a capture before changing the peer timer.",
+    "cites": [
+     {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     },
+     {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "admission",
+   "title": "Call admission stays on the datasheet",
+   "minutes": 12,
+   "tags": [
+    "admission",
+    "503"
+   ],
+   "summary": "An SBC can refuse a new INVITE when its configured budget is exhausted. The number itself is platform-specific.",
+   "objectives": [
+    "Describe admission as a local policy",
+    "Read 503 as one documented failure response",
+    "Refuse invented capacity formulas"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "What is specified where",
+    "caption": "The SIP code is standard. The session budget is not.",
+    "columns": [
+     "Question",
+     "Look here"
+    ],
+    "rows": [
+     [
+      "What 503 means",
+      "RFC 3261"
+     ],
+     [
+      "How many sessions this chassis holds",
+      "Vendor datasheet"
+     ],
+     [
+      "Which response this product sends",
+      "That product’s guide"
+     ],
+     [
+      "A universal calls-per-second formula",
+      "None in this course"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "A local refusal",
+     "paragraphs": [
+      "Call admission is a deployment function: the SBC stops accepting new calls when a configured budget is exhausted. The INVITE in this synthetic is refused with 503 Service Unavailable.",
+      "RFC 3261 defines 503 as the server being unable to handle the request. Some products choose a different final response. The product guide names the code for that software."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      },
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      }
+     ]
+    },
+    {
+     "h": "No invented formula",
+     "paragraphs": [
+      "The number of concurrent sessions, the media budget, and any calls-per-second ceiling are platform-specific and must come from the vendor datasheet. RFC 5853 does not publish those numbers.",
+      "Do not derive a capacity figure from Max-Forwards, from the UDP port, or from a formula this course does not print. Count the sessions the platform is actually holding and compare that count with the datasheet."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "INVITE refused at the budget",
+    "parties": [
+     "Alice",
+     "SBC"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "A new call arrives while the configured budget is already consumed.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying only stops retransmissions. It does not admit the call.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "503",
+      "kind": "res",
+      "note": "503 is this synthetic’s refusal. The datasheet number is not inside the message.",
+      "message": "SIP/2.0 503 Service Unavailable\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK for a non-2xx final response completes the transaction.",
+      "message": "ACK sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Call admission is",
+     "choices": [
+      "A local policy that can refuse a new INVITE",
+      "A new SIP method",
+      "An RTP payload",
+      "A DNS SRV weight"
+     ],
+     "answer": 0,
+     "why": "The SBC applies a budget before it creates the outbound leg.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "This lesson’s refusal uses",
+     "choices": [
+      "503 Service Unavailable",
+      "200 OK with no SDP",
+      "180 Ringing",
+      "301 Moved"
+     ],
+     "answer": 0,
+     "why": "503 is defined for a server that cannot take the request. Confirm the code your product actually sends.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "The concurrent-session maximum is found in",
+     "choices": [
+      "The vendor datasheet",
+      "RFC 3261 section 21",
+      "The Call-ID",
+      "The branch magic cookie"
+     ],
+     "answer": 0,
+     "why": "The RFC defines the response, not the chassis size.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "A calls-per-second formula printed only in a blog should be",
+     "choices": [
+      "Ignored in favor of the datasheet",
+      "Copied into every SBC",
+      "Written into SDP",
+      "Used as Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "This course does not invent that formula.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "100 Trying before a 503 means",
+     "choices": [
+      "The hop stopped INVITE retransmissions",
+      "The call is answered",
+      "Media is anchored",
+      "The budget was increased"
+     ],
+     "answer": 0,
+     "why": "Admission happens with the final response.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "ACK after this 503 is",
+     "choices": [
+      "The hop-by-hop ACK for a non-2xx final response",
+      "A new offer",
+      "Proof the call is up",
+      "An OPTIONS keepalive"
+     ],
+     "answer": 0,
+     "why": "It matches the INVITE transaction.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Admission",
+     "back": "Refuse new work when the configured budget is exhausted.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "front": "503",
+     "back": "Service Unavailable. Confirm the product’s actual code.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "front": "Datasheet",
+     "back": "The only source for this platform’s session limit.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "front": "No CPS formula",
+     "back": "Do not invent calls-per-second math.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the refusal",
+    "kind": "ladder",
+    "prompt": "Step the ladder. Which response refuses the call?",
+    "steps": [
+     "Play until the final response.",
+     "Read the status code.",
+     "Note that no session count is inside SIP."
+    ],
+    "check": {
+     "q": "Which status refuses the INVITE in this lab?",
+     "choices": [
+      "503",
+      "200",
+      "180",
+      "100"
+     ],
+     "answer": 0,
+     "why": "100 is provisional. 503 is the refusal.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    }
+   },
+   "fault": {
+    "title": "A formula in place of the datasheet",
+    "symptom": "Operators keep raising an undocumented calls-per-second number. New INVITEs still receive 503.",
+    "log": "SIP/2.0 503 Service Unavailable\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nCSeq: 1 INVITE\nCall-ID: a84b4c76e66710@example.com\nContent-Length: 0\n",
+    "choices": [
+     "The platform session budget is exhausted and the number is on the datasheet",
+     "RFC 5853 sets every SBC to the same calls per second",
+     "503 means the SDP codecs matched",
+     "The ACK created an extra session"
+    ],
+    "answer": 0,
+    "why": "The message is a local refusal. It does not contain a formula.",
+    "cause": "Capacity was tuned from an invented counter instead of the vendor datasheet.",
+    "fix": "Read the datasheet for this hardware and software. Compare it with the session count the platform reports. Then set admission in that product’s guide.",
+    "cites": [
+     {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     },
+     {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "high-availability",
+   "title": "Active and standby, without a made-up timer",
+   "minutes": 12,
+   "tags": [
+    "ha",
+    "standby"
+   ],
+   "summary": "Active/standby is a product behavior. One unit owns the work and the other is ready. Timers belong in that product’s HA guide.",
+   "objectives": [
+    "Describe active/standby at product level",
+    "Keep failover timing out of the SIP RFC",
+    "Expect dialog state to be a product problem"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Roles, not a timer",
+    "caption": "How fast the standby reacts is documented by the vendor.",
+    "nodes": [
+     "Active owns calls",
+     "Standby is ready",
+     "Failure detected",
+     "Read the HA guide"
+    ]
+   },
+   "sections": [
+    {
+     "h": "What active/standby means",
+     "paragraphs": [
+      "In an active/standby pair, one unit processes signaling and media and the other is ready to take that role. The SIP dialogs in this ladder exist on the active unit at 203.0.113.20.",
+      "The standby does not appear as a third SIP hop. Whether established dialogs survive a switch is a product behavior, because a B2BUA holds dialog state that a bare packet forward would not."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7092",
+       "url": "https://www.rfc-editor.org/rfc/rfc7092"
+      },
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      }
+     ]
+    },
+    {
+     "h": "No failover timer in this course",
+     "paragraphs": [
+      "Detection methods and failover timing differ by product. This lesson does not invent a failover timer, a hello interval, or a session-recovery count.",
+      "When a design needs a number, take it from the HA chapter for the software version you run. Do not copy a timer from a different chassis and do not look for it in RFC 5853."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "The standby is not a SIP hop",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Alice invites the active SBC address.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 216\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying comes from the active unit.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The active unit creates the carrier leg. The standby is not in the Via path.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 216\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 Ringing returns on the carrier dialog.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "The active unit forwards alerting to Alice.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK returns to the active unit.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 199\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Alice receives 200 OK from the active unit.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 199\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK returns to the active unit. Failover timing is not a header.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Active/standby describes",
+     "choices": [
+      "A product pair where one unit owns the work",
+      "A new SIP method",
+      "An RTP payload type",
+      "A DNS NAPTR flag"
+     ],
+     "answer": 0,
+     "why": "It is high-availability behavior, not a protocol role in RFC 3261.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "The standby in this ladder",
+     "choices": [
+      "Does not appear as a SIP hop",
+      "Inserts a second Via on every request",
+      "Sends the ACK",
+      "Replaces the Call-ID"
+     ],
+     "answer": 0,
+     "why": "SIP shows the active dialogs only.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "q": "A failover timer should come from",
+     "choices": [
+      "The HA guide for that software",
+      "RFC 5853",
+      "The SDP ptime",
+      "Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "This course intentionally states no timer.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "Dialog survival across a switch is",
+     "choices": [
+      "A product behavior, because a B2BUA holds dialog state",
+      "Guaranteed by RFC 3261 for every proxy",
+      "Encoded in the branch cookie",
+      "Impossible to document"
+     ],
+     "answer": 0,
+     "why": "The taxonomy explains why state exists. The product explains whether it moves.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "q": "Inventing a three-second failover value would be",
+     "choices": [
+      "Outside both the RFC and this course",
+      "Required by RFC 7092",
+      "A mandatory SDP attribute",
+      "The definition of 100 Trying"
+     ],
+     "answer": 0,
+     "why": "Timers stay in the product HA chapter.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "The active signaling address in the shared ladder is",
+     "choices": [
+      "203.0.113.20",
+      "192.0.2.40",
+      "198.51.100.30",
+      "Absent"
+     ],
+     "answer": 0,
+     "why": "That is the SBC address in the lab topology.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Active",
+     "back": "The unit currently processing the dialogs.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "front": "Standby",
+     "back": "Ready to take the role. Not a SIP method.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "front": "No timer here",
+     "back": "Do not invent a failover interval.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "front": "Dialog state",
+     "back": "A B2BUA holds it. Survival is a product question.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Count the SIP hops",
+    "kind": "ladder",
+    "prompt": "Play the call. How many SIP roles does the standby occupy in the ladder?",
+    "steps": [
+     "Play all eight hops.",
+     "Name each party.",
+     "Notice the standby is not among them."
+    ],
+    "check": {
+     "q": "The standby appears in the SIP ladder as",
+     "choices": [
+      "No hop",
+      "The carrier",
+      "The ACK sender",
+      "A third Via"
+     ],
+     "answer": 0,
+     "why": "HA state is outside the message flow until the product switches.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    }
+   },
+   "fault": {
+    "title": "A timer copied from another product",
+    "symptom": "After the active unit stops responding, the standby does not own 203.0.113.20. The design used a failover timer taken from a different vendor’s blog.",
+    "log": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nCSeq: 1 INVITE\nCall-ID: a84b4c76e66710@example.com\n(no response from 203.0.113.20)\n",
+    "choices": [
+     "Failover timing is product-specific and was not taken from this product’s HA guide",
+     "RFC 5853 sets failover to one SDP ptime",
+     "The Call-ID must change before the standby answers",
+     "100 Trying is the HA heartbeat"
+    ],
+    "answer": 0,
+    "why": "The capture shows silence from the active address. It does not contain a universal timer.",
+    "cause": "The pair was operated with a failover value that this product’s guide does not use.",
+    "fix": "Open the HA chapter for the software you run and configure detection as that chapter describes. Do not import a timer from a different platform.",
+    "cites": [
+     {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     },
+     {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    ]
+   },
+   "level": "Advanced"
+  }
+ ]
+}

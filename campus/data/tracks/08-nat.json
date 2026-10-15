@@ -1,0 +1,2043 @@
+{
+ "id": "nat",
+ "title": "NAT, ICE, and the ALG problem",
+ "summary": "Why embedded addresses break, and what rport, STUN, TURN, ICE, SIP ALGs, and media latching each actually do.",
+ "level": "Advanced",
+ "order": 8,
+ "lessons": [
+  {
+   "id": "nat-breaks-sip",
+   "title": "Embedded addresses and NAT",
+   "minutes": 14,
+   "tags": [
+    "nat",
+    "sdp",
+    "contact"
+   ],
+   "summary": "SIP and SDP embed IP addresses. NAT rewrites the packet header and leaves those embedded addresses behind.",
+   "objectives": [
+    "Find addresses in Via, Contact, and SDP c=",
+    "Explain why a packet-header NAT does not fix those fields",
+    "Treat a private connection address as non-routable from the public peer"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Two places an address can sit",
+    "caption": "NAT sees the outer header. SIP and SDP also name addresses in the payload.",
+    "layers": [
+     {
+      "name": "IP header",
+      "detail": "What NAT rewrites"
+     },
+     {
+      "name": "Via and Contact",
+      "detail": "Where responses and later requests go"
+     },
+     {
+      "name": "SDP c= and m=",
+      "detail": "Where RTP is supposed to go"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "The address is inside the message",
+     "paragraphs": [
+      "SIP puts addresses in Via and Contact, and SDP puts an address in c= and a port in m=. Those fields are what the peer uses for the next signaling hop and for RTP.",
+      "A NAT changes the source address on the IP packet and does not understand the SIP body, so the embedded address can still name a host the public peer cannot reach. The call then rings, or even answers, while media has nowhere routable to go."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      }
+     ]
+    },
+    {
+     "h": "What a correct synthetic offer looks like",
+     "paragraphs": [
+      "In this lab the offer uses the documentation address 203.0.113.10 in c=, which is a public documentation address from RFC 5737 and is the address the example intends the carrier to use. Contact uses that same documentation address so signaling and the description agree.",
+      "When c= instead carries a private address, that address is non-routable on the public Internet. The carrier at 192.0.2.40 cannot send RTP there. Fix the address the public peer will see, or use a mechanism from a later lesson, and do not expect the NAT to have edited c=."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      },
+      {
+       "label": "RFC 5737",
+       "url": "https://www.rfc-editor.org/rfc/rfc5737"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Offer with a documentation address",
+    "parties": [
+     "Alice",
+     "NAT",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Alice sends c= 203.0.113.10. That address is inside SDP, not only in the IP header.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "NAT can change the packet source. It does not, by itself, rewrite c= or Contact.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKnatfwd\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "Ringing proves signaling arrived. It does not prove the c= address is a place RTP can go.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer names 192.0.2.40. RTP from the carrier is aimed at whatever c= said, which NAT may not have fixed.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 140\n\nv=0\no=bob 61 61 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40030 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "NAT breaks SIP and SDP because",
+     "choices": [
+      "They embed addresses that a packet-header rewrite does not update",
+      "RTP version 2 is illegal behind NAT",
+      "ptime cannot be 20",
+      "Digest forbids private networks"
+     ],
+     "answer": 0,
+     "why": "Via, Contact, and c= are inside the message.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "c= tells the peer",
+     "choices": [
+      "Where to send media",
+      "The digest realm",
+      "The STIR attest level",
+      "The RTCP fraction lost"
+     ],
+     "answer": 0,
+     "why": "If that address is private, it is non-routable from the public peer.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "q": "A 200 OK behind a broken c= line means",
+     "choices": [
+      "Signaling completed and media may still have nowhere routable to go",
+      "RTP is guaranteed",
+      "The NAT rewrote SDP",
+      "Port 0 was used"
+     ],
+     "answer": 0,
+     "why": "Read the connection line. Do not stop at the status code.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "Contact is used for",
+     "choices": [
+      "Later requests in the dialog",
+      "The RTP timestamp",
+      "The codec clock",
+      "EF marking"
+     ],
+     "answer": 0,
+     "why": "A private Contact has the same class of problem as a private c= line.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "Documentation address 203.0.113.10 is",
+     "choices": [
+      "A public documentation address from RFC 5737, used so labs are not a real network",
+      "A private address",
+      "An RTP payload type",
+      "A nonce"
+     ],
+     "answer": 0,
+     "why": "The fault in this lesson is a different, private connection address.",
+     "cite": {
+      "label": "RFC 5737",
+      "url": "https://www.rfc-editor.org/rfc/rfc5737"
+     }
+    },
+    {
+     "q": "A private address in c= is",
+     "choices": [
+      "Non-routable from the public carrier",
+      "Rewritten automatically by every NAT",
+      "The same as port 0",
+      "Required by RFC 3550"
+     ],
+     "answer": 0,
+     "why": "The carrier cannot send RTP to it.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Embedded",
+     "back": "Via, Contact, and SDP c= carry addresses NAT does not rewrite.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "c=",
+     "back": "Media destination. A private value is non-routable on the public Internet.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "front": "200 OK",
+     "back": "Signaling can succeed while RTP still cannot go where c= points.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "RFC 5737",
+     "back": "203.0.113.10 and the other lab addresses are documentation ranges.",
+     "cite": {
+      "label": "RFC 5737",
+      "url": "https://www.rfc-editor.org/rfc/rfc5737"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read a routable c= line",
+    "kind": "dissect",
+    "prompt": "Dissect the offer. c= uses the documentation address 203.0.113.10. The fault beside this lab is the private-address case.",
+    "steps": [
+     "Press Dissect.",
+     "Find c=.",
+     "Compare it with Contact."
+    ],
+    "check": {
+     "q": "This offer's c= address is",
+     "choices": [
+      "203.0.113.10, a documentation address the example intends the peer to use",
+      "A private non-routable address",
+      "0.0.0.0",
+      "The RTP version"
+     ],
+     "answer": 0,
+     "why": "The broken case is a private c= line, which is non-routable from the public peer. This message is the healthy pattern.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "Private address left in c=",
+    "symptom": "The carrier never sends RTP. The SDP connection line uses a private address, and that address is non-routable.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKnatbad\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: nat-break-1@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Type: application/sdp\nContent-Length: 142\n\nv=0\no=alice 2890844526 2890844526 IN IP4 10.1.2.3\ns=-\nc=IN IP4 10.1.2.3\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n",
+    "choices": [
+     "c= names a private address the carrier cannot route",
+     "The Via branch is missing the magic cookie",
+     "PCMU is illegal behind NAT",
+     "180 Ringing rewrites SDP"
+    ],
+    "answer": 0,
+    "why": "The address in c= is private and non-routable from 192.0.2.40. NAT rewrote the packet header, not the SDP body.",
+    "cause": "SIP and SDP embedded a private address. The public peer was told to send media there.",
+    "fix": "Signal a public address the carrier can route, or use the NAT traversal tools in the following lessons. Do not assume the NAT edited c=.",
+    "cites": [
+     {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     },
+     {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     },
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "rport",
+   "title": "rport and symmetric responses",
+   "minutes": 12,
+   "tags": [
+    "rport",
+    "rfc3581",
+    "via"
+   ],
+   "summary": "RFC 3581 adds rport so the response is sent to the source address and port the request came from.",
+   "objectives": [
+    "Add rport on Via when you need symmetric response routing",
+    "Read received and rport on the response Via",
+    "Keep rport separate from RTP NAT traversal"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Where the response goes",
+    "caption": "The server answers the source it observed. rport does not rewrite SDP.",
+    "nodes": [
+     "Via rport",
+     "Source port",
+     "received",
+     "Response"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Symmetric response routing",
+     "paragraphs": [
+      "RFC 3581 defines the rport Via parameter for symmetric response routing. The client puts rport on Via, and the server sends the response to the source IP address and source port of the request instead of trusting only the host and port written in Via.",
+      "The server adds received with the source address it saw and fills rport with the source port it saw. In this lab the Via host is 203.0.113.10 port 5060 and the observed source port is 49160, so the response is aimed at port 49160."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3581",
+       "url": "https://www.rfc-editor.org/rfc/rfc3581"
+      },
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      }
+     ]
+    },
+    {
+     "h": "Signaling only",
+     "paragraphs": [
+      "rport fixes the return path for SIP responses. It does not change c=, and it does not move RTP. A call can complete signaling through rport and still have one-way or no audio because the media address is a separate field.",
+      "Use rport together with a media solution from the later lessons when the RTP address is also wrong. Do not treat a filled-in rport parameter as evidence that SDP was rewritten."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3581",
+       "url": "https://www.rfc-editor.org/rfc/rfc3581"
+      },
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Response follows the source port",
+    "parties": [
+     "Alice",
+     "SBC"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Via includes rport with no value yet. The UDP source port on the wire is 49160, not 5060.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10:5060;branch=z9hG4bKrport1;rport\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: rport-1@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10:5060>\nContent-Type: application/sdp\nContent-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The response Via has received=203.0.113.10 and rport=49160. Send it to that source, not blindly to port 5060.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10:5060;branch=z9hG4bKrport1;received=203.0.113.10;rport=49160\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: rport-1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "180 uses the same Via parameters so it takes the same symmetric path.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10:5060;branch=z9hG4bKrport1;received=203.0.113.10;rport=49160\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: rport-1@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK also follows rport. The SDP in the body is still a separate media decision.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10:5060;branch=z9hG4bKrport1;received=203.0.113.10;rport=49160\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: rport-1@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Type: application/sdp\nContent-Length: 140\n\nv=0\no=bob 61 61 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40030 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "rport is defined by",
+     "choices": [
+      "RFC 3581",
+      "RFC 8445",
+      "RFC 3711",
+      "RFC 4733"
+     ],
+     "answer": 0,
+     "why": "It is symmetric response routing for SIP.",
+     "cite": {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    },
+    {
+     "q": "The server sends the response to",
+     "choices": [
+      "The source address and port of the request",
+      "Only the port written in Via, always",
+      "The c= address",
+      "Port 0"
+     ],
+     "answer": 0,
+     "why": "received and rport record what the server actually saw.",
+     "cite": {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    },
+    {
+     "q": "rport fixes",
+     "choices": [
+      "The SIP response path",
+      "The RTP destination in c=",
+      "The codec clock",
+      "STIR attestation"
+     ],
+     "answer": 0,
+     "why": "Media addresses are untouched by this parameter.",
+     "cite": {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    },
+    {
+     "q": "In the lab, rport=49160 means",
+     "choices": [
+      "The request's source port was 49160",
+      "The RTP port must be 49160",
+      "The stream is rejected",
+      "ptime is 49160"
+     ],
+     "answer": 0,
+     "why": "Via said 5060. The packet arrived from 49160.",
+     "cite": {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    },
+    {
+     "q": "received= is",
+     "choices": [
+      "The source address the server observed",
+      "The SDP origin username",
+      "A digest username",
+      "An ICE type"
+     ],
+     "answer": 0,
+     "why": "It is written on the response Via.",
+     "cite": {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    },
+    {
+     "q": "A successful rport exchange still requires you to",
+     "choices": [
+      "Read c= before you trust the media path",
+      "Skip SDP",
+      "Set G.722 to clock 16000",
+      "Remove Contact"
+     ],
+     "answer": 0,
+     "why": "Signaling symmetry is not media symmetry.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 3581",
+     "back": "rport. Symmetric SIP response routing.",
+     "cite": {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    },
+    {
+     "front": "received",
+     "back": "Source address the server saw.",
+     "cite": {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    },
+    {
+     "front": "rport value",
+     "back": "Source port the server saw.",
+     "cite": {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    },
+    {
+     "front": "Not SDP",
+     "back": "rport does not rewrite c=.",
+     "cite": {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read rport on the response",
+    "kind": "dissect",
+    "prompt": "Dissect the 100 Trying. Via has received and rport filled in.",
+    "steps": [
+     "Press Dissect.",
+     "Find rport.",
+     "State which port receives the response."
+    ],
+    "check": {
+     "q": "The response is sent to UDP port",
+     "choices": [
+      "49160",
+      "5060 only, ignoring rport",
+      "0",
+      "5061"
+     ],
+     "answer": 0,
+     "why": "RFC 3581 tells the server to use the source port it observed.",
+     "cite": {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    },
+    "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10:5060;branch=z9hG4bKrport1;received=203.0.113.10;rport=49160\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: rport-1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+   },
+   "fault": {
+    "title": "Response sent to Via port 5060",
+    "symptom": "The client set rport. The server still sends responses to 203.0.113.10:5060 and they never arrive. The request source port was 49160.",
+    "log": "request Via: SIP/2.0/UDP 203.0.113.10:5060;branch=z9hG4bKrport1;rport\nobserved source: 203.0.113.10:49160\nresponse sent to 203.0.113.10:5060\nreceived and rport not written\n",
+    "choices": [
+     "The server ignored rport and did not answer the source port",
+     "rport rewrites c=",
+     "49160 means the m-line is rejected",
+     "5060 is the RTP clock"
+    ],
+    "answer": 0,
+    "why": "RFC 3581 sends the response to the observed source and records received and rport.",
+    "cause": "The server answered the port written in Via and dropped the symmetric-routing parameter.",
+    "fix": "Send the response to 203.0.113.10 port 49160 and add received and rport on Via. Then check c= separately, because this fix is signaling only.",
+    "cites": [
+     {
+      "label": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "stun",
+   "title": "STUN server-reflexive addresses",
+   "minutes": 13,
+   "tags": [
+    "stun",
+    "rfc8489",
+    "srflx"
+   ],
+   "summary": "STUN, RFC 8489, lets a client learn the address a server sees. It obsoletes RFC 5389.",
+   "objectives": [
+    "State that RFC 8489 obsoletes RFC 5389 and where status is decided",
+    "Describe a Binding request as a way to learn a server-reflexive address",
+    "Keep STUN separate from a SIP registrar"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Learn the address the server sees",
+    "caption": "The reflexive address is what STUN observed. It is not a SIP Contact by itself.",
+    "nodes": [
+     "Binding",
+     "NAT",
+     "Mapped",
+     "srflx"
+    ]
+   },
+   "sections": [
+    {
+     "h": "The current STUN specification",
+     "paragraphs": [
+      "STUN is RFC 8489, which obsoletes RFC 5389. The RFC Editor status banner is the authority for that status. A Binding request asks a STUN server to tell the client the source address and port the server observed.",
+      "That observed address is the server-reflexive address, and the response attribute used for it is XOR-MAPPED-ADDRESS. STUN is not SIP, and a STUN server is not a SIP registrar."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8489",
+       "url": "https://www.rfc-editor.org/rfc/rfc8489"
+      }
+     ]
+    },
+    {
+     "h": "What you do with the result",
+     "paragraphs": [
+      "ICE, in a later lesson, uses this address as a candidate of type srflx. STUN by itself does not rewrite a SIP INVITE and does not allocate a relay.",
+      "If both peers are behind NATs that refuse unsolicited inbound UDP, a reflexive address may still be unreachable. That limit is why TURN exists, and it is not a reason to put a private address in c= and hope."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8489",
+       "url": "https://www.rfc-editor.org/rfc/rfc8489"
+      },
+      {
+       "label": "RFC 8445",
+       "url": "https://www.rfc-editor.org/rfc/rfc8445"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Binding request, then a SIP offer",
+    "parties": [
+     "Client",
+     "STUN",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "Binding",
+      "kind": "req",
+      "note": "STUN Binding request from 203.0.113.10. This is not a SIP method.",
+      "message": "STUN Binding request\nclient 203.0.113.10\nserver stun.example.com\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "Mapped",
+      "kind": "res",
+      "note": "The server reports the address it saw. RFC 8489 carries that in XOR-MAPPED-ADDRESS.",
+      "message": "STUN Binding success\nXOR-MAPPED-ADDRESS 203.0.113.20:49170\n"
+     },
+     {
+      "from": 0,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Only now does SIP start. A later ICE offer can list the mapped address as srflx. This plain INVITE still uses a documentation c= line.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKstun01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The SIP answer does not mean STUN ran. Read the trace for an actual Binding transaction.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 140\n\nv=0\no=bob 61 61 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40030 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The current STUN specification is",
+     "choices": [
+      "RFC 8489, which obsoletes RFC 5389",
+      "RFC 5389 only, with no successor",
+      "RFC 3261",
+      "RFC 4733"
+     ],
+     "answer": 0,
+     "why": "The RFC Editor status banner is the authority for that status.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "q": "A Binding request learns",
+     "choices": [
+      "The server-reflexive address the STUN server observed",
+      "A SIP Contact binding",
+      "An SRTP key",
+      "A digest nonce"
+     ],
+     "answer": 0,
+     "why": "XOR-MAPPED-ADDRESS carries that result.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "q": "STUN is",
+     "choices": [
+      "Not a SIP method and not a registrar",
+      "A replacement for REGISTER",
+      "An SDP direction",
+      "A payload type"
+     ],
+     "answer": 0,
+     "why": "Do not confuse a Binding success with a SIP 200 OK.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "q": "srflx means",
+     "choices": [
+      "Server reflexive, the address STUN observed",
+      "A relay allocated by TURN",
+      "A private interface",
+      "Port 0"
+     ],
+     "answer": 0,
+     "why": "ICE is what promotes that address into a candidate.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    {
+     "q": "STUN alone may fail when",
+     "choices": [
+      "Both sides are behind NATs that drop unsolicited inbound UDP",
+      "The RTP version is 2",
+      "ptime is 20",
+      "The From tag is present"
+     ],
+     "answer": 0,
+     "why": "A reflexive address is not a relay.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "q": "The status of RFC 5389 is decided by",
+     "choices": [
+      "The RFC Editor status banner",
+      "A vendor release note alone",
+      "The SDP session version",
+      "The marker bit"
+     ],
+     "answer": 0,
+     "why": "RFC 8489 obsoletes RFC 5389. The banner is the authority.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 8489",
+     "back": "Current STUN. Obsoletes RFC 5389. Trust the status banner.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "front": "Binding",
+     "back": "Request that asks what address the server sees.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "front": "XOR-MAPPED-ADDRESS",
+     "back": "The reflexive address in the success response.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "front": "Not SIP",
+     "back": "A STUN server does not store a SIP Contact.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Separate STUN text from SIP",
+    "kind": "capture",
+    "prompt": "The capture has a STUN note and a SIP 200 OK. Only one of them is a Binding result.",
+    "steps": [
+     "Press Extract SIP.",
+     "Confirm the SIP message is the 200 OK.",
+     "Read the STUN lines that the extractor will not treat as SIP."
+    ],
+    "check": {
+     "q": "Which document defines the Binding transaction?",
+     "choices": [
+      "RFC 8489",
+      "RFC 3264",
+      "RFC 3325",
+      "RFC 6086"
+     ],
+     "answer": 0,
+     "why": "RFC 8489 obsoletes RFC 5389. The RFC Editor status banner is the authority for that status.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    "message": "Sent:\nSTUN Binding request\nclient 203.0.113.10\n\nReceived:\nSIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 140\n\nv=0\no=bob 61 61 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40030 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "STUN success treated as a SIP registration",
+    "symptom": "A Binding success is logged and the phone is marked registered. No SIP REGISTER occurred.",
+    "log": "STUN Binding success\nXOR-MAPPED-ADDRESS 203.0.113.20:49170\nregistrar bindings: none\nconsole: registered\n",
+    "choices": [
+     "STUN learned a reflexive address. It did not create a SIP Contact binding",
+     "XOR-MAPPED-ADDRESS is a Contact header",
+     "RFC 8489 replaces RFC 3261",
+     "The mapped port rejects the stream"
+    ],
+    "answer": 0,
+    "why": "RFC 8489 is STUN. SIP registration is still REGISTER, authenticated under RFC 3261.",
+    "cause": "The operations screen collapsed two protocols into one status.",
+    "fix": "Show the reflexive address as a STUN result. Require a SIP REGISTER and a digest or TLS check before you show the user as registered.",
+    "cites": [
+     {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     },
+     {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "turn",
+   "title": "TURN relays",
+   "minutes": 12,
+   "tags": [
+    "turn",
+    "rfc8656",
+    "relay"
+   ],
+   "summary": "TURN, RFC 8656, allocates a relay when host and server-reflexive paths fail. It obsoletes RFC 5766.",
+   "objectives": [
+    "State that RFC 8656 obsoletes RFC 5766 and where status is decided",
+    "Describe Allocate as the way a client gets a relayed address",
+    "Use the relay only as a media path, not as a SIP registrar"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "A relay when direct paths fail",
+    "caption": "The relay address is allocated. It is candidate type relay in ICE.",
+    "nodes": [
+     "Allocate",
+     "Relay",
+     "Permission",
+     "Media"
+    ]
+   },
+   "sections": [
+    {
+     "h": "The current TURN specification",
+     "paragraphs": [
+      "TURN is RFC 8656, which obsoletes RFC 5766. The RFC Editor status banner is the authority for that status. The client sends Allocate, and the server reserves a relayed transport address that both sides can send media through.",
+      "Permissions control who may send to that relay. TURN is a media relay, not a SIP proxy and not a rewrite of Via. The relay address in this synthetic network is 198.51.100.30."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8656",
+       "url": "https://www.rfc-editor.org/rfc/rfc8656"
+      }
+     ]
+    },
+    {
+     "h": "When the relay is the path",
+     "paragraphs": [
+      "Use TURN when host and server-reflexive candidates cannot carry the media. The remote peer sends RTP to the relayed address, and the TURN server forwards it to the client.",
+      "ICE is the negotiation that chooses the relay instead of guessing. Putting the relay address into c= by hand, with no Allocate and no candidate line, is not a TURN session."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8656",
+       "url": "https://www.rfc-editor.org/rfc/rfc8656"
+      },
+      {
+       "label": "RFC 8445",
+       "url": "https://www.rfc-editor.org/rfc/rfc8445"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Allocate, then media via the relay",
+    "parties": [
+     "Client",
+     "TURN",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "Allocate",
+      "kind": "req",
+      "note": "TURN Allocate. RFC 8656. This is not a SIP INVITE.",
+      "message": "TURN Allocate request\nclient 203.0.113.10\nserver turn.example.com\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "Relay",
+      "kind": "res",
+      "note": "The allocated relay address is 198.51.100.30 port 50000.",
+      "message": "TURN Allocate success\nRELAYED-ADDRESS 198.51.100.30:50000\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "RTP",
+      "kind": "req",
+      "note": "The peer sends media to the relay, not to a private address inside SDP.",
+      "message": "RTP v=2\nssrc=0xA1A2A3A4\nsource 192.0.2.40:40050\ndestination 198.51.100.30:50000\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "RTP",
+      "kind": "req",
+      "note": "TURN forwards that media to the client. SIP signaling is a separate path and is not rewritten by Allocate.",
+      "message": "RTP forwarded\ndestination 203.0.113.10:49170\nrelay 198.51.100.30:50000\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The current TURN specification is",
+     "choices": [
+      "RFC 8656, which obsoletes RFC 5766",
+      "RFC 5766 with no successor",
+      "RFC 8489",
+      "RFC 3581"
+     ],
+     "answer": 0,
+     "why": "The RFC Editor status banner is the authority for that status.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    },
+    {
+     "q": "Allocate provides",
+     "choices": [
+      "A relayed transport address",
+      "A SIP Contact binding",
+      "A digest nonce",
+      "An a=crypto key"
+     ],
+     "answer": 0,
+     "why": "Peers send media to that relay.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    },
+    {
+     "q": "TURN is",
+     "choices": [
+      "A media relay",
+      "A SIP header rewrite",
+      "A replacement for 180 Ringing",
+      "The G.722 clock"
+     ],
+     "answer": 0,
+     "why": "It does not parse SDP and it is not a registrar.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    },
+    {
+     "q": "The relay is used when",
+     "choices": [
+      "Host and server-reflexive paths are not enough",
+      "Every call starts",
+      "The INVITE has no Via",
+      "ptime is omitted"
+     ],
+     "answer": 0,
+     "why": "ICE is how that choice is made instead of a hand-edited c= line.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    {
+     "q": "In this lesson the relay address is",
+     "choices": [
+      "198.51.100.30",
+      "A private non-routable address",
+      "Port 0",
+      "The nonce c0ffee01"
+     ],
+     "answer": 0,
+     "why": "It is a documentation address playing the role of the allocated relay.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    },
+    {
+     "q": "RFC 5766's status is decided by",
+     "choices": [
+      "The RFC Editor status banner",
+      "The SDP o= line",
+      "A marker bit",
+      "Privacy: id"
+     ],
+     "answer": 0,
+     "why": "RFC 8656 obsoletes RFC 5766.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 8656",
+     "back": "Current TURN. Obsoletes RFC 5766. Trust the status banner.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    },
+    {
+     "front": "Allocate",
+     "back": "Reserves a relayed transport address.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    },
+    {
+     "front": "Relay",
+     "back": "Peers send media to the relay. TURN forwards it.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    },
+    {
+     "front": "Not SIP",
+     "back": "Allocate is not REGISTER and not an SDP rewrite.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read an Allocate result",
+    "kind": "capture",
+    "prompt": "The text is a TURN result, not a SIP request. Identify the relayed address.",
+    "steps": [
+     "Open the capture text.",
+     "Find RELAYED-ADDRESS.",
+     "Name the RFC that defines Allocate."
+    ],
+    "check": {
+     "q": "The relayed address in this result is",
+     "choices": [
+      "198.51.100.30 port 50000",
+      "Port 0 on an m-line",
+      "A SIP Contact at example.com",
+      "Payload type 9"
+     ],
+     "answer": 0,
+     "why": "RFC 8656 obsoletes RFC 5766. The RFC Editor status banner is the authority for that status.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    },
+    "message": "Received:\nTURN Allocate success\nRELAYED-ADDRESS 198.51.100.30:50000\n"
+   },
+   "fault": {
+    "title": "Relay address pasted into c= with no Allocate",
+    "symptom": "SDP says c=198.51.100.30 but no TURN Allocate succeeded. RTP to that address is dropped.",
+    "log": "c=IN IP4 198.51.100.30\nm=audio 50000 RTP/AVP 0\nTURN allocations: none\n",
+    "choices": [
+     "A relay address is valid only after Allocate. This SDP invented one",
+     "c= creates a TURN allocation",
+     "Port 50000 means rejection",
+     "RFC 8656 is a SIP method"
+    ],
+    "answer": 0,
+    "why": "TURN relays exist because the server allocated them. RFC 8656 obsoletes RFC 5766, and the status banner is the authority.",
+    "cause": "Someone copied a documentation address into c= and called it a relay.",
+    "fix": "Run Allocate, use the returned relay, and let ICE offer it as a relay candidate. Do not type a relay address into SDP by hand.",
+    "cites": [
+     {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     },
+     {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "ice",
+   "title": "ICE candidate types",
+   "minutes": 15,
+   "tags": [
+    "ice",
+    "rfc8445",
+    "candidates"
+   ],
+   "summary": "ICE is RFC 8445, which obsoletes RFC 5245. Candidates are host, srflx, prflx, and relay.",
+   "objectives": [
+    "Name the four candidate types",
+    "State that RFC 8445 obsoletes RFC 5245 and where status is decided",
+    "Let connectivity checks choose the pair"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Four candidate types",
+    "caption": "prflx is discovered during checks. It is not usually in the first offer.",
+    "columns": [
+     "Type",
+     "Where it comes from"
+    ],
+    "rows": [
+     [
+      "host",
+      "A local interface address"
+     ],
+     [
+      "srflx",
+      "The address a STUN server observed"
+     ],
+     [
+      "prflx",
+      "An address learned from a connectivity check"
+     ],
+     [
+      "relay",
+      "A TURN relayed address"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "The current ICE specification",
+     "paragraphs": [
+      "ICE is RFC 8445, which obsoletes RFC 5245. The RFC Editor status banner is the authority for that status. Each side gathers candidates and puts them in SDP, then both sides run connectivity checks and nominate a pair that actually passes packets.",
+      "The candidate types are host, srflx, prflx, and relay, and each one names a different place the media address came from. A host candidate is a local interface, srflx is the server-reflexive address from STUN in RFC 8489, and relay is the TURN address from RFC 8656. A prflx, or peer-reflexive, candidate appears when a check arrives from an address that was not already in the list."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8445",
+       "url": "https://www.rfc-editor.org/rfc/rfc8445"
+      },
+      {
+       "label": "RFC 8489",
+       "url": "https://www.rfc-editor.org/rfc/rfc8489"
+      },
+      {
+       "label": "RFC 8656",
+       "url": "https://www.rfc-editor.org/rfc/rfc8656"
+      }
+     ]
+    },
+    {
+     "h": "Checks, not the order of the lines",
+     "paragraphs": [
+      "A higher-priority candidate is not used until a check succeeds. ICE can nominate a relay even when a host candidate is listed first, if the host candidate cannot receive packets from the peer.",
+      "c= remains in the SDP for agents that do not do ICE, and ICE agents still follow the check result for media. Do not delete the candidate lines and keep only c= when you meant to run ICE."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8445",
+       "url": "https://www.rfc-editor.org/rfc/rfc8445"
+      },
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      }
+     ]
+    },
+    {
+     "h": "What the answer must still do",
+     "paragraphs": [
+      "ICE rides inside offer/answer, so the answer still has the same number of m-lines in the same order, and a rejected stream is still port 0. Candidate lines add addresses for checks, and they do not replace that m-line rule.",
+      "An SBC that strips a=candidate and leaves a private c= line has removed the traversal information and kept the address that does not route. Pass the candidates or terminate ICE on the SBC on purpose."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8445",
+       "url": "https://www.rfc-editor.org/rfc/rfc8445"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Gather, offer, check, nominate",
+    "parties": [
+     "Alice",
+     "STUN/TURN",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "Gather",
+      "kind": "req",
+      "note": "STUN and TURN produce srflx and relay. host is local. prflx is not gathered here.",
+      "message": "gather host 203.0.113.10:49170\ngather srflx 203.0.113.20:49170\ngather relay 198.51.100.30:50000\n"
+     },
+     {
+      "from": 0,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The offer lists host, srflx, and relay as a=candidate lines. RFC 8445.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 377\n\nv=0\no=alice 80 80 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=candidate:1 1 UDP 2130706431 203.0.113.10 49170 typ host\na=candidate:2 1 UDP 1694498815 203.0.113.20 49170 typ srflx raddr 203.0.113.10 rport 49170\na=candidate:3 1 UDP 16777215 198.51.100.30 50000 typ relay raddr 203.0.113.10 rport 49170\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer has one m-line, matching the offer, plus the carrier's host candidate.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 186\n\nv=0\no=bob 81 81 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40050 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=candidate:1 1 UDP 2130706431 192.0.2.40 40050 typ host\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 2,
+      "label": "Check",
+      "kind": "req",
+      "note": "A STUN connectivity check runs on the candidate pair. Nomination follows a pair that succeeds, which may be the relay.",
+      "message": "STUN connectivity check\npair 203.0.113.10:49170 -> 192.0.2.40:40050\npeer-reflexive candidates appear only if a new source is seen\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "ICE is",
+     "choices": [
+      "RFC 8445, which obsoletes RFC 5245",
+      "RFC 5245 with no successor",
+      "RFC 3581",
+      "RFC 3323"
+     ],
+     "answer": 0,
+     "why": "The RFC Editor status banner is the authority for that status.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    {
+     "q": "The four candidate types are",
+     "choices": [
+      "host, srflx, prflx, and relay",
+      "sendrecv, sendonly, recvonly, and inactive",
+      "401, 407, 180, and 183",
+      "0, 8, 9, and 18"
+     ],
+     "answer": 0,
+     "why": "Direction attributes and payload types are different lists.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    {
+     "q": "srflx comes from",
+     "choices": [
+      "STUN, RFC 8489",
+      "A local interface only",
+      "SDES",
+      "A SIP registrar"
+     ],
+     "answer": 0,
+     "why": "It is the server-reflexive address.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "q": "relay comes from",
+     "choices": [
+      "TURN, RFC 8656",
+      "The Via branch",
+      "ptime",
+      "Privacy: id"
+     ],
+     "answer": 0,
+     "why": "Allocate returns the relayed address.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    },
+    {
+     "q": "prflx is",
+     "choices": [
+      "Learned from a connectivity check, not typically gathered up front",
+      "The SIP Contact",
+      "Always port 0",
+      "The G.722 clock"
+     ],
+     "answer": 0,
+     "why": "Peer reflexive means the check revealed a new address.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    {
+     "q": "ICE does not cancel the rule that",
+     "choices": [
+      "The answer keeps the same m-line count and order",
+      "c= must be 0.0.0.0",
+      "RTP version becomes 1",
+      "rport rewrites candidates"
+     ],
+     "answer": 0,
+     "why": "Port 0 is still how a stream is rejected.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 8445",
+     "back": "Current ICE. Obsoletes RFC 5245. Trust the status banner.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    {
+     "front": "host",
+     "back": "Local interface.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    {
+     "front": "srflx / relay",
+     "back": "STUN reflexive address, and TURN relay.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "front": "prflx",
+     "back": "Discovered during a connectivity check.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the candidate types",
+    "kind": "sdp",
+    "prompt": "Negotiate the offer. Then read the a=candidate lines yourself. The negotiator matches codecs. You match the types.",
+    "steps": [
+     "Press Negotiate.",
+     "Find typ host, typ srflx, and typ relay.",
+     "Confirm the answer still has one m-line."
+    ],
+    "check": {
+     "q": "Which type is missing from the initial offer on purpose?",
+     "choices": [
+      "prflx, because it is learned from a check",
+      "host",
+      "srflx",
+      "relay"
+     ],
+     "answer": 0,
+     "why": "Peer-reflexive candidates show up when a check comes from an address you had not listed.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    "offer": "v=0\no=alice 80 80 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=candidate:1 1 UDP 2130706431 203.0.113.10 49170 typ host\na=candidate:2 1 UDP 1694498815 203.0.113.20 49170 typ srflx raddr 203.0.113.10 rport 49170\na=candidate:3 1 UDP 16777215 198.51.100.30 50000 typ relay raddr 203.0.113.10 rport 49170\na=sendrecv\n",
+    "answer": "v=0\no=bob 81 81 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40050 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=candidate:1 1 UDP 2130706431 192.0.2.40 40050 typ host\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "Candidates stripped, private path left behind",
+    "symptom": "The offer had host, srflx, and relay candidates. The forwarded offer has only c= and no a=candidate lines, and media fails.",
+    "log": "forwarded c=IN IP4 203.0.113.10\nforwarded m=audio 49170 RTP/AVP 0\na=candidate lines: removed\nchecks: none\n",
+    "choices": [
+     "ICE candidates were removed, so no connectivity check can run",
+     "RFC 8445 says to delete candidates",
+     "prflx means port 0",
+     "STUN is a SIP 407"
+    ],
+    "answer": 0,
+    "why": "RFC 8445 selects a working pair by checks. Without candidates there is nothing to check.",
+    "cause": "An intermediary stripped a=candidate and left a single connection line.",
+    "fix": "Pass the candidate lines, or terminate ICE on the SBC and insert a routable address on purpose. Keep the m-line count aligned with RFC 3264.",
+    "cites": [
+     {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     },
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "sip-alg",
+   "title": "The SIP ALG problem",
+   "minutes": 13,
+   "tags": [
+    "alg",
+    "tls",
+    "sdp"
+   ],
+   "summary": "A SIP ALG rewrites SIP and SDP in transit and often corrupts the call. It cannot rewrite TLS.",
+   "objectives": [
+    "Recognize an in-path rewrite of Via, Contact, or c=",
+    "Treat a broken Content-Length after a rewrite as corruption",
+    "Prefer TLS when you need the ALG to be unable to edit the body"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "UDP is visible, TLS is not",
+    "caption": "The ALG is not an SBC you configured. It is an unexpected editor on the path.",
+    "nodes": [
+     "UDP INVITE",
+     "Rewrite",
+     "Stale length",
+     "TLS passes"
+    ]
+   },
+   "sections": [
+    {
+     "h": "An editor you did not configure",
+     "paragraphs": [
+      "A SIP ALG rewrites addresses inside SIP and SDP as the message crosses a NAT. The intent is to fix the embedded-address problem, and the usual result is a corrupted call, because the rewrite is partial or it leaves Content-Length stale.",
+      "Look for a Via or c= line that changed between two captures of the same request, and for a Content-Length that does not match the body, because those are the symptoms of an ALG edit. The fix is to disable the ALG on the access device."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      }
+     ]
+    },
+    {
+     "h": "TLS is opaque to the ALG",
+     "paragraphs": [
+      "The ALG cannot rewrite TLS, because the SIP headers and the SDP are inside the protected connection. A trunk that uses TLS, with a certificate checked under RFC 5922, does not get its c= line edited in flight.",
+      "Disabling the ALG and using TLS are the two practical responses. Do not add a second uncoordinated rewrite on an SBC to chase the damage, or you will have two editors and no original message."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §18",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+      },
+      {
+       "label": "RFC 5922",
+       "url": "https://www.rfc-editor.org/rfc/rfc5922"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "UDP rewritten, TLS not rewritten",
+    "parties": [
+     "Phone",
+     "ALG",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "A correct UDP offer leaves the phone. c= is 203.0.113.10 and Content-Length matches.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The ALG edited the message and left Content-Length stale. This is corruption, not a successful NAT fix.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 9999\nX-Note: length left stale after rewrite\nX-Old-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "400",
+      "kind": "res",
+      "note": "The carrier rejects the damaged request. The status is a symptom of the rewrite, not a codec failure.",
+      "message": "SIP/2.0 400 Bad Request\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=alg400\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The same offer over TLS reaches the carrier without an ALG edit. The ALG cannot see the body.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.10;branch=z9hG4bKalgTls\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A SIP ALG",
+     "choices": [
+      "Rewrites SIP and SDP in transit and often corrupts the call",
+      "Is required by RFC 3264",
+      "Allocates a TURN relay",
+      "Verifies PASSporT"
+     ],
+     "answer": 0,
+     "why": "Partial edits and stale Content-Length values are the usual damage.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "q": "The ALG and TLS",
+     "choices": [
+      "The ALG cannot rewrite TLS",
+      "TLS exists so the ALG can edit SDP",
+      "TLS removes the need for a certificate",
+      "TLS sets port 0"
+     ],
+     "answer": 0,
+     "why": "The body is protected. RFC 5922 still governs the certificate.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    },
+    {
+     "q": "A stale Content-Length after a path rewrite means",
+     "choices": [
+      "The message was corrupted in transit",
+      "RFC 8866 asked for a longer body",
+      "ptime expanded the body",
+      "rport requires length 9999"
+     ],
+     "answer": 0,
+     "why": "Compare the length with the bytes you actually captured.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "The defensive actions are",
+     "choices": [
+      "Disable the ALG, and use TLS for trunks that must cross it",
+      "Add a third rewriter",
+      "Put a private address in c=",
+      "Turn off Content-Length"
+     ],
+     "answer": 0,
+     "why": "Two editors are worse than one. TLS is opaque to the ALG.",
+     "cite": {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+     }
+    },
+    {
+     "q": "An ALG is not",
+     "choices": [
+      "An SBC policy you wrote and can read",
+      "Capable of damaging UDP SIP",
+      "A reason to compare two captures",
+      "Something that touches cleartext SDP"
+     ],
+     "answer": 0,
+     "why": "If you did not configure it, treat the rewrite as a fault.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "400 Bad Request in this ladder is",
+     "choices": [
+      "A reasonable result of a body whose length no longer matches",
+      "Proof that PCMU is illegal",
+      "An early-media 183",
+      "A STUN Binding"
+     ],
+     "answer": 0,
+     "why": "Fix the path edit. Do not start with the codec.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "ALG",
+     "back": "In-path SIP and SDP rewrite. Often corrupts the call.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "front": "Length",
+     "back": "If Content-Length does not match the body, the edit is corrupt.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "TLS",
+     "back": "The ALG cannot rewrite what it cannot see.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    },
+    {
+     "front": "Disable it",
+     "back": "Turn the ALG off. Do not stack a second hidden editor.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "lab": {
+    "title": "See a stale length",
+    "kind": "dissect",
+    "prompt": "Dissect the forwarded INVITE. Content-Length does not match the body.",
+    "steps": [
+     "Press Dissect.",
+     "Read the Content-Length warning.",
+     "Find the note that the length was left stale."
+    ],
+    "check": {
+     "q": "What does a stale Content-Length after an address rewrite indicate?",
+     "choices": [
+      "The message was corrupted in transit",
+      "RFC 3581 filled rport",
+      "The offer is a legal port-0 rejection",
+      "STIR verified the body"
+     ],
+     "answer": 0,
+     "why": "Disable the ALG. Use TLS when the trunk must cross a device that would otherwise edit SIP.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 9999\nX-Note: length left stale after rewrite\nX-Old-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "ALG rewrote c= and left the length",
+    "symptom": "UDP calls fail with 400. TLS calls to the same carrier succeed. The UDP body length does not match.",
+    "log": "capture A UDP Content-Length: 9999\ncapture A body is shorter than 9999\ncapture A c=IN IP4 203.0.113.20\ncapture B TLS Via: SIP/2.0/TLS 203.0.113.10\ncapture B body unchanged\n",
+    "choices": [
+     "The ALG edited cleartext SIP and could not edit TLS",
+     "TLS caused the 400",
+     "9999 is a legal ptime",
+     "The certificate must be removed"
+    ],
+    "answer": 0,
+    "why": "A SIP ALG rewrites SIP and SDP in transit and often corrupts calls. It cannot rewrite TLS.",
+    "cause": "The access device edited the UDP INVITE, changed an address, and did not store a matching Content-Length.",
+    "fix": "Disable the SIP ALG. Keep the TLS trunk, and check the certificate under RFC 5922. Compare a capture from the phone with a capture from the carrier before you change codecs.",
+    "cites": [
+     {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     },
+     {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     },
+     {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "media-latching",
+   "title": "Media latching on an SBC",
+   "minutes": 14,
+   "tags": [
+    "latching",
+    "rfc5853",
+    "sbc"
+   ],
+   "summary": "Many SBCs learn the remote RTP address from the first packet instead of trusting c=. That is deployment practice, and RFC 5853 is the requirements RFC.",
+   "objectives": [
+    "Describe latching as learning RTP from the first packet",
+    "Cite RFC 5853 as requirements, not as an algorithm",
+    "Refuse to move the latch toward an unexpected source"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "c= versus the packet you saw",
+    "caption": "Latching is something many SBCs do. RFC 5853 collects requirements. It is not an IETF algorithm.",
+    "nodes": [
+     "Read c=",
+     "First RTP",
+     "Latch",
+     "Keep"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Deployment practice, not an algorithm",
+     "paragraphs": [
+      "Many SBCs learn the remote RTP address from the first packet instead of trusting c=. RFC 5853 is the requirements RFC for SBC deployments, and it is the right citation for why operators ask for this behavior.",
+      "That behavior is deployment practice rather than an IETF algorithm. You will not find a standards-track state machine that says the first packet wins. When you document a design, say what the SBC does and cite RFC 5853 as requirements."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      },
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      }
+     ]
+    },
+    {
+     "h": "Trust the latch only after signaling",
+     "paragraphs": [
+      "Latching exists because c= is often an address the SBC cannot send to, which is the embedded-address problem. The first RTP packet shows the address that actually got through the NAT.",
+      "Use latching only for a call whose signaling you already authenticated, and keep the latch on the peer side you expect. If the first packet comes from an unexpected source, treat that as a fault and do not move the media path. ICE, RFC 8445, remains the specified way to choose a candidate pair when both ends implement it."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      },
+      {
+       "label": "RFC 8445",
+       "url": "https://www.rfc-editor.org/rfc/rfc8445"
+      },
+      {
+       "label": "RFC 3261 §22",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "First packet, not c=",
+    "parties": [
+     "Phone",
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "SDP c= says 203.0.113.10 port 49170. That is the address a strict reader would trust.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The SBC places its own media address toward the carrier. The phone's c= line is not forwarded unchanged.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKlatch1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The carrier answer names 192.0.2.40. Media toward the phone has not been latched yet.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 140\n\nv=0\no=bob 61 61 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40030 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "RTP",
+      "kind": "req",
+      "note": "The first RTP arrives from 203.0.113.20 port 49170, not from the c= address 203.0.113.10. A latching SBC sends return RTP there. This is practice, not an RFC 5853 algorithm.",
+      "message": "RTP v=2 seq=10 ts=0 ssrc=0x1111\nsource 203.0.113.20:49170\nSDP c= had said 203.0.113.10:49170\nSBC return path latched to 203.0.113.20:49170\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Media latching means",
+     "choices": [
+      "Many SBCs learn the remote RTP address from the first packet instead of trusting c=",
+      "RFC 8445's nominated pair",
+      "Setting the m-line port to 0",
+      "A digest 407"
+     ],
+     "answer": 0,
+     "why": "Say it is deployment practice. RFC 5853 is the requirements RFC, not an algorithm.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "RFC 5853 is",
+     "choices": [
+      "The SBC requirements RFC",
+      "The ICE algorithm",
+      "The STUN Binding method",
+      "The G.711 recommendation"
+     ],
+     "answer": 0,
+     "why": "Use it when you explain why an SBC offers NAT traversal. Do not cite it as a state machine.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "If c= says 203.0.113.10 and the first RTP comes from 203.0.113.20, a latching SBC",
+     "choices": [
+      "Sends return RTP to 203.0.113.20",
+      "Drops the call because ICE failed",
+      "Rewrites the SIP Call-ID",
+      "Converts the stream to telephone-event"
+     ],
+     "answer": 0,
+     "why": "That is the practice. It is not an IETF algorithm.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "q": "An unexpected first-packet source should",
+     "choices": [
+      "Stay a fault. Do not move the latch",
+      "Always win, including sources you did not authenticate",
+      "Replace the TLS certificate",
+      "Clear the digest challenge"
+     ],
+     "answer": 0,
+     "why": "Latch only for signaling you already accepted, on the side you expect.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "q": "When both ends implement candidate checks, the specified mechanism is",
+     "choices": [
+      "ICE, RFC 8445",
+      "A SIP ALG",
+      "c=IN IP4 0.0.0.0",
+      "rport alone"
+     ],
+     "answer": 0,
+     "why": "Latching does not replace ICE where ICE is actually negotiated.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    {
+     "q": "You document latching as",
+     "choices": [
+      "Deployment practice, with RFC 5853 cited as requirements",
+      "An IETF algorithm in RFC 5853",
+      "A payload type",
+      "A Privacy token"
+     ],
+     "answer": 0,
+     "why": "The requirements RFC explains the operator need. It does not specify the first-packet procedure.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Latch",
+     "back": "Learn the remote RTP address from the first packet instead of trusting c=.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "front": "RFC 5853",
+     "back": "SBC requirements. Not an IETF algorithm for latching.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    {
+     "front": "Authenticated",
+     "back": "Latch only after signaling is accepted, and only toward the expected side.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "front": "ICE",
+     "back": "RFC 8445 is the specified candidate check when both ends use it.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Compare c= with the packet source",
+    "kind": "capture",
+    "prompt": "Extract the INVITE and read c=. Then read the RTP note. The source port's address is not the c= address.",
+    "steps": [
+     "Press Extract SIP and read c=.",
+     "Read the RTP source in the text.",
+     "State where a latching SBC sends return media."
+    ],
+    "check": {
+     "q": "A latching SBC sends return RTP to",
+     "choices": [
+      "The source of the first RTP packet",
+      "Always the address in c=, with no exception",
+      "Port 0",
+      "The STUN server only"
+     ],
+     "answer": 0,
+     "why": "Many SBCs do this. It is deployment practice. RFC 5853 is the requirements RFC, not an algorithm.",
+     "cite": {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     }
+    },
+    "message": "Sent:\nINVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n\nRTP v=2 source 203.0.113.20:49170\nSDP c=IN IP4 203.0.113.10\n"
+   },
+   "fault": {
+    "title": "Latch followed an unexpected source",
+    "symptom": "c= says 203.0.113.10. The first RTP source is 198.51.100.30, which is not the phone side the SBC authenticated. Return media moves there.",
+    "log": "SDP c=IN IP4 203.0.113.10\nm=audio 49170 RTP/AVP 0\nfirst RTP source 198.51.100.30:49170\nauthenticated phone side 203.0.113.10\nSBC return path latched to 198.51.100.30:49170\n",
+    "choices": [
+     "Do not move the latch to a source that is not the authenticated peer side",
+     "The first packet always wins, whatever the source",
+     "RFC 5853 specifies this state machine",
+     "c= must be deleted"
+    ],
+    "answer": 0,
+    "why": "Many SBCs learn the remote RTP address from the first packet instead of trusting c=. That is deployment practice. RFC 5853 is the requirements RFC, not an IETF algorithm.",
+    "cause": "The SBC latched onto a source that was not the signaling peer it had accepted.",
+    "fix": "Keep return RTP on the authenticated side. If the first packet comes from somewhere else, raise a fault and leave the path. Use ICE when both ends support RFC 8445.",
+    "cites": [
+     {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+     },
+     {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     },
+     {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    ]
+   },
+   "level": "Advanced"
+  }
+ ]
+}

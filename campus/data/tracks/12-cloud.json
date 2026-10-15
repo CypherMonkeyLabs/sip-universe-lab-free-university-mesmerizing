@@ -1,0 +1,2107 @@
+{
+ "id": "cloud",
+ "title": "Cloud voice and CCaaS SIP",
+ "summary": "Documented SIP boundaries for Teams, Webex Calling, Amazon Connect, Five9, Twilio, Genesys, and NICE CXone.",
+ "level": "Advanced",
+ "order": 12,
+ "lessons": [
+  {
+   "id": "teams-signaling",
+   "title": "Teams Direct Routing signaling",
+   "minutes": 16,
+   "tags": [
+    "teams",
+    "direct-routing",
+    "tls"
+   ],
+   "summary": "Direct Routing uses the pstnhub proxies on 5061, a certified SBC, and a verified domain. Contact must be an FQDN.",
+   "objectives": [
+    "Name the three signaling FQDNs and port 5061",
+    "Require a verified domain and an FQDN Contact",
+    "Remember that connection aliasing is unsupported"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Direct Routing signaling",
+    "caption": "Checked against the plan and protocol articles.",
+    "columns": [
+     "Item",
+     "Documented value"
+    ],
+    "rows": [
+     [
+      "Proxies",
+      "sip, sip2, and sip3.pstnhub.microsoft.com"
+     ],
+     [
+      "Port",
+      "5061"
+     ],
+     [
+      "TLS",
+      "1.2 or later"
+     ],
+     [
+      "Contact",
+      "FQDN, or the proxy returns 403"
+     ],
+     [
+      "Domain",
+      "Verified tenant domain"
+     ],
+     [
+      "RFC 5923",
+      "Not supported by the SIP proxy"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Where the SBC sends signaling",
+     "paragraphs": [
+      "Direct Routing signaling uses sip.pstnhub.microsoft.com, sip2.pstnhub.microsoft.com, and sip3.pstnhub.microsoft.com on port 5061. TLS 1.2 or later is required, and the SBC is a certified SBC.",
+      "The synthetic INVITE targets sip.pstnhub.microsoft.com:5061 from sbc1.example.com. The real routing among the three proxies is in the plan and protocol articles."
+     ],
+     "cites": [
+      {
+       "label": "Plan Direct Routing",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+      },
+      {
+       "label": "Direct Routing SIP protocol",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+      },
+      {
+       "label": "Direct Routing definitions and RFCs",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols"
+      }
+     ]
+    },
+    {
+     "h": "Names the proxy will accept",
+     "paragraphs": [
+      "The Contact must be an FQDN. If Contact is an IP address the proxy returns 403. The domain on the trunk must be a verified tenant domain, not a name ending in onmicrosoft.com.",
+      "The protocols article says the SIP proxy does not support RFC 5923 connection aliasing. Microsoft says wildcard names in the certificate CN or SAN are supported for Direct Routing."
+     ],
+     "cites": [
+      {
+       "label": "Plan Direct Routing",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+      },
+      {
+       "label": "Direct Routing definitions and RFCs",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols"
+      },
+      {
+       "label": "RFC 5923",
+       "url": "https://www.rfc-editor.org/rfc/rfc5923"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "INVITE to the primary proxy",
+    "parties": [
+     "SBC",
+     "sip.pstnhub.microsoft.com"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Contact is sip:sbc@sbc1.example.com. Media in this offer is RTP/SAVP.",
+      "message": "INVITE sip:+15551212@sip.pstnhub.microsoft.com:5061 SIP/2.0\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKteams01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamstag\nTo: <sip:+15551212@example.com>\nCall-ID: teams-call-1@sbc1.example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 147\n\nv=0\no=sbc 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The proxy has the transaction. 100 does not mean the SBC is healthy.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKteams01\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamstag\nTo: <sip:+15551212@example.com>\nCall-ID: teams-call-1@sbc1.example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Alerting comes back on the same Via.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKteams01\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamstag\nTo: <sip:+15551212@example.com>;tag=pstntag\nCall-ID: teams-call-1@sbc1.example.com\nCSeq: 1 INVITE\nContact: <sip:sip.pstnhub.microsoft.com:5061;transport=tls>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK answers the INVITE. Health of the trunk is a separate OPTIONS exchange.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKteams01\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamstag\nTo: <sip:+15551212@example.com>;tag=pstntag\nCall-ID: teams-call-1@sbc1.example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:sip.pstnhub.microsoft.com:5061;transport=tls>\nContent-Length: 147\n\nv=0\no=sbc 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Direct Routing signaling FQDNs include",
+     "choices": [
+      "sip.pstnhub.microsoft.com, sip2.pstnhub.microsoft.com, and sip3.pstnhub.microsoft.com",
+      "Only an IP address",
+      "sips origination URLs on Twilio",
+      "A CUCM Lua script"
+     ],
+     "answer": 0,
+     "why": "All three are documented.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    },
+    {
+     "q": "The signaling port is",
+     "choices": [
+      "5061",
+      "5060 as the only documented port",
+      "The RTP port",
+      "443 in the SDP c= line"
+     ],
+     "answer": 0,
+     "why": "TLS signaling uses 5061.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    },
+    {
+     "q": "TLS for Direct Routing is",
+     "choices": [
+      "TLS 1.2 or later",
+      "Optional on UDP 5060",
+      "SRTP in the Contact header",
+      "RFC 5923 aliasing"
+     ],
+     "answer": 0,
+     "why": "The protocol articles require TLS 1.2+.",
+     "cite": {
+      "label": "Direct Routing definitions and RFCs",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols"
+     }
+    },
+    {
+     "q": "A tenant domain for the trunk must be",
+     "choices": [
+      "A verified tenant domain",
+      "Any name ending in onmicrosoft.com",
+      "An IP address",
+      "The Call-ID"
+     ],
+     "answer": 0,
+     "why": "The plan document excludes the onmicrosoft.com domain.",
+     "cite": {
+      "label": "Plan Direct Routing",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+     }
+    },
+    {
+     "q": "RFC 5923 connection aliasing on the Teams SIP proxy is",
+     "choices": [
+      "Not supported",
+      "Required",
+      "The same as early-offer forced",
+      "A media codec"
+     ],
+     "answer": 0,
+     "why": "The protocols article says the proxy does not support it.",
+     "cite": {
+      "label": "RFC 5923",
+      "url": "https://www.rfc-editor.org/rfc/rfc5923"
+     }
+    },
+    {
+     "q": "An IP address in Contact produces",
+     "choices": [
+      "403",
+      "A guaranteed 200 OK",
+      "A datasheet CPS increase",
+      "An AudioCodes Normalize"
+     ],
+     "answer": 0,
+     "why": "The Contact must be an FQDN.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "pstnhub",
+     "back": "sip, sip2, and sip3.pstnhub.microsoft.com.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    },
+    {
+     "front": "5061",
+     "back": "Direct Routing signaling port.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    },
+    {
+     "front": "Verified domain",
+     "back": "Not a name ending in onmicrosoft.com.",
+     "cite": {
+      "label": "Plan Direct Routing",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+     }
+    },
+    {
+     "front": "No RFC 5923",
+     "back": "The SIP proxy does not support connection aliasing.",
+     "cite": {
+      "label": "Direct Routing definitions and RFCs",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Check Contact and the proxy host",
+    "kind": "dissect",
+    "prompt": "Dissect the Direct Routing INVITE. Which host is in Contact?",
+    "message": "INVITE sip:+15551212@sip.pstnhub.microsoft.com:5061 SIP/2.0\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKteams01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamstag\nTo: <sip:+15551212@example.com>\nCall-ID: teams-call-1@sbc1.example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 147\n\nv=0\no=sbc 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv",
+    "check": {
+     "q": "Contact uses",
+     "choices": [
+      "sbc1.example.com",
+      "203.0.113.20",
+      "198.51.100.30",
+      "An onmicrosoft.com name"
+     ],
+     "answer": 0,
+     "why": "The Request-URI host is sip.pstnhub.microsoft.com on port 5061.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    }
+   },
+   "fault": {
+    "title": "403 from an IP Contact",
+    "symptom": "The proxy answers 403 Forbidden. The INVITE was sent to sip.pstnhub.microsoft.com on 5061 with Contact sip:sbc@203.0.113.20.",
+    "log": "SIP/2.0 403 Forbidden\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKteams01\nCSeq: 1 INVITE\nCall-ID: teams-call-1@sbc1.example.com\nContact was sip:sbc@203.0.113.20\n",
+    "choices": [
+     "Contact is an IP, and the proxy requires an FQDN",
+     "Port 5061 is undocumented",
+     "A verified domain must end in onmicrosoft.com",
+     "RFC 5923 aliasing is required before any INVITE"
+    ],
+    "answer": 0,
+    "why": "The protocol article returns 403 when Contact is not an FQDN.",
+    "cause": "The Contact host is 203.0.113.20.",
+    "fix": "Set Contact to sip:sbc@sbc1.example.com. Use a verified tenant domain on the trunk, and do not rely on RFC 5923 connection aliasing.",
+    "cites": [
+     {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     },
+     {
+      "label": "Plan Direct Routing",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+     },
+     {
+      "label": "RFC 5923",
+      "url": "https://www.rfc-editor.org/rfc/rfc5923"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "teams-options-media",
+   "title": "OPTIONS health and SRTP media",
+   "minutes": 15,
+   "tags": [
+    "teams",
+    "options",
+    "srtp"
+   ],
+   "summary": "OPTIONS followed by 200 marks the SBC healthy. Media processors use SRTP. The protocol article’s OPTIONS CSeq cell disagrees with RFC 3261.",
+   "objectives": [
+    "Mark health with OPTIONS and 200",
+    "Keep CSeq method equal to OPTIONS",
+    "Treat media-processor audio as SRTP"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Health, then media",
+    "caption": "Confirm CSeq with a capture. The table cell checked on 2026-10-14 is not the RFC.",
+    "nodes": [
+     "Send OPTIONS",
+     "Receive 200",
+     "SBC healthy",
+     "SRTP on processors"
+    ]
+   },
+   "sections": [
+    {
+     "h": "What marks the SBC healthy",
+     "paragraphs": [
+      "Direct Routing uses OPTIONS, and a 200 OK marks the SBC healthy. The lab request is OPTIONS sip:sip.pstnhub.microsoft.com:5061 with CSeq: 1 OPTIONS and Contact sip:sbc@sbc1.example.com.",
+      "The SIP protocol article’s OPTIONS example table, checked on 2026-10-14, lists CSeq: 1 INVITE. That cell conflicts with RFC 3261, which requires the CSeq method to match OPTIONS. Teach the RFC, and confirm with a capture rather than copying that table cell."
+     ],
+     "cites": [
+      {
+       "label": "Direct Routing OPTIONS and TLS",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+      },
+      {
+       "label": "Direct Routing SIP protocol",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+      },
+      {
+       "label": "RFC 3261 §8",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+      }
+     ]
+    },
+    {
+     "h": "Media processors",
+     "paragraphs": [
+      "Media processors use SRTP. The synthetic offer uses RTP/SAVP and c=203.0.113.20 so the profile on the wire is SRTP, as RFC 3711 names it.",
+      "This lesson does not invent a media-bypass prerequisite list. If you need the media path for a specific tenant, capture the RTP profile and read the current media article instead of guessing from signaling alone."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3711",
+       "url": "https://www.rfc-editor.org/rfc/rfc3711"
+      },
+      {
+       "label": "Direct Routing definitions and RFCs",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Healthy OPTIONS, then a call",
+    "parties": [
+     "SBC",
+     "Teams proxy"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "OPTIONS",
+      "kind": "req",
+      "note": "CSeq method is OPTIONS. Do not copy a table cell that says INVITE.",
+      "message": "OPTIONS sip:sip.pstnhub.microsoft.com:5061 SIP/2.0\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKoptteams1\nMax-Forwards: 70\nFrom: <sip:sbc@sbc1.example.com>;tag=teamsopt\nTo: <sip:sip.pstnhub.microsoft.com>\nCall-ID: opt-teams-1@sbc1.example.com\nCSeq: 1 OPTIONS\nContact: <sip:sbc@sbc1.example.com>\nAccept: application/sdp\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK marks the SBC healthy.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKoptteams1\nFrom: <sip:sbc@sbc1.example.com>;tag=teamsopt\nTo: <sip:sip.pstnhub.microsoft.com>;tag=optok1\nCall-ID: opt-teams-1@sbc1.example.com\nCSeq: 1 OPTIONS\nAllow: INVITE,ACK,CANCEL,BYE,OPTIONS,UPDATE\nAccept: application/sdp\nContact: <sip:sip.pstnhub.microsoft.com:5061;transport=tls>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The call is a later transaction. The offer profile is RTP/SAVP.",
+      "message": "INVITE sip:+15551212@sip.pstnhub.microsoft.com:5061 SIP/2.0\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKteams01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamstag\nTo: <sip:+15551212@example.com>\nCall-ID: teams-call-1@sbc1.example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 147\n\nv=0\no=sbc 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying is not the health signal. The OPTIONS 200 was.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKteams01\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamstag\nTo: <sip:+15551212@example.com>\nCall-ID: teams-call-1@sbc1.example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The SBC is marked healthy when",
+     "choices": [
+      "OPTIONS is answered with 200",
+      "Any INVITE is retransmitted",
+      "Contact is an IP",
+      "CSeq says INVITE on an OPTIONS request"
+     ],
+     "answer": 0,
+     "why": "That is the OPTIONS troubleshooting article.",
+     "cite": {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    },
+    {
+     "q": "The CSeq method on OPTIONS must be",
+     "choices": [
+      "OPTIONS",
+      "INVITE, because a table cell said so",
+      "ACK",
+      "REGISTER"
+     ],
+     "answer": 0,
+     "why": "RFC 3261 wins over the conflicting table cell.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    },
+    {
+     "q": "The OPTIONS example table cell checked on 2026-10-14",
+     "choices": [
+      "Lists CSeq: 1 INVITE and conflicts with RFC 3261",
+      "Is the normative CSeq rule",
+      "Defines SRTP",
+      "Removes port 5061"
+     ],
+     "answer": 0,
+     "why": "Confirm with a capture. Do not copy that cell.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    },
+    {
+     "q": "Media processors use",
+     "choices": [
+      "SRTP",
+      "Unencrypted RTP only",
+      "SIP INFO as the audio path",
+      "RFC 5923 as the media protocol"
+     ],
+     "answer": 0,
+     "why": "RTP/SAVP is the SDP profile used in the lab offer.",
+     "cite": {
+      "label": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711"
+     }
+    },
+    {
+     "q": "A capture is the check for CSeq because",
+     "choices": [
+      "The published table cell and the RFC disagree",
+      "OPTIONS has no CSeq",
+      "200 OK deletes CSeq",
+      "The datasheet sets the method"
+     ],
+     "answer": 0,
+     "why": "Believe the messages on the wire and RFC 3261.",
+     "cite": {
+      "label": "RFC 3261 §20",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+     }
+    },
+    {
+     "q": "100 Trying on the INVITE",
+     "choices": [
+      "Does not replace the OPTIONS 200 as the health signal",
+      "Marks the SBC healthy by itself",
+      "Carries SRTP keys in this lesson",
+      "Is a TLS version"
+     ],
+     "answer": 0,
+     "why": "Health is the OPTIONS transaction.",
+     "cite": {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "OPTIONS 200",
+     "back": "Marks the Direct Routing SBC healthy.",
+     "cite": {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    },
+    {
+     "front": "CSeq",
+     "back": "Method token matches the request. OPTIONS, not INVITE.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    },
+    {
+     "front": "Table cell",
+     "back": "Checked 2026-10-14: CSeq: 1 INVITE. Do not copy it.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    },
+    {
+     "front": "SRTP",
+     "back": "Media processors use SRTP. RFC 3711.",
+     "cite": {
+      "label": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Dissect a legal OPTIONS",
+    "kind": "dissect",
+    "prompt": "This is the request to send. What is the CSeq method?",
+    "message": "OPTIONS sip:sip.pstnhub.microsoft.com:5061 SIP/2.0\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKoptteams1\nMax-Forwards: 70\nFrom: <sip:sbc@sbc1.example.com>;tag=teamsopt\nTo: <sip:sip.pstnhub.microsoft.com>\nCall-ID: opt-teams-1@sbc1.example.com\nCSeq: 1 OPTIONS\nContact: <sip:sbc@sbc1.example.com>\nAccept: application/sdp\nContent-Length: 0\n",
+    "check": {
+     "q": "CSeq on this OPTIONS is",
+     "choices": [
+      "1 OPTIONS",
+      "1 INVITE",
+      "1 ACK",
+      "Missing"
+     ],
+     "answer": 0,
+     "why": "The table cell that says INVITE is the one to reject.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    }
+   },
+   "fault": {
+    "title": "Copied CSeq from the table",
+    "symptom": "A keepalive was built by copying the protocol article’s OPTIONS example table. The peer does not treat the SBC as healthy.",
+    "log": "OPTIONS sip:sip.pstnhub.microsoft.com:5061 SIP/2.0\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKoptbad1\nMax-Forwards: 70\nFrom: <sip:sbc@sbc1.example.com>;tag=badopt\nTo: <sip:sip.pstnhub.microsoft.com>\nCall-ID: opt-bad-1@sbc1.example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nContent-Length: 0\n",
+    "choices": [
+     "CSeq method INVITE does not match OPTIONS",
+     "Port 5061 must be omitted",
+     "SRTP belongs in CSeq",
+     "Contact FQDN causes this failure"
+    ],
+    "answer": 0,
+    "why": "The request line is OPTIONS and the CSeq method is INVITE.",
+    "cause": "The table cell checked on 2026-10-14 was copied.",
+    "fix": "Send CSeq: 1 OPTIONS. Confirm the method in a capture. Keep the health decision tied to a 200 OK on that OPTIONS.",
+    "cites": [
+     {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     },
+     {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     },
+     {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "webex-lgw",
+   "title": "Webex Calling Local Gateway",
+   "minutes": 15,
+   "tags": [
+    "webex",
+    "local-gateway"
+   ],
+   "summary": "An IOS XE Local Gateway uses SIP TLS and SRTP. Third-party SBCs use a certificate-based trunk. Wildcard certificates are not supported. ByoPSTN means bring your own PSTN.",
+   "objectives": [
+    "State the IOS XE TLS and SRTP requirement",
+    "Use a certificate-based trunk for a third-party SBC",
+    "Define ByoPSTN from the get-started article"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Local Gateway path",
+    "caption": "192.0.2.40 stands for the Webex peer. Real names are in the IOS XE article.",
+    "layers": [
+     {
+      "name": "Premises SBC",
+      "detail": "CUBE or a third-party Local Gateway"
+     },
+     {
+      "name": "SIP TLS",
+      "detail": "Signaling toward Webex"
+     },
+     {
+      "name": "SRTP",
+      "detail": "Media, per the IOS XE article"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "What the IOS XE article requires",
+     "paragraphs": [
+      "The IOS XE local gateway article uses SIP TLS toward Webex and SRTP for media. The synthetic INVITE is TLS from 203.0.113.20, Contact sip:sbc@sbc1.example.com, and the offer is RTP/SAVP.",
+      "192.0.2.40 is only the lab stand-in for the Webex signaling peer. Take the real peer names from that article rather than from this page."
+     ],
+     "cites": [
+      {
+       "label": "Local Gateway on IOS XE",
+       "url": "https://help.webex.com/en-us/article/jr1i3r/Configure-local-gateway-on-IOS-XE-for-Webex-Calling"
+      },
+      {
+       "label": "RFC 3711",
+       "url": "https://www.rfc-editor.org/rfc/rfc3711"
+      }
+     ]
+    },
+    {
+     "h": "Certificates and the name ByoPSTN",
+     "paragraphs": [
+      "The trunks article says a third-party SBC is supported as a Local Gateway with a certificate-based trunk. The get-started article says wildcard certificates are not supported for Local Gateway.",
+      "ByoPSTN means bring your own PSTN in the preferred-architecture terminology cited from the get-started article. It is the premises path, and it is a different choice from Cloud Connected PSTN."
+     ],
+     "cites": [
+      {
+       "label": "Webex Calling trunks and dial plans",
+       "url": "https://help.webex.com/article/n0xb944"
+      },
+      {
+       "label": "Get started with Local Gateway",
+       "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "TLS and SRTP toward the Webex peer",
+    "parties": [
+     "Local Gateway",
+     "Webex"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "SIP TLS. SDP offers RTP/SAVP from 203.0.113.20.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.20;branch=z9hG4bKwebex1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=wxgtag\nTo: <sip:+15551212@example.com>\nCall-ID: webex-lgw-1@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 147\n\nv=0\no=sbc 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The peer accepted the transaction.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/TLS 203.0.113.20;branch=z9hG4bKwebex1\nFrom: \"Alice\" <sip:alice@example.com>;tag=wxgtag\nTo: <sip:+15551212@example.com>\nCall-ID: webex-lgw-1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer is SRTP from the lab peer address.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/TLS 203.0.113.20;branch=z9hG4bKwebex1\nFrom: \"Alice\" <sip:alice@example.com>;tag=wxgtag\nTo: <sip:+15551212@example.com>;tag=wxans\nCall-ID: webex-lgw-1@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:webex@192.0.2.40>\nContent-Length: 145\n\nv=0\no=webex 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 30000 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK completes the early-offer dialog.",
+      "message": "ACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.20;branch=z9hG4bKwebexack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=wxgtag\nTo: <sip:+15551212@example.com>;tag=wxans\nCall-ID: webex-lgw-1@example.com\nCSeq: 1 ACK\nContact: <sip:alice@sbc1.example.com>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The IOS XE Local Gateway article specifies",
+     "choices": [
+      "SIP TLS to Webex and SRTP for media",
+      "UDP only and RTP/AVP only",
+      "Wildcard certificates as mandatory",
+      "Cloud Connected PSTN as the same object"
+     ],
+     "answer": 0,
+     "why": "That is the webex-ios article.",
+     "cite": {
+      "label": "Local Gateway on IOS XE",
+      "url": "https://help.webex.com/en-us/article/jr1i3r/Configure-local-gateway-on-IOS-XE-for-Webex-Calling"
+     }
+    },
+    {
+     "q": "A third-party SBC as Local Gateway uses",
+     "choices": [
+      "A certificate-based trunk",
+      "An invented Ribbon CLI",
+      "SCCP",
+      "An IP Contact required by Teams"
+     ],
+     "answer": 0,
+     "why": "The trunks article documents that trunk.",
+     "cite": {
+      "label": "Webex Calling trunks and dial plans",
+      "url": "https://help.webex.com/article/n0xb944"
+     }
+    },
+    {
+     "q": "Wildcard certificates for Local Gateway are",
+     "choices": [
+      "Not supported",
+      "Required",
+      "The Teams rule, copied here",
+      "Defined by RFC 4733"
+     ],
+     "answer": 0,
+     "why": "The get-started article says they are not supported.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    },
+    {
+     "q": "ByoPSTN means",
+     "choices": [
+      "Bring your own PSTN",
+      "Cloud Connected PSTN",
+      "A Cisco Calling Plan seat",
+      "Media bypass inside Teams"
+     ],
+     "answer": 0,
+     "why": "Preferred-architecture terminology from the get-started article.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    },
+    {
+     "q": "The lab offer profile is",
+     "choices": [
+      "RTP/SAVP",
+      "RTP/AVP with no security profile",
+      "A CSeq method",
+      "An onmicrosoft.com name"
+     ],
+     "answer": 0,
+     "why": "SRTP is the media requirement in the IOS XE article.",
+     "cite": {
+      "label": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711"
+     }
+    },
+    {
+     "q": "Cloud Connected PSTN and Local Gateway are",
+     "choices": [
+      "Different PSTN choices",
+      "Two names for one trunk",
+      "Both configured with voice class sip-profiles only",
+      "The same wildcard rule"
+     ],
+     "answer": 0,
+     "why": "Do not conflate them.",
+     "cite": {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "SIP TLS",
+     "back": "Signaling from an IOS XE Local Gateway to Webex.",
+     "cite": {
+      "label": "Local Gateway on IOS XE",
+      "url": "https://help.webex.com/en-us/article/jr1i3r/Configure-local-gateway-on-IOS-XE-for-Webex-Calling"
+     }
+    },
+    {
+     "front": "SRTP",
+     "back": "Media for that IOS XE Local Gateway.",
+     "cite": {
+      "label": "Local Gateway on IOS XE",
+      "url": "https://help.webex.com/en-us/article/jr1i3r/Configure-local-gateway-on-IOS-XE-for-Webex-Calling"
+     }
+    },
+    {
+     "front": "Certificate trunk",
+     "back": "How a third-party SBC is supported.",
+     "cite": {
+      "label": "Webex Calling trunks and dial plans",
+      "url": "https://help.webex.com/article/n0xb944"
+     }
+    },
+    {
+     "front": "ByoPSTN",
+     "back": "Bring your own PSTN. Not Cloud Connected PSTN.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the Local Gateway offer",
+    "kind": "sdp",
+    "prompt": "The Local Gateway offer is SRTP. Which transport is in the m= line?",
+    "offer": "v=0\no=sbc 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n",
+    "answer": "v=0\no=webex 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 30000 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n",
+    "check": {
+     "q": "The offer m= protocol is",
+     "choices": [
+      "RTP/SAVP",
+      "RTP/AVP",
+      "UDP/TLS/RTP/SAVPF only",
+      "SIP"
+     ],
+     "answer": 0,
+     "why": "RTP/SAVP is the SRTP profile in this synthetic.",
+     "cite": {
+      "label": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711"
+     }
+    }
+   },
+   "fault": {
+    "title": "Wildcard certificate on a Local Gateway",
+    "symptom": "The Local Gateway trunk fails certificate checks. The certificate uses a wildcard name that a Teams trunk on the same SBC accepted.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.20;branch=z9hG4bKwebex1\nContact: <sip:sbc@sbc1.example.com>\nCertificate CN: *.example.com\n",
+    "choices": [
+     "Wildcard certificates are not supported for Local Gateway",
+     "The IOS XE article requires RTP/AVP",
+     "ByoPSTN means Cloud Connected PSTN",
+     "Contact must be an IP address"
+    ],
+    "answer": 0,
+    "why": "Teams wildcard support does not transfer to this trunk.",
+    "cause": "The certificate CN is a wildcard.",
+    "fix": "Install a certificate whose name matches the Local Gateway identity without a wildcard. Keep SIP TLS and SRTP, and use a certificate-based trunk if this SBC is third-party.",
+    "cites": [
+     {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     },
+     {
+      "label": "Local Gateway on IOS XE",
+      "url": "https://help.webex.com/en-us/article/jr1i3r/Configure-local-gateway-on-IOS-XE-for-Webex-Calling"
+     },
+     {
+      "label": "Webex Calling trunks and dial plans",
+      "url": "https://help.webex.com/article/n0xb944"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "webex-pstn-models",
+   "title": "Three PSTN choices, one per location",
+   "minutes": 14,
+   "tags": [
+    "webex",
+    "pstn"
+   ],
+   "summary": "Webex Calling offers Cisco Calling Plan, Cloud Connected PSTN, or premises-based PSTN through a Local Gateway. A location has one PSTN connection.",
+   "objectives": [
+    "Name the three PSTN choices",
+    "Give a location one connection",
+    "Keep Cloud Connected PSTN distinct from Local Gateway"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "PSTN choices",
+    "caption": "Configure the location in the organization PSTN article.",
+    "columns": [
+     "Choice",
+     "Who provides the PSTN path"
+    ],
+    "rows": [
+     [
+      "Cisco Calling Plan",
+      "Cisco’s cloud calling plan"
+     ],
+     [
+      "Cloud Connected PSTN",
+      "A cloud PSTN partner through Webex"
+     ],
+     [
+      "Premises-based PSTN",
+      "Your Local Gateway"
+     ],
+     [
+      "Count per location",
+      "One PSTN connection"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "The three documented choices",
+     "paragraphs": [
+      "The organization article lists Cisco Calling Plan, Cloud Connected PSTN, and premises-based PSTN through a Local Gateway. A location has one PSTN connection.",
+      "The ladder in this lesson is only the premises path: the Local Gateway at 203.0.113.20 sends the call to the carrier stand-in 192.0.2.40. That is ByoPSTN in the get-started article’s preferred-architecture language."
+     ],
+     "cites": [
+      {
+       "label": "Configure Webex Calling PSTN",
+       "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+      },
+      {
+       "label": "Get started with Local Gateway",
+       "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+      }
+     ]
+    },
+    {
+     "h": "Do not merge the cloud partner with the gateway",
+     "paragraphs": [
+      "Cloud Connected PSTN is a cloud PSTN partner connected through Webex. It is not your SBC, and it is not the Local Gateway trunk.",
+      "Choosing both for one location fights the one-connection rule. Pick the choice in the organization article, then follow the Local Gateway articles only when the choice is premises-based PSTN."
+     ],
+     "cites": [
+      {
+       "label": "Configure Webex Calling PSTN",
+       "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+      },
+      {
+       "label": "Webex Calling trunks and dial plans",
+       "url": "https://help.webex.com/article/n0xb944"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "This ladder is premises-based PSTN only",
+    "parties": [
+     "Location",
+     "Local Gateway",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The location’s call reaches the Local Gateway.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The gateway accepts the caller dialog.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Premises PSTN leaves toward the carrier. This is not Cloud Connected PSTN.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKbyo01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=byotag\nTo: <sip:+15551212@example.com>\nCall-ID: byopstn-1@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "The carrier alerts on the gateway’s outbound dialog.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKbyo01\nFrom: \"Alice\" <sip:alice@example.com>;tag=byotag\nTo: <sip:+15551212@example.com>;tag=carrier77\nCall-ID: byopstn-1@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The three PSTN choices are",
+     "choices": [
+      "Cisco Calling Plan, Cloud Connected PSTN, and premises-based PSTN via Local Gateway",
+      "Only Local Gateway",
+      "Only Teams Direct Routing",
+      "BYOC Cloud and BYOC Premises"
+     ],
+     "answer": 0,
+     "why": "They are listed in the organization article.",
+     "cite": {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    },
+    {
+     "q": "PSTN connections on one location",
+     "choices": [
+      "One",
+      "Three at once",
+      "Unlimited trunks of every type",
+      "None, because Webex has no PSTN"
+     ],
+     "answer": 0,
+     "why": "A location has one PSTN connection.",
+     "cite": {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    },
+    {
+     "q": "Cloud Connected PSTN is",
+     "choices": [
+      "A cloud PSTN partner through Webex",
+      "Your Local Gateway",
+      "A CUBE dial peer by definition",
+      "Bring your own PSTN"
+     ],
+     "answer": 0,
+     "why": "Keep it distinct from the premises gateway.",
+     "cite": {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    },
+    {
+     "q": "The ladder’s outbound INVITE represents",
+     "choices": [
+      "Premises-based PSTN",
+      "Cisco Calling Plan provisioning",
+      "A Teams OPTIONS probe",
+      "SIPREC"
+     ],
+     "answer": 0,
+     "why": "The Local Gateway is on the path.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    },
+    {
+     "q": "ByoPSTN in the get-started terminology means",
+     "choices": [
+      "Bring your own PSTN",
+      "Cloud Connected PSTN",
+      "A wildcard certificate",
+      "An onmicrosoft.com domain"
+     ],
+     "answer": 0,
+     "why": "It is the preferred-architecture name, not the cloud-partner choice.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    },
+    {
+     "q": "A design that attaches both Cloud Connected PSTN and a Local Gateway to one location",
+     "choices": [
+      "Breaks the one-connection rule",
+      "Is required for SRTP",
+      "Is the certificate-based trunk",
+      "Is RFC 5923"
+     ],
+     "answer": 0,
+     "why": "Pick one for that location.",
+     "cite": {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Cisco Calling Plan",
+     "back": "One of the three organization-article choices.",
+     "cite": {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    },
+    {
+     "front": "Cloud Connected PSTN",
+     "back": "A cloud partner through Webex. Not the Local Gateway.",
+     "cite": {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    },
+    {
+     "front": "Local Gateway",
+     "back": "Premises-based PSTN. One connection on the location.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    },
+    {
+     "front": "ByoPSTN",
+     "back": "Bring your own PSTN.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Name this ladder",
+    "kind": "ladder",
+    "prompt": "Step the call. Which PSTN model is on the wire here?",
+    "steps": [
+     "Play the four hops.",
+     "Find 203.0.113.20 and 192.0.2.40.",
+     "Match the path to premises-based PSTN."
+    ],
+    "check": {
+     "q": "This synthetic path is",
+     "choices": [
+      "Premises-based PSTN via Local Gateway",
+      "Cloud Connected PSTN",
+      "Cisco Calling Plan with no gateway",
+      "A Voice Connector bridge into Connect"
+     ],
+     "answer": 0,
+     "why": "The Local Gateway is the premises hop.",
+     "cite": {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    }
+   },
+   "fault": {
+    "title": "Two PSTN connections on one location",
+    "symptom": "Calls from one location sometimes leave through a cloud PSTN partner and sometimes through the Local Gateway. The design enabled both.",
+    "log": "Location: lab-location\nPSTN A: Cloud Connected PSTN\nPSTN B: Local Gateway 203.0.113.20\nINVITE sip:+15551212@192.0.2.40 SIP/2.0\n",
+    "choices": [
+     "A location has one PSTN connection, and these two choices were combined",
+     "RFC 3264 requires both",
+     "Cloud Connected PSTN is the Local Gateway",
+     "SRTP selects the partner automatically"
+    ],
+    "answer": 0,
+    "why": "The organization article allows one connection for the location.",
+    "cause": "Cloud Connected PSTN and premises-based PSTN were both attached.",
+    "fix": "Choose one model for that location. Follow the Local Gateway articles only for the premises choice, and do not describe the cloud partner as a Local Gateway.",
+    "cites": [
+     {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     },
+     {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "connect-boundaries",
+   "title": "Amazon Connect voice boundaries",
+   "minutes": 15,
+   "tags": [
+    "connect",
+    "siprec",
+    "chime"
+   ],
+   "summary": "Ordinary Connect calls use managed PSTN. SIPREC can feed a conversational analytics connector. A carrier bridged through Voice Connector is not the supported pattern.",
+   "objectives": [
+    "Use managed PSTN for ordinary calls",
+    "Place SIPREC on the analytics connector",
+    "Refuse the unapproved Voice Connector bridge"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "What is in bounds",
+    "caption": "Voice Connector remains a SIP trunking service. It is not a shortcut into Connect.",
+    "layers": [
+     {
+      "name": "Managed PSTN",
+      "detail": "Ordinary Connect voice"
+     },
+     {
+      "name": "SIPREC",
+      "detail": "External system to the analytics connector"
+     },
+     {
+      "name": "Voice Connector",
+      "detail": "Chime SDK SIP trunking, separate from that bridge"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Ordinary calls",
+     "paragraphs": [
+      "Connect’s voice channel is managed PSTN. Ordinary calls do not require you to bring a SIP trunk.",
+      "The telephony document is the source for that channel. Do not add a carrier SIP trunk to the design just because a PBX deployment used one."
+     ],
+     "cites": [
+      {
+       "label": "Amazon Connect telephony",
+       "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html"
+      }
+     ]
+    },
+    {
+     "h": "SIPREC is not a call-control trunk",
+     "paragraphs": [
+      "An external voice system can send SIPREC into a conversational analytics connector. RFC 7866 is the recording protocol and RFC 7865 is the metadata. In this synthetic, 203.0.113.20 sends the session toward 198.51.100.30, which stands for the connector.",
+      "The ladder uses one SDP so the lab stays on addresses we can show. A production SIPREC body is the multipart body in those RFCs and in the connector document. Chime SDK Voice Connector is a SIP trunking service. Bridging an external carrier into Connect through Voice Connector is not a supported pattern unless an AWS specialist reviews and approves it."
+     ],
+     "cites": [
+      {
+       "label": "Connect external voice system",
+       "url": "https://docs.aws.amazon.com/connect/latest/adminguide/configure-external-voice-system.html"
+      },
+      {
+       "label": "Connect conversational analytics connector",
+       "url": "https://docs.aws.amazon.com/connect/latest/adminguide/create-contact-lens-connector.html"
+      },
+      {
+       "label": "Amazon Chime SDK Voice Connector",
+       "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/voice-connectors.html"
+      },
+      {
+       "label": "Voice Connector and Connect",
+       "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/vc-connect-integrations.html"
+      },
+      {
+       "label": "RFC 7866",
+       "url": "https://www.rfc-editor.org/rfc/rfc7866"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "SIPREC toward the analytics connector",
+    "parties": [
+     "External voice",
+     "Connector"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "This synthetic shows the signaling relationship. A real SIPREC body is multipart.",
+      "message": "INVITE sip:+15551212@198.51.100.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKsiprec1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=rectag\nTo: <sip:+15551212@example.com>\nCall-ID: siprec-1@example.com\nCSeq: 1 INVITE\nContact: <sip:recorder@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The connector has the recording transaction.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKsiprec1\nFrom: \"Alice\" <sip:alice@example.com>;tag=rectag\nTo: <sip:+15551212@example.com>\nCall-ID: siprec-1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK accepts the recording session in this lab.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKsiprec1\nFrom: \"Alice\" <sip:alice@example.com>;tag=rectag\nTo: <sip:+15551212@example.com>;tag=rectok\nCall-ID: siprec-1@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:connector@198.51.100.30>\nContent-Length: 210\n\nv=0\no=connector 2890844526 2890844526 IN IP4 198.51.100.30\ns=-\nc=IN IP4 198.51.100.30\nt=0 0\nm=audio 32000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK completes the recording dialog. This is not a carrier bridge into a contact flow.",
+      "message": "ACK sip:+15551212@198.51.100.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKsiprecack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=rectag\nTo: <sip:+15551212@example.com>;tag=rectok\nCall-ID: siprec-1@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.20>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Ordinary Amazon Connect voice calls use",
+     "choices": [
+      "Managed PSTN",
+      "A customer SIP trunk as a requirement",
+      "Direct Routing",
+      "A CUBE dial peer as the only path"
+     ],
+     "answer": 0,
+     "why": "You do not bring a SIP trunk for ordinary calls.",
+     "cite": {
+      "label": "Amazon Connect telephony",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html"
+     }
+    },
+    {
+     "q": "SIPREC into Connect is aimed at",
+     "choices": [
+      "A conversational analytics connector",
+      "Replacing the managed PSTN for every call",
+      "A Voice Connector carrier bridge",
+      "CUCM Lua"
+     ],
+     "answer": 0,
+     "why": "The connector document is the target.",
+     "cite": {
+      "label": "Connect conversational analytics connector",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/create-contact-lens-connector.html"
+     }
+    },
+    {
+     "q": "RFC 7866 describes",
+     "choices": [
+      "SIPREC recording sessions",
+      "Teams OPTIONS",
+      "Webex wildcard rules",
+      "HMR reject codes"
+     ],
+     "answer": 0,
+     "why": "RFC 7865 is the metadata companion.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "q": "Chime SDK Voice Connector is",
+     "choices": [
+      "A SIP trunking service",
+      "The managed PSTN product name for ordinary Connect calls",
+      "An AudioCodes IP group",
+      "A Local Gateway"
+     ],
+     "answer": 0,
+     "why": "That is the Voice Connector document.",
+     "cite": {
+      "label": "Amazon Chime SDK Voice Connector",
+      "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/voice-connectors.html"
+     }
+    },
+    {
+     "q": "Bridging a carrier into Connect through Voice Connector is",
+     "choices": [
+      "Not a supported pattern unless an AWS specialist reviews and approves it",
+      "The default how-to in this course",
+      "Required for SIPREC",
+      "The same as managed PSTN"
+     ],
+     "answer": 0,
+     "why": "Do not teach or build that bridge as a standard design.",
+     "cite": {
+      "label": "Voice Connector and Connect",
+      "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/vc-connect-integrations.html"
+     }
+    },
+    {
+     "q": "The synthetic connector address is a stand-in at",
+     "choices": [
+      "198.51.100.30",
+      "sip.pstnhub.microsoft.com",
+      "An onmicrosoft.com domain",
+      "Port 5061 on Teams"
+     ],
+     "answer": 0,
+     "why": "Use the connector document for the real target.",
+     "cite": {
+      "label": "Connect conversational analytics connector",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/create-contact-lens-connector.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Managed PSTN",
+     "back": "Ordinary Connect calls. No customer SIP trunk required.",
+     "cite": {
+      "label": "Amazon Connect telephony",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html"
+     }
+    },
+    {
+     "front": "SIPREC",
+     "back": "External voice into the analytics connector.",
+     "cite": {
+      "label": "Connect conversational analytics connector",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/create-contact-lens-connector.html"
+     }
+    },
+    {
+     "front": "Voice Connector",
+     "back": "Chime SDK SIP trunking service.",
+     "cite": {
+      "label": "Amazon Chime SDK Voice Connector",
+      "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/voice-connectors.html"
+     }
+    },
+    {
+     "front": "Not a bridge",
+     "back": "Carrier through Voice Connector into Connect needs specialist approval.",
+     "cite": {
+      "label": "Voice Connector and Connect",
+      "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/vc-connect-integrations.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Name the recording relationship",
+    "kind": "dissect",
+    "prompt": "Dissect the synthetic SIPREC INVITE. Which address is the Request-URI host?",
+    "message": "INVITE sip:+15551212@198.51.100.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKsiprec1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=rectag\nTo: <sip:+15551212@example.com>\nCall-ID: siprec-1@example.com\nCSeq: 1 INVITE\nContact: <sip:recorder@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "check": {
+     "q": "The Request-URI host is",
+     "choices": [
+      "198.51.100.30",
+      "192.0.2.40",
+      "sip.pstnhub.microsoft.com",
+      "sbc1.example.com"
+     ],
+     "answer": 0,
+     "why": "That stand-in is the connector, not a carrier bridge.",
+     "cite": {
+      "label": "Connect conversational analytics connector",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/create-contact-lens-connector.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "A carrier bridge drawn as if it were supported",
+    "symptom": "A diagram sends the carrier at 192.0.2.40 into Voice Connector and then into Connect contact flows. No specialist review is recorded.",
+    "log": "Design: 192.0.2.40 -> Voice Connector -> Amazon Connect\nINVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKbridge1\nCSeq: 1 INVITE\n",
+    "choices": [
+     "That bridge is not a supported pattern unless an AWS specialist reviews and approves it",
+     "The diagram is the ordinary managed-PSTN path",
+     "SIPREC requires this bridge",
+     "RFC 7866 defines Voice Connector as the contact flow"
+    ],
+    "answer": 0,
+    "why": "Ordinary calls stay on managed PSTN.",
+    "cause": "Voice Connector was used as an unapproved path from a carrier into Connect.",
+    "fix": "Use managed PSTN for ordinary calls. Use the external-voice SIPREC path only toward the conversational analytics connector. Do not implement the carrier bridge unless an AWS specialist reviews and approves it.",
+    "cites": [
+     {
+      "label": "Amazon Connect telephony",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html"
+     },
+     {
+      "label": "Voice Connector and Connect",
+      "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/vc-connect-integrations.html"
+     },
+     {
+      "label": "Connect conversational analytics connector",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/create-contact-lens-connector.html"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "five9-twilio",
+   "title": "Five9 BYO SIP and Twilio trunks",
+   "minutes": 16,
+   "tags": [
+    "five9",
+    "twilio"
+   ],
+   "summary": "Five9 BYO SIP connects your ITSP or gateway to Five9 SBCs. Twilio termination and origination are different directions, with a strict Request-URI rule.",
+   "objectives": [
+    "Define Five9 BYO SIP and the gateway option",
+    "Separate Twilio termination from origination",
+    "Keep origination URLs on the sip scheme"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Twilio directions",
+    "caption": "Five9 is a different provider with its own BYO SIP document.",
+    "columns": [
+     "Direction",
+     "Meaning"
+    ],
+    "rows": [
+     [
+      "Twilio termination",
+      "Your infrastructure toward the PSTN"
+     ],
+     [
+      "Twilio origination",
+      "PSTN calls toward your PBX"
+     ],
+     [
+      "Termination requirements",
+      "Termination URI, plus IP ACL and/or credentials"
+     ],
+     [
+      "Origination URL",
+      "sip scheme. sips is not supported"
+     ],
+     [
+      "Five9 BYO SIP",
+      "Your ITSP or gateway connects to Five9 SBCs"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Five9",
+     "paragraphs": [
+      "BYO SIP means the customer ITSP or gateway connects to Five9 SBCs. A gateway-to-gateway option is documented, and self-service exists for entitled BYO SIP trunk groups.",
+      "This lesson states no country limitation. In the synthetic, 203.0.113.20 is the customer gateway and 192.0.2.40 stands for a Five9 SBC. Use the BYO SIP document for the real peer addresses on an entitled trunk group."
+     ],
+     "cites": [
+      {
+       "label": "Five9 BYO SIP trunking",
+       "url": "https://documentation.five9.com/bundle/byot-sip-trunk-integration/page/byo-sip-trunking/landing-byo-sip-trunking.htm"
+      }
+     ]
+    },
+    {
+     "h": "Twilio termination and origination",
+     "paragraphs": [
+      "Termination is your infrastructure toward the PSTN. It requires a termination URI plus an IP ACL and/or credentials. If the Request-URI does not reference the termination URI, Twilio treats the request as malicious and drops it.",
+      "Origination is PSTN calls toward your PBX via an origination SIP URI. The origination SIP URL schema is sip. The API reference says sips is not supported on origination URLs. In this lab the termination URI host is sbc1.example.com."
+     ],
+     "cites": [
+      {
+       "label": "Twilio Elastic SIP Trunking",
+       "url": "https://www.twilio.com/docs/sip-trunking"
+      },
+      {
+       "label": "Twilio trunk troubleshooting",
+       "url": "https://www.twilio.com/docs/sip-trunking/troubleshooting"
+      },
+      {
+       "label": "Twilio Elastic SIP Trunking API",
+       "url": "https://www.twilio.com/docs/sip-trunking/api"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Request-URI matches the termination URI",
+    "parties": [
+     "PBX",
+     "Twilio"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The Request-URI host is sbc1.example.com, the termination URI in this synthetic.",
+      "message": "INVITE sip:+15551212@sbc1.example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKtwilio1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=twtag\nTo: <sip:+15551212@example.com>\nCall-ID: twilio-term-1@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The request was not dropped.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKtwilio1\nFrom: \"Alice\" <sip:alice@example.com>;tag=twtag\nTo: <sip:+15551212@example.com>\nCall-ID: twilio-term-1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Alerting on the termination attempt.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKtwilio1\nFrom: \"Alice\" <sip:alice@example.com>;tag=twtag\nTo: <sip:+15551212@example.com>;tag=twok\nCall-ID: twilio-term-1@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK is a completed termination setup in the lab.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKtwilio1\nFrom: \"Alice\" <sip:alice@example.com>;tag=twtag\nTo: <sip:+15551212@example.com>;tag=twok\nCall-ID: twilio-term-1@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:sbc@sbc1.example.com>\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Five9 BYO SIP means",
+     "choices": [
+      "The customer ITSP or gateway connects to Five9 SBCs",
+      "Twilio origination",
+      "Managed Connect PSTN",
+      "A Teams wildcard"
+     ],
+     "answer": 0,
+     "why": "That is the BYO SIP trunk document.",
+     "cite": {
+      "label": "Five9 BYO SIP trunking",
+      "url": "https://documentation.five9.com/bundle/byot-sip-trunk-integration/page/byo-sip-trunking/landing-byo-sip-trunking.htm"
+     }
+    },
+    {
+     "q": "Five9 also documents",
+     "choices": [
+      "A gateway-to-gateway option",
+      "A country ban this course should state",
+      "sips origination URLs",
+      "HMR reject codes"
+     ],
+     "answer": 0,
+     "why": "Self-service exists for entitled BYO SIP trunk groups.",
+     "cite": {
+      "label": "Five9 BYO SIP trunking",
+      "url": "https://documentation.five9.com/bundle/byot-sip-trunk-integration/page/byo-sip-trunking/landing-byo-sip-trunking.htm"
+     }
+    },
+    {
+     "q": "Twilio termination requires",
+     "choices": [
+      "A termination URI plus an IP ACL and/or credentials",
+      "Only an origination sips URL",
+      "No Request-URI",
+      "A CUCM MTP"
+     ],
+     "answer": 0,
+     "why": "Termination is your side toward the PSTN.",
+     "cite": {
+      "label": "Twilio Elastic SIP Trunking",
+      "url": "https://www.twilio.com/docs/sip-trunking"
+     }
+    },
+    {
+     "q": "A Request-URI that does not reference the termination URI is",
+     "choices": [
+      "Treated as malicious and dropped",
+      "Converted to OPTIONS",
+      "The origination URL schema",
+      "Answered with SDP automatically"
+     ],
+     "answer": 0,
+     "why": "That is the troubleshooting document.",
+     "cite": {
+      "label": "Twilio trunk troubleshooting",
+      "url": "https://www.twilio.com/docs/sip-trunking/troubleshooting"
+     }
+    },
+    {
+     "q": "Origination SIP URL scheme",
+     "choices": [
+      "sip, and sips is not supported",
+      "sips only",
+      "An IP Contact required by Teams",
+      "tel with no SIP"
+     ],
+     "answer": 0,
+     "why": "The API reference says sips is not supported on origination URLs.",
+     "cite": {
+      "label": "Twilio Elastic SIP Trunking API",
+      "url": "https://www.twilio.com/docs/sip-trunking/api"
+     }
+    },
+    {
+     "q": "Origination means",
+     "choices": [
+      "PSTN calls toward your PBX",
+      "Your INVITE toward the PSTN",
+      "SIPREC to Connect",
+      "A Five9 country list"
+     ],
+     "answer": 0,
+     "why": "It uses the origination SIP URI.",
+     "cite": {
+      "label": "Twilio Elastic SIP Trunking",
+      "url": "https://www.twilio.com/docs/sip-trunking"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "BYO SIP",
+     "back": "Your ITSP or gateway connects to Five9 SBCs.",
+     "cite": {
+      "label": "Five9 BYO SIP trunking",
+      "url": "https://documentation.five9.com/bundle/byot-sip-trunk-integration/page/byo-sip-trunking/landing-byo-sip-trunking.htm"
+     }
+    },
+    {
+     "front": "Entitled groups",
+     "back": "Self-service exists for entitled BYO SIP trunk groups.",
+     "cite": {
+      "label": "Five9 BYO SIP trunking",
+      "url": "https://documentation.five9.com/bundle/byot-sip-trunk-integration/page/byo-sip-trunking/landing-byo-sip-trunking.htm"
+     }
+    },
+    {
+     "front": "Termination URI",
+     "back": "Must appear in the Request-URI or Twilio drops the request.",
+     "cite": {
+      "label": "Twilio trunk troubleshooting",
+      "url": "https://www.twilio.com/docs/sip-trunking/troubleshooting"
+     }
+    },
+    {
+     "front": "sip not sips",
+     "back": "Origination URLs use sip. sips is not supported.",
+     "cite": {
+      "label": "Twilio Elastic SIP Trunking API",
+      "url": "https://www.twilio.com/docs/sip-trunking/api"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the termination Request-URI",
+    "kind": "dissect",
+    "prompt": "The termination URI host in this lab is sbc1.example.com. What host does this INVITE use?",
+    "message": "INVITE sip:+15551212@sbc1.example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKtwilio1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=twtag\nTo: <sip:+15551212@example.com>\nCall-ID: twilio-term-1@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "check": {
+     "q": "The Request-URI host is",
+     "choices": [
+      "sbc1.example.com",
+      "192.0.2.40",
+      "198.51.100.30",
+      "sip.pstnhub.microsoft.com"
+     ],
+     "answer": 0,
+     "why": "A different host would be dropped.",
+     "cite": {
+      "label": "Twilio trunk troubleshooting",
+      "url": "https://www.twilio.com/docs/sip-trunking/troubleshooting"
+     }
+    }
+   },
+   "fault": {
+    "title": "Request-URI missed the termination URI",
+    "symptom": "Twilio drops the INVITE. The termination URI host is sbc1.example.com. The request targets 192.0.2.40.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKtwilio9\nFrom: \"Alice\" <sip:alice@example.com>;tag=twtag\nTo: <sip:+15551212@example.com>\nCall-ID: twilio-term-1@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nContent-Length: 0\n",
+    "choices": [
+     "The Request-URI does not reference the termination URI, so Twilio drops it",
+     "sips is required on origination and this is origination",
+     "Five9 country rules blocked the call",
+     "CSeq OPTIONS would fix a termination URI"
+    ],
+    "answer": 0,
+    "why": "The troubleshooting document describes this drop.",
+    "cause": "The Request-URI host is 192.0.2.40 instead of sbc1.example.com.",
+    "fix": "Send INVITE sip:+15551212@sbc1.example.com with the termination URI you configured, and keep the IP ACL and/or credentials in place. Use a sip origination URL, not sips, when the call is coming toward your PBX.",
+    "cites": [
+     {
+      "label": "Twilio trunk troubleshooting",
+      "url": "https://www.twilio.com/docs/sip-trunking/troubleshooting"
+     },
+     {
+      "label": "Twilio Elastic SIP Trunking",
+      "url": "https://www.twilio.com/docs/sip-trunking"
+     },
+     {
+      "label": "Twilio Elastic SIP Trunking API",
+      "url": "https://www.twilio.com/docs/sip-trunking/api"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "genesys-cxone",
+   "title": "Genesys BYOC and NICE CXone SIP",
+   "minutes": 16,
+   "tags": [
+    "genesys",
+    "cxone",
+    "byoc"
+   ],
+   "summary": "BYOC Cloud and BYOC Premises can be combined. NICE CXone documents SIP trunks on 5060 and 5061 with dynamic RTP and SRTP. Confirm carrier details with NICE.",
+   "objectives": [
+    "Separate BYOC Cloud from BYOC Premises",
+    "Keep the hardware date on the Genesys Hardware Solution",
+    "State CXone ports without inventing a BYOC menu"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Two vendors, documented scopes",
+    "caption": "December 1, 2026 applies to the Genesys Hardware Solution.",
+    "columns": [
+     "Topic",
+     "Documented fact"
+    ],
+    "rows": [
+     [
+      "BYOC Cloud",
+      "SIP over the public internet to the Genesys media tier"
+     ],
+     [
+      "BYOC Cloud media",
+      "RTP crosses the internet. Far end needs a public address"
+     ],
+     [
+      "BYOC Premises",
+      "Customer-managed Edge"
+     ],
+     [
+      "Hybrid",
+      "Cloud and Premises can be combined"
+     ],
+     [
+      "Genesys Hardware Solution",
+      "Support ends December 1, 2026"
+     ],
+     [
+      "CXone",
+      "SIP trunks, ports 5060 and 5061, dynamic RTP/SRTP"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "BYOC Cloud, Premises, and hybrid",
+     "paragraphs": [
+      "BYOC Cloud is SIP over the public internet to the Genesys media tier. RTP crosses the internet, and the far end needs a public address. In this synthetic those roles are 203.0.113.20 and 192.0.2.40.",
+      "BYOC Premises is a customer-managed Edge. The two can be combined with hybrid media. The BYOC Premises article says Genesys Hardware Solution support ends December 1, 2026. That date is not a date for Customer Hardware."
+     ],
+     "cites": [
+      {
+       "label": "Genesys BYOC Cloud overview",
+       "url": "https://help.genesys.cloud/articles/byoc-cloud-overview/"
+      },
+      {
+       "label": "About BYOC Cloud",
+       "url": "https://help.genesys.cloud/articles/about-byoc-cloud/"
+      },
+      {
+       "label": "About BYOC Premises",
+       "url": "https://help.genesys.cloud/articles/about-byoc-premises/"
+      },
+      {
+       "label": "BYOC Cloud with BYOC Premises",
+       "url": "https://help.genesys.cloud/faqs/can-i-use-byoc-cloud-with-byoc-premises/"
+      }
+     ]
+    },
+    {
+     "h": "NICE CXone, only what those two pages say",
+     "paragraphs": [
+      "The CXone connectivity and port documents describe SIP trunks, ports 5060 and 5061, and dynamic RTP and SRTP. This lesson does not invent a BYOC menu.",
+      "Account-specific carrier connectivity must be confirmed with NICE. Do not copy a Genesys public-address rule or a port range from another vendor into a CXone design."
+     ],
+     "cites": [
+      {
+       "label": "NiCE CXone connectivity",
+       "url": "https://help.nicecxone.com/content/globalfeatures/connectivity/connectivityincxone.htm"
+      },
+      {
+       "label": "NiCE CXone ports",
+       "url": "https://help.nicecxone.com/content/platformrequirements/ports.htm"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "BYOC Cloud signaling in the synthetic",
+    "parties": [
+     "Customer SBC",
+     "Genesys media"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "SIP crosses the public internet. 203.0.113.20 stands in for the customer’s public SBC.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKbyoc01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=byoctag\nTo: <sip:+15551212@example.com>\nCall-ID: byoc-1@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The media tier has the transaction.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKbyoc01\nFrom: \"Alice\" <sip:alice@example.com>;tag=byoctag\nTo: <sip:+15551212@example.com>\nCall-ID: byoc-1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer c= is 192.0.2.40. RTP will cross the internet to a public address.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKbyoc01\nFrom: \"Alice\" <sip:alice@example.com>;tag=byoctag\nTo: <sip:+15551212@example.com>;tag=genok\nCall-ID: byoc-1@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:media@192.0.2.40>\nContent-Length: 202\n\nv=0\no=carrier 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 24000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK completes the dialog. Premises Edges are a separate BYOC choice.",
+      "message": "ACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKbyocack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=byoctag\nTo: <sip:+15551212@example.com>;tag=genok\nCall-ID: byoc-1@example.com\nCSeq: 1 ACK\nContact: <sip:alice@sbc1.example.com>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "BYOC Cloud signaling is",
+     "choices": [
+      "SIP over the public internet to the Genesys media tier",
+      "A private Edge with no public address required",
+      "Teams Direct Routing",
+      "Twilio origination sips"
+     ],
+     "answer": 0,
+     "why": "RTP also crosses the internet.",
+     "cite": {
+      "label": "Genesys BYOC Cloud overview",
+      "url": "https://help.genesys.cloud/articles/byoc-cloud-overview/"
+     }
+    },
+    {
+     "q": "The BYOC Cloud far end needs",
+     "choices": [
+      "A public address",
+      "An onmicrosoft.com domain",
+      "A wildcard forbidden by Teams",
+      "No RTP"
+     ],
+     "answer": 0,
+     "why": "The about article describes that public path.",
+     "cite": {
+      "label": "About BYOC Cloud",
+      "url": "https://help.genesys.cloud/articles/about-byoc-cloud/"
+     }
+    },
+    {
+     "q": "BYOC Premises is",
+     "choices": [
+      "A customer-managed Edge",
+      "Always the Genesys Hardware Solution",
+      "Cloud Connected PSTN",
+      "A CXone BYOC menu"
+     ],
+     "answer": 0,
+     "why": "It can be combined with BYOC Cloud as hybrid media.",
+     "cite": {
+      "label": "About BYOC Premises",
+      "url": "https://help.genesys.cloud/articles/about-byoc-premises/"
+     }
+    },
+    {
+     "q": "December 1, 2026 is the end of support for",
+     "choices": [
+      "The Genesys Hardware Solution",
+      "Customer Hardware",
+      "All BYOC Cloud trunks",
+      "NICE CXone SIP"
+     ],
+     "answer": 0,
+     "why": "Do not extend the date to Customer Hardware.",
+     "cite": {
+      "label": "About BYOC Premises",
+      "url": "https://help.genesys.cloud/articles/about-byoc-premises/"
+     }
+    },
+    {
+     "q": "CXone signaling ports in the port document include",
+     "choices": [
+      "5060 and 5061",
+      "Only 5061 on pstnhub",
+      "Only dynamic ports with no SIP port",
+      "443 as the SIP port"
+     ],
+     "answer": 0,
+     "why": "RTP and SRTP ports are dynamic.",
+     "cite": {
+      "label": "NiCE CXone ports",
+      "url": "https://help.nicecxone.com/content/platformrequirements/ports.htm"
+     }
+    },
+    {
+     "q": "CXone carrier connectivity is",
+     "choices": [
+      "Account-specific and confirmed with NICE",
+      "A BYOC menu this lesson can name",
+      "The same public-address rule as BYOC Cloud",
+      "Optional because SIP trunks are undocumented"
+     ],
+     "answer": 0,
+     "why": "The two CXone cites do not invent that menu.",
+     "cite": {
+      "label": "NiCE CXone connectivity",
+      "url": "https://help.nicecxone.com/content/globalfeatures/connectivity/connectivityincxone.htm"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "BYOC Cloud",
+     "back": "Public internet SIP. RTP crosses the internet.",
+     "cite": {
+      "label": "Genesys BYOC Cloud overview",
+      "url": "https://help.genesys.cloud/articles/byoc-cloud-overview/"
+     }
+    },
+    {
+     "front": "BYOC Premises",
+     "back": "Customer-managed Edge. Hybrid media is allowed.",
+     "cite": {
+      "label": "BYOC Cloud with BYOC Premises",
+      "url": "https://help.genesys.cloud/faqs/can-i-use-byoc-cloud-with-byoc-premises/"
+     }
+    },
+    {
+     "front": "December 1, 2026",
+     "back": "Genesys Hardware Solution only.",
+     "cite": {
+      "label": "About BYOC Premises",
+      "url": "https://help.genesys.cloud/articles/about-byoc-premises/"
+     }
+    },
+    {
+     "front": "CXone ports",
+     "back": "5060 and 5061, plus dynamic RTP/SRTP.",
+     "cite": {
+      "label": "NiCE CXone ports",
+      "url": "https://help.nicecxone.com/content/platformrequirements/ports.htm"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Whose date is it?",
+    "kind": "ladder",
+    "prompt": "Play the BYOC Cloud ladder, then answer from the Premises article rather than from the SIP itself.",
+    "steps": [
+     "Play the four hops.",
+     "Notice RTP addresses are public stand-ins.",
+     "Apply the hardware date only where the article puts it."
+    ],
+    "check": {
+     "q": "December 1, 2026 ends support for",
+     "choices": [
+      "The Genesys Hardware Solution",
+      "Customer Hardware",
+      "Every CXone tenant",
+      "Twilio origination URLs"
+     ],
+     "answer": 0,
+     "why": "The Premises article names the Genesys Hardware Solution.",
+     "cite": {
+      "label": "About BYOC Premises",
+      "url": "https://help.genesys.cloud/articles/about-byoc-premises/"
+     }
+    }
+   },
+   "fault": {
+    "title": "The hardware date applied too widely",
+    "symptom": "A maintenance plan decommissions Customer Hardware Edges on December 1, 2026 because that date appears in the BYOC Premises article.",
+    "log": "Note: decommission Customer Hardware on December 1, 2026\nOPTIONS sip:sbc1.example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKedge01\nCSeq: 1 OPTIONS\nCall-ID: edge-1@example.com\nSIP/2.0 200 OK\nCSeq: 1 OPTIONS\n",
+    "choices": [
+     "The date covers the Genesys Hardware Solution, not Customer Hardware",
+     "The 200 OK means the date applies to every Edge",
+     "BYOC Cloud forbids a public address",
+     "CXone uses this date as a BYOC menu"
+    ],
+    "answer": 0,
+    "why": "The article names one hardware program.",
+    "cause": "The Genesys Hardware Solution date was copied onto Customer Hardware.",
+    "fix": "Leave Customer Hardware on the support terms in the current BYOC Premises article. Keep December 1, 2026 on the Genesys Hardware Solution. Confirm CXone carrier connectivity with NICE separately.",
+    "cites": [
+     {
+      "label": "About BYOC Premises",
+      "url": "https://help.genesys.cloud/articles/about-byoc-premises/"
+     },
+     {
+      "label": "BYOC Cloud with BYOC Premises",
+      "url": "https://help.genesys.cloud/faqs/can-i-use-byoc-cloud-with-byoc-premises/"
+     },
+     {
+      "label": "NiCE CXone connectivity",
+      "url": "https://help.nicecxone.com/content/globalfeatures/connectivity/connectivityincxone.htm"
+     }
+    ]
+   },
+   "level": "Advanced"
+  }
+ ]
+}

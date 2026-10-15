@@ -1,0 +1,2082 @@
+{
+ "id": "routing",
+ "title": "Registration, DNS, and routing",
+ "summary": "Bindings, DNS location, loose routing, outbound flows, Path, Service-Route, GRUU, and forking.",
+ "level": "Core",
+ "order": 4,
+ "lessons": [
+  {
+   "id": "register",
+   "title": "REGISTER and bindings",
+   "minutes": 14,
+   "tags": [
+    "register",
+    "bindings"
+   ],
+   "summary": "REGISTER binds an address-of-record to one or more Contacts, and the registrar is a different role from the proxy.",
+   "objectives": [
+    "Point To at the address-of-record and Contact at the binding",
+    "Refresh with the same Call-ID and a higher CSeq",
+    "Handle 423 by raising the expiry to Min-Expires"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Binding operations",
+    "caption": "The 200 OK lists the bindings the registrar is holding after the request.",
+    "columns": [
+     "Request",
+     "Result",
+     "Notes"
+    ],
+    "rows": [
+     [
+      "Contact with expires",
+      "Add or refresh one binding",
+      "Expires header or the expires parameter"
+     ],
+     [
+      "expires=0 on one Contact",
+      "Remove that binding",
+      "Other Contacts stay"
+     ],
+     [
+      "Contact: * and Expires: 0",
+      "Remove every binding",
+      "No other Contact on that request"
+     ],
+     [
+      "Too short",
+      "423 Interval Too Brief",
+      "Min-Expires says the floor"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "The registrar writes, the proxy reads",
+     "paragraphs": [
+      "Section 10 makes REGISTER the way a UA publishes a Contact for an address-of-record. The To URI is that address-of-record. The Contact URI is the binding. A proxy later consults the location service when an INVITE arrives for the address-of-record.",
+      "The registrar and the proxy are different roles. One product often runs both, and the trace still shows REGISTER going to the registrar function and INVITE going to the proxy function. REGISTER does not create a dialog you can BYE. You refresh it with another REGISTER."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §10",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+      },
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      }
+     ]
+    },
+    {
+     "h": "Ordering, challenge, and the floor",
+     "paragraphs": [
+      "Use one Call-ID for the binding and increase CSeq on each REGISTER. The 200 OK returns the current bindings. A 401 carries WWW-Authenticate, and the retry carries Authorization. That challenge is section 22, the same digest model as other UAS challenges, not a 407.",
+      "If the requested expiry is shorter than the registrar allows, the response is 423 Interval Too Brief and it includes Min-Expires. Retry with an expiry at least that large. A q parameter on Contact is a preference from 0 to 1, and a larger q is preferred when a proxy forks."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §10",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+      },
+      {
+       "label": "RFC 3261 §22",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+      },
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Challenge, then a binding",
+    "parties": [
+     "UA",
+     "Registrar"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "REGISTER",
+      "kind": "req",
+      "note": "To is the address-of-record. Contact is the binding. Expires is 3600.",
+      "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKreg1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>\nCall-ID: reg-1@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;expires=3600\nExpires: 3600\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "401",
+      "kind": "err",
+      "note": "WWW-Authenticate is a registrar challenge. This is not a dialog.",
+      "message": "SIP/2.0 401 Unauthorized\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKreg1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>;tag=regtag\nCall-ID: reg-1@example.com\nCSeq: 1 REGISTER\nWWW-Authenticate: Digest realm=\"example.com\", nonce=\"abc123\", algorithm=MD5\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "REGISTER",
+      "kind": "req",
+      "note": "Same Call-ID, CSeq 2, Authorization present. The binding is requested again.",
+      "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKreg2\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>\nCall-ID: reg-1@example.com\nCSeq: 2 REGISTER\nContact: <sip:alice@203.0.113.10>;expires=3600\nAuthorization: Digest realm=\"example.com\", nonce=\"abc123\", uri=\"sip:example.com\", response=\"00000000000000000000000000000000\"\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK lists the Contact the registrar stored.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKreg2\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>;tag=regtag\nCall-ID: reg-1@example.com\nCSeq: 2 REGISTER\nContact: <sip:alice@203.0.113.10>;expires=3600\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The address-of-record on REGISTER is",
+     "choices": [
+      "The To URI",
+      "The Via branch",
+      "The SDP origin",
+      "Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "Contact is the device. To is the identity being bound.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    },
+    {
+     "q": "A registrar is",
+     "choices": [
+      "The role that stores bindings, distinct from the proxy role",
+      "Required to transcode",
+      "The same transaction as INVITE",
+      "Defined only in RFC 7118"
+     ],
+     "answer": 0,
+     "why": "Products combine them. The specification separates them.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    },
+    {
+     "q": "423 Interval Too Brief includes",
+     "choices": [
+      "Min-Expires",
+      "RSeq",
+      "Refer-To",
+      "A route set"
+     ],
+     "answer": 0,
+     "why": "The retry uses an expiry greater than or equal to that value.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    },
+    {
+     "q": "Removing every binding uses",
+     "choices": [
+      "Contact: * and Expires: 0",
+      "BYE",
+      "CANCEL",
+      "Max-Forwards: 0"
+     ],
+     "answer": 0,
+     "why": "The star form is alone. Other Contacts are not listed on that request.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    },
+    {
+     "q": "A higher Contact q value",
+     "choices": [
+      "Is preferred when the proxy forks",
+      "Deletes the binding",
+      "Sets the TLS port",
+      "Replaces Call-ID"
+     ],
+     "answer": 0,
+     "why": "q runs from 0 to 1. Larger is more preferred.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    },
+    {
+     "q": "REGISTER is refreshed by",
+     "choices": [
+      "Another REGISTER with a higher CSeq",
+      "BYE",
+      "ACK",
+      "A new To tag only"
+     ],
+     "answer": 0,
+     "why": "Keep the Call-ID so the registrar can order the CSeq.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "To on REGISTER",
+     "back": "The address-of-record being bound.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    },
+    {
+     "front": "Contact",
+     "back": "The binding: where requests for that address-of-record can go.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    },
+    {
+     "front": "423",
+     "back": "Interval Too Brief. Read Min-Expires and retry.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "front": "Contact: *",
+     "back": "With Expires: 0, removes all bindings for the address-of-record.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the 423",
+    "kind": "dissect",
+    "prompt": "The registrar rejected the interval. The header you need is Min-Expires.",
+    "steps": [
+     "Dissect the 423.",
+     "Read Min-Expires.",
+     "Decide the next Expires value."
+    ],
+    "message": "SIP/2.0 423 Interval Too Brief\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKreg1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>;tag=regtag\nCall-ID: reg-1@example.com\nCSeq: 1 REGISTER\nMin-Expires: 3600\nContent-Length: 0\n",
+    "check": {
+     "q": "The next REGISTER expiry must be at least",
+     "choices": [
+      "3600 seconds",
+      "90 seconds",
+      "70",
+      "0"
+     ],
+     "answer": 0,
+     "why": "Min-Expires on this response is 3600. 90 is the session-timer floor, not this header.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    }
+   },
+   "fault": {
+    "title": "BYE sent to unregister",
+    "symptom": "A phone sends BYE to the registrar to clear a binding. The registrar answers 481 and the Contact remains.",
+    "log": "BYE sip:example.com SIP/2.0\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>\nCall-ID: reg-1@example.com\nCSeq: 3 BYE\n\nSIP/2.0 481 Call/Transaction Does Not Exist",
+    "choices": [
+     "REGISTER with expires 0 removes a binding. BYE is not registration.",
+     "481 means the binding was removed",
+     "CSeq 3 deletes every Contact",
+     "The To URI must be a GRUU"
+    ],
+    "answer": 0,
+    "why": "Registration is not a dialog. There is nothing for BYE to terminate.",
+    "cause": "The client used the dialog teardown method on the registrar.",
+    "fix": "Send REGISTER with the same Call-ID, the next CSeq, and Contact expires=0. Use Contact: * and Expires: 0 only when every binding should go.",
+    "cites": [
+     {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "dns-3263",
+   "title": "Locating a server with RFC 3263",
+   "minutes": 13,
+   "tags": [
+    "dns",
+    "naptr",
+    "srv"
+   ],
+   "summary": "RFC 3263 turns a SIP domain into a transport, a port, and an address with NAPTR, SRV, and A or AAAA.",
+   "objectives": [
+    "Order NAPTR, then SRV, then A or AAAA",
+    "Name the SIP+D2U, SIP+D2T, and SIPS+D2T services",
+    "Skip the name lookup when the Request-URI is already an IP address"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Lookup order",
+    "caption": "An explicit transport or port skips the records that are no longer needed. A numeric IP skips the name.",
+    "nodes": [
+     "NAPTR",
+     "SRV",
+     "A/AAAA",
+     "Send"
+    ]
+   },
+   "sections": [
+    {
+     "h": "The domain is not the socket",
+     "paragraphs": [
+      "When the Request-URI host is a domain and the URI does not already dictate transport and port, RFC 3263 starts with NAPTR. The services you will see are SIP+D2U for UDP, SIP+D2T for TCP, and SIPS+D2T for TLS. The NAPTR result names the SRV name to query.",
+      "SRV returns a host name and a port. A or AAAA turns that host into an address. The client then writes Via with the transport it selected and sends the SIP request. The DNS messages are not SIP messages. They happen before the first arrow on this ladder."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3263",
+       "url": "https://www.rfc-editor.org/rfc/rfc3263"
+      },
+      {
+       "label": "RFC 3261 §18",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+      }
+     ]
+    },
+    {
+     "h": "What you skip",
+     "paragraphs": [
+      "A numeric IP address in the Request-URI does not need NAPTR or SRV. An explicit port skips the SRV lookup and goes to A or AAAA. An explicit transport parameter selects the NAPTR service instead of leaving the choice open.",
+      "Hard-coding 198.51.100.30 will place the next request on that address and will not notice when the SRV target moves. Keep the domain in the Request-URI when you want RFC 3263 to run, and keep the documentation ranges of RFC 5737 out of production."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3263",
+       "url": "https://www.rfc-editor.org/rfc/rfc3263"
+      },
+      {
+       "label": "RFC 5737",
+       "url": "https://www.rfc-editor.org/rfc/rfc5737"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "SIP after the lookup",
+    "parties": [
+     "UA",
+     "Proxy",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "NAPTR on example.com selected SIP+D2U, SRV returned port 5060, and A returned 198.51.100.30.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdns1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Type: application/sdp\nContent-Length: 242\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The proxy is the host DNS selected. 100 is still hop by hop.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdns1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The proxy retargets to the peer address. That next hop may have used DNS of its own.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKdns2\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdns1\nMax-Forwards: 69\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Type: application/sdp\nContent-Length: 242\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The response follows Via. DNS is not consulted to reverse a response.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKdns2\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdns1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Type: application/sdp\nContent-Length: 197\n\nv=0\no=peer 10 11 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "RFC 3263 specifies",
+     "choices": [
+      "DNS location of SIP servers",
+      "The branch cookie",
+      "Session timers",
+      "PRACK"
+     ],
+     "answer": 0,
+     "why": "NAPTR, SRV, and A or AAAA are the chain.",
+     "cite": {
+      "label": "RFC 3263",
+      "url": "https://www.rfc-editor.org/rfc/rfc3263"
+     }
+    },
+    {
+     "q": "SIP+D2U selects",
+     "choices": [
+      "UDP",
+      "TLS",
+      "WebSocket",
+      "A telephone URI"
+     ],
+     "answer": 0,
+     "why": "SIP+D2T is TCP. SIPS+D2T is TLS.",
+     "cite": {
+      "label": "RFC 3263",
+      "url": "https://www.rfc-editor.org/rfc/rfc3263"
+     }
+    },
+    {
+     "q": "SRV is used to learn",
+     "choices": [
+      "Host name and port",
+      "The To tag",
+      "The codec list",
+      "Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "A or AAAA then resolves the host.",
+     "cite": {
+      "label": "RFC 3263",
+      "url": "https://www.rfc-editor.org/rfc/rfc3263"
+     }
+    },
+    {
+     "q": "A Request-URI that is already an IP address",
+     "choices": [
+      "Skips NAPTR and SRV",
+      "Requires a NAPTR query for the IP",
+      "Is illegal",
+      "Forces TLS"
+     ],
+     "answer": 0,
+     "why": "There is no domain to look up.",
+     "cite": {
+      "label": "RFC 3263",
+      "url": "https://www.rfc-editor.org/rfc/rfc3263"
+     }
+    },
+    {
+     "q": "SIPS+D2T means",
+     "choices": [
+      "TLS over TCP",
+      "UDP with a certificate",
+      "A GRUU",
+      "Compact Via"
+     ],
+     "answer": 0,
+     "why": "SIPS selects a protected transport. D2T is the TCP service.",
+     "cite": {
+      "label": "RFC 3263",
+      "url": "https://www.rfc-editor.org/rfc/rfc3263"
+     }
+    },
+    {
+     "q": "Responses find the previous hop by",
+     "choices": [
+      "The Via stack",
+      "A fresh NAPTR query",
+      "The Contact q value",
+      "Timer C"
+     ],
+     "answer": 0,
+     "why": "DNS chooses where a request goes. Via chooses where a response goes.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "NAPTR",
+     "back": "Selects the SIP service, such as SIP+D2U or SIP+D2T.",
+     "cite": {
+      "label": "RFC 3263",
+      "url": "https://www.rfc-editor.org/rfc/rfc3263"
+     }
+    },
+    {
+     "front": "SRV",
+     "back": "Host and port for the selected service.",
+     "cite": {
+      "label": "RFC 3263",
+      "url": "https://www.rfc-editor.org/rfc/rfc3263"
+     }
+    },
+    {
+     "front": "A / AAAA",
+     "back": "Addresses for the SRV target.",
+     "cite": {
+      "label": "RFC 3263",
+      "url": "https://www.rfc-editor.org/rfc/rfc3263"
+     }
+    },
+    {
+     "front": "Numeric IP",
+     "back": "No domain lookup. Send to that address.",
+     "cite": {
+      "label": "RFC 3263",
+      "url": "https://www.rfc-editor.org/rfc/rfc3263"
+     }
+    }
+   ],
+   "lab": {
+    "title": "What happened before the INVITE",
+    "kind": "ladder",
+    "prompt": "The first note states the DNS result. The SIP itself contains no NAPTR records.",
+    "steps": [
+     "Read the first hop note.",
+     "Inspect the INVITE Request-URI.",
+     "Name the record that would have supplied a port."
+    ],
+    "check": {
+     "q": "Which record supplies the port?",
+     "choices": [
+      "SRV",
+      "The To tag",
+      "Max-Forwards",
+      "SDP m="
+     ],
+     "answer": 0,
+     "why": "NAPTR picks the service. SRV picks host and port. The m= line is media.",
+     "cite": {
+      "label": "RFC 3263",
+      "url": "https://www.rfc-editor.org/rfc/rfc3263"
+     }
+    }
+   },
+   "fault": {
+    "title": "IP pinned, SRV moved",
+    "symptom": "The peer moved in DNS. The SBC still sends to 192.0.2.40 because the dial-peer target is a literal address. Calls time out.",
+    "log": "dial-peer voice 10 voip\n session target ipv4:192.0.2.40\nDNS SRV for example.com now points at a different host\nINVITE retransmits, no response",
+    "choices": [
+     "The literal target never consults the new SRV",
+     "SRV is consulted on every IP target",
+     "Timer B rewrites DNS",
+     "5060 means use NAPTR even with an IP"
+    ],
+    "answer": 0,
+    "why": "RFC 3263 runs on a domain. An address skips it.",
+    "cause": "The session target was pinned to an address that is no longer the SRV result.",
+    "fix": "Target the domain and let NAPTR and SRV run, or update the address when operations change DNS.",
+    "cites": [
+     {
+      "label": "RFC 3263",
+      "url": "https://www.rfc-editor.org/rfc/rfc3263"
+     },
+     {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "loose-routing",
+   "title": "Loose routing and Max-Forwards",
+   "minutes": 14,
+   "tags": [
+    "lr",
+    "max-forwards",
+    "483"
+   ],
+   "summary": "With lr, the Request-URI stays the remote target, each hop pops its own Route, and Max-Forwards of 0 yields 483.",
+   "objectives": [
+    "Pop a top Route that names this hop",
+    "Leave the Request-URI in place when lr is present",
+    "Return 483 when Max-Forwards arrives as 0"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Two counters on a forwarded request",
+    "caption": "Route is the path. Max-Forwards is the budget. They are not substitutes.",
+    "columns": [
+     "At this hop",
+     "Route",
+     "Max-Forwards"
+    ],
+    "rows": [
+     [
+      "Caller sends",
+      "Edge, then Core",
+      "70"
+     ],
+     [
+      "Edge forwards",
+      "Core only",
+      "69"
+     ],
+     [
+      "Core forwards",
+      "none",
+      "68"
+     ],
+     [
+      "Arrives as 0",
+      "do not forward",
+      "483 Too Many Hops"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Pop yourself, keep the target",
+     "paragraphs": [
+      "A loose router looks at the top Route. If that URI names this hop, the hop removes it. The Request-URI stays the remote target because the Route URI contains lr. The hop then forwards to the next Route, or to the Request-URI when the route set is empty.",
+      "Strict routing is the older behavior for a Route URI without lr. Section 16.4 will rewrite the Request-URI in that case. Proxies that follow RFC 3261 put lr on Record-Route so the target the UAC wrote is still the target at the end of the path."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §16",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+      },
+      {
+       "label": "RFC 3261 §12",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+      }
+     ]
+    },
+    {
+     "h": "The hop budget",
+     "paragraphs": [
+      "The UAC sets Max-Forwards, and the value SHOULD be 70. A proxy that forwards decrements it by one. If a request arrives with Max-Forwards 0, the proxy does not forward it. For an INVITE that means 483 Too Many Hops.",
+      "OPTIONS is the exception that may be answered locally when Max-Forwards is already 0. A loop that should have been a 482 Loop Detected is a different check, based on Via. Do not use 483 as the name for every loop."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §8.1.1.6",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.6"
+      },
+      {
+       "label": "RFC 3261 §16",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+      },
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "BYE with two loose routes",
+    "parties": [
+     "UA",
+     "Edge",
+     "Core",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "BYE",
+      "kind": "req",
+      "note": "Request-URI is the peer. First Route is Edge, and it has lr. Max-Forwards is 70.",
+      "message": "BYE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKlse1\nMax-Forwards: 70\nRoute: <sip:203.0.113.20;lr>\nRoute: <sip:198.51.100.30;lr>\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 3 BYE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "BYE",
+      "kind": "req",
+      "note": "Edge pops its Route. The Request-URI is unchanged. Max-Forwards is 69.",
+      "message": "BYE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKlse2\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKlse1\nMax-Forwards: 69\nRoute: <sip:198.51.100.30;lr>\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 3 BYE\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 3,
+      "label": "BYE",
+      "kind": "req",
+      "note": "Core pops its Route. No Route remains. Max-Forwards is 68.",
+      "message": "BYE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKlse3\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKlse2\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKlse1\nMax-Forwards: 68\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 3 BYE\nContent-Length: 0\n"
+     },
+     {
+      "from": 3,
+      "to": 2,
+      "label": "200",
+      "kind": "res",
+      "note": "The peer answers the BYE. The response follows Via and does not need the Route set.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKlse3\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKlse2\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKlse1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 3 BYE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "With lr, the Request-URI of a mid-dialog request",
+     "choices": [
+      "Stays the remote target while Route hops are popped",
+      "Is replaced by the top Route",
+      "Is removed",
+      "Becomes the branch"
+     ],
+     "answer": 0,
+     "why": "Popping Route is the loose-routing step. Rewriting the Request-URI is the strict-routing step.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "Max-Forwards on a request the UAC creates SHOULD be",
+     "choices": [
+      "70",
+      "0",
+      "1",
+      "5060"
+     ],
+     "answer": 0,
+     "why": "Each forward decrements it by one.",
+     "cite": {
+      "label": "RFC 3261 §8.1.1.6",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.6"
+     }
+    },
+    {
+     "q": "An INVITE that arrives with Max-Forwards 0",
+     "choices": [
+      "Gets 483 and is not forwarded",
+      "Is forwarded with Max-Forwards 70",
+      "Gets 100 Trying and continues",
+      "Becomes a REGISTER"
+     ],
+     "answer": 0,
+     "why": "OPTIONS may be answered locally. An INVITE is not forwarded.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "482 Loop Detected comes from",
+     "choices": [
+      "A Via loop check",
+      "Max-Forwards reaching 0",
+      "A missing lr",
+      "A 422"
+     ],
+     "answer": 0,
+     "why": "483 is the hop budget. 482 is the loop check.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "The first Route on this BYE is",
+     "choices": [
+      "203.0.113.20",
+      "192.0.2.40",
+      "The To tag",
+      "example.com with no lr"
+     ],
+     "answer": 0,
+     "why": "Edge pops that value. Core is the remaining Route.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "q": "A proxy decrements Max-Forwards",
+     "choices": [
+      "When it forwards a request whose value is greater than zero",
+      "On every response",
+      "Only on ACK",
+      "Never, if lr is present"
+     ],
+     "answer": 0,
+     "why": "lr does not freeze the counter. The check for zero happens before the forward.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "lr",
+     "back": "Loose routing. Pop Route, keep the Request-URI.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "front": "Max-Forwards",
+     "back": "Starts at 70. Decremented by each proxy.",
+     "cite": {
+      "label": "RFC 3261 §8.1.1.6",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.6"
+     }
+    },
+    {
+     "front": "483",
+     "back": "Too Many Hops. The request arrived with Max-Forwards 0.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "front": "482",
+     "back": "Loop Detected from a Via loop, not from the hop budget.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Watch Route shrink",
+    "kind": "ladder",
+    "prompt": "Compare the Route headers on the first and second BYE.",
+    "steps": [
+     "Inspect the caller's BYE.",
+     "Inspect Edge's BYE.",
+     "Confirm the Request-URI host did not become the proxy."
+    ],
+    "check": {
+     "q": "After Edge forwards the BYE, the remaining Route is",
+     "choices": [
+      "<sip:198.51.100.30;lr>",
+      "<sip:203.0.113.20;lr>",
+      "absent because Request-URI was rewritten",
+      "the To tag"
+     ],
+     "answer": 0,
+     "why": "Edge removed the Route that named itself. Core is still on the path.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    }
+   },
+   "fault": {
+    "title": "Forwarded with Max-Forwards 0",
+    "symptom": "A proxy receives an INVITE with Max-Forwards 0 and sends it on. The next proxy also forwards it. The loop never returns 483.",
+    "log": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKloop1\nMax-Forwards: 0\n\nProxy log: forwarding INVITE, Max-Forwards still 0",
+    "choices": [
+     "The proxy must return 483 and not forward",
+     "Max-Forwards 0 means unlimited",
+     "483 is only for UDP",
+     "The proxy should reset the value to 70"
+    ],
+    "answer": 0,
+    "why": "Zero means the budget is spent. Decrement happens only when the value is greater than zero and the proxy is actually forwarding.",
+    "cause": "The hop-count check was skipped.",
+    "fix": "If Max-Forwards is 0, send 483 Too Many Hops for this INVITE. Do not put it back to 70.",
+    "cites": [
+     {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     },
+     {
+      "label": "RFC 3261 §8.1.1.6",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.6"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "outbound",
+   "title": "Outbound, reg-id, and keepalives",
+   "minutes": 13,
+   "tags": [
+    "outbound",
+    "rfc5626"
+   ],
+   "summary": "RFC 5626 binds a UA instance to one or more flows with reg-id and +sip.instance, and keepalives hold those flows open.",
+   "objectives": [
+    "Read reg-id and +sip.instance on Contact",
+    "Tell a second flow from a refresh of the first",
+    "Name the keepalive used on TCP and on UDP"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Same instance, two flows",
+    "caption": "The instance URN stays. reg-id changes when the flow changes.",
+    "columns": [
+     "Contact parameters",
+     "Meaning",
+     "Action"
+    ],
+    "rows": [
+     [
+      "same instance, same reg-id",
+      "Refresh this flow",
+      "Replace the binding"
+     ],
+     [
+      "same instance, new reg-id",
+      "Another flow",
+      "Keep both"
+     ],
+     [
+      "Supported: outbound",
+      "UA wants outbound procedures",
+      "Edge must agree"
+     ],
+     [
+      "keepalive",
+      "Not a SIP request",
+      "CRLF on TCP, STUN on UDP"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "An instance and a flow",
+     "paragraphs": [
+      "RFC 5626 identifies the UA instance with the Contact parameter +sip.instance, whose value is a URN, commonly a UUID URN. reg-id is a positive integer that names one registration flow for that instance.",
+      "A second REGISTER with the same instance and a different reg-id is a second flow, which is how a UA keeps a backup path. The same instance and the same reg-id is a refresh of that flow. Supported: outbound is how the UA asks for this behavior. The edge proxy and the registrar use the flow the REGISTER arrived on when they send a later request back."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5626",
+       "url": "https://www.rfc-editor.org/rfc/rfc5626"
+      },
+      {
+       "label": "RFC 3261 §10",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+      }
+     ]
+    },
+    {
+     "h": "Keepalives are not SIP requests",
+     "paragraphs": [
+      "On TCP and TLS the keepalive is a double CRLF. The peer answers with a single CRLF. On UDP the keepalive is STUN. These messages are defined so a NAT binding and the connection stay up, and so a dead flow can be detected.",
+      "A keepalive has no Request-URI, no CSeq, and no dialog. If a trace shows only CRLF on the SIP port, that can be the outbound keepalive rather than a broken INVITE. The SIP registration beside it is what created the flow."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5626",
+       "url": "https://www.rfc-editor.org/rfc/rfc5626"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Two flows, one instance",
+    "parties": [
+     "UA",
+     "Edge"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "REGISTER",
+      "kind": "req",
+      "note": "reg-id 1 and the instance URN. Supported includes outbound.",
+      "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKout1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>\nCall-ID: reg-flow1@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;reg-id=1;+sip.instance=\"<urn:uuid:00000000-0000-0000-0000-000000000001>\"\nSupported: outbound, path\nExpires: 3600\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Require: outbound means this registrar is doing the extension.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKout1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>;tag=out1\nCall-ID: reg-flow1@example.com\nCSeq: 1 REGISTER\nRequire: outbound\nContact: <sip:alice@203.0.113.10>;reg-id=1;+sip.instance=\"<urn:uuid:00000000-0000-0000-0000-000000000001>\";expires=3600\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "REGISTER",
+      "kind": "req",
+      "note": "Same instance, reg-id 2. This is a second flow, not a refresh.",
+      "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKout2\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>\nCall-ID: reg-flow2@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;reg-id=2;+sip.instance=\"<urn:uuid:00000000-0000-0000-0000-000000000001>\"\nSupported: outbound, path\nExpires: 3600\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Both Contacts come back. The instance matches and the reg-id values differ.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKout2\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>;tag=out2\nCall-ID: reg-flow2@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;reg-id=1;+sip.instance=\"<urn:uuid:00000000-0000-0000-0000-000000000001>\";expires=3590\nContact: <sip:alice@203.0.113.10>;reg-id=2;+sip.instance=\"<urn:uuid:00000000-0000-0000-0000-000000000001>\";expires=3600\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "reg-id identifies",
+     "choices": [
+      "One registration flow of a UA instance",
+      "The To tag",
+      "The RTP payload",
+      "A DNS NAPTR service"
+     ],
+     "answer": 0,
+     "why": "The instance URN identifies the UA. reg-id splits its flows.",
+     "cite": {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+     }
+    },
+    {
+     "q": "+sip.instance is",
+     "choices": [
+      "A URN naming the UA instance",
+      "A compact Via",
+      "The session interval",
+      "A telephone-event payload"
+     ],
+     "answer": 0,
+     "why": "It stays constant across reg-id values for that UA.",
+     "cite": {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+     }
+    },
+    {
+     "q": "Same instance and a new reg-id means",
+     "choices": [
+      "Add a flow",
+      "Delete every binding",
+      "Send BYE",
+      "Start Timer A"
+     ],
+     "answer": 0,
+     "why": "Same reg-id would refresh the existing flow.",
+     "cite": {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+     }
+    },
+    {
+     "q": "The TCP keepalive in RFC 5626 is",
+     "choices": [
+      "A double CRLF, answered by a single CRLF",
+      "An OPTIONS ping only",
+      "A second INVITE",
+      "Max-Forwards set to 0"
+     ],
+     "answer": 0,
+     "why": "UDP uses STUN. Neither keepalive is a SIP request.",
+     "cite": {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+     }
+    },
+    {
+     "q": "Outbound is specified in",
+     "choices": [
+      "RFC 5626",
+      "RFC 3263",
+      "RFC 4028",
+      "RFC 3515"
+     ],
+     "answer": 0,
+     "why": "Registration itself remains RFC 3261 section 10. The flow parameters are 5626.",
+     "cite": {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+     }
+    },
+    {
+     "q": "A later request to the UA is sent",
+     "choices": [
+      "On the flow that REGISTER used",
+      "To the AOR host with a fresh NAPTR only",
+      "As a keepalive CRLF",
+      "With no Via"
+     ],
+     "answer": 0,
+     "why": "That is why the flow has to stay open.",
+     "cite": {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "reg-id",
+     "back": "Identifies one flow. A new value is a new flow.",
+     "cite": {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+     }
+    },
+    {
+     "front": "+sip.instance",
+     "back": "URN for the UA instance, stable across flows.",
+     "cite": {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+     }
+    },
+    {
+     "front": "CRLF keepalive",
+     "back": "Double CRLF on connection-oriented transports. Single CRLF answers.",
+     "cite": {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+     }
+    },
+    {
+     "front": "STUN keepalive",
+     "back": "The UDP keepalive in the outbound specification.",
+     "cite": {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Count the flows",
+    "kind": "dissect",
+    "prompt": "Dissect the second 200 OK. Two Contact headers share an instance and differ by reg-id.",
+    "steps": [
+     "Dissect the 200.",
+     "Compare +sip.instance on each Contact.",
+     "Compare reg-id."
+    ],
+    "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKout2\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>;tag=out2\nCall-ID: reg-flow2@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;reg-id=1;+sip.instance=\"<urn:uuid:00000000-0000-0000-0000-000000000001>\";expires=3590\nContact: <sip:alice@203.0.113.10>;reg-id=2;+sip.instance=\"<urn:uuid:00000000-0000-0000-0000-000000000001>\";expires=3600\nContent-Length: 0\n",
+    "check": {
+     "q": "How many outbound flows does this 200 advertise?",
+     "choices": [
+      "2",
+      "1",
+      "0",
+      "70"
+     ],
+     "answer": 0,
+     "why": "reg-id 1 and reg-id 2 are both present for the same instance.",
+     "cite": {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+     }
+    }
+   },
+   "fault": {
+    "title": "Second flow treated as a replacement",
+    "symptom": "The UA registers reg-id 2 for redundancy. The registrar drops reg-id 1. An outage on the second path leaves the UA unreachable.",
+    "log": "REGISTER Contact reg-id=2;+sip.instance=\"<urn:uuid:00000000-0000-0000-0000-000000000001>\"\n200 OK Contact: only reg-id=2\n(reg-id 1 missing)",
+    "choices": [
+     "Same instance and a different reg-id must keep both bindings",
+     "reg-id 2 always deletes reg-id 1",
+     "Outbound forbids two Contacts",
+     "CRLF replaced the first binding"
+    ],
+    "answer": 0,
+    "why": "A refresh reuses reg-id. A new reg-id is an additional flow.",
+    "cause": "The registrar keyed only on the address-of-record and the instance, and ignored reg-id.",
+    "fix": "Store the binding by instance plus reg-id. Return both Contacts in the 200 OK.",
+    "cites": [
+     {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "path-service-route",
+   "title": "Path and Service-Route",
+   "minutes": 13,
+   "tags": [
+    "path",
+    "service-route"
+   ],
+   "summary": "Path is the inbound vector stored with a binding, and Service-Route is the outbound vector the registrar gives the UA.",
+   "objectives": [
+    "Insert Path on REGISTER the way a proxy inserts Record-Route",
+    "Use Service-Route as a preloaded Route for a new request",
+    "Keep the two vectors from being swapped"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "In versus out",
+    "caption": "Both headers look like Route URIs. They are learned at registration and they point in opposite directions.",
+    "layers": [
+     {
+      "name": "Path",
+      "detail": "Edge inserts it. Registrar stores it with the binding."
+     },
+     {
+      "name": "Inbound INVITE",
+      "detail": "Registrar puts that Path on the Route toward the UA."
+     },
+     {
+      "name": "Service-Route",
+      "detail": "Registrar returns it in the 200 OK."
+     },
+     {
+      "name": "Outbound INVITE",
+      "detail": "UA preloads it as Route."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Path is Record-Route for a binding",
+     "paragraphs": [
+      "RFC 3327 defines Path. A proxy between the UA and the registrar inserts a Path URI, with lr, on the REGISTER. The registrar stores that vector with the Contact. The 200 OK echoes Path so the UA can see it.",
+      "When a request later arrives for that address-of-record, the registrar or home proxy places the stored Path into Route so the request reaches the UA through the same edge. Path is not the dialog route set. The dialog route set still comes from Record-Route on the INVITE."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3327",
+       "url": "https://www.rfc-editor.org/rfc/rfc3327"
+      },
+      {
+       "label": "RFC 3261 §10",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+      }
+     ]
+    },
+    {
+     "h": "Service-Route is the way out",
+     "paragraphs": [
+      "RFC 3608 defines Service-Route. The registrar puts it on the 200 OK to REGISTER. The UA saves those URIs and uses them as a preloaded Route on requests that are not yet inside a dialog, such as the first INVITE.",
+      "Service-Route does not tell the network how to reach the UA. Path does that. Swapping them sends the outbound call back at the UA or sends the inbound call at the home proxy with no edge. Supported: path is how the UA indicates it understands the inbound vector."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3608",
+       "url": "https://www.rfc-editor.org/rfc/rfc3608"
+      },
+      {
+       "label": "RFC 3327",
+       "url": "https://www.rfc-editor.org/rfc/rfc3327"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Learn both vectors, then call",
+    "parties": [
+     "UA",
+     "Edge",
+     "Registrar"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "REGISTER",
+      "kind": "req",
+      "note": "Supported: path. No Path header yet. The edge will add it.",
+      "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKpath1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>\nCall-ID: reg-path@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;expires=3600\nSupported: path\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "REGISTER",
+      "kind": "req",
+      "note": "Edge prepends Path: <sip:203.0.113.20;lr> and decrements Max-Forwards.",
+      "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKpath2\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKpath1\nMax-Forwards: 69\nPath: <sip:203.0.113.20;lr>\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>\nCall-ID: reg-path@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;expires=3600\nSupported: path\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The registrar echoes Path and adds Service-Route for the way out.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKpath2\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKpath1\nPath: <sip:203.0.113.20;lr>\nService-Route: <sip:198.51.100.30;lr>\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>;tag=path1\nCall-ID: reg-path@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;expires=3600\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The UA preloads Service-Route as Route. This INVITE is not using Path.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKsr1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nRoute: <sip:198.51.100.30;lr>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Path is defined in",
+     "choices": [
+      "RFC 3327",
+      "RFC 3608",
+      "RFC 5627",
+      "RFC 3263"
+     ],
+     "answer": 0,
+     "why": "3608 is Service-Route. 3327 is Path.",
+     "cite": {
+      "label": "RFC 3327",
+      "url": "https://www.rfc-editor.org/rfc/rfc3327"
+     }
+    },
+    {
+     "q": "Service-Route is used by the UA as",
+     "choices": [
+      "A preloaded Route on a new outbound request",
+      "A replacement for Contact",
+      "The RTP port",
+      "A Via branch"
+     ],
+     "answer": 0,
+     "why": "It is learned from the REGISTER 200 OK.",
+     "cite": {
+      "label": "RFC 3608",
+      "url": "https://www.rfc-editor.org/rfc/rfc3608"
+     }
+    },
+    {
+     "q": "The registrar stores Path",
+     "choices": [
+      "With the binding, for requests toward the UA",
+      "Only in the SDP",
+      "As the From tag",
+      "As Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "Inbound requests get that vector as Route.",
+     "cite": {
+      "label": "RFC 3327",
+      "url": "https://www.rfc-editor.org/rfc/rfc3327"
+     }
+    },
+    {
+     "q": "Path and Record-Route differ because",
+     "choices": [
+      "Path is learned at registration, Record-Route from the dialog",
+      "They are the same header",
+      "Path forbids lr",
+      "Record-Route is only for REGISTER"
+     ],
+     "answer": 0,
+     "why": "A dialog still builds its route set from Record-Route on the INVITE.",
+     "cite": {
+      "label": "RFC 3327",
+      "url": "https://www.rfc-editor.org/rfc/rfc3327"
+     }
+    },
+    {
+     "q": "Supported: path means",
+     "choices": [
+      "The UA understands the Path header",
+      "The UA demands SRTP",
+      "DNS is disabled",
+      "CANCEL is reliable"
+     ],
+     "answer": 0,
+     "why": "The edge can insert Path when the UA has indicated support.",
+     "cite": {
+      "label": "RFC 3327",
+      "url": "https://www.rfc-editor.org/rfc/rfc3327"
+     }
+    },
+    {
+     "q": "Swapping Path and Service-Route",
+     "choices": [
+      "Sends inbound and outbound requests the wrong direction",
+      "Is required by loose routing",
+      "Fixes a 423",
+      "Sets Timer C"
+     ],
+     "answer": 0,
+     "why": "Path aims at the UA through the edge. Service-Route aims the UA at its outbound proxy.",
+     "cite": {
+      "label": "RFC 3608",
+      "url": "https://www.rfc-editor.org/rfc/rfc3608"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Path",
+     "back": "Inbound vector stored with the binding. RFC 3327.",
+     "cite": {
+      "label": "RFC 3327",
+      "url": "https://www.rfc-editor.org/rfc/rfc3327"
+     }
+    },
+    {
+     "front": "Service-Route",
+     "back": "Outbound preloaded route from the registrar. RFC 3608.",
+     "cite": {
+      "label": "RFC 3608",
+      "url": "https://www.rfc-editor.org/rfc/rfc3608"
+     }
+    },
+    {
+     "front": "lr on Path",
+     "back": "The edge URI is loose-routed, same as Record-Route.",
+     "cite": {
+      "label": "RFC 3327",
+      "url": "https://www.rfc-editor.org/rfc/rfc3327"
+     }
+    },
+    {
+     "front": "Preloaded Route",
+     "back": "The UA puts Service-Route into Route on a new INVITE.",
+     "cite": {
+      "label": "RFC 3608",
+      "url": "https://www.rfc-editor.org/rfc/rfc3608"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Which header is outbound?",
+    "kind": "dissect",
+    "prompt": "The 200 OK has both Path and Service-Route. Pick the one the UA will preload.",
+    "steps": [
+     "Dissect the 200.",
+     "Read Path.",
+     "Read Service-Route."
+    ],
+    "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKpath2\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKpath1\nPath: <sip:203.0.113.20;lr>\nService-Route: <sip:198.51.100.30;lr>\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>;tag=path1\nCall-ID: reg-path@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;expires=3600\nContent-Length: 0\n",
+    "check": {
+     "q": "The UA preloads which header on its next INVITE?",
+     "choices": [
+      "Service-Route",
+      "Path",
+      "Via",
+      "Min-Expires"
+     ],
+     "answer": 0,
+     "why": "Path is stored for requests toward the UA. Service-Route is the UA's outbound vector.",
+     "cite": {
+      "label": "RFC 3608",
+      "url": "https://www.rfc-editor.org/rfc/rfc3608"
+     }
+    }
+   },
+   "fault": {
+    "title": "Inbound INVITE skipped the edge",
+    "symptom": "The binding exists, and the INVITE for the UA is sent straight to 203.0.113.10. The edge that inserted Path never sees it, and the NAT binding is dead.",
+    "log": "REGISTER Path: <sip:203.0.113.20;lr>\nContact: <sip:alice@203.0.113.10>\n\nINVITE sip:alice@203.0.113.10 SIP/2.0\n(no Route)",
+    "choices": [
+     "The request toward the UA must use the stored Path as Route",
+     "Path is only a comment",
+     "The Contact IP is always directly reachable",
+     "Service-Route should be stripped from the UA and used inbound"
+    ],
+    "answer": 0,
+    "why": "The Contact address was reachable only through the edge that registered it.",
+    "cause": "The home proxy ignored the stored Path.",
+    "fix": "Put Route: <sip:203.0.113.20;lr> on the request toward that binding, then the Contact.",
+    "cites": [
+     {
+      "label": "RFC 3327",
+      "url": "https://www.rfc-editor.org/rfc/rfc3327"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "gruu",
+   "title": "GRUU and a single instance",
+   "minutes": 12,
+   "tags": [
+    "gruu",
+    "rfc5627"
+   ],
+   "summary": "A GRUU routes to one UA instance, and the registrar returns it as pub-gruu or temp-gruu on the binding.",
+   "objectives": [
+    "Register with Supported: gruu and +sip.instance",
+    "Distinguish a public GRUU from a temporary GRUU",
+    "Expect an AOR to fork and a GRUU to target one instance"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Where the request can land",
+    "caption": "The gr parameter marks a GRUU. The instance URN is what the registrar bound.",
+    "columns": [
+     "Target",
+     "Who answers",
+     "Privacy"
+    ],
+    "rows": [
+     [
+      "AOR sip:alice@example.com",
+      "Any binding, forking allowed",
+      "The identity is the user"
+     ],
+     [
+      "Public GRUU",
+      "That instance",
+      "Stable and shareable"
+     ],
+     [
+      "Temporary GRUU",
+      "That instance",
+      "Hides the AOR and can change"
+     ],
+     [
+      "Contact IP alone",
+      "Whatever is at that socket",
+      "Not a GRUU"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Ask for a URI that means this instance",
+     "paragraphs": [
+      "RFC 5627 defines the GRUU. The UA registers with Supported: gruu and a +sip.instance URN on the Contact. The registrar returns pub-gruu and temp-gruu parameters on that Contact in the 200 OK.",
+      "A public GRUU is stable enough to hand to another party. It is often the address-of-record plus a gr parameter that carries the instance. A temporary GRUU is minted so the far end cannot use it to learn the address-of-record, and the registrar can change it."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5627",
+       "url": "https://www.rfc-editor.org/rfc/rfc5627"
+      },
+      {
+       "label": "RFC 5626",
+       "url": "https://www.rfc-editor.org/rfc/rfc5626"
+      }
+     ]
+    },
+    {
+     "h": "Forking stops at the instance",
+     "paragraphs": [
+      "An INVITE to the address-of-record may fork to every Contact. An INVITE to a GRUU is routed to the instance that registered that GRUU. The gr parameter is the marker that this URI is a GRUU rather than an ordinary address-of-record.",
+      "The home proxy still uses Path or the registered flow to reach the instance. A GRUU does not mean the Contact IP is globally reachable. It means the logical target is one UA, not the whole set of bindings."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5627",
+       "url": "https://www.rfc-editor.org/rfc/rfc5627"
+      },
+      {
+       "label": "RFC 3327",
+       "url": "https://www.rfc-editor.org/rfc/rfc3327"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Register a GRUU, then invite it",
+    "parties": [
+     "UA",
+     "Registrar",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "REGISTER",
+      "kind": "req",
+      "note": "Supported: gruu and +sip.instance. No GRUU exists until the registrar answers.",
+      "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKgr1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>\nCall-ID: reg-gruu@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;+sip.instance=\"<urn:uuid:00000000-0000-0000-0000-000000000001>\"\nSupported: gruu\nExpires: 3600\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "pub-gruu and temp-gruu are parameters on the stored Contact.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKgr1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>;tag=gr1\nCall-ID: reg-gruu@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;pub-gruu=\"sip:alice@example.com;gr=urn:uuid:00000000-0000-0000-0000-000000000001\";temp-gruu=\"sip:tgruu@example.com;gr\";+sip.instance=\"<urn:uuid:00000000-0000-0000-0000-000000000001>\";expires=3600\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The peer targets the public GRUU, including the gr parameter.",
+      "message": "INVITE sip:alice@example.com;gr=urn:uuid:00000000-0000-0000-0000-000000000001 SIP/2.0\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKgrInv\nMax-Forwards: 70\nFrom: <sip:+15551212@example.com>;tag=peer1\nTo: <sip:alice@example.com>\nCall-ID: gruu-call@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nSupported: gruu\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The registrar delivers that INVITE to the one instance. It does not fork to other bindings.",
+      "message": "INVITE sip:alice@203.0.113.10 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKgrFwd\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKgrInv\nMax-Forwards: 69\nFrom: <sip:+15551212@example.com>;tag=peer1\nTo: <sip:alice@example.com>\nCall-ID: gruu-call@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nSupported: gruu\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A GRUU is defined in",
+     "choices": [
+      "RFC 5627",
+      "RFC 3263",
+      "RFC 4028",
+      "RFC 3515"
+     ],
+     "answer": 0,
+     "why": "The instance parameter is also used by outbound, RFC 5626.",
+     "cite": {
+      "label": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627"
+     }
+    },
+    {
+     "q": "pub-gruu differs from temp-gruu because",
+     "choices": [
+      "The public one is stable and the temporary one hides the AOR",
+      "The temporary one forks to every binding",
+      "The public one is a tel URI",
+      "They are both DNS records"
+     ],
+     "answer": 0,
+     "why": "Both target the same instance. They differ in what a peer can learn.",
+     "cite": {
+      "label": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627"
+     }
+    },
+    {
+     "q": "The UA asks for a GRUU with",
+     "choices": [
+      "Supported: gruu and +sip.instance",
+      "Require: 100rel",
+      "Session-Expires",
+      "Contact: *"
+     ],
+     "answer": 0,
+     "why": "The instance URN tells the registrar which UA this is.",
+     "cite": {
+      "label": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627"
+     }
+    },
+    {
+     "q": "An INVITE to the AOR, compared with an INVITE to the GRUU,",
+     "choices": [
+      "May fork, while the GRUU targets one instance",
+      "Always fails",
+      "Cannot carry SDP",
+      "Uses CANCEL instead of ACK"
+     ],
+     "answer": 0,
+     "why": "Forking is a property of multiple bindings. A GRUU selects one.",
+     "cite": {
+      "label": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627"
+     }
+    },
+    {
+     "q": "The gr parameter marks",
+     "choices": [
+      "A URI that is a GRUU",
+      "Loose routing",
+      "A phone number",
+      "The refresher"
+     ],
+     "answer": 0,
+     "why": "lr is loose routing. user=phone is a telephone user part.",
+     "cite": {
+      "label": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627"
+     }
+    },
+    {
+     "q": "A GRUU still needs a path to the device because",
+     "choices": [
+      "The instance may be behind the edge that registered it",
+      "GRUUs are media ports",
+      "RFC 5627 removes Path",
+      "The Contact is always a public IP"
+     ],
+     "answer": 0,
+     "why": "Path or the outbound flow is how the request actually arrives.",
+     "cite": {
+      "label": "RFC 3327",
+      "url": "https://www.rfc-editor.org/rfc/rfc3327"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "pub-gruu",
+     "back": "Stable URI for one UA instance.",
+     "cite": {
+      "label": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627"
+     }
+    },
+    {
+     "front": "temp-gruu",
+     "back": "Instance URI that hides the address-of-record.",
+     "cite": {
+      "label": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627"
+     }
+    },
+    {
+     "front": "+sip.instance",
+     "back": "The URN the registrar binds to those GRUUs.",
+     "cite": {
+      "label": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627"
+     }
+    },
+    {
+     "front": "gr",
+     "back": "URI parameter that marks a GRUU.",
+     "cite": {
+      "label": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Find both GRUUs",
+    "kind": "dissect",
+    "prompt": "The 200 OK Contact carries pub-gruu and temp-gruu.",
+    "steps": [
+     "Dissect the 200.",
+     "Read pub-gruu.",
+     "Read temp-gruu and compare the user."
+    ],
+    "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKgr1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>;tag=gr1\nCall-ID: reg-gruu@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;pub-gruu=\"sip:alice@example.com;gr=urn:uuid:00000000-0000-0000-0000-000000000001\";temp-gruu=\"sip:tgruu@example.com;gr\";+sip.instance=\"<urn:uuid:00000000-0000-0000-0000-000000000001>\";expires=3600\nContent-Length: 0\n",
+    "check": {
+     "q": "Which parameter is the stable instance URI?",
+     "choices": [
+      "pub-gruu",
+      "temp-gruu",
+      "reg-id",
+      "lr"
+     ],
+     "answer": 0,
+     "why": "temp-gruu is the privacy form. pub-gruu is the one you can hand out.",
+     "cite": {
+      "label": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627"
+     }
+    }
+   },
+   "fault": {
+    "title": "GRUU forked anyway",
+    "symptom": "Two phones share sip:alice@example.com. A request to the public GRUU rings both.",
+    "log": "INVITE sip:alice@example.com;gr=urn:uuid:00000000-0000-0000-0000-000000000001 SIP/2.0\nProxy log: forking to Contact A and Contact B",
+    "choices": [
+     "The gr URI must select the one instance that registered it",
+     "Forking is required for every GRUU",
+     "pub-gruu means the AOR",
+     "temp-gruu deletes the binding"
+    ],
+    "answer": 0,
+    "why": "The registrar stored that public GRUU against one +sip.instance.",
+    "cause": "The proxy treated the GRUU as a normal address-of-record and ignored gr.",
+    "fix": "Route a GRUU to the single binding for that instance. Fork only when the target is the address-of-record.",
+    "cites": [
+     {
+      "label": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "forking",
+   "title": "Forking and early dialogs",
+   "minutes": 14,
+   "tags": [
+    "forking",
+    "early-dialog"
+   ],
+   "summary": "A forking proxy creates one client transaction per binding, and each To tag is a separate early dialog.",
+   "objectives": [
+    "Give each branch its own Via branch",
+    "Key early dialogs on the remote tag",
+    "Forward every 2xx and cancel other branches on a 6xx"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "One INVITE, two early dialogs",
+    "caption": "Call-ID and the From tag match. The To tags do not. That is two dialogs.",
+    "nodes": [
+     "INVITE",
+     "Branch A",
+     "Branch B",
+     "Two tags"
+    ]
+   },
+   "sections": [
+    {
+     "h": "One server transaction, many client transactions",
+     "paragraphs": [
+      "A stateful proxy that forks sends a separate client transaction to each target. Each gets its own Via branch. The Call-ID, From tag, and CSeq number stay the ones from the caller. 100 Trying from a downstream branch is not forwarded. The proxy already generated 100 on the upstream hop if it needed to.",
+      "A provisional response with a To tag creates an early dialog for that branch. Two 180 responses with different To tags are two early dialogs, even though the Call-ID matches. The UAC has to keep both."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §16",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+      },
+      {
+       "label": "RFC 3261 §12",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+      }
+     ]
+    },
+    {
+     "h": "What a final response does to the other branches",
+     "paragraphs": [
+      "A 2xx is forwarded immediately, and another 2xx on a different branch is also forwarded. The UAC ACKs each 2xx. The application can BYE the dialog it will not keep. A proxy does not treat the first 200 OK as permission to invent a CANCEL for the others.",
+      "A 6xx is different. The proxy should cancel the client transactions that are still pending and it must not open new branches. It does not forward the 6xx until that cancel step has run, so the caller does not see a 6xx followed by a 2xx. Other 4xx and 5xx responses wait so the proxy can choose the best one after the branches settle."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §16",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+      },
+      {
+       "label": "RFC 3261 §13",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Two early dialogs",
+    "parties": [
+     "Peer",
+     "Proxy",
+     "Phone A",
+     "Phone B"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "One INVITE for the address-of-record. No To tag.",
+      "message": "INVITE sip:alice@example.com SIP/2.0\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKfork0\nMax-Forwards: 70\nFrom: <sip:+15551212@example.com>;tag=peerfork\nTo: <sip:alice@example.com>\nCall-ID: fork-1@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The proxy generates 100. It will not relay 100 from either phone.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKfork0\nFrom: <sip:+15551212@example.com>;tag=peerfork\nTo: <sip:alice@example.com>\nCall-ID: fork-1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Branch z9hG4bKforkA. This client transaction is only for Phone A.",
+      "message": "INVITE sip:alice@203.0.113.10 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKforkA\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKfork0\nMax-Forwards: 69\nFrom: <sip:+15551212@example.com>;tag=peerfork\nTo: <sip:alice@example.com>\nCall-ID: fork-1@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 3,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Branch z9hG4bKforkB. A different transaction for Phone B.",
+      "message": "INVITE sip:alice@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKforkB\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKfork0\nMax-Forwards: 69\nFrom: <sip:+15551212@example.com>;tag=peerfork\nTo: <sip:alice@example.com>\nCall-ID: fork-1@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "To tag tagA. Early dialog number one.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKforkA\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKfork0\nFrom: <sip:+15551212@example.com>;tag=peerfork\nTo: <sip:alice@example.com>;tag=tagA\nCall-ID: fork-1@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 3,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "To tag tagB. Early dialog number two. Same Call-ID, different remote tag.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKforkB\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKfork0\nFrom: <sip:+15551212@example.com>;tag=peerfork\nTo: <sip:alice@example.com>;tag=tagB\nCall-ID: fork-1@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Each forked branch has",
+     "choices": [
+      "Its own Via branch",
+      "The same Via branch",
+      "No Call-ID",
+      "A new From tag"
+     ],
+     "answer": 0,
+     "why": "The branch identifies the client transaction. The dialog tags come later.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "Two 180 responses with different To tags are",
+     "choices": [
+      "Two early dialogs",
+      "Retransmissions of one dialog",
+      "Illegal",
+      "A single confirmed dialog"
+     ],
+     "answer": 0,
+     "why": "Dialog identity includes the To tag. Forking creates more than one.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "q": "100 Trying from a downstream branch",
+     "choices": [
+      "Is not forwarded upstream",
+      "Is forwarded immediately",
+      "Confirms the dialog",
+      "Cancels the other branch"
+     ],
+     "answer": 0,
+     "why": "The proxy generated its own 100. Downstream 100 stays on that hop.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "When one branch sends 200 OK, the proxy",
+     "choices": [
+      "Forwards it and can also forward a later 200 from another branch",
+      "Must CANCEL the others before forwarding",
+      "Converts it to 603",
+      "Drops it"
+     ],
+     "answer": 0,
+     "why": "Multiple 2xx responses are delivered. The UAC ACKs each one.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "A 6xx makes the proxy",
+     "choices": [
+      "Cancel pending branches and open no new ones",
+      "Fork to more Contacts",
+      "Send ACK end to end immediately",
+      "Ignore the response"
+     ],
+     "answer": 0,
+     "why": "The 6xx is forwarded after the other branches are cancelled, so a 2xx does not follow it.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "The UAC handles two 200 OK responses by",
+     "choices": [
+      "ACK both, and BYE the dialog it will not use",
+      "ACK only the first and ignore the second",
+      "Sending CANCEL with a new Call-ID",
+      "Sending REGISTER"
+     ],
+     "answer": 0,
+     "why": "Each 200 is a confirmed dialog. CANCEL will not end it.",
+     "cite": {
+      "label": "RFC 3261 §13",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Fork",
+     "back": "One incoming INVITE, one client transaction per target.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "front": "Early dialog",
+     "back": "A To tag on a provisional response. One per branch.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "front": "Multiple 200 OK",
+     "back": "Forward each. The UAC ACKs each and may BYE the extras.",
+     "cite": {
+      "label": "RFC 3261 §13",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+     }
+    },
+    {
+     "front": "6xx",
+     "back": "Cancel the other pending branches. Do not start new ones.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Separate the tags",
+    "kind": "ladder",
+    "prompt": "Step both 180 responses. The Call-ID matches and the To tags do not.",
+    "steps": [
+     "Play to the first 180.",
+     "Play to the second 180.",
+     "Write down both To tags."
+    ],
+    "check": {
+     "q": "The two early dialogs differ by",
+     "choices": [
+      "The To tag",
+      "The Call-ID",
+      "The From tag",
+      "Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "Call-ID and the From tag are shared. tagA and tagB are different remote tags.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    }
+   },
+   "fault": {
+    "title": "First 200 cancelled the other branch",
+    "symptom": "Phone A answers. The proxy sends CANCEL to Phone B and then Phone B's 200 OK arrives anyway. The caller never sees it.",
+    "log": "SIP/2.0 200 OK\nTo tag=tagA\nProxy log: CANCEL branch z9hG4bKforkB because a 200 arrived\nSIP/2.0 200 OK\nTo tag=tagB\nProxy log: dropped, branch already cancelled",
+    "choices": [
+     "A 2xx must still be forwarded. CANCEL is not how a proxy suppresses a second 200",
+     "The second 200 is illegal once the first exists",
+     "To tags must be equal when forking",
+     "The proxy should ACK tagB itself and discard it"
+    ],
+    "answer": 0,
+    "why": "The specification forwards every 2xx. The UAC decides which dialog to keep.",
+    "cause": "The proxy applied the 6xx cancel rule to a 200 OK.",
+    "fix": "Forward both 200 OK responses. Let the UAC ACK them and send BYE on the dialog it will not use.",
+    "cites": [
+     {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     },
+     {
+      "label": "RFC 3261 §13",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+     }
+    ]
+   },
+   "level": "Core"
+  }
+ ]
+}

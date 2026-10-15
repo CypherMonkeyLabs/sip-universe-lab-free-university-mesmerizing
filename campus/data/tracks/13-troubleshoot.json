@@ -1,0 +1,2410 @@
+{
+ "id": "troubleshoot",
+ "title": "Troubleshooting ladders, captures, and debug",
+ "summary": "Match Call-ID, CSeq, Via branch, and To tag, then read captures and IOS debug as themselves.",
+ "level": "Advanced",
+ "order": 13,
+ "lessons": [
+  {
+   "id": "read-a-ladder",
+   "title": "Match a ladder before you change anything",
+   "minutes": 14,
+   "tags": [
+    "ladder",
+    "dialog",
+    "ack"
+   ],
+   "summary": "A ladder is one dialog only after Call-ID, CSeq, the Via branch, and the To tag agree.",
+   "objectives": [
+    "Match messages that belong to one dialog",
+    "Separate a Via branch from a dialog",
+    "Say where a 2xx ACK travels"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Four fields that tie a ladder",
+    "caption": "Read these before you rename a header or change a route.",
+    "layers": [
+     {
+      "name": "Call-ID",
+      "detail": "Same value on every hop of this dialog"
+     },
+     {
+      "name": "CSeq",
+      "detail": "Number plus method. ACK uses the INVITE number."
+     },
+     {
+      "name": "Via branch",
+      "detail": "Identifies one transaction on one hop"
+     },
+     {
+      "name": "To tag",
+      "detail": "Absent on the first request. Present once the dialog exists."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Match the dialog, then the transaction",
+     "paragraphs": [
+      "Start with Call-ID. Every request and response in this dialog carries the same Call-ID. CSeq is a number and a method: the INVITE that opened the dialog, the responses to it, and the ACK that completes a 2xx all share that number, while the method token changes. A later re-INVITE uses a higher CSeq number.",
+      "The Via branch identifies a single transaction on a single hop. The magic cookie z9hG4bK is how you spot a branch that claims to follow RFC 3261. The To tag is empty on the initial request and present on responses that form the dialog. Matching a response to a request means Call-ID, CSeq, and the Via branch you sent, and then the To tag tells you the dialog exists."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §8",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+      },
+      {
+       "label": "RFC 3261 §17",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+      },
+      {
+       "label": "RFC 3261 §12",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+      },
+      {
+       "label": "RFC 3665",
+       "url": "https://www.rfc-editor.org/rfc/rfc3665"
+      }
+     ]
+    },
+    {
+     "h": "Two different ACKs",
+     "paragraphs": [
+      "The ACK that follows a 200 OK is end to end. It is its own request, it uses a new Via branch, and it is routed toward the Contact from the 200 OK. RFC 3261 defines that split. RFC 6026 corrects how transactions handle 2xx responses to INVITE, including the ACK that belongs with them.",
+      "The ACK that follows a non-2xx final response is hop by hop. It uses the same Via branch as the INVITE it acknowledges, and the previous hop consumes it. When you draw a ladder, label those two ACKs differently. A B2BUA may show you two dialogs; match each leg on its own Call-ID before you decide an ACK is missing."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 3261 §13",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+      },
+      {
+       "label": "RFC 3261 §17",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+      },
+      {
+       "label": "RFC 6026",
+       "url": "https://www.rfc-editor.org/rfc/rfc6026"
+      }
+     ]
+    },
+    {
+     "h": "What the picture is for",
+     "paragraphs": [
+      "RFC 3665 is a set of basic call-flow examples. Use it as a shape for the arrows, then trust the headers in the capture you actually have. A clean ladder names the parties, the method or status, and one sentence about why that hop matters.",
+      "Change a route, a codec list, or a timer only after the ladder says which hop failed. If Call-ID differs, you are looking at two calls. If the branch differs, you are looking at a new transaction. If the To tag is missing on a response that claims to be in-dialog, the dialog was never formed."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3665",
+       "url": "https://www.rfc-editor.org/rfc/rfc3665"
+      },
+      {
+       "label": "RFC 7092",
+       "url": "https://www.rfc-editor.org/rfc/rfc7092"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Match this dialog, then the 2xx ACK",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Early offer. Record Call-ID a84b4c76e66710@example.com, CSeq 1 INVITE, and branch z9hG4bK7766as01. There is no To tag yet.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying is hop by hop. It stops INVITE retransmissions on this hop. It is not ringing and it does not create the dialog.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The B2BUA sends a new INVITE. Expect a new Via branch. The Call-ID on this leg may differ because this SBC is a B2BUA.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 Ringing can carry a To tag and a Contact. That tag is the start of an early dialog if the response is tagged.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "The SBC forwards 180 on the caller leg. Match it by the caller leg's Call-ID and the branch of the INVITE that leg sent.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK carries the answer SDP and a To tag. This is the final success response for CSeq 1 INVITE.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The caller sees the answer only after this forwarded 200. The Contact here is where the end-to-end ACK will be aimed.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "This ACK follows a 2xx, so it is end to end and it uses its own branch. A non-2xx ACK would have reused the INVITE branch and stopped at the previous hop.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Which field identifies one transaction on one hop?",
+     "choices": [
+      "Via branch",
+      "Call-ID alone",
+      "SDP session id",
+      "Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "Call-ID groups the dialog. The branch groups the transaction hop.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "q": "The ACK after 200 OK travels",
+     "choices": [
+      "End to end, with its own branch",
+      "Hop by hop, on the INVITE branch",
+      "Only as far as the first proxy",
+      "Inside the 200 OK"
+     ],
+     "answer": 0,
+     "why": "RFC 3261 separates that ACK from the hop-by-hop ACK used for non-2xx finals. RFC 6026 fixes the 2xx transaction handling.",
+     "cite": {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    },
+    {
+     "q": "The ACK after 487 travels",
+     "choices": [
+      "Hop by hop on the INVITE branch",
+      "End to end like a 2xx ACK",
+      "Only over TLS",
+      "As a response, not a request"
+     ],
+     "answer": 0,
+     "why": "Non-2xx ACKs are part of the INVITE transaction and stop at the next hop.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "q": "A To tag on the initial INVITE means",
+     "choices": [
+      "This request is already in a dialog",
+      "The Call-ID is unique",
+      "The branch is valid",
+      "RTP has started"
+     ],
+     "answer": 0,
+     "why": "A To tag on a request means an existing dialog. A brand-new INVITE omits it.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "q": "100 Trying tells you",
+     "choices": [
+      "This hop received the INVITE and will retransmit less often",
+      "The callee is ringing",
+      "The offer was accepted",
+      "The dialog is confirmed"
+     ],
+     "answer": 0,
+     "why": "100 is hop-by-hop and provisional. Ringing is 180.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "RFC 3665 is useful here because it",
+     "choices": [
+      "Shows basic SIP call-flow examples",
+      "Replaces RFC 3261",
+      "Defines SRTP",
+      "Sets the EF codepoint"
+     ],
+     "answer": 0,
+     "why": "Use it as a picture. The headers in your capture still win.",
+     "cite": {
+      "label": "RFC 3665",
+      "url": "https://www.rfc-editor.org/rfc/rfc3665"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Call-ID",
+     "back": "Same value for the dialog. A B2BUA may use a new one on the other leg.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    },
+    {
+     "front": "CSeq",
+     "back": "Integer plus method. The ACK for an INVITE keeps the INVITE's number.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    },
+    {
+     "front": "Via branch",
+     "back": "Transaction hop id. Look for the z9hG4bK cookie.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "front": "2xx ACK",
+     "back": "End to end. New branch. RFC 6026 corrects the transaction rules around it.",
+     "cite": {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Find the end-to-end ACK",
+    "kind": "ladder",
+    "prompt": "Play the ladder. Which hop is the ACK for the 200 OK, and which branch does it use?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "The ACK after 200 OK is",
+     "choices": [
+      "End to end, on a new branch",
+      "Hop by hop, on z9hG4bK7766as01",
+      "A response code",
+      "Carried inside SDP"
+     ],
+     "answer": 0,
+     "why": "The last hop of this ladder is that ACK. The INVITE branch belongs to the INVITE transaction.",
+     "cite": {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    }
+   },
+   "fault": {
+    "title": "Two calls on one screen",
+    "symptom": "A 200 OK is on the screen and the phone still rings.",
+    "log": "INVITE Call-ID: a84b4c76e66710@example.com CSeq: 1 INVITE branch=z9hG4bK7766as01\nSIP/2.0 200 OK Call-ID: other-call@example.com CSeq: 1 INVITE branch=z9hG4bK7766as01",
+    "choices": [
+     "The 200 belongs to a different Call-ID",
+     "The To tag is optional on every request",
+     "100 Trying already answered the call",
+     "ACK is never required after 200"
+    ],
+    "answer": 0,
+    "why": "Call-ID a84b4c76e66710@example.com and Call-ID other-call@example.com are two dialogs.",
+    "cause": "The success response was matched by branch habit and not by Call-ID.",
+    "fix": "Pair the 200 to the INVITE only when Call-ID, CSeq, and the Via branch agree. Then look for the end-to-end ACK on that same Call-ID.",
+    "cites": [
+     {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     },
+     {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "status-codes",
+   "title": "Status codes you will actually see",
+   "minutes": 15,
+   "tags": [
+    "status",
+    "cancel",
+    "488"
+   ],
+   "summary": "Read provisional and final codes from RFC 3261 section 21, and keep 422 with RFC 4028.",
+   "objectives": [
+    "Separate provisional codes from final ones",
+    "Place 422 with the session-timer RFC",
+    "Use 488 for this UA and 606 for a global refusal"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Codes for this track",
+    "caption": "422 is Session Interval Too Small from RFC 4028. The other rows are the RFC 3261 section 21 phrases this lesson teaches, plus 606.",
+    "columns": [
+     "Code",
+     "Reason phrase",
+     "Where it is defined"
+    ],
+    "rows": [
+     [
+      "100",
+      "Trying",
+      "RFC 3261 §21"
+     ],
+     [
+      "180",
+      "Ringing",
+      "RFC 3261 §21"
+     ],
+     [
+      "183",
+      "Session Progress",
+      "RFC 3261 §21"
+     ],
+     [
+      "200",
+      "OK",
+      "RFC 3261 §21"
+     ],
+     [
+      "302",
+      "Moved Temporarily",
+      "RFC 3261 §21"
+     ],
+     [
+      "401",
+      "Unauthorized",
+      "RFC 3261 §21"
+     ],
+     [
+      "407",
+      "Proxy Authentication Required",
+      "RFC 3261 §21"
+     ],
+     [
+      "408",
+      "Request Timeout",
+      "RFC 3261 §21"
+     ],
+     [
+      "422",
+      "Session Interval Too Small",
+      "RFC 4028"
+     ],
+     [
+      "480",
+      "Temporarily Unavailable",
+      "RFC 3261 §21"
+     ],
+     [
+      "486",
+      "Busy Here",
+      "RFC 3261 §21"
+     ],
+     [
+      "487",
+      "Request Terminated",
+      "RFC 3261 §21"
+     ],
+     [
+      "488",
+      "Not Acceptable Here",
+      "RFC 3261 §21"
+     ],
+     [
+      "500",
+      "Server Internal Error",
+      "RFC 3261 §21"
+     ],
+     [
+      "503",
+      "Service Unavailable",
+      "RFC 3261 §21"
+     ],
+     [
+      "603",
+      "Decline",
+      "RFC 3261 §21"
+     ],
+     [
+      "606",
+      "Not Acceptable",
+      "RFC 3261 §21"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Provisional, success, and redirect",
+     "paragraphs": [
+      "100 Trying is hop by hop and means this hop has the INVITE. 180 Ringing means alerting. 183 Session Progress is the provisional you meet when early media or other progress needs to be signaled before the final answer. None of these three is a final response.",
+      "200 OK is the success final response. 302 Moved Temporarily points at a Contact and steps the redirect server out of the dialog. Read the Contact on the 302 and send a new request; the 302 itself is finished once it has been acknowledged as a non-2xx final on that hop."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      },
+      {
+       "label": "RFC 3261 §8",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+      }
+     ]
+    },
+    {
+     "h": "Challenges, busy, cancel, and server errors",
+     "paragraphs": [
+      "401 Unauthorized is the challenge from a user agent server, commonly a registrar. 407 Proxy Authentication Required is the challenge from a proxy. 408 Request Timeout means the request timed out. 480 Temporarily Unavailable, 486 Busy Here, and 603 Decline are three different refusals: away, busy at this UA, and an explicit decline.",
+      "487 Request Terminated is the final response that follows a successful CANCEL of the INVITE. The CANCEL transaction itself completes with 200 OK and CSeq method CANCEL. 500 Server Internal Error and 503 Service Unavailable are server-side failures. 503 often travels with Retry-After. The ACK for every one of these non-2xx finals is hop by hop."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      },
+      {
+       "label": "RFC 3261 §22",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+      },
+      {
+       "label": "RFC 3261 §17",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+      }
+     ]
+    },
+    {
+     "h": "488, 606, and the code that is not in the base list",
+     "paragraphs": [
+      "488 Not Acceptable Here means this user agent cannot accept the request, often because the session description has no usable overlap. 606 Not Acceptable means the refusal is global: retrying another UA is not expected to help. Keep those two phrases apart when you write the ticket.",
+      "422 Session Interval Too Small is defined in RFC 4028, not in the RFC 3261 section 21 list. The response carries Min-SE. The UAC acknowledges the 422 with a hop-by-hop ACK and sends a new INVITE whose session interval is at least that Min-SE. Quoting 422 as a base RFC 3261 status is the mistake this lesson exists to stop."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 4028",
+       "url": "https://www.rfc-editor.org/rfc/rfc4028"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "CANCEL, then 487",
+    "parties": [
+     "Alice",
+     "SBC"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "CSeq 1 INVITE, branch z9hG4bK7766as01, no To tag yet.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Hop-by-hop Trying. Ringing has not been claimed.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "180 Ringing adds the To tag. This is alerting, still provisional.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "CANCEL",
+      "kind": "req",
+      "note": "CANCEL copies the INVITE branch and the dialog tags received so far. CSeq method is CANCEL.",
+      "message": "CANCEL sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 CANCEL\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "This 200 is for the CANCEL transaction, CSeq 1 CANCEL. It is not the final response to the INVITE.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 CANCEL\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "487",
+      "kind": "res",
+      "note": "487 Request Terminated closes the INVITE after CANCEL.",
+      "message": "SIP/2.0 487 Request Terminated\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "Non-2xx ACK. Same branch as the INVITE. Hop by hop.",
+      "message": "ACK sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "487 Request Terminated follows",
+     "choices": [
+      "A successful CANCEL of the INVITE",
+      "A codec overlap",
+      "A 200 OK",
+      "An OPTIONS probe"
+     ],
+     "answer": 0,
+     "why": "CANCEL completes with 200 and CSeq CANCEL. The INVITE ends in 487.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "422 Session Interval Too Small is defined in",
+     "choices": [
+      "RFC 4028",
+      "RFC 3261 §21",
+      "RFC 3550",
+      "RFC 4594"
+     ],
+     "answer": 0,
+     "why": "Keep 422 off the base status-code list. Min-SE comes back in the 422.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    },
+    {
+     "q": "488 compared with 606",
+     "choices": [
+      "488 is this UA. 606 is a global refusal.",
+      "They are the same code",
+      "606 means ringing",
+      "488 means the proxy lost state"
+     ],
+     "answer": 0,
+     "why": "Not Acceptable Here versus Not Acceptable.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "401 differs from 407 because",
+     "choices": [
+      "401 challenges from a UAS. 407 challenges from a proxy.",
+      "401 is provisional",
+      "407 carries SDP",
+      "401 ends the dialog forever"
+     ],
+     "answer": 0,
+     "why": "Both are authentication challenges. The role that sent them is the difference.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "q": "183 Session Progress is",
+     "choices": [
+      "A provisional response",
+      "The answer SDP's required final",
+      "Proof of CANCEL",
+      "A global codec refusal"
+     ],
+     "answer": 0,
+     "why": "Early progress stays provisional. 200 is the success final.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "The ACK on this ladder's 487 is",
+     "choices": [
+      "Hop by hop, same Via branch as the INVITE",
+      "End to end, new branch",
+      "Omitted because 487 is provisional",
+      "Addressed to the RTP port"
+     ],
+     "answer": 0,
+     "why": "Only the ACK for a 2xx is end to end.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "180",
+     "back": "Ringing. Provisional alerting.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "front": "183",
+     "back": "Session Progress. Provisional, often where early media shows up.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "front": "487",
+     "back": "Request Terminated. The INVITE's answer after CANCEL.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "front": "606",
+     "back": "Not Acceptable. Global. 488 is only this UA.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Name the 487",
+    "kind": "ladder",
+    "prompt": "Step the ladder. Which response ends the INVITE, and which 200 belongs to the CANCEL?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "The final response to the INVITE on this ladder is",
+     "choices": [
+      "487 Request Terminated",
+      "200 OK with CSeq CANCEL",
+      "100 Trying",
+      "180 Ringing"
+     ],
+     "answer": 0,
+     "why": "The 200 you see uses CSeq 1 CANCEL. The INVITE transaction ends at 487.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    }
+   },
+   "fault": {
+    "title": "422 filed as a base status",
+    "symptom": "A carrier answers Session-Expires: 90 with 422 and Min-SE: 1800. The ticket says RFC 3261 section 21 defines 422.",
+    "log": "INVITE CSeq: 1 INVITE\nSession-Expires: 90;refresher=uac\nSIP/2.0 422 Session Interval Too Small\nMin-SE: 1800\nCSeq: 1 INVITE",
+    "choices": [
+     "422 is the session-timer refusal in RFC 4028",
+     "422 means the codec list was empty",
+     "Min-SE is an RTP sequence number",
+     "The hop-by-hop ACK is omitted after 422"
+    ],
+    "answer": 0,
+    "why": "The reason phrase is Session Interval Too Small. The base section 21 list is the wrong citation.",
+    "cause": "The offered session interval is below the far end's Min-SE.",
+    "fix": "ACK the 422 hop by hop, then send a new INVITE whose Session-Expires is at least the Min-SE in the 422. Cite RFC 4028.",
+    "cites": [
+     {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     },
+     {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "wireshark",
+   "title": "Display filters for SIP and RTP",
+   "minutes": 13,
+   "tags": [
+    "wireshark",
+    "capture",
+    "filter"
+   ],
+   "summary": "Filter the capture with sip, rtp, and sip.Method, and confirm sip.CSeq.method in the SIP display-filter reference.",
+   "objectives": [
+    "Use the display filters this lesson names",
+    "Confirm a CSeq field in the Wireshark reference",
+    "Read Call-ID from the packet you selected"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "From file to one transaction",
+    "caption": "Display filters narrow what you see. They are not a second copy of the SIP RFC.",
+    "nodes": [
+     "Open",
+     "Filter",
+     "Select",
+     "Match"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Filters this lesson will name",
+     "paragraphs": [
+      "The display filters you may type from this lesson are sip, rtp, and sip.Method. A common way to see INVITE requests is sip.CSeq.method == \"INVITE\". Confirm that field in the Wireshark SIP display-filter reference before you trust it in a ticket. The reference for SIP fields is the page this lesson cites as ws-sip. RTP display fields have their own page, ws-rtp.",
+      "sip.Method is the safe method field when you want the request method. This lesson does not invent other field names. If a blog names a filter you have not found on those two reference pages, leave it out of the write-up until you confirm it there."
+     ],
+     "cites": [
+      {
+       "label": "Wireshark SIP display filter reference",
+       "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+      },
+      {
+       "label": "Wireshark RTP display filter reference",
+       "url": "https://www.wireshark.org/docs/dfref/r/rtp.html"
+      }
+     ]
+    },
+    {
+     "h": "What you read after the filter hits",
+     "paragraphs": [
+      "Select one packet and read the SIP headers in order: Call-ID, CSeq, Via branch, To tag. The filter got you to the packet. The match rules from the ladder lesson decide whether the next packet is the same transaction.",
+      "rtp shows the media packets. SIP showing a 200 OK with an m= line does not mean those RTP packets are in the capture. When the call is silent, keep the SIP filter long enough to read the negotiated address and port, then use the rtp display filter to see whether media arrived. Cite the RTP reference for RTP fields and the SIP reference for SIP fields."
+     ],
+     "cites": [
+      {
+       "label": "Wireshark SIP display filter reference",
+       "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+      },
+      {
+       "label": "Wireshark RTP display filter reference",
+       "url": "https://www.wireshark.org/docs/dfref/r/rtp.html"
+      },
+      {
+       "label": "RFC 3550",
+       "url": "https://www.rfc-editor.org/rfc/rfc3550"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "A capture of one answered call",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Filter with sip, or confirm sip.CSeq.method == \"INVITE\" on the Wireshark SIP display-filter reference, and select this INVITE.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying should share Call-ID, CSeq number, and the INVITE branch.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The outbound INVITE is a new hop. Filter sip still shows it. Match its own branch.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 is still SIP. The rtp filter stays empty until media exists.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Forwarded 180. Read the To tag once it appears.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK carries the answer. Read c= and m= so you know which RTP to look for.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The caller-side 200 is the packet that tells Alice the port. Apply rtp after this if you are hunting silence.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The 2xx ACK is another SIP request. sip.Method == \"ACK\" is the safe method filter. Confirm any CSeq field name on the reference page.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Which display filter does this lesson treat as safe for all SIP?",
+     "choices": [
+      "sip",
+      "sip.InventedField",
+      "tcp.port == 5060 only",
+      "bootp"
+     ],
+     "answer": 0,
+     "why": "sip is the display filter for the SIP dissector. Confirm exotic fields on the reference page.",
+     "cite": {
+      "label": "Wireshark SIP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+     }
+    },
+    {
+     "q": "The RTP display-filter reference is cited so you can",
+     "choices": [
+      "Look up RTP fields there",
+      "Learn SIP status codes",
+      "Replace RFC 3550",
+      "Decode TLS certificates"
+     ],
+     "answer": 0,
+     "why": "Use ws-rtp for RTP field names. Use ws-sip for SIP field names.",
+     "cite": {
+      "label": "Wireshark RTP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/r/rtp.html"
+     }
+    },
+    {
+     "q": "sip.CSeq.method == \"INVITE\" should be",
+     "choices": [
+      "Confirmed in the Wireshark SIP display-filter reference",
+      "Assumed from a blog",
+      "Used as a capture BPF filter",
+      "A header you add to the INVITE"
+     ],
+     "answer": 0,
+     "why": "It is commonly valid. This lesson still tells you to confirm the field on the reference page.",
+     "cite": {
+      "label": "Wireshark SIP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+     }
+    },
+    {
+     "q": "sip.Method is",
+     "choices": [
+      "A safe SIP display field for the method",
+      "An RTP sequence field",
+      "Defined by RFC 4028",
+      "The To tag"
+     ],
+     "answer": 0,
+     "why": "Prefer sip.Method when you want the request method and you do not want to invent a field.",
+     "cite": {
+      "label": "Wireshark SIP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+     }
+    },
+    {
+     "q": "A 200 OK with SDP and no rtp packets means",
+     "choices": [
+      "Signaling finished and the media filter is still empty",
+      "The Call-ID is illegal",
+      "488 was returned",
+      "The ACK must be hop by hop"
+     ],
+     "answer": 0,
+     "why": "Read the negotiated port from SDP, then look for RTP.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "After the filter selects a packet, you still match",
+     "choices": [
+      "Call-ID, CSeq, Via branch, and To tag",
+      "Only the frame color",
+      "The DNS TTL",
+      "The RTP SSRC to the Via branch"
+     ],
+     "answer": 0,
+     "why": "The display filter does not replace the ladder rules.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "sip",
+     "back": "Display filter for SIP packets. Field names live on the SIP reference page.",
+     "cite": {
+      "label": "Wireshark SIP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+     }
+    },
+    {
+     "front": "rtp",
+     "back": "Display filter for RTP packets. Field names live on the RTP reference page.",
+     "cite": {
+      "label": "Wireshark RTP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/r/rtp.html"
+     }
+    },
+    {
+     "front": "sip.Method",
+     "back": "Safe display field for the SIP method.",
+     "cite": {
+      "label": "Wireshark SIP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+     }
+    },
+    {
+     "front": "Confirm CSeq",
+     "back": "sip.CSeq.method is common. Confirm it on the SIP display-filter reference.",
+     "cite": {
+      "label": "Wireshark SIP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Extract the INVITE from a text capture",
+    "kind": "capture",
+    "prompt": "This is a synthetic text capture, not a customer packet. Extract the SIP message. On a real file you would display-filter with sip, and you would confirm sip.CSeq.method == \"INVITE\" in the Wireshark SIP display-filter reference.",
+    "message": "Received:\nINVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\nSent:\nSIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n",
+    "steps": [
+     "Extract SIP.",
+     "Read Call-ID and CSeq on the INVITE.",
+     "Note that 100 Trying is a separate message."
+    ],
+    "check": {
+     "q": "A safe display filter for SIP packets is",
+     "choices": [
+      "sip",
+      "sip.FakeHeader",
+      "rtp.Call-ID",
+      "invite only"
+     ],
+     "answer": 0,
+     "why": "Use sip. Confirm any finer field on the reference page.",
+     "cite": {
+      "label": "Wireshark SIP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "Filter that was never in the reference",
+    "symptom": "The ticket says the capture proves a missing ACK because the display filter sip.InventedAckFlag == 1 returned nothing.",
+    "log": "display filter typed: sip.InventedAckFlag == 1\n(no packets)\nCall-ID a84b4c76e66710@example.com is present under the sip filter",
+    "choices": [
+     "The field was invented. Filter with sip and read the ACK.",
+     "An empty invented filter proves the ACK was not sent",
+     "rtp is the filter for ACK",
+     "100 Trying is the ACK"
+    ],
+    "answer": 0,
+    "why": "Only sip, rtp, sip.Method, and a confirmed sip.CSeq.method belong in this lesson's filter list.",
+    "cause": "The display filter named a field that is not in the reference you checked.",
+    "fix": "Use sip, select the dialog by Call-ID, and look for CSeq method ACK. Confirm sip.CSeq.method on the Wireshark SIP display-filter reference if you use it.",
+    "cites": [
+     {
+      "label": "Wireshark SIP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+     },
+     {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "ccsip-output",
+   "title": "IOS ccsip and ccapi debug",
+   "minutes": 12,
+   "tags": [
+    "ios",
+    "debug",
+    "ccsip"
+   ],
+   "summary": "debug ccsip messages prints SIP on IOS voice. debug voip ccapi inout prints call-control API output, which is not a SIP RFC.",
+   "objectives": [
+    "Read debug ccsip messages as SIP",
+    "Keep ccapi output out of the RFC pile",
+    "Match a synthetic debug line to the ladder"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Two IOS debugs",
+    "caption": "Both are IOS voice operations output. Only one of them is the SIP message.",
+    "layers": [
+     {
+      "name": "debug ccsip messages",
+      "detail": "SIP requests and responses, IOS voice"
+     },
+     {
+      "name": "debug voip ccapi inout",
+      "detail": "Call-control API indications, not a SIP RFC"
+     },
+     {
+      "name": "The ladder",
+      "detail": "Call-ID, CSeq, branch, To tag still apply to the SIP text"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "What ccsip messages is",
+     "paragraphs": [
+      "debug ccsip messages is a Cisco IOS voice command. Operators use it on IOS voice, including CUBE, to print the SIP messages the stack sent and received. The basic CUBE SIP configuration guide is the product context for that IOS voice role. The bytes after Sent or Received are SIP, so you read them with RFC 3261.",
+      "The debug line itself is not a SIP header and not an RFC. Strip the IOS prefix, then dissect the SIP start line. A synthetic lab print is labeled synthetic. A real customer log does not belong in this lesson."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      },
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      }
+     ]
+    },
+    {
+     "h": "What ccapi inout is",
+     "paragraphs": [
+      "debug voip ccapi inout is a long-standing IOS voice debug for the call-control API. Operators run it beside debug ccsip messages when they need the setup and disconnect indications the voice application saw. Those lines are IOS debug output. They are not a SIP method and they are not defined by RFC 3261.",
+      "Use ccapi to see that IOS created or tore down a call leg. Use the ccsip SIP text to see the INVITE, the status code, and the SDP. When the two disagree, believe the SIP message for protocol questions and the ccapi line for what the IOS call-control API did with that leg."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      },
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Synthetic ccsip, then the response",
+    "parties": [
+     "Alice",
+     "CUBE"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "debug ccsip messages would print this under Received. The IOS prefix is not part of the SIP message.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The same debug prints the 100 the stack sent. Still SIP. Still not an RFC by itself.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "180 in the debug is alerting. A ccapi indication around the same time is IOS state, not a second status code.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK in the ccsip debug carries the answer SDP. Read c= and m= here.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "End-to-end ACK for this 2xx. If ccapi shows a connected leg and this ACK is missing, say which source you used.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "debug ccsip messages prints",
+     "choices": [
+      "SIP messages on IOS voice",
+      "RTP audio samples",
+      "The text of RFC 3261",
+      "A Wireshark display filter"
+     ],
+     "answer": 0,
+     "why": "It is an IOS command. The payload you dissect is SIP.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "debug voip ccapi inout is",
+     "choices": [
+      "IOS call-control API debug, not a SIP RFC",
+      "A SIP method",
+      "Required by RFC 3261",
+      "The same output as ccsip messages"
+     ],
+     "answer": 0,
+     "why": "Name it as the companion IOS debug. Cite the protocol only for the SIP text.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "After you strip the IOS prefix you match",
+     "choices": [
+      "Call-ID, CSeq, Via branch, and To tag",
+      "The syslog facility only",
+      "The RTP SSRC",
+      "The DNS TTL"
+     ],
+     "answer": 0,
+     "why": "The remaining text is a SIP message.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    },
+    {
+     "q": "A customer log in this lesson",
+     "choices": [
+      "Stays out. Examples here are synthetic.",
+      "Is pasted in full",
+      "Replaces the RFC",
+      "Is the only source for status codes"
+     ],
+     "answer": 0,
+     "why": "Synthetic addresses and a labeled drill are the whole example.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "CUBE's product context for this IOS debug is",
+     "choices": [
+      "The CUBE basic SIP configuration guide",
+      "RFC 4594",
+      "The FCC MLTS page",
+      "RFC 7866"
+     ],
+     "answer": 0,
+     "why": "The command is IOS voice operations. The guide is the product page this track cites.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "If ccapi says the leg connected and ccsip shows no 200",
+     "choices": [
+      "Report both, and treat the SIP text as the protocol evidence",
+      "Ignore ccsip",
+      "Invent a 200",
+      "Change the Call-ID to match ccapi"
+     ],
+     "answer": 0,
+     "why": "Protocol questions follow the SIP message. API questions follow ccapi.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "ccsip messages",
+     "back": "IOS voice debug that prints SIP send and receive.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "front": "ccapi inout",
+     "back": "IOS voice debug of the call-control API. Not a SIP RFC.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "front": "Sent / Received",
+     "back": "Direction on the debug. The SIP start line comes after it.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "Synthetic",
+     "back": "Lab output in this track is synthetic. Customer logs stay out.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Dissect the SIP inside the debug",
+    "kind": "dissect",
+    "prompt": "The message below is what a synthetic debug ccsip messages capture would contain after the IOS prefix. debug voip ccapi inout is a different IOS command and is not this text.",
+    "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n",
+    "steps": [
+     "Dissect the INVITE.",
+     "Check that CSeq method is INVITE.",
+     "Find the Via branch."
+    ],
+    "check": {
+     "q": "The CSeq method on this message is",
+     "choices": [
+      "INVITE",
+      "ACK",
+      "CANCEL",
+      "BYE"
+     ],
+     "answer": 0,
+     "why": "CSeq's method token matches the request line.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    }
+   },
+   "fault": {
+    "title": "ccapi line treated as a status code",
+    "symptom": "The ticket quotes an IOS ccapi indication as if it were SIP/2.0 488.",
+    "log": "# synthetic IOS debug, not a customer log\n# debug voip ccapi inout\ncall-control API: incoming setup indication, dialed +15551212, peer 203.0.113.10\n# debug ccsip messages\nReceived:\nINVITE sip:+15551212@203.0.113.20 SIP/2.0\nCSeq: 1 INVITE\nCall-ID: a84b4c76e66710@example.com",
+    "choices": [
+     "The ccapi line is IOS debug. The SIP evidence is the INVITE.",
+     "ccapi output is defined in RFC 3261 §21",
+     "488 was returned because ccapi printed the word setup",
+     "Call-ID is an IOS command"
+    ],
+    "answer": 0,
+    "why": "ccapi tells you the voice application saw a setup. It does not invent a status code.",
+    "cause": "The protocol record and the API record were collapsed into one fake status.",
+    "fix": "Attach the ccsip SIP text for the status code. Describe the ccapi line as IOS call-control output. Cite cube-basic for the command and RFC 3261 only for the SIP.",
+    "cites": [
+     {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     },
+     {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "codec-and-timer-failures",
+   "title": "488 codecs and 422 session timers",
+   "minutes": 16,
+   "tags": [
+    "488",
+    "422",
+    "sdp"
+   ],
+   "summary": "488 is this UA refusing the session description. 422 is a session interval below Min-SE.",
+   "objectives": [
+    "Read 488 as an offer/answer refusal at this UA",
+    "Retry 422 with a large enough session interval",
+    "Keep telephone-event in the overlap you meant to keep"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Two finals that look like media failed",
+    "caption": "They are different requests to the next INVITE.",
+    "columns": [
+     "Code",
+     "Meaning",
+     "Next request"
+    ],
+    "rows": [
+     [
+      "488",
+      "This UA rejects the session description",
+      "A new offer this UA can accept, or stop"
+     ],
+     [
+      "606",
+      "Refusal is global, not just this UA",
+      "A different offer, not a different UA hop"
+     ],
+     [
+      "422",
+      "Session interval is below Min-SE",
+      "New INVITE with Session-Expires at least Min-SE"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "488 and the offer you sent",
+     "paragraphs": [
+      "488 Not Acceptable Here often means the codec or the rest of the SDP was refused by this user agent. RFC 3261 names the status. RFC 3264 is the offer/answer model: the answer may keep a subset of the offered payloads, and an empty overlap of usable media is a failure. 606 would mean the problem is global rather than local to this UA.",
+      "PCMU payload 0 and PCMA payload 8 are static names from RFC 3551. telephone-event is the RFC 4733 name for named telephone events, including DTMF. If the answer keeps PCMU and drops PCMA, the call can still proceed. If the answer has no shared audio codec, expect 488 from this UA instead of a 200 OK."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 3264 §6",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264#section-6"
+      },
+      {
+       "label": "RFC 3551",
+       "url": "https://www.rfc-editor.org/rfc/rfc3551"
+      },
+      {
+       "label": "RFC 4733",
+       "url": "https://www.rfc-editor.org/rfc/rfc4733"
+      }
+     ]
+    },
+    {
+     "h": "422 is the timer, not the codec",
+     "paragraphs": [
+      "RFC 4028 defines 422 Session Interval Too Small. The UAS sends Min-SE. A synthetic example in this lesson uses Session-Expires: 90 on the first INVITE and Min-SE: 1800 on the 422. 1800 is an example value for the drill, not a universal carrier rule.",
+      "ACK that 422 hop by hop, on the INVITE's Via branch. Then send a new INVITE, new branch, next CSeq, with Session-Expires at least the Min-SE you were given. Leaving the codec list alone is the point: 422 did not say the codecs were unacceptable."
+     ],
+     "cites": [
+      {
+       "label": "RFC 4028",
+       "url": "https://www.rfc-editor.org/rfc/rfc4028"
+      },
+      {
+       "label": "RFC 3261 §17",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+      }
+     ]
+    },
+    {
+     "h": "One change after the code",
+     "paragraphs": [
+      "On 488, change the offer. Confirm telephone-event is still there if DTMF has to survive. On 422, change the session interval. Doing both in one new INVITE hides which fix worked.",
+      "Early offer puts the SDP in the INVITE. The 200 OK carries the answer. A 488 carries no accepted answer. Read the code before you read a packet capture for RTP that the refusal means will not start."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 6337",
+       "url": "https://www.rfc-editor.org/rfc/rfc6337"
+      },
+      {
+       "label": "RFC 4028",
+       "url": "https://www.rfc-editor.org/rfc/rfc4028"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "422, then a taller session interval",
+    "parties": [
+     "Alice",
+     "SBC"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "First offer includes Session-Expires: 90. Codecs are a separate question.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nSession-Expires: 90;refresher=uac\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "422",
+      "kind": "res",
+      "note": "RFC 4028. Min-SE: 1800 is synthetic for this drill, not a universal default.",
+      "message": "SIP/2.0 422 Session Interval Too Small\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nMin-SE: 1800\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "Non-2xx ACK. Same branch. The session interval has not been accepted.",
+      "message": "ACK sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "New transaction, CSeq 2, new branch, Session-Expires at least 1800.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nSession-Expires: 1800;refresher=uac\nMin-SE: 1800\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK is the answer SDP. New branch, CSeq 2. This hop means the timer and the offer were acceptable.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 INVITE\nContact: <sip:bob@203.0.113.20>\nSession-Expires: 1800;refresher=uac\nContent-Type: application/sdp\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "488 Not Acceptable Here often means",
+     "choices": [
+      "This UA refused the session description",
+      "The session interval was too small",
+      "CANCEL completed",
+      "The DNS SRV lookup failed"
+     ],
+     "answer": 0,
+     "why": "Codec and SDP overlap live in RFC 3264. The status is RFC 3261.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "A 422 asks the UAC to",
+     "choices": [
+      "Send a new INVITE with a session interval at least Min-SE",
+      "Remove telephone-event",
+      "Convert the call to 606",
+      "ACK end to end and keep Session-Expires: 90"
+     ],
+     "answer": 0,
+     "why": "ACK the 422 hop by hop, then raise the interval.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    },
+    {
+     "q": "606 differs from 488 because",
+     "choices": [
+      "606 is a global refusal",
+      "606 is provisional",
+      "606 carries Min-SE",
+      "606 is hop-by-hop Trying"
+     ],
+     "answer": 0,
+     "why": "488 is Not Acceptable Here. 606 is Not Acceptable.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "telephone-event names",
+     "choices": [
+      "RFC 4733 telephone events, including DTMF",
+      "The EF PHB",
+      "A SIP status code",
+      "The To tag"
+     ],
+     "answer": 0,
+     "why": "Keep it in the offer and the answer when DTMF has to pass.",
+     "cite": {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+     }
+    },
+    {
+     "q": "PCMU static payload 0 is assigned in",
+     "choices": [
+      "RFC 3551",
+      "RFC 4028",
+      "RFC 6881",
+      "RFC 7866"
+     ],
+     "answer": 0,
+     "why": "G.711 mu-law audio is PCMU at payload 0 when rtpmap is absent.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "q": "The ACK on the 422 hop uses",
+     "choices": [
+      "The INVITE branch, hop by hop",
+      "A new branch, end to end",
+      "No ACK at all",
+      "CSeq method INVITE"
+     ],
+     "answer": 0,
+     "why": "422 is a non-2xx final response.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "488",
+     "back": "Not Acceptable Here. This UA. Often codec or SDP.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "front": "422",
+     "back": "Session Interval Too Small. RFC 4028. Read Min-SE.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    },
+    {
+     "front": "telephone-event",
+     "back": "RFC 4733. Offer it on purpose if you need DTMF.",
+     "cite": {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+     }
+    },
+    {
+     "front": "Offer/answer",
+     "back": "The answer is a subset. No shared audio codec tends to 488.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   ],
+   "lab": {
+    "title": "See the overlap",
+    "kind": "sdp",
+    "prompt": "Negotiate this synthetic offer and answer. PCMU and telephone-event are on both sides. PCMA is only in the offer.",
+    "offer": "v=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n",
+    "answer": "v=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n",
+    "steps": [
+     "Run Negotiate.",
+     "Find the shared audio codec.",
+     "Confirm telephone-event on both sides."
+    ],
+    "check": {
+     "q": "Which audio codec is in both the offer and the answer?",
+     "choices": [
+      "PCMU",
+      "PCMA",
+      "A codec that neither side listed",
+      "Min-SE"
+     ],
+     "answer": 0,
+     "why": "The answer kept payload 0 and telephone-event and dropped PCMA.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   },
+   "fault": {
+    "title": "488 answered by raising the timer",
+    "symptom": "The UAS returned 488 Not Acceptable Here. The next INVITE only changes Session-Expires from 90 to 1800 and repeats the same SDP.",
+    "log": "SIP/2.0 488 Not Acceptable Here\nCSeq: 1 INVITE\nCall-ID: a84b4c76e66710@example.com\nm=audio 49170 RTP/AVP 18\na=rtpmap:18 G729/8000",
+    "choices": [
+     "The refusal is the session description. Change the offer.",
+     "422 rules apply, so only Min-SE matters",
+     "606 means try the same SDP at this same UA",
+     "ACK is end to end for 488"
+    ],
+    "answer": 0,
+    "why": "488 points at this UA and the SDP. 422 would have been Session Interval Too Small with Min-SE.",
+    "cause": "The retry changed the timer and left the unacceptable offer in place.",
+    "fix": "ACK 488 hop by hop. Send a new offer with a shared codec and telephone-event if DTMF is required. Cite RFC 3264 and RFC 3261.",
+    "cites": [
+     {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     },
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "tls-failures",
+   "title": "TLS names, trust anchors, and version",
+   "minutes": 14,
+   "tags": [
+    "tls",
+    "teams",
+    "certificate"
+   ],
+   "summary": "Handshake failures stay below SIP. A Teams 403 is the Contact FQDN rule after TLS is up.",
+   "objectives": [
+    "Separate handshake failures from SIP status codes",
+    "Require TLS 1.2 or newer toward Teams",
+    "Put an FQDN in Contact or expect 403"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Where the failure sits",
+    "caption": "The first three stop before a SIP status. The fourth is SIP.",
+    "nodes": [
+     "Name",
+     "CA",
+     "Version",
+     "Contact"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Three handshake failures",
+     "paragraphs": [
+      "Certificate name mismatch, an untrusted CA, and a TLS version the peer will not accept all fail in the handshake. You get no SIP status code from the far end, because the SIP message was never delivered. Say handshake in the ticket, and name which of the three you checked.",
+      "Teams Direct Routing requires TLS 1.2 or newer. The OPTIONS and certificate troubleshooting page is the operational source for that requirement. A stack that offers only an older version fails before OPTIONS or INVITE exists on the wire as SIP."
+     ],
+     "cites": [
+      {
+       "label": "Direct Routing OPTIONS and TLS",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+      },
+      {
+       "label": "RFC 3261 §18",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+      }
+     ]
+    },
+    {
+     "h": "Contact must be an FQDN toward Teams",
+     "paragraphs": [
+      "When the handshake succeeds, Direct Routing still requires an FQDN in Contact. An address literal in Contact is answered with 403. The Direct Routing SIP protocol page is the source for that rule. This lab uses sip.pstnhub.microsoft.com as the Teams SIP target and sbc.example.com as the synthetic SBC name.",
+      "The certificate name has to match the name you presented. A certificate for a different name is the mismatch case, even if the CA is one you trust. Fix the name, the trust anchor, or the version before you rewrite SDP."
+     ],
+     "cites": [
+      {
+       "label": "Direct Routing SIP protocol",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+      },
+      {
+       "label": "Direct Routing OPTIONS and TLS",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+      },
+      {
+       "label": "RFC 5922",
+       "url": "https://www.rfc-editor.org/rfc/rfc5922"
+      }
+     ]
+    },
+    {
+     "h": "OPTIONS after the handshake",
+     "paragraphs": [
+      "OPTIONS is the liveness request from RFC 3261 section 11. Toward Teams it rides the TLS session you just proved. A synthetic 200 in this lesson means the handshake worked and the peer answered. It is not a captured production packet.",
+      "If OPTIONS never leaves the SBC, stay on the handshake. If OPTIONS is answered and the INVITE returns 403, read Contact. Those are different faults and they do not share one fix."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §11",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+      },
+      {
+       "label": "Plan Direct Routing",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "OPTIONS to Teams after TLS",
+    "parties": [
+     "CUBE",
+     "Teams"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "OPTIONS",
+      "kind": "req",
+      "note": "TLS 1.2 or newer is already up. Contact uses the FQDN sbc.example.com. Target is sip.pstnhub.microsoft.com.",
+      "message": "OPTIONS sip:sip.pstnhub.microsoft.com SIP/2.0\nVia: SIP/2.0/TLS sbc.example.com:5061;branch=z9hG4bKteamopt\nMax-Forwards: 70\nFrom: <sip:sbc@example.com>;tag=topt\nTo: <sip:sip.pstnhub.microsoft.com>\nCall-ID: teams-opt-1@example.com\nCSeq: 1 OPTIONS\nContact: <sip:sbc.example.com:5061;transport=tls>\nAccept: application/sdp\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Synthetic 200. The peer answered OPTIONS. This is not a customer capture.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/TLS sbc.example.com:5061;branch=z9hG4bKteamopt\nFrom: <sip:sbc@example.com>;tag=topt\nTo: <sip:sip.pstnhub.microsoft.com>;tag=ms1\nCall-ID: teams-opt-1@example.com\nCSeq: 1 OPTIONS\nAllow: INVITE,ACK,OPTIONS,CANCEL,BYE\nContact: <sip:sip.pstnhub.microsoft.com:5061;transport=tls>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Contact is an FQDN. A Contact that used 203.0.113.20 instead would be the 403 case.",
+      "message": "INVITE sip:+15551212@sip.pstnhub.microsoft.com SIP/2.0\nVia: SIP/2.0/TLS sbc.example.com:5061;branch=z9hG4bKteam01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamtag\nTo: <sip:+15551212@example.com>\nCall-ID: teams-call-1@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc.example.com:5061;transport=tls>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying on the Teams hop. The handshake already succeeded, so this status is SIP.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/TLS sbc.example.com:5061;branch=z9hG4bKteam01\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamtag\nTo: <sip:+15551212@example.com>\nCall-ID: teams-call-1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A certificate name mismatch shows up as",
+     "choices": [
+      "A failed TLS handshake, with no SIP status from the peer",
+      "SIP 180 Ringing",
+      "SIP 422",
+      "An RTP payload change"
+     ],
+     "answer": 0,
+     "why": "SIP starts after the handshake.",
+     "cite": {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    },
+    {
+     "q": "Teams Direct Routing TLS version in this lesson is",
+     "choices": [
+      "1.2 or newer",
+      "Any version including SSL 3.0",
+      "UDP only",
+      "Unspecified, so 1.0 is fine"
+     ],
+     "answer": 0,
+     "why": "The OPTIONS and certificate page states the TLS 1.2 floor.",
+     "cite": {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    },
+    {
+     "q": "An IP address in Contact toward Teams draws",
+     "choices": [
+      "403",
+      "100 Trying and success",
+      "488 always",
+      "No response, like a bad CA"
+     ],
+     "answer": 0,
+     "why": "The handshake can succeed and the SIP layer still rejects a non-FQDN Contact.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    },
+    {
+     "q": "An untrusted CA fails",
+     "choices": [
+      "During the handshake",
+      "As 487 after CANCEL",
+      "As a codec 488",
+      "Only on the ACK"
+     ],
+     "answer": 0,
+     "why": "Trust-anchor failure is TLS, not a SIP reason phrase.",
+     "cite": {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    },
+    {
+     "q": "The synthetic Teams target named here is",
+     "choices": [
+      "sip.pstnhub.microsoft.com",
+      "a hostname this lesson invented for Webex",
+      "198.51.100.30",
+      "urn:service:sos"
+     ],
+     "answer": 0,
+     "why": "Use that FQDN when the lesson is Direct Routing. Other products keep their own guides.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    },
+    {
+     "q": "OPTIONS in this flow proves",
+     "choices": [
+      "The peer answered on an already-up TLS session",
+      "The certificate name was wrong",
+      "RTP uses EF",
+      "The trusted list size"
+     ],
+     "answer": 0,
+     "why": "OPTIONS is SIP liveness. It does not run when the handshake failed.",
+     "cite": {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Name mismatch",
+     "back": "Handshake fails. No SIP status from the peer.",
+     "cite": {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    },
+    {
+     "front": "Untrusted CA",
+     "back": "Handshake fails. Fix the trust anchor.",
+     "cite": {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    },
+    {
+     "front": "TLS 1.2+",
+     "back": "Teams Direct Routing floor in the OPTIONS troubleshooting page.",
+     "cite": {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    },
+    {
+     "front": "FQDN Contact",
+     "back": "Required toward Teams. An address literal draws 403.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Find the FQDN",
+    "kind": "ladder",
+    "prompt": "Inspect the INVITE Contact. What hostname is in it, and what would a bare address draw?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "Contact toward Teams in this ladder uses",
+     "choices": [
+      "An FQDN, sbc.example.com",
+      "The bare address 203.0.113.20",
+      "No Contact header",
+      "urn:service:sos"
+     ],
+     "answer": 0,
+     "why": "The failure mode for an address literal in Contact is 403, after TLS is up.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    }
+   },
+   "fault": {
+    "title": "403 treated as a bad certificate",
+    "symptom": "INVITE to sip.pstnhub.microsoft.com returns 403. The certificate chain validated and the handshake used TLS 1.2.",
+    "log": "INVITE sip:+15551212@sip.pstnhub.microsoft.com SIP/2.0\nContact: <sip:203.0.113.20:5061;transport=tls>\nSIP/2.0 403 Forbidden\nCSeq: 1 INVITE\nCall-ID: teams-403@example.com",
+    "choices": [
+     "Contact is an address, not an FQDN",
+     "The CA is untrusted, so SIP could not be sent",
+     "TLS 1.0 caused the 403 after a failed handshake",
+     "488 codec overlap"
+    ],
+    "answer": 0,
+    "why": "A SIP 403 means the request arrived. Handshake failures do not produce that status.",
+    "cause": "The Contact header used 203.0.113.20 instead of the SBC FQDN.",
+    "fix": "Put the FQDN in Contact, as the Direct Routing SIP page requires. Recheck the name, the CA, and TLS 1.2 only when there is no SIP response at all.",
+    "cites": [
+     {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     },
+     {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "build-a-timeline",
+   "title": "Read an RFC header before you cite it",
+   "minutes": 12,
+   "tags": [
+    "rfc",
+    "header",
+    "obsoletes"
+   ],
+   "summary": "Number, category, and Obsoletes or Updates. The RFC Editor header beats a remembered month.",
+   "objectives": [
+    "Read number, category, and Obsoletes or Updates",
+    "Keep 422 and 2xx ACK with the RFCs that define them",
+    "Leave publication months to the header"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "The header, top to bottom",
+    "caption": "Open the document on the RFC Editor site. Copy the relationship words that are printed there.",
+    "layers": [
+     {
+      "name": "Number",
+      "detail": "RFC 3261, RFC 8866, RFC 4028"
+     },
+     {
+      "name": "Category",
+      "detail": "Standards Track, BCP, Informational, and the rest"
+     },
+     {
+      "name": "Obsoletes / Updates",
+      "detail": "Replacement versus a correction that leaves the base in force"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Number and category",
+     "paragraphs": [
+      "An RFC header gives you the number and the category. RFC 3261 is Standards Track and it is still the base SIP specification. RFC 6881 is the Best Current Practice for emergency calling services. Category is a fact on the header, not a compliment you add in a ticket.",
+      "Point at rfc-editor.org for the document you are citing. RFC 5411 is this library's hitchhiker's guide to the SIP specification family. A guide can lag. The header of the specific RFC is the row you quote."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 6881",
+       "url": "https://www.rfc-editor.org/rfc/rfc6881"
+      },
+      {
+       "label": "RFC 5411",
+       "url": "https://www.rfc-editor.org/rfc/rfc5411"
+      }
+     ]
+    },
+    {
+     "h": "Obsoletes is not Updates",
+     "paragraphs": [
+      "SDP in this library moved from RFC 4566 to RFC 8866. The header on RFC 8866 is where you confirm the Obsoletes line. ICE in this library is RFC 8445, which moved from RFC 5245. STUN in this library is RFC 8489, which moved from RFC 5389. TURN in this library is RFC 8656, which moved from RFC 5766. If a still newer RFC obsoletes one of those and this edition does not cite it, the RFC Editor banner wins.",
+      "RFC 6026 corrects transaction handling for 2xx responses to INVITE. Read its header for the Updates line. It is not a replacement of RFC 3261. RFC 4028 is where 422 lives. It is not an Obsoletes of the section 21 list; it is an extension you cite beside the base protocol."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      },
+      {
+       "label": "RFC 4566",
+       "url": "https://www.rfc-editor.org/rfc/rfc4566"
+      },
+      {
+       "label": "RFC 8445",
+       "url": "https://www.rfc-editor.org/rfc/rfc8445"
+      },
+      {
+       "label": "RFC 8489",
+       "url": "https://www.rfc-editor.org/rfc/rfc8489"
+      },
+      {
+       "label": "RFC 8656",
+       "url": "https://www.rfc-editor.org/rfc/rfc8656"
+      },
+      {
+       "label": "RFC 6026",
+       "url": "https://www.rfc-editor.org/rfc/rfc6026"
+      },
+      {
+       "label": "RFC 4028",
+       "url": "https://www.rfc-editor.org/rfc/rfc4028"
+      }
+     ]
+    },
+    {
+     "h": "Months stay on the header",
+     "paragraphs": [
+      "This lesson does not state publication months. The header prints the date. If you need a date in a design record, copy it from rfc-editor.org for that number on the day you looked.",
+      "A timeline of a call is still Call-ID and CSeq. A timeline of a specification is number, category, and whether the header says Obsoletes or Updates. Mixing those two timelines is how a ticket cites a blog instead of the document."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 5411",
+       "url": "https://www.rfc-editor.org/rfc/rfc5411"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Each hop has a document",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The offer body is SDP. Cite RFC 8866. RFC 4566 is the document the header says that specification moved from.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying is RFC 3261. The SDP move did not replace the base SIP status codes.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "A new branch on the outbound INVITE is still RFC 3261 transaction handling. ICE, when you use it, is RFC 8445 here.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 Ringing is RFC 3261 section 21. It is not an ICE or STUN message.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Forwarding 180 does not change the category of RFC 3261.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer SDP is RFC 8866 again. Offer/answer procedure remains RFC 3264.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The caller receives the answer. STUN in this library is RFC 8489 if the path needs it. This hop does not claim a STUN packet is present.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The 2xx ACK is RFC 3261 and RFC 6026. TURN, if a relay is in the design, is RFC 8656 in this library. Check the banner before you freeze the number.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "RFC 3261's role in this lesson is",
+     "choices": [
+      "The base SIP specification, Standards Track",
+      "Obsoleted by RFC 6026",
+      "The SDP specification",
+      "A BCP for emergency calling"
+     ],
+     "answer": 0,
+     "why": "6026 updates transaction handling. It does not replace 3261. Confirm the header word.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "RFC 6881's category, as this lesson uses it, is",
+     "choices": [
+      "BCP",
+      "A codec recommendation",
+      "Wireshark display filter",
+      "An IOS debug command"
+     ],
+     "answer": 0,
+     "why": "Best Current Practice for emergency calling services.",
+     "cite": {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881"
+     }
+    },
+    {
+     "q": "SDP's current number in this library is",
+     "choices": [
+      "RFC 8866, which moved from RFC 4566",
+      "RFC 4566 only",
+      "RFC 4028",
+      "RFC 3550"
+     ],
+     "answer": 0,
+     "why": "Confirm Obsoletes on the RFC 8866 header at the RFC Editor.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "q": "Publication months in this lesson are",
+     "choices": [
+      "Left on the RFC Editor header",
+      "Memorized as January for every SIP RFC",
+      "Taken from a blog",
+      "Optional inventions when the header is down"
+     ],
+     "answer": 0,
+     "why": "Copy the date from the header when you need one. This lesson states none.",
+     "cite": {
+      "label": "RFC 5411",
+      "url": "https://www.rfc-editor.org/rfc/rfc5411"
+     }
+    },
+    {
+     "q": "RFC 6026 should be described as",
+     "choices": [
+      "A correction to 2xx transaction handling",
+      "The document that obsoletes every status code",
+      "The EF PHB",
+      "The SIPREC metadata format"
+     ],
+     "answer": 0,
+     "why": "Read Updates versus Obsoletes on its header.",
+     "cite": {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    },
+    {
+     "q": "If a newer RFC obsoletes RFC 8445 and this edition does not cite it",
+     "choices": [
+      "The RFC Editor banner wins",
+      "This lesson's number is frozen forever",
+      "RFC 5245 becomes current again by default",
+      "Ignore the header"
+     ],
+     "answer": 0,
+     "why": "ICE here is RFC 8445, moved from RFC 5245. Uncertainty stays marked.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Category",
+     "back": "Read it on the header. 3261 is Standards Track. 6881 is BCP.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "Obsoletes",
+     "back": "The new RFC names the one it replaces. 8866 and 4566 are the SDP pair here.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "front": "Updates",
+     "back": "A correction that leaves the base in force. Check 6026's header.",
+     "cite": {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    },
+    {
+     "front": "rfc-editor.org",
+     "back": "The header you cite. Months in this lesson are not invented.",
+     "cite": {
+      "label": "RFC 5411",
+      "url": "https://www.rfc-editor.org/rfc/rfc5411"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Name the SDP RFC on the offer",
+    "kind": "ladder",
+    "prompt": "Inspect the first INVITE body. Which RFC number does this lesson use for SDP now?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "The SDP specification in this library is",
+     "choices": [
+      "RFC 8866",
+      "RFC 4566 as the current document",
+      "RFC 4028",
+      "RFC 7865"
+     ],
+     "answer": 0,
+     "why": "RFC 4566 is the predecessor. The header on 8866 is the confirmation.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    }
+   },
+   "fault": {
+    "title": "A month that was not on the header",
+    "symptom": "A design note says RFC 8866 was published in a month the author remembered from a blog, and it cites RFC 4566 as the current SDP specification.",
+    "log": "Design note (synthetic): SDP per RFC 4566, published the month the blog remembered.\nHeader check not attached.",
+    "choices": [
+     "Cite RFC 8866 and copy any date from the RFC Editor header",
+     "Keep the blog month and the old number",
+     "422 defines SDP",
+     "IOS ccapi output is the SDP standard"
+    ],
+    "answer": 0,
+    "why": "This lesson states no publication month. The current SDP number here is 8866.",
+    "cause": "The note froze a memory instead of the header.",
+    "fix": "Open rfc-editor.org for RFC 8866, record Obsoletes, and leave the date as printed there.",
+    "cites": [
+     {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     },
+     {
+      "label": "RFC 4566",
+      "url": "https://www.rfc-editor.org/rfc/rfc4566"
+     }
+    ]
+   },
+   "level": "Advanced"
+  }
+ ]
+}

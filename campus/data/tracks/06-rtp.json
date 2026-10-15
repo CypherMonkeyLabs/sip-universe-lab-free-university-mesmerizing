@@ -1,0 +1,2130 @@
+{
+ "id": "rtp",
+ "title": "RTP, codecs, and DTMF",
+ "summary": "RTP headers, payload types, codec documents, RTCP, telephone-event, packet time, and one-way audio.",
+ "level": "Core",
+ "order": 6,
+ "lessons": [
+  {
+   "id": "rtp-header",
+   "title": "The RTP header",
+   "minutes": 12,
+   "tags": [
+    "rtp",
+    "rfc3550",
+    "header"
+   ],
+   "summary": "RTP version 2 carries a sequence number, a timestamp, an SSRC, and a marker bit. SIP does not carry those fields.",
+   "objectives": [
+    "Name version, sequence, timestamp, SSRC, and marker",
+    "Separate the RTP header from the SIP message",
+    "Use the timestamp clock of the payload, not the wall clock"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Fixed RTP header",
+    "caption": "Version 2 is the version you will capture. The marker bit is part of this header.",
+    "layers": [
+     {
+      "name": "V=2",
+      "detail": "Version field is 2"
+     },
+     {
+      "name": "M + PT",
+      "detail": "Marker bit and payload type"
+     },
+     {
+      "name": "Sequence",
+      "detail": "Increments by one each packet"
+     },
+     {
+      "name": "Timestamp",
+      "detail": "Media clock, not wall clock"
+     },
+     {
+      "name": "SSRC",
+      "detail": "Synchronization source identifier"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Version 2 and the fields beside it",
+     "paragraphs": [
+      "RFC 3550 defines RTP, and the version field in the header is 2. The same header carries a marker bit, a 7-bit payload type, a 16-bit sequence number, a 32-bit timestamp, and a 32-bit SSRC.",
+      "The sequence number increases by one for each RTP packet that source sends, so a gap is a loss signal. The SSRC is chosen by the sender and identifies that source inside the session, which is a different job from the SIP Call-ID."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3550",
+       "url": "https://www.rfc-editor.org/rfc/rfc3550"
+      }
+     ]
+    },
+    {
+     "h": "The timestamp is a media clock",
+     "paragraphs": [
+      "The timestamp advances by the number of clock ticks in the packet, using the payload clock, and it is not a wall-clock time. For 20 ms of G.711 at 8000 Hz the timestamp increases by 160, and the same step of 160 applies to G.722 because its rtpmap clock is also 8000.",
+      "For audio, the marker bit is set on the first packet after a silence gap, which is an RFC 3551 use of the bit RFC 3550 defined. A 200 OK never contains these fields, so a media fault is read from the RTP capture."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3550",
+       "url": "https://www.rfc-editor.org/rfc/rfc3550"
+      },
+      {
+       "label": "RFC 3551",
+       "url": "https://www.rfc-editor.org/rfc/rfc3551"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "SIP finishes, then RTP starts",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "SDP offers UDP port 49170. No RTP header exists inside this INVITE.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying has no sequence number and no SSRC.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The SBC offers its own media address. The RTP header is still not in the SIP message.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer names the far RTP port. Version, sequence, timestamp, SSRC, and marker begin on the UDP packets that follow.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The RTP version field is",
+     "choices": [
+      "2",
+      "0",
+      "1",
+      "3261"
+     ],
+     "answer": 0,
+     "why": "RFC 3550 packets set version to 2.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "The sequence number",
+     "choices": [
+      "Increments by one per RTP packet",
+      "Increments by 160 per packet always",
+      "Is the SIP CSeq",
+      "Is the SDP session version"
+     ],
+     "answer": 0,
+     "why": "CSeq is signaling. The RTP sequence is in the media header.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "The RTP timestamp for 20 ms of G.711 increases by",
+     "choices": [
+      "160",
+      "20",
+      "8000",
+      "1"
+     ],
+     "answer": 0,
+     "why": "8000 Hz times 20 ms is 160 timestamp units.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "SSRC identifies",
+     "choices": [
+      "The synchronization source in the RTP session",
+      "The SIP dialog",
+      "The digest realm",
+      "The m-line index"
+     ],
+     "answer": 0,
+     "why": "The sender chooses the SSRC. It is not the Call-ID.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "The audio marker bit usually marks",
+     "choices": [
+      "The first packet after a silence gap",
+      "Every packet",
+      "Only RTCP",
+      "A rejected m-line"
+     ],
+     "answer": 0,
+     "why": "RFC 3551 uses the marker bit that way for audio.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "q": "A SIP 200 OK contains the RTP sequence number",
+     "choices": [
+      "No. Capture RTP to see it",
+      "Yes, in the To tag",
+      "Yes, in Content-Length",
+      "Only when the method is REGISTER"
+     ],
+     "answer": 0,
+     "why": "Signaling can succeed while you still need a media capture.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "V=2",
+     "back": "RTP version is 2.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "front": "Sequence",
+     "back": "Plus one for every packet from that source.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "front": "Timestamp",
+     "back": "Media clock. 20 ms of G.711 or G.722 steps by 160.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "front": "SSRC",
+     "back": "32-bit source id chosen by the sender.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Find where the header is not",
+    "kind": "dissect",
+    "prompt": "Dissect the 200 OK. The body names a port. The RTP header is not one of the SIP headers.",
+    "steps": [
+     "Dissect the response.",
+     "Find m=audio.",
+     "Name the five RTP header items you still have to capture."
+    ],
+    "check": {
+     "q": "Which item is inside the RTP header rather than this SIP message?",
+     "choices": [
+      "SSRC",
+      "Call-ID",
+      "CSeq",
+      "To tag"
+     ],
+     "answer": 0,
+     "why": "SSRC, sequence, timestamp, marker, and version are RTP. This 200 OK only carries SDP.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "Looking for sequence numbers in SIP",
+    "symptom": "The 200 OK is present, audio is choppy, and the ticket asks for the SIP CSeq to explain missing words.",
+    "log": "SIP/2.0 200 OK\nCSeq: 1 INVITE\nm=audio 19642 RTP/AVP 0\nRTP seq 44010, 44011, 44014 on UDP 19642\n",
+    "choices": [
+     "The gap is in the RTP sequence, which SIP CSeq does not report",
+     "CSeq 1 means three RTP packets were lost",
+     "Version 2 forbids sequence gaps",
+     "Marker replaces the sequence number"
+    ],
+    "answer": 0,
+    "why": "RFC 3550 sequence numbers live on RTP packets. A jump from 44011 to 44014 is media loss.",
+    "cause": "The troubleshooting notes treated CSeq as the media sequence.",
+    "fix": "Capture the RTP ports from SDP and read version, sequence, timestamp, SSRC, and marker there. Use RTCP for a loss summary.",
+    "cites": [
+     {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     },
+     {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "payload-types",
+   "title": "Static and dynamic payload types",
+   "minutes": 13,
+   "tags": [
+    "rfc3551",
+    "payload",
+    "g722"
+   ],
+   "summary": "RFC 3551 assigns static payload types. Dynamic types are named by rtpmap, and G.722 stays at clock 8000.",
+   "objectives": [
+    "List static types 0, 8, 9, and 18 with their clocks",
+    "Require rtpmap for payload types 96 through 127",
+    "Refuse a G.722 clock of 16000"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Static types you must not renumber",
+    "caption": "Dynamic types 96 through 127 take their meaning from rtpmap on that m-line only.",
+    "columns": [
+     "PT",
+     "Encoding",
+     "RTP clock"
+    ],
+    "rows": [
+     [
+      "0",
+      "PCMU",
+      "8000"
+     ],
+     [
+      "8",
+      "PCMA",
+      "8000"
+     ],
+     [
+      "9",
+      "G722",
+      "8000"
+     ],
+     [
+      "18",
+      "G729",
+      "8000"
+     ],
+     [
+      "96-127",
+      "named by rtpmap",
+      "named by rtpmap"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Static assignments",
+     "paragraphs": [
+      "RFC 3551 assigns a small set of static payload types, including 0 PCMU/8000, 8 PCMA/8000, 9 G722/8000, and 18 G729/8000. Those numbers mean those encodings even when the offer omits rtpmap, and they are not free to reuse for opus or telephone-event.",
+      "PCMU and PCMA are both G.711, and they are not the same encoding. A peer that offers only payload 0 will not decode payload 8, so the answer has to pick a type both sides listed."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3551",
+       "url": "https://www.rfc-editor.org/rfc/rfc3551"
+      },
+      {
+       "label": "ITU-T G.711",
+       "url": "https://www.itu.int/rec/T-REC-G.711"
+      }
+     ]
+    },
+    {
+     "h": "Dynamic types and the G.722 clock",
+     "paragraphs": [
+      "Payload types 96 through 127 are dynamic, and they match only through the rtpmap encoding name, which is why two gateways can use different numbers for one codec. A policy that equates those numbers across vendors will select the wrong encoding or select nothing.",
+      "G.722 keeps rtpmap clock 8000 while the audio sample rate is 16 kHz. A 20 ms packet still advances the RTP timestamp by 160. An offer that says G722/16000 does not match an implementation that followed RFC 3551."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3551",
+       "url": "https://www.rfc-editor.org/rfc/rfc3551"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Static types need no guess",
+    "parties": [
+     "Alice",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Payload types 0 and 8 are static. The rtpmap lines repeat RFC 3551 so the clock is visible.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 209\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 49172 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "No payload type is selected by Trying.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer keeps PCMU on payload 0 and rejects the PCMA stream with port 0.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 183\n\nv=0\no=bob 20 20 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 0 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK carries no new payload type in this early-offer call.",
+      "message": "ACK sip:bob@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKackpt\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Payload type 8 is",
+     "choices": [
+      "PCMA/8000",
+      "PCMU/8000",
+      "G722/8000",
+      "G729/8000"
+     ],
+     "answer": 0,
+     "why": "0 is PCMU. 8 is PCMA. Both clocks are 8000.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "q": "Payload type 9 is",
+     "choices": [
+      "G722/8000",
+      "G722/16000",
+      "opus/48000",
+      "telephone-event/8000"
+     ],
+     "answer": 0,
+     "why": "The RTP clock stays 8000. The audio sample rate is 16 kHz.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "q": "Payload types 96 through 127",
+     "choices": [
+      "Are dynamic and need an rtpmap name",
+      "Are all PCMU",
+      "Are reserved for RTCP",
+      "Match only if the numbers are equal"
+     ],
+     "answer": 0,
+     "why": "The encoding name is the match. The number is local.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "q": "PCMU and PCMA",
+     "choices": [
+      "Are different G.711 encodings and do not substitute for each other",
+      "Are identical",
+      "Share payload type 0",
+      "Use clock 16000"
+     ],
+     "answer": 0,
+     "why": "Mu-law and A-law are both in G.711 and they are not interchangeable on the wire.",
+     "cite": {
+      "label": "ITU-T G.711",
+      "url": "https://www.itu.int/rec/T-REC-G.711"
+     }
+    },
+    {
+     "q": "20 ms of G.722 advances the timestamp by",
+     "choices": [
+      "160",
+      "320",
+      "16",
+      "960"
+     ],
+     "answer": 0,
+     "why": "The rtpmap clock is 8000, so 20 ms is 160 ticks, not 320.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "q": "Payload type 18 is",
+     "choices": [
+      "G729/8000",
+      "PCMU/16000",
+      "G722/16000",
+      "A dynamic type"
+     ],
+     "answer": 0,
+     "why": "18 is the static G.729 assignment.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "PT 0",
+     "back": "PCMU/8000, static.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "front": "PT 8",
+     "back": "PCMA/8000, static. Not the same as PCMU.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "front": "PT 9",
+     "back": "G722/8000. Sample rate is still 16 kHz.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "front": "PT 18",
+     "back": "G729/8000, static.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read static types",
+    "kind": "sdp",
+    "prompt": "The offer lists PCMU and PCMA on separate m-lines. Confirm the clocks are 8000.",
+    "steps": [
+     "Press Negotiate.",
+     "Read payload 0.",
+     "Read payload 8 and its clock."
+    ],
+    "check": {
+     "q": "The rtpmap clock on payload 8 is",
+     "choices": [
+      "8000",
+      "16000",
+      "48000",
+      "0"
+     ],
+     "answer": 0,
+     "why": "PCMA is static payload 8 at 8000 Hz.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    "offer": "v=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 49172 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n",
+    "answer": "v=0\no=bob 20 20 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 0 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "Payload 96 treated as a universal codec",
+    "symptom": "Both sides use payload type 96 and there is no audio. The rtpmap lines name different encodings.",
+    "log": "offer a=rtpmap:96 opus/48000/2\nanswer a=rtpmap:96 PCMU/8000\n",
+    "choices": [
+     "The payload type number matched and the encoding name did not",
+     "96 is statically PCMU in RFC 3551",
+     "opus uses payload type 0",
+     "Clock 48000 is the G.722 rule"
+    ],
+    "answer": 0,
+    "why": "Dynamic types match on the rtpmap encoding name, not on the number.",
+    "cause": "A policy assumed payload 96 meant the same codec in every network.",
+    "fix": "Compare encoding names. Negotiate a name both sides listed, and keep G722 at clock 8000 when that codec is chosen.",
+    "cites": [
+     {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     },
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "codec-choices",
+   "title": "G.711, G.729, and Opus",
+   "minutes": 14,
+   "tags": [
+    "opus",
+    "g711",
+    "g729"
+   ],
+   "summary": "Choose a codec both sides named. Read RFC 6716 and the Opus license before you draw any legal conclusion.",
+   "objectives": [
+    "Separate G.711 PCMU from PCMA",
+    "Point at ITU-T G.729 without stating a patent date",
+    "Read the Opus RFC and the license, and stop there"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "What to read before you pick",
+    "caption": "Codec documents and license pages are different from the payload type number.",
+    "columns": [
+     "Codec",
+     "Where to read",
+     "SDP name"
+    ],
+    "rows": [
+     [
+      "G.711",
+      "ITU-T G.711",
+      "PCMU/8000 or PCMA/8000"
+     ],
+     [
+      "G.729",
+      "ITU-T G.729",
+      "G729/8000"
+     ],
+     [
+      "Opus",
+      "RFC 6716, the Opus license, IETF IPR",
+      "opus, clock from the payload format"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "G.711 and G.729",
+     "paragraphs": [
+      "G.711 is the ITU-T recommendation behind PCMU and PCMA, both at an RTP clock of 8000 and a payload rate of 64 kbit/s. They interoperate only when the offer and the answer select the same one, mu-law or A-law.",
+      "G.729 is the ITU-T recommendation named by rtpmap as G729/8000, static payload type 18, and you read that recommendation before you deploy it. This course does not state a patent date or a licensing result for G.729."
+     ],
+     "cites": [
+      {
+       "label": "ITU-T G.711",
+       "url": "https://www.itu.int/rec/T-REC-G.711"
+      },
+      {
+       "label": "ITU-T G.729",
+       "url": "https://www.itu.int/rec/T-REC-G.729"
+      },
+      {
+       "label": "RFC 3551",
+       "url": "https://www.rfc-editor.org/rfc/rfc3551"
+      }
+     ]
+    },
+    {
+     "h": "Opus, the RFC, and the license",
+     "paragraphs": [
+      "Opus is specified in RFC 6716, and offers name it with an rtpmap encoding of opus, commonly opus/48000/2. The payload type number is dynamic, so the match is still the encoding name and not a fixed number.",
+      "Read RFC 6716 and the Opus license, and check the IETF IPR disclosures, before you decide what the license allows. This lesson stops at that reading and does not state a further legal conclusion."
+     ],
+     "cites": [
+      {
+       "label": "RFC 6716",
+       "url": "https://www.rfc-editor.org/rfc/rfc6716"
+      },
+      {
+       "label": "Opus license",
+       "url": "https://www.opus-codec.org/license/"
+      },
+      {
+       "label": "IETF IPR disclosures",
+       "url": "https://datatracker.ietf.org/ipr/"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Pick a shared name",
+    "parties": [
+     "Alice",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The offer lists opus on payload 96 and G722/8000 on payload 9. G.711 is not in this particular offer.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 205\n\nv=0\no=alice 2890844526 2890844527 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 96 9\na=rtpmap:96 opus/48000/2\na=fmtp:96 useinbandfec=1\na=rtpmap:9 G722/8000\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying does not choose a codec.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer names opus on payload 111 and keeps G722/8000. The shared names are the selection.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 186\n\nv=0\no=bob 21 21 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40010 RTP/AVP 111 9\na=rtpmap:111 opus/48000/2\na=fmtp:111 useinbandfec=1\na=rtpmap:9 G722/8000\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK confirms the dialog. It does not add G.729 or change the license of Opus.",
+      "message": "ACK sip:bob@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKackcodec\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "PCMU and PCMA come from",
+     "choices": [
+      "ITU-T G.711",
+      "RFC 6716",
+      "RFC 4733",
+      "RFC 8225"
+     ],
+     "answer": 0,
+     "why": "G.711 is the recommendation. PCMU is mu-law and PCMA is A-law.",
+     "cite": {
+      "label": "ITU-T G.711",
+      "url": "https://www.itu.int/rec/T-REC-G.711"
+     }
+    },
+    {
+     "q": "G729/8000 refers to",
+     "choices": [
+      "ITU-T G.729",
+      "Opus",
+      "A SIP method",
+      "STUN"
+     ],
+     "answer": 0,
+     "why": "Read the ITU-T recommendation. Do not invent a patent date.",
+     "cite": {
+      "label": "ITU-T G.729",
+      "url": "https://www.itu.int/rec/T-REC-G.729"
+     }
+    },
+    {
+     "q": "Opus is specified by",
+     "choices": [
+      "RFC 6716",
+      "RFC 3550 alone",
+      "RFC 4568",
+      "ITU-T G.711"
+     ],
+     "answer": 0,
+     "why": "Then read the license and the IETF IPR disclosures. Stop before a legal conclusion.",
+     "cite": {
+      "label": "RFC 6716",
+      "url": "https://www.rfc-editor.org/rfc/rfc6716"
+     }
+    },
+    {
+     "q": "This lesson's conclusion about Opus rights is",
+     "choices": [
+      "Read the RFC and the license. No further legal conclusion is stated",
+      "A licensing result stated as a course fact",
+      "Opus is payload type 0",
+      "Opus uses the G.722 clock rule"
+     ],
+     "answer": 0,
+     "why": "The license URL and the IETF IPR page are the places to look.",
+     "cite": {
+      "label": "Opus license",
+      "url": "https://www.opus-codec.org/license/"
+     }
+    },
+    {
+     "q": "A shared codec is selected by",
+     "choices": [
+      "Encoding name, not by hoping the payload type numbers match",
+      "The lowest UDP port",
+      "The From display name",
+      "RTCP alone"
+     ],
+     "answer": 0,
+     "why": "opus on 96 and opus on 111 are the same encoding name.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "Where are IETF IPR disclosures listed?",
+     "choices": [
+      "The IETF IPR disclosure page",
+      "Inside every RTP marker bit",
+      "RFC 3581",
+      "The ptime attribute"
+     ],
+     "answer": 0,
+     "why": "Use that page together with the Opus license and RFC 6716.",
+     "cite": {
+      "label": "IETF IPR disclosures",
+      "url": "https://datatracker.ietf.org/ipr/"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "G.711",
+     "back": "PCMU/8000 and PCMA/8000. Read ITU-T G.711. They are not interchangeable.",
+     "cite": {
+      "label": "ITU-T G.711",
+      "url": "https://www.itu.int/rec/T-REC-G.711"
+     }
+    },
+    {
+     "front": "G.729",
+     "back": "rtpmap G729/8000, static PT 18. Read ITU-T G.729. This course states no licensing result.",
+     "cite": {
+      "label": "ITU-T G.729",
+      "url": "https://www.itu.int/rec/T-REC-G.729"
+     }
+    },
+    {
+     "front": "Opus",
+     "back": "RFC 6716. Read the RFC and the license.",
+     "cite": {
+      "label": "RFC 6716",
+      "url": "https://www.rfc-editor.org/rfc/rfc6716"
+     }
+    },
+    {
+     "front": "IPR",
+     "back": "Check IETF IPR disclosures. This course states no legal result.",
+     "cite": {
+      "label": "IETF IPR disclosures",
+      "url": "https://datatracker.ietf.org/ipr/"
+     }
+    }
+   ],
+   "lab": {
+    "title": "See opus survive a new payload type",
+    "kind": "sdp",
+    "prompt": "Negotiate the offer and answer. Confirm opus matches across payload types 96 and 111, and that G722 stays at 8000.",
+    "steps": [
+     "Press Negotiate.",
+     "Record both opus payload type numbers.",
+     "Read the G722 clock."
+    ],
+    "check": {
+     "q": "What must you read before stating what the Opus license allows?",
+     "choices": [
+      "RFC 6716 and the Opus license",
+      "Only the payload type number",
+      "RFC 3581",
+      "A licensing result invented by this course"
+     ],
+     "answer": 0,
+     "why": "Also check IETF IPR disclosures. This lab states no further legal conclusion.",
+     "cite": {
+      "label": "RFC 6716",
+      "url": "https://www.rfc-editor.org/rfc/rfc6716"
+     }
+    },
+    "offer": "v=0\no=alice 2890844526 2890844527 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 96 9\na=rtpmap:96 opus/48000/2\na=fmtp:96 useinbandfec=1\na=rtpmap:9 G722/8000\na=sendrecv\n",
+    "answer": "v=0\no=bob 21 21 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40010 RTP/AVP 111 9\na=rtpmap:111 opus/48000/2\na=fmtp:111 useinbandfec=1\na=rtpmap:9 G722/8000\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "PCMA answered to a PCMU-only offer",
+    "symptom": "The offer lists payload 0 only. The answer lists payload 8 only. Both sides claim G.711 and nobody hears audio.",
+    "log": "offer m=audio 49170 RTP/AVP 0\noffer a=rtpmap:0 PCMU/8000\nanswer m=audio 40000 RTP/AVP 8\nanswer a=rtpmap:8 PCMA/8000\n",
+    "choices": [
+     "PCMU and PCMA are different encodings, so this answer selected nothing in common",
+     "PT 0 and PT 8 are defined to be identical",
+     "The fix is to set the G.722 clock to 16000",
+     "Opus requires payload 8"
+    ],
+    "answer": 0,
+    "why": "G.711 includes both laws. RFC 3551 gives them different payload types.",
+    "cause": "The answerer treated every G.711 payload type as interchangeable.",
+    "fix": "Answer with PCMU if that is what was offered, or offer both PCMU and PCMA when the peer might be on either law. Read ITU-T G.711 for the codec, not a payload-type shortcut.",
+    "cites": [
+     {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     },
+     {
+      "label": "ITU-T G.711",
+      "url": "https://www.itu.int/rec/T-REC-G.711"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "rtcp",
+   "title": "RTCP sender and receiver reports",
+   "minutes": 12,
+   "tags": [
+    "rtcp",
+    "rfc3550",
+    "loss"
+   ],
+   "summary": "RTCP sender reports and receiver reports describe the RTP flow. A SIP 200 OK does not report loss.",
+   "objectives": [
+    "Distinguish sender reports from receiver reports",
+    "Look in RTCP for loss and jitter",
+    "Pair RTCP with the RTP port using the RFC 3550 default"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "What a report is for",
+    "caption": "RFC 3550 pairs RTCP with RTP. SIP status codes are not a substitute.",
+    "columns": [
+     "Report",
+     "When",
+     "What you learn"
+    ],
+    "rows": [
+     [
+      "Sender report",
+      "The participant has been sending RTP",
+      "Packet count, octet count, NTP and RTP timestamps"
+     ],
+     [
+      "Receiver report",
+      "The participant is reporting reception",
+      "Fraction lost, cumulative loss, jitter"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "SR and RR",
+     "paragraphs": [
+      "RFC 3550 defines RTCP sender reports and receiver reports. A sender report is used when that participant has recently sent RTP, and it includes sender packet and octet counts plus reception reports.",
+      "A receiver report carries reception reports without that sender block. Fraction lost, cumulative packets lost, and interarrival jitter are how you see damage that a SIP 200 OK will never mention."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3550",
+       "url": "https://www.rfc-editor.org/rfc/rfc3550"
+      }
+     ]
+    },
+    {
+     "h": "Where the packets go",
+     "paragraphs": [
+      "RFC 3550 says RTP should use an even port and RTCP the next higher port. When you capture media, open that pair before you declare the call healthy.",
+      "One-way RTP often shows a sender report from only one side. Combine that fact with the SDP direction and the c= address, and use the Wireshark RTP display-filter reference when you slice the capture."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3550",
+       "url": "https://www.rfc-editor.org/rfc/rfc3550"
+      },
+      {
+       "label": "Wireshark RTP display filter reference",
+       "url": "https://www.wireshark.org/docs/dfref/r/rtp.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Reports follow the answer",
+    "parties": [
+     "Alice",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The offer port 49170 is the RTP port. RTCP defaults to the next higher port, 49171.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 146\n\nv=0\no=alice 60 60 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying is not an RTCP report.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer port 40030 is RTP. RTCP from the carrier defaults to 40031. Loss will appear there, not in this 200 OK.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 140\n\nv=0\no=bob 61 61 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40030 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK closes the offer/answer. Sender and receiver reports start with the media, on the RTCP ports.",
+      "message": "ACK sip:bob@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKackrtcp\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A sender report is sent when",
+     "choices": [
+      "That participant has recently sent RTP",
+      "SIP returns 180",
+      "The digest nonce expires",
+      "The m-line port is 0"
+     ],
+     "answer": 0,
+     "why": "SR includes sender counters. RR is the report without that sender block.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "Fraction lost is found in",
+     "choices": [
+      "RTCP reception reports",
+      "The SIP Reason header only",
+      "a=ptime",
+      "The Via branch"
+     ],
+     "answer": 0,
+     "why": "A 200 OK cannot tell you the loss fraction.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "The default RTCP port is",
+     "choices": [
+      "The next higher port after RTP",
+      "5060",
+      "The SIP TLS port",
+      "Always port 9"
+     ],
+     "answer": 0,
+     "why": "RFC 3550 pairs them that way. Capture both.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "Jitter in a receiver report measures",
+     "choices": [
+      "Interarrival jitter of RTP",
+      "SIP retransmissions of INVITE",
+      "DNS SRV weight",
+      "The G.722 sample rate"
+     ],
+     "answer": 0,
+     "why": "It is a media statistic. It is not a SIP timer.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "A sender report includes",
+     "choices": [
+      "Sender packet count and octet count",
+      "The SIP Authorization username",
+      "The STIR attest level",
+      "An ICE candidate type"
+     ],
+     "answer": 0,
+     "why": "Those counters are how you see that a side is actually sending.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "To filter a capture for RTP, start from",
+     "choices": [
+      "The Wireshark RTP display-filter reference",
+      "The SDP v= line alone",
+      "RFC 3323",
+      "A router ACL from this lesson"
+     ],
+     "answer": 0,
+     "why": "The reference lists the display filters. Loss details are still in RTCP.",
+     "cite": {
+      "label": "Wireshark RTP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/r/rtp.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "SR",
+     "back": "Sender report. Used when this participant has sent RTP.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "front": "RR",
+     "back": "Receiver report. Fraction lost, cumulative loss, jitter.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "front": "Port pair",
+     "back": "RTP on an even port, RTCP on the next higher port, by default.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "front": "Not SIP",
+     "back": "200 OK does not carry fraction lost.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Name the RTCP port",
+    "kind": "dissect",
+    "prompt": "The answer says m=audio 40030. Apply the RFC 3550 default and name the RTCP port.",
+    "steps": [
+     "Dissect the 200 OK.",
+     "Read the m= port.",
+     "Add one for the default RTCP port."
+    ],
+    "check": {
+     "q": "The default RTCP port for RTP port 40030 is",
+     "choices": [
+      "40031",
+      "40030",
+      "5061",
+      "0"
+     ],
+     "answer": 0,
+     "why": "RFC 3550 uses the next higher port unless a different mapping is given.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 140\n\nv=0\no=bob 61 61 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40030 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "Choppy audio with a perfect 200 OK",
+    "symptom": "SIP shows 200 OK and the caller says words are missing. Nobody opened RTCP.",
+    "log": "SIP/2.0 200 OK\nCSeq: 1 INVITE\nm=audio 40030 RTP/AVP 0\nRTCP RR fraction lost=25 on UDP 40031\nSR packet count from 192.0.2.40 only\n",
+    "choices": [
+     "RTCP shows loss that the 200 OK cannot show",
+     "Fraction lost is a SIP status code",
+     "Port 40031 means the stream was rejected",
+     "A sender report replaces RTP"
+    ],
+    "answer": 0,
+    "why": "Receiver reports carry fraction lost and jitter. Sender reports show who is actually sending.",
+    "cause": "The ticket stopped at the SIP status line.",
+    "fix": "Capture RTP and the next-higher RTCP port. Read sender and receiver reports before you change codecs or headers.",
+    "cites": [
+     {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     },
+     {
+      "label": "Wireshark RTP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/r/rtp.html"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "telephone-event",
+   "title": "telephone-event and other digit paths",
+   "minutes": 15,
+   "tags": [
+    "dtmf",
+    "rfc4733",
+    "info"
+   ],
+   "summary": "telephone-event is RFC 4733, a dynamic payload. Events 0 through 15 are DTMF. INFO and KPML are different tools.",
+   "objectives": [
+    "Negotiate telephone-event in SDP by encoding name",
+    "Limit DTMF events to 0 through 15",
+    "Keep SIP INFO and KPML separate from RFC 4733"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Three digit paths",
+    "caption": "Only telephone-event is RTP. The others are signaling, and one of them is not an IETF body.",
+    "columns": [
+     "Path",
+     "Document",
+     "What it is"
+    ],
+    "rows": [
+     [
+      "telephone-event",
+      "RFC 4733",
+      "Dynamic RTP payload. Events 0-15 are DTMF"
+     ],
+     [
+      "INFO",
+      "RFC 6086",
+      "A SIP method. Not the DTMF codec"
+     ],
+     [
+      "application/dtmf-relay",
+      "Vendor body",
+      "Not an IETF standard"
+     ],
+     [
+      "KPML",
+      "RFC 4730",
+      "SUBSCRIBE and NOTIFY for key presses"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "A dynamic payload in SDP",
+     "paragraphs": [
+      "RFC 4733 defines telephone-event, and it obsoletes RFC 2833. The RFC Editor status banner is the authority for that status. The encoding is negotiated in SDP as a dynamic payload type, so you match the rtpmap name telephone-event and you do not insist on one global payload type number.",
+      "Events 0 through 15 are the DTMF events. Event 16 is flash, so a fmtp range of 0-15 is the DTMF set and a range of 0-16 adds flash. The telephone-event clock follows the audio, commonly 8000 with G.711."
+     ],
+     "cites": [
+      {
+       "label": "RFC 4733",
+       "url": "https://www.rfc-editor.org/rfc/rfc4733"
+      },
+      {
+       "label": "RFC 3551",
+       "url": "https://www.rfc-editor.org/rfc/rfc3551"
+      },
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      }
+     ]
+    },
+    {
+     "h": "INFO is a different method",
+     "paragraphs": [
+      "SIP INFO is specified in RFC 6086 as a mid-dialog method for application information, and it is not telephone-event. Seeing INFO on a call does not mean RFC 4733 was negotiated.",
+      "A body of application/dtmf-relay is a vendor body, not an IETF standard. Recognize it in a trace and do not describe it as the standards-track DTMF encoding. KPML, RFC 4730, is a third path that uses SUBSCRIBE and NOTIFY when an application wants digits in signaling."
+     ],
+     "cites": [
+      {
+       "label": "RFC 6086",
+       "url": "https://www.rfc-editor.org/rfc/rfc6086"
+      },
+      {
+       "label": "RFC 4730",
+       "url": "https://www.rfc-editor.org/rfc/rfc4730"
+      },
+      {
+       "label": "RFC 4733",
+       "url": "https://www.rfc-editor.org/rfc/rfc4733"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Digits in RTP, named in SDP",
+    "parties": [
+     "Alice",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The offer lists PCMU and telephone-event on payload 101, fmtp 0-15.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=alice 50 50 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-15\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying does not negotiate telephone-event.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer uses payload 106 for the same encoding name telephone-event. DTMF events are 0 through 15.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 196\n\nv=0\no=bob 51 51 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40020 RTP/AVP 0 106\na=rtpmap:0 PCMU/8000\na=rtpmap:106 telephone-event/8000\na=fmtp:106 0-15\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK completes signaling. Digit events, if any, are RTP packets of the negotiated telephone-event payload, not a second INVITE.",
+      "message": "ACK sip:bob@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKackdtmf\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "telephone-event is specified by",
+     "choices": [
+      "RFC 4733",
+      "RFC 6086",
+      "RFC 4730",
+      "RFC 3264 alone"
+     ],
+     "answer": 0,
+     "why": "RFC 4733 obsoletes RFC 2833. The RFC Editor status banner is the authority for that status.",
+     "cite": {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+     }
+    },
+    {
+     "q": "Events 0 through 15 are",
+     "choices": [
+      "The DTMF events",
+      "All of the RTP marker values",
+      "Static payload types",
+      "ICE candidate types"
+     ],
+     "answer": 0,
+     "why": "Event 16 is flash, not one more DTMF digit.",
+     "cite": {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+     }
+    },
+    {
+     "q": "The payload type for telephone-event is",
+     "choices": [
+      "Dynamic, and matched by the rtpmap name",
+      "Always 101 in every network",
+      "Always 0",
+      "Always 8"
+     ],
+     "answer": 0,
+     "why": "101 and 106 can be the same encoding. Match telephone-event, not the number.",
+     "cite": {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+     }
+    },
+    {
+     "q": "SIP INFO is",
+     "choices": [
+      "RFC 6086, a separate method",
+      "The rtpmap name for DTMF",
+      "Required before telephone-event works",
+      "A codec clock"
+     ],
+     "answer": 0,
+     "why": "INFO does not replace RFC 4733.",
+     "cite": {
+      "label": "RFC 6086",
+      "url": "https://www.rfc-editor.org/rfc/rfc6086"
+     }
+    },
+    {
+     "q": "application/dtmf-relay is",
+     "choices": [
+      "A vendor body, not an IETF standard",
+      "The media type in RFC 4733",
+      "Required by RFC 3551 for PCMU",
+      "An ICE candidate"
+     ],
+     "answer": 0,
+     "why": "You may see it inside INFO. It is not the standards-track telephone-event payload.",
+     "cite": {
+      "label": "RFC 6086",
+      "url": "https://www.rfc-editor.org/rfc/rfc6086"
+     }
+    },
+    {
+     "q": "KPML is",
+     "choices": [
+      "RFC 4730",
+      "RFC 4733",
+      "RFC 3711",
+      "A static payload type"
+     ],
+     "answer": 0,
+     "why": "KPML uses SUBSCRIBE and NOTIFY. It is not the RTP telephone-event codec.",
+     "cite": {
+      "label": "RFC 4730",
+      "url": "https://www.rfc-editor.org/rfc/rfc4730"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 4733",
+     "back": "telephone-event. Obsoletes RFC 2833. Trust the status banner.",
+     "cite": {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+     }
+    },
+    {
+     "front": "Events 0-15",
+     "back": "DTMF. Event 16 is flash.",
+     "cite": {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+     }
+    },
+    {
+     "front": "Dynamic PT",
+     "back": "Match the name telephone-event in SDP.",
+     "cite": {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+     }
+    },
+    {
+     "front": "Not INFO",
+     "back": "RFC 6086 is a method. application/dtmf-relay is a vendor body.",
+     "cite": {
+      "label": "RFC 6086",
+      "url": "https://www.rfc-editor.org/rfc/rfc6086"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Negotiate telephone-event",
+    "kind": "sdp",
+    "prompt": "The offer uses payload 101 and the answer uses payload 106. Both rtpmap lines say telephone-event/8000 and fmtp lists 0-15.",
+    "steps": [
+     "Press Negotiate.",
+     "Find telephone-event on each side.",
+     "Compare the payload type numbers and the fmtp range."
+    ],
+    "check": {
+     "q": "Why is DTMF still negotiated when the payload type changes from 101 to 106?",
+     "choices": [
+      "Both sides name telephone-event",
+      "101 and 106 are static DTMF types",
+      "fmtp 0-15 means G.722",
+      "INFO carried the mapping"
+     ],
+     "answer": 0,
+     "why": "telephone-event is a dynamic payload. Events 0 through 15 are DTMF.",
+     "cite": {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+     }
+    },
+    "offer": "v=0\no=alice 50 50 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-15\na=ptime:20\na=sendrecv\n",
+    "answer": "v=0\no=bob 51 51 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40020 RTP/AVP 0 106\na=rtpmap:0 PCMU/8000\na=rtpmap:106 telephone-event/8000\na=fmtp:106 0-15\na=ptime:20\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "Digits sent as a vendor INFO body",
+    "symptom": "Key presses never reach the far media path. The trace shows INFO with a vendor body and the SDP has no telephone-event line.",
+    "log": "INFO sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKinfo01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 INFO\nContent-Type: application/dtmf-relay\nContent-Length: 24\n\nSignal=5\nDuration=160\n\nSDP m=audio 49170 RTP/AVP 0\nSDP a=rtpmap:0 PCMU/8000\n(no telephone-event rtpmap)\n",
+    "choices": [
+     "INFO with application/dtmf-relay is not RFC 4733 telephone-event",
+     "application/dtmf-relay is the IETF standard DTMF payload",
+     "Payload 0 means telephone-event",
+     "KPML is the RTP header"
+    ],
+    "answer": 0,
+    "why": "RFC 6086 defines INFO. The body type application/dtmf-relay is a vendor convention, not an IETF standard, and it is not the telephone-event codec.",
+    "cause": "The call negotiated PCMU only, so RFC 4733 events were never agreed, and digits were placed in a vendor INFO body instead.",
+    "fix": "Offer telephone-event as a dynamic payload with fmtp 0-15 when you need DTMF in RTP. Use KPML, RFC 4730, when an application must collect digits in signaling. Do not treat the vendor body as the standard.",
+    "cites": [
+     {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+     },
+     {
+      "label": "RFC 6086",
+      "url": "https://www.rfc-editor.org/rfc/rfc6086"
+     },
+     {
+      "label": "RFC 4730",
+      "url": "https://www.rfc-editor.org/rfc/rfc4730"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "ptime",
+   "title": "ptime, packet rate, and EF",
+   "minutes": 13,
+   "tags": [
+    "ptime",
+    "bandwidth",
+    "ef"
+   ],
+   "summary": "ptime is SDP. Twenty milliseconds of G.711 is 50 packets per second and 160 bytes of payload, plus headers. Voice sits in the EF class.",
+   "objectives": [
+    "Read a=ptime as milliseconds of media per packet",
+    "Compute the G.711 20 ms packet rate and payload size",
+    "Place voice in EF using RFC 4594 and RFC 3246, without a router config"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "20 ms G.711",
+    "caption": "Payload math is not a router configuration. EF is the service class, defined elsewhere.",
+    "columns": [
+     "Item",
+     "Value"
+    ],
+    "rows": [
+     [
+      "ptime",
+      "20 ms, from SDP"
+     ],
+     [
+      "Packets per second",
+      "50"
+     ],
+     [
+      "Payload bytes",
+      "160"
+     ],
+     [
+      "Payload rate",
+      "64 kbit/s"
+     ],
+     [
+      "Extra",
+      "IP, UDP, and RTP headers"
+     ],
+     [
+      "Service class",
+      "EF for voice, RFC 4594"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "ptime is an SDP attribute",
+     "paragraphs": [
+      "a=ptime gives the packetization time in milliseconds for that media stream. It is SDP, so it is negotiated in the offer and the answer, and it is not an RTP header field and not a SIP method.",
+      "Twenty milliseconds of G.711 is 50 packets per second. Each packet carries 160 bytes of payload, because 8000 samples per second times 0.020 seconds is 160 eight-bit samples, which is a 64 kbit/s payload. IP, UDP, and RTP headers sit on top of those 160 bytes."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      },
+      {
+       "label": "RFC 3551",
+       "url": "https://www.rfc-editor.org/rfc/rfc3551"
+      }
+     ]
+    },
+    {
+     "h": "Voice is in the EF class",
+     "paragraphs": [
+      "RFC 4594 places voice in the Expedited Forwarding class, and RFC 3246 defines that per-hop behavior. Cite both when you say why voice is marked EF, and keep the marking decision in the operator's QoS design.",
+      "This lesson does not include a router configuration. ptime still changes the packet rate the marker has to carry: 20 ms is 50 packets per second, and a longer ptime sends fewer, larger packets."
+     ],
+     "cites": [
+      {
+       "label": "RFC 4594",
+       "url": "https://www.rfc-editor.org/rfc/rfc4594"
+      },
+      {
+       "label": "RFC 3246",
+       "url": "https://www.rfc-editor.org/rfc/rfc3246"
+      },
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "ptime sits in the offer",
+    "parties": [
+     "Alice",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "a=ptime:20 on G.711 means 160 payload bytes and 50 packets per second, plus headers.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 146\n\nv=0\no=alice 60 60 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying does not change ptime.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer agrees to ptime 20. EF marking, if any, is a network policy, not a line in this SDP.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 140\n\nv=0\no=bob 61 61 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40030 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK does not carry the IP header mark. Voice packets that follow are the ones RFC 4594 places in EF.",
+      "message": "ACK sip:bob@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKackptime\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "ptime is",
+     "choices": [
+      "An SDP attribute, in milliseconds",
+      "An RTP sequence number",
+      "A SIP response code",
+      "A DSCP router command"
+     ],
+     "answer": 0,
+     "why": "Read it on the media stream. It is not a header in RTP.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "q": "20 ms of G.711 produces",
+     "choices": [
+      "50 packets per second and 160 bytes of payload, plus headers",
+      "20 packets per second and 20 bytes",
+      "1 packet per second",
+      "160 packets per second and 50 bytes"
+     ],
+     "answer": 0,
+     "why": "8000 times 0.020 is 160 samples, and 1000/20 is 50.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "q": "Those 160 bytes are",
+     "choices": [
+      "Payload. Headers are additional",
+      "The entire Ethernet frame",
+      "The SIP message",
+      "An RTCP report"
+     ],
+     "answer": 0,
+     "why": "IP, UDP, and RTP headers are extra. Do not treat 160 as the on-wire size.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "q": "Voice in RFC 4594 is in which class?",
+     "choices": [
+      "EF",
+      "A class this lesson invents a router ACL for",
+      "The SIP Via class",
+      "Port 0"
+     ],
+     "answer": 0,
+     "why": "RFC 3246 defines the EF per-hop behavior. This lesson has no router configuration.",
+     "cite": {
+      "label": "RFC 4594",
+      "url": "https://www.rfc-editor.org/rfc/rfc4594"
+     }
+    },
+    {
+     "q": "RFC 3246 is cited because",
+     "choices": [
+      "It defines the EF per-hop behavior",
+      "It defines SDP ptime",
+      "It obsoletes G.711",
+      "It assigns payload type 0"
+     ],
+     "answer": 0,
+     "why": "Use it with RFC 4594. Do not invent a device config from the citation.",
+     "cite": {
+      "label": "RFC 3246",
+      "url": "https://www.rfc-editor.org/rfc/rfc3246"
+     }
+    },
+    {
+     "q": "A longer ptime",
+     "choices": [
+      "Sends fewer packets per second",
+      "Changes the RTP version",
+      "Removes the need for headers",
+      "Sets the codec to G.722 clock 16000"
+     ],
+     "answer": 0,
+     "why": "Packet rate is 1000 divided by ptime in milliseconds.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "a=ptime:20",
+     "back": "20 ms of media per packet. SDP, not RTP.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "front": "50 and 160",
+     "back": "G.711 at 20 ms: 50 packets/s, 160 payload bytes, plus headers.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "front": "EF",
+     "back": "Voice service class in RFC 4594.",
+     "cite": {
+      "label": "RFC 4594",
+      "url": "https://www.rfc-editor.org/rfc/rfc4594"
+     }
+    },
+    {
+     "front": "RFC 3246",
+     "back": "Defines the EF per-hop behavior. No router config in this lesson.",
+     "cite": {
+      "label": "RFC 3246",
+      "url": "https://www.rfc-editor.org/rfc/rfc3246"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read ptime 20",
+    "kind": "sdp",
+    "prompt": "Both sides show a=ptime:20 and PCMU/8000. Compute packets per second and payload bytes.",
+    "steps": [
+     "Press Negotiate.",
+     "Find a=ptime.",
+     "Compute 1000/20 and 8000 times 0.020."
+    ],
+    "check": {
+     "q": "20 ms G.711 payload size and rate are",
+     "choices": [
+      "160 bytes and 50 packets per second, plus headers",
+      "1600 bytes and 5 packets per second",
+      "8 bytes and 8000 packets per second",
+      "A router ACL named EF"
+     ],
+     "answer": 0,
+     "why": "Headers are additional. EF is the class in RFC 4594, not a line of router configuration here.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    "offer": "v=0\no=alice 60 60 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n",
+    "answer": "v=0\no=bob 61 61 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40030 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "Budgeting 160 bytes as the whole packet",
+    "symptom": "A capacity sheet reserves 64 kbit/s per call and the link saturates. ptime is 20 and the codec is G.711.",
+    "log": "a=ptime:20\na=rtpmap:0 PCMU/8000\nplanned size: 160 bytes end to end\nobserved: IP+UDP+RTP headers on every packet, 50 packets/s\n",
+    "choices": [
+     "160 bytes is payload only. Headers are extra, at 50 packets per second",
+     "ptime 20 means 20 bytes",
+     "EF forbids G.711",
+     "The timestamp step is 20"
+    ],
+    "answer": 0,
+    "why": "G.711 at 20 ms is 160 payload bytes and 50 packets per second. Each packet also carries IP, UDP, and RTP headers.",
+    "cause": "The plan counted the codec payload and ignored per-packet headers.",
+    "fix": "Keep 160 bytes plus headers in the budget. Mark voice into the EF class per RFC 4594 and RFC 3246 inside the operator's existing QoS design, not from a config invented here.",
+    "cites": [
+     {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     },
+     {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     },
+     {
+      "label": "RFC 4594",
+      "url": "https://www.rfc-editor.org/rfc/rfc4594"
+     },
+     {
+      "label": "RFC 3246",
+      "url": "https://www.rfc-editor.org/rfc/rfc3246"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "one-way-audio",
+   "title": "One-way audio",
+   "minutes": 14,
+   "tags": [
+    "one-way",
+    "direction",
+    "rtp"
+   ],
+   "summary": "A 200 OK can be perfect while one RTP direction is missing. Read direction, c=, and who is actually sending.",
+   "objectives": [
+    "Separate a completed offer/answer from flowing RTP",
+    "Check sendonly, recvonly, and inactive before blaming the codec",
+    "Use RTCP to see which side is silent"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "What to check, in order",
+    "caption": "Signaling success is the first box, not the last.",
+    "nodes": [
+     "200 OK",
+     "Direction",
+     "c= and ports",
+     "RTCP"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Signaling can be done while one direction is not",
+     "paragraphs": [
+      "One-way audio means RTP is arriving in one direction and not in the other. The SIP 200 OK only proves that an answer was delivered, so the next read is the direction attribute on each m-line.",
+      "An answer of sendonly means that answerer will send and does not want to receive. An answer of inactive means neither side sends. Either one produces a missing direction even when the codec name matched."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 3550",
+       "url": "https://www.rfc-editor.org/rfc/rfc3550"
+      }
+     ]
+    },
+    {
+     "h": "Then the path",
+     "paragraphs": [
+      "If both directions are sendrecv and RTP still fails one way, compare the c= address and the m= port with the UDP packets you captured. The address in SDP is where the sender was told to transmit, and a packet that never arrives there is a path problem.",
+      "RTCP sender reports show which side has sent. Filter the capture with the Wireshark RTP display filters, and use the SIP display-filter reference for the signaling half. Do not change payload types until direction and path have been read."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3550",
+       "url": "https://www.rfc-editor.org/rfc/rfc3550"
+      },
+      {
+       "label": "Wireshark RTP display filter reference",
+       "url": "https://www.wireshark.org/docs/dfref/r/rtp.html"
+      },
+      {
+       "label": "Wireshark SIP display filter reference",
+       "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Answer says sendonly",
+    "parties": [
+     "Alice",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Alice offers sendrecv on PCMU. She will send and receive if the answer agrees.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 146\n\nv=0\no=alice 60 60 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying does not set media direction.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer is sendonly. The carrier will send and will not receive Alice. That is one-way audio by negotiation.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 128\n\nv=0\no=bob 90 90 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40060 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendonly\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK does not repair the direction. A new offer is required if the call should be sendrecv.",
+      "message": "ACK sip:bob@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKack1way\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "One-way audio with a 200 OK means",
+     "choices": [
+      "RTP is missing or suppressed in one direction",
+      "SIP failed",
+      "The Call-ID is wrong",
+      "ptime must be 0"
+     ],
+     "answer": 0,
+     "why": "Read direction, then c= and the ports, then RTCP.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "An answer of a=sendonly means the answerer will",
+     "choices": [
+      "Send and not receive",
+      "Receive and not send",
+      "Reject the stream",
+      "Use G.722 at clock 16000"
+     ],
+     "answer": 0,
+     "why": "That negotiation itself creates one direction.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "a=inactive means",
+     "choices": [
+      "Neither side sends that stream",
+      "Both sides send",
+      "The port is 5060",
+      "RTCP is disabled by RFC 3550 always"
+     ],
+     "answer": 0,
+     "why": "Inactive is also a common hold, and it sounds like silence.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "If direction is sendrecv on both sides, you next check",
+     "choices": [
+      "The c= address and whether RTP arrives on the m= port",
+      "Only the From display name",
+      "The digest algorithm",
+      "Whether 100 Trying had SDP"
+     ],
+     "answer": 0,
+     "why": "The SDP address is the destination the sender was given.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "A sender report from only one side shows",
+     "choices": [
+      "Only that side has been sending RTP",
+      "The SIP dialog failed",
+      "Port 0 was used",
+      "telephone-event is mandatory"
+     ],
+     "answer": 0,
+     "why": "RTCP counters are the media evidence.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "The Wireshark references in this lesson are for",
+     "choices": [
+      "RTP and SIP display filters",
+      "Writing a router ACL",
+      "Choosing an Opus license",
+      "Replacing RFC 3550"
+     ],
+     "answer": 0,
+     "why": "Use them to slice the capture after you know the ports.",
+     "cite": {
+      "label": "Wireshark RTP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/r/rtp.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "200 OK",
+     "back": "Offer/answer finished. It does not prove both RTP directions.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "sendonly answer",
+     "back": "Answerer sends, does not receive. One-way by negotiation.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "c= and port",
+     "back": "The destination you must capture.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "front": "SR from one side",
+     "back": "The other side is not sending, according to RTCP.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Spot sendonly in the answer",
+    "kind": "capture",
+    "prompt": "Extract the INVITE and the 200 OK. Compare a=sendrecv in the offer with the answer direction.",
+    "steps": [
+     "Press Extract SIP.",
+     "Read the offer direction.",
+     "Read the answer direction."
+    ],
+    "check": {
+     "q": "This answer produces one-way audio because it is",
+     "choices": [
+      "sendonly",
+      "sendrecv",
+      "missing a Call-ID",
+      "using payload type 18"
+     ],
+     "answer": 0,
+     "why": "The offer was sendrecv. The answerer will send and will not receive.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    "message": "Sent:\nINVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 146\n\nv=0\no=alice 60 60 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n\nReceived:\nSIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 128\n\nv=0\no=bob 90 90 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40060 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendonly\n"
+   },
+   "fault": {
+    "title": "Silence toward the caller, media toward the callee",
+    "symptom": "The callee hears the caller. The caller hears nothing. SIP is 200 OK.",
+    "log": "offer a=sendrecv\nanswer a=recvonly\nc=IN IP4 192.0.2.40\nm=audio 40060 RTP/AVP 0\nRTP from 203.0.113.10 arrives\nRTP from 192.0.2.40 is absent\nRTCP SR only from 203.0.113.10\n",
+    "choices": [
+     "The answer is recvonly, so the answerer does not send",
+     "recvonly means the offer was illegal",
+     "Missing RTP from the carrier is a digest failure",
+     "The fix is to set the G.722 clock to 16000"
+    ],
+    "answer": 0,
+    "why": "recvonly is the answerer's direction. They receive and they do not send, which matches a sender report from only 203.0.113.10.",
+    "cause": "The stream was negotiated one way. The packet capture agrees with the SDP.",
+    "fix": "If the call should be two-way, send a new offer with sendrecv and require a sendrecv answer. If this is hold, sendonly or inactive was the wrong shape for what users expect, so correct the direction rather than the codec.",
+    "cites": [
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     },
+     {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    ]
+   },
+   "level": "Core"
+  }
+ ]
+}

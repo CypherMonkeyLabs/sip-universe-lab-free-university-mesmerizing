@@ -1,0 +1,927 @@
+{
+ "flows": [
+  {
+   "title": "Foundations and how to read a call: Signaling agrees the session",
+   "parties": [
+    "Alice",
+    "SBC",
+    "Bob"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The INVITE is signaling. The body is an SDP offer, which names RTP addresses and does not carry voice samples.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "100 Trying is hop by hop. A stateful proxy generates it and does not relay a downstream 100.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The SBC in this ladder forwards the request. The media path is still only a proposal.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "180",
+     "kind": "res",
+     "note": "180 Ringing is provisional. Without 100rel it is not retransmitted by the transaction layer.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "180",
+     "kind": "res",
+     "note": "The same ringing status is forwarded upstream. The dialog is early once a To tag exists.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "200",
+     "kind": "res",
+     "note": "200 OK carries the answer SDP. That completes offer/answer for this INVITE.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "200",
+     "kind": "res",
+     "note": "The caller learns the answer only from the 200 that reaches the caller.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 0,
+     "to": 1,
+     "label": "ACK",
+     "kind": "req",
+     "note": "The ACK for this 2xx is a new transaction and runs end to end. It uses the INVITE CSeq number with the method token ACK.",
+     "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+    }
+   ]
+  },
+  {
+   "title": "SIP core: messages, transactions, dialogs: Redirect steps out, proxy stays",
+   "parties": [
+    "UA",
+    "Redirect",
+    "Proxy",
+    "Peer"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The redirect server is the UAS for this transaction only.",
+     "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKred1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "302",
+     "kind": "res",
+     "note": "302 gives a Contact and creates no ongoing dialog to stay in.",
+     "message": "SIP/2.0 302 Moved Temporarily\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKred1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=red9\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@203.0.113.20>\nContent-Length: 0\n"
+    },
+    {
+     "from": 0,
+     "to": 1,
+     "label": "ACK",
+     "kind": "req",
+     "note": "The non-2xx ACK uses the INVITE branch. The redirect server is done.",
+     "message": "ACK sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKred1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=red9\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+    },
+    {
+     "from": 0,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "A new transaction, new branch, new Call-ID, aimed at the Contact.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKprox1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: b7c8d9e0f1@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+    },
+    {
+     "from": 2,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "The proxy generates 100. It will not relay a downstream 100.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKprox1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: b7c8d9e0f1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 2,
+     "to": 3,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Proxy Via on top, Max-Forwards 69, Contact left as the caller's.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKprox2\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKprox1\nMax-Forwards: 69\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: b7c8d9e0f1@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+    },
+    {
+     "from": 3,
+     "to": 2,
+     "label": "200",
+     "kind": "res",
+     "note": "The peer is the UAS. Its Contact becomes the remote target.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKprox2\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKprox1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: b7c8d9e0f1@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 197\n\nv=0\no=peer 10 11 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    }
+   ]
+  },
+  {
+   "title": "Call flows that operators actually trace: Hop-by-hop ACK of a 603",
+   "parties": [
+    "UA",
+    "Proxy",
+    "Peer"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Caller branch z9hG4bKalice01. No To tag.",
+     "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKalice01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "The proxy generates 100. This is not the ACK.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKalice01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Proxy branch z9hG4bKproxy01 on a new Via. Max-Forwards is 69.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKproxy01\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKalice01\nMax-Forwards: 69\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "603",
+     "kind": "err",
+     "note": "603 Decline is a final non-2xx. Both Vias come back.",
+     "message": "SIP/2.0 603 Decline\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKproxy01\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKalice01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=dec603\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "ACK",
+     "kind": "req",
+     "note": "The proxy transaction ACKs the peer. Same branch as the proxy's INVITE.",
+     "message": "ACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKproxy01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=dec603\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "603",
+     "kind": "err",
+     "note": "The proxy forwards 603 upstream. It does not forward the peer's ACK.",
+     "message": "SIP/2.0 603 Decline\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKalice01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=dec603\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 0,
+     "to": 1,
+     "label": "ACK",
+     "kind": "req",
+     "note": "The caller transaction ACKs the proxy. Branch z9hG4bKalice01 again.",
+     "message": "ACK sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKalice01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=dec603\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+    }
+   ]
+  },
+  {
+   "title": "Registration, DNS, and routing: Challenge, then a binding",
+   "parties": [
+    "UA",
+    "Registrar"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "REGISTER",
+     "kind": "req",
+     "note": "To is the address-of-record. Contact is the binding. Expires is 3600.",
+     "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKreg1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>\nCall-ID: reg-1@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;expires=3600\nExpires: 3600\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "401",
+     "kind": "err",
+     "note": "WWW-Authenticate is a registrar challenge. This is not a dialog.",
+     "message": "SIP/2.0 401 Unauthorized\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKreg1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>;tag=regtag\nCall-ID: reg-1@example.com\nCSeq: 1 REGISTER\nWWW-Authenticate: Digest realm=\"example.com\", nonce=\"abc123\", algorithm=MD5\nContent-Length: 0\n"
+    },
+    {
+     "from": 0,
+     "to": 1,
+     "label": "REGISTER",
+     "kind": "req",
+     "note": "Same Call-ID, CSeq 2, Authorization present. The binding is requested again.",
+     "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKreg2\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>\nCall-ID: reg-1@example.com\nCSeq: 2 REGISTER\nContact: <sip:alice@203.0.113.10>;expires=3600\nAuthorization: Digest realm=\"example.com\", nonce=\"abc123\", uri=\"sip:example.com\", response=\"00000000000000000000000000000000\"\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "200",
+     "kind": "res",
+     "note": "200 OK lists the Contact the registrar stored.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKreg2\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:alice@example.com>;tag=regtag\nCall-ID: reg-1@example.com\nCSeq: 2 REGISTER\nContact: <sip:alice@203.0.113.10>;expires=3600\nContent-Length: 0\n"
+    }
+   ]
+  },
+  {
+   "title": "SDP and offer/answer: SDP rides inside the INVITE",
+   "parties": [
+    "Alice",
+    "SBC",
+    "Carrier"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The offer is the SDP body of this INVITE. Count v, c, and m before you read any RTP.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 209\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 49172 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "100 Trying has no SDP. It does not accept or reject a stream.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The SBC forwards an offer. The m-line order in this body is the order the answer must follow.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 209\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 49172 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "200",
+     "kind": "res",
+     "note": "The answer keeps two m-lines. The second port is 0, which rejects that stream and leaves the slot in place.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 183\n\nv=0\no=bob 20 20 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 0 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+    }
+   ]
+  },
+  {
+   "title": "RTP, codecs, and DTMF: SIP finishes, then RTP starts",
+   "parties": [
+    "Alice",
+    "SBC",
+    "Carrier"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "SDP offers UDP port 49170. No RTP header exists inside this INVITE.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "Trying has no sequence number and no SSRC.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The SBC offers its own media address. The RTP header is still not in the SIP message.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "200",
+     "kind": "res",
+     "note": "The answer names the far RTP port. Version, sequence, timestamp, SSRC, and marker begin on the UDP packets that follow.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    }
+   ]
+  },
+  {
+   "title": "TLS, SRTP, identity, and abuse: 407 first, then a 401",
+   "parties": [
+    "Alice",
+    "Proxy",
+    "UAS"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The first INVITE has no digest header. The proxy has not authenticated Alice.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "407",
+     "kind": "res",
+     "note": "407 from the proxy. The matching client header on the retry is Proxy-Authorization.",
+     "message": "SIP/2.0 407 Proxy Authentication Required\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=p407\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nProxy-Authenticate: Digest realm=\"example.com\", nonce=\"c0ffee01\", algorithm=SHA-256, qop=\"auth\"\nContent-Length: 0\n"
+    },
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The retry carries Proxy-Authorization. The response value here is the placeholder not-computed, so this trace is not a usable credential.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKauth02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nProxy-Authorization: Digest realm=\"example.com\", username=\"alice\", algorithm=SHA-256, uri=\"sip:+15551212@example.com\", response=\"not-computed\"\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "401",
+     "kind": "res",
+     "note": "The UAS still wants the user authenticated. 401 uses WWW-Authenticate, and the client answer is Authorization, while Proxy-Authorization stays in the request for the proxy.",
+     "message": "SIP/2.0 401 Unauthorized\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=u401\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nWWW-Authenticate: Digest realm=\"example.com\", nonce=\"c0ffee02\", algorithm=SHA-256, qop=\"auth\"\nContent-Length: 0\n"
+    }
+   ]
+  },
+  {
+   "title": "NAT, ICE, and the ALG problem: Offer with a documentation address",
+   "parties": [
+    "Alice",
+    "NAT",
+    "Carrier"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Alice sends c= 203.0.113.10. That address is inside SDP, not only in the IP header.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "NAT can change the packet source. It does not, by itself, rewrite c= or Contact.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKnatfwd\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 132\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "180",
+     "kind": "res",
+     "note": "Ringing proves signaling arrived. It does not prove the c= address is a place RTP can go.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "200",
+     "kind": "res",
+     "note": "The answer names 192.0.2.40. RTP from the carrier is aimed at whatever c= said, which NAT may not have fixed.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 140\n\nv=0\no=bob 61 61 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40030 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=ptime:20\na=sendrecv\n"
+    }
+   ]
+  },
+  {
+   "title": "Session border controllers: Requirements do not change the ladder",
+   "parties": [
+    "Alice",
+    "SBC",
+    "Bob"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Alice still sends an ordinary INVITE. RFC 5853 does not replace that request.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 216\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "100 Trying is still hop-by-hop on this leg.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The SBC, acting as a B2BUA, creates the outbound INVITE.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 216\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "180",
+     "kind": "res",
+     "note": "180 Ringing is still a provisional response.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "180",
+     "kind": "res",
+     "note": "The caller leg learns that the far side is alerting.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "200",
+     "kind": "res",
+     "note": "200 OK still carries the answer SDP on the far leg.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 199\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "200",
+     "kind": "res",
+     "note": "The caller receives 200 OK only after the SBC forwards it.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 199\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+    },
+    {
+     "from": 0,
+     "to": 1,
+     "label": "ACK",
+     "kind": "req",
+     "note": "ACK completes the caller dialog. No SBC-specific method appears.",
+     "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+    }
+   ]
+  },
+  {
+   "title": "Cisco CUBE, CUCM, and Unity Connection: CUBE between the phone and the carrier",
+   "parties": [
+    "Alice",
+    "SBC",
+    "Bob"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The phone invites CUBE at 203.0.113.20.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 216\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "CUBE answers 100 Trying as the UAS.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "CUBE creates the carrier INVITE as the UAC.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 216\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "180",
+     "kind": "res",
+     "note": "The carrier sends 180 Ringing on its dialog.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "180",
+     "kind": "res",
+     "note": "CUBE forwards alerting toward the phone.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "200",
+     "kind": "res",
+     "note": "The carrier sends 200 OK with SDP.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 199\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "200",
+     "kind": "res",
+     "note": "CUBE sends 200 OK on the caller dialog.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 199\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+    },
+    {
+     "from": 0,
+     "to": 1,
+     "label": "ACK",
+     "kind": "req",
+     "note": "The phone ACK completes the caller leg.",
+     "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+    }
+   ]
+  },
+  {
+   "title": "Oracle, Ribbon, and AudioCodes: Two sides of one Oracle SBC",
+   "parties": [
+    "Phone",
+    "SBC",
+    "Carrier"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The request arrives on the inside sip-interface.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nServer: ExampleProxy/1.0\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "The SBC answers as the UAS.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The session-agent INVITE is a new request. Server was not copied.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "100",
+     "kind": "res",
+     "note": "The carrier sees only the outside dialog.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    }
+   ]
+  },
+  {
+   "title": "Cloud voice and CCaaS SIP: INVITE to the primary proxy",
+   "parties": [
+    "SBC",
+    "sip.pstnhub.microsoft.com"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Contact is sip:sbc@sbc1.example.com. Media in this offer is RTP/SAVP.",
+     "message": "INVITE sip:+15551212@sip.pstnhub.microsoft.com:5061 SIP/2.0\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKteams01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamstag\nTo: <sip:+15551212@example.com>\nCall-ID: teams-call-1@sbc1.example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 147\n\nv=0\no=sbc 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "The proxy has the transaction. 100 does not mean the SBC is healthy.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKteams01\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamstag\nTo: <sip:+15551212@example.com>\nCall-ID: teams-call-1@sbc1.example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "180",
+     "kind": "res",
+     "note": "Alerting comes back on the same Via.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKteams01\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamstag\nTo: <sip:+15551212@example.com>;tag=pstntag\nCall-ID: teams-call-1@sbc1.example.com\nCSeq: 1 INVITE\nContact: <sip:sip.pstnhub.microsoft.com:5061;transport=tls>\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "200",
+     "kind": "res",
+     "note": "200 OK answers the INVITE. Health of the trunk is a separate OPTIONS exchange.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKteams01\nFrom: \"Alice\" <sip:alice@example.com>;tag=teamstag\nTo: <sip:+15551212@example.com>;tag=pstntag\nCall-ID: teams-call-1@sbc1.example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:sip.pstnhub.microsoft.com:5061;transport=tls>\nContent-Length: 147\n\nv=0\no=sbc 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv"
+    }
+   ]
+  },
+  {
+   "title": "Troubleshooting ladders, captures, and debug: Match this dialog, then the 2xx ACK",
+   "parties": [
+    "Alice",
+    "SBC",
+    "Bob"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Early offer. Record Call-ID a84b4c76e66710@example.com, CSeq 1 INVITE, and branch z9hG4bK7766as01. There is no To tag yet.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "100 Trying is hop by hop. It stops INVITE retransmissions on this hop. It is not ringing and it does not create the dialog.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The B2BUA sends a new INVITE. Expect a new Via branch. The Call-ID on this leg may differ because this SBC is a B2BUA.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "180",
+     "kind": "res",
+     "note": "180 Ringing can carry a To tag and a Contact. That tag is the start of an early dialog if the response is tagged.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "180",
+     "kind": "res",
+     "note": "The SBC forwards 180 on the caller leg. Match it by the caller leg's Call-ID and the branch of the INVITE that leg sent.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "200",
+     "kind": "res",
+     "note": "200 OK carries the answer SDP and a To tag. This is the final success response for CSeq 1 INVITE.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "200",
+     "kind": "res",
+     "note": "The caller sees the answer only after this forwarded 200. The Contact here is where the end-to-end ACK will be aimed.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 0,
+     "to": 1,
+     "label": "ACK",
+     "kind": "req",
+     "note": "This ACK follows a 2xx, so it is end to end and it uses its own branch. A non-2xx ACK would have reused the INVITE branch and stopped at the previous hop.",
+     "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+    }
+   ]
+  },
+  {
+   "title": "Toll fraud, E911, recording, and QoS: An intended path among lab addresses",
+   "parties": [
+    "CUCM",
+    "CUBE",
+    "Carrier"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Source 198.51.100.30 is a listed call agent. The request is eligible to be routed. An unlisted source is disconnected under the product's trusted-list procedure and is not drawn here.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@198.51.100.30>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 220\n\nv=0\no=alice 2890844526 2890844526 IN IP4 198.51.100.30\ns=-\nc=IN IP4 198.51.100.30\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "CUBE has the INVITE from the call agent.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Outbound leg toward the carrier at 192.0.2.40. The destination is one the numbering plan allows.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "200",
+     "kind": "res",
+     "note": "Carrier accepts. International destinations outside the plan are an alarm, not a second route you add in this lesson.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    }
+   ]
+  },
+  {
+   "title": "Ecosystem, certifications, and the UC bridge: Roles on a single call",
+   "parties": [
+    "Alice",
+    "SBC",
+    "Bob"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Alice is a user agent. The INVITE is her request. The glossary row for UA cites RFC 3261.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "100 Trying is the next hop doing proxy or B2BUA work. Name which one after you see whether Call-ID changes.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "This outbound INVITE is a new leg. If Call-ID changes, write B2BUA, RFC 7092, not proxy.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "180",
+     "kind": "res",
+     "note": "180 is a response from the far user agent, forwarded back. The status phrase is RFC 3261 section 21.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "180",
+     "kind": "res",
+     "note": "The SBC forwarding 180 is still the same role you wrote down on the outbound INVITE.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "200",
+     "kind": "res",
+     "note": "200 OK carries the answer. SDP is its own glossary row, RFC 8866, negotiated by RFC 3264.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "200",
+     "kind": "res",
+     "note": "Alice receives the answer. She is still the UAC for this dialog.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 0,
+     "to": 1,
+     "label": "ACK",
+     "kind": "req",
+     "note": "The 2xx ACK is end to end. The glossary row for that ACK cites RFC 3261 and RFC 6026.",
+     "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+    }
+   ]
+  },
+  {
+   "title": "Interviews, incidents, and design drills: The ladder the interview is about",
+   "parties": [
+    "Alice",
+    "SBC",
+    "Bob"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Answer out loud: Call-ID a84b4c76e66710@example.com, CSeq 1 INVITE, branch z9hG4bK7766as01, no To tag yet.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "Answer out loud: 100 Trying is hop by hop. It is not ringing.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Answer out loud: a B2BUA may use a new branch and even a new Call-ID on this leg. Match this leg on its own headers.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "180",
+     "kind": "res",
+     "note": "Answer out loud: 180 can add the To tag. The dialog is forming. It is still provisional.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "180",
+     "kind": "res",
+     "note": "Answer out loud: forwarded 180 must match the caller leg's Call-ID and branch.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "200",
+     "kind": "res",
+     "note": "Answer out loud: 200 OK is the success final. The end-to-end ACK will use the Contact.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "200",
+     "kind": "res",
+     "note": "Answer out loud: the caller sees the answer only on this forwarded 200.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+    },
+    {
+     "from": 0,
+     "to": 1,
+     "label": "ACK",
+     "kind": "req",
+     "note": "Answer out loud: this ACK is end to end because it follows a 2xx. RFC 6026. A 487 would have been acknowledged hop by hop on the INVITE branch.",
+     "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+    }
+   ]
+  }
+ ],
+ "messages": {
+  "invite": "OPTIONS sip:example.com SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.10;branch=z9hG4bKopt1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:example.com>\nCall-ID: opt-1@example.com\nCSeq: 1 OPTIONS\nContact: <sip:alice@203.0.113.10;transport=tls>\nContent-Length: 0\n"
+ },
+ "sdp": {
+  "offer": "v=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49180 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n",
+  "answer": "v=0\no=peer 10 11 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+ },
+ "sandbox": {
+  "rules": "request INVITE sip-header From modify \"alice@example.com\" \"+15551212@example.com\"",
+  "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 0\n"
+ },
+ "capture": "Oct 14 12:00:01.123: //-1/xxxxxxxxxxxx/SIP/Msg/ccsipDisplayMsg:\nReceived:\nINVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+}

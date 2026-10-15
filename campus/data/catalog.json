@@ -1,0 +1,1447 @@
+{
+ "stats": {
+  "tracks": 16,
+  "lessons": 112,
+  "quizzes": 672,
+  "cards": 448,
+  "labs": 112,
+  "faults": 112,
+  "boss": 8,
+  "interview": 40,
+  "glossary": 109,
+  "cites": 2304
+ },
+ "preview": {
+  "title": "A call, compressed",
+  "parties": [
+   "Alice",
+   "SBC",
+   "Bob"
+  ],
+  "steps": [
+   {
+    "from": 0,
+    "to": 1,
+    "label": "INVITE",
+    "kind": "req",
+    "note": "INVITE carries the offer.",
+    "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+   },
+   {
+    "from": 1,
+    "to": 0,
+    "label": "100",
+    "kind": "res",
+    "note": "100 Trying only stops the retransmit.",
+    "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+   },
+   {
+    "from": 1,
+    "to": 2,
+    "label": "INVITE",
+    "kind": "req",
+    "note": "The SBC starts its own INVITE.",
+    "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+   },
+   {
+    "from": 2,
+    "to": 1,
+    "label": "180",
+    "kind": "res",
+    "note": "180 means alerting.",
+    "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+   },
+   {
+    "from": 1,
+    "to": 0,
+    "label": "180",
+    "kind": "res",
+    "note": "The caller is told it is ringing.",
+    "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+   },
+   {
+    "from": 2,
+    "to": 1,
+    "label": "200",
+    "kind": "res",
+    "note": "200 OK carries the answer.",
+    "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+   },
+   {
+    "from": 1,
+    "to": 0,
+    "label": "200",
+    "kind": "res",
+    "note": "The answer is forwarded.",
+    "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+   },
+   {
+    "from": 0,
+    "to": 1,
+    "label": "ACK",
+    "kind": "req",
+    "note": "ACK completes the 2xx handshake.",
+    "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+   }
+  ]
+ },
+ "tracks": [
+  {
+   "id": "foundations",
+   "title": "Foundations and how to read a call",
+   "summary": "What SIP is for, which network facts it assumes, and how to read a ladder without inventing rules.",
+   "level": "Foundation",
+   "order": 1,
+   "file": "data/tracks/01-foundations.json",
+   "lessons": [
+    {
+     "id": "what-sip-is",
+     "title": "What SIP is for",
+     "summary": "SIP creates, changes, and ends sessions, while RTP carries the media those sessions describe.",
+     "minutes": 14,
+     "tags": [
+      "rfc3261",
+      "overview"
+     ]
+    },
+    {
+     "id": "prereq-network",
+     "title": "Ports, transports, and where a request can go",
+     "summary": "SIP uses UDP or TCP on 5060 and TLS on 5061, and a request that does not fit one datagram needs a connection.",
+     "minutes": 13,
+     "tags": [
+      "transport",
+      "ports"
+     ]
+    },
+    {
+     "id": "e164-and-uris",
+     "title": "E.164, sip URIs, and tel URIs",
+     "summary": "A global number is written in a tel URI or in a sip URI user part, and E.164 is the numbering plan those digits follow.",
+     "minutes": 12,
+     "tags": [
+      "uri",
+      "e164",
+      "rfc3966"
+     ]
+    },
+    {
+     "id": "reading-an-rfc",
+     "title": "How to read an RFC",
+     "summary": "A SIP argument cites the RFC number and the section, and the normative sentences outrank a broken example.",
+     "minutes": 12,
+     "tags": [
+      "rfc",
+      "citations"
+     ]
+    },
+    {
+     "id": "hitchhiker",
+     "title": "The hitchhiker guide is a map",
+     "summary": "RFC 5411 is an informational map of the SIP document set, and it does not replace the base specification.",
+     "minutes": 11,
+     "tags": [
+      "rfc5411",
+      "index"
+     ]
+    },
+    {
+     "id": "licensing",
+     "title": "Licenses, codecs, and what you may copy",
+     "summary": "Protocol text is under the IETF trust provisions, and codec rights have to be read from the codec's own documents.",
+     "minutes": 12,
+     "tags": [
+      "license",
+      "codecs"
+     ]
+    },
+    {
+     "id": "first-message",
+     "title": "Reading the first INVITE",
+     "summary": "The first INVITE has a magic-cookie branch, Max-Forwards 70, a From tag, and no To tag.",
+     "minutes": 15,
+     "tags": [
+      "invite",
+      "headers",
+      "rfc5737"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sip-core",
+   "title": "SIP core: messages, transactions, dialogs",
+   "summary": "Roles, methods, headers, transaction timers, dialog identity, and the transports those rules sit on.",
+   "level": "Core",
+   "order": 2,
+   "file": "data/tracks/02-sip-core.json",
+   "lessons": [
+    {
+     "id": "roles",
+     "title": "Roles a trace is actually showing",
+     "summary": "A trace shows a user agent, a proxy, a registrar, a redirect server, or a B2BUA, and products often combine those roles.",
+     "minutes": 13,
+     "tags": [
+      "roles",
+      "proxy",
+      "b2bua"
+     ]
+    },
+    {
+     "id": "methods-and-codes",
+     "title": "Methods and status codes",
+     "summary": "The core methods are INVITE, ACK, OPTIONS, BYE, CANCEL, and REGISTER, and status codes fall into six classes.",
+     "minutes": 14,
+     "tags": [
+      "methods",
+      "responses"
+     ]
+    },
+    {
+     "id": "headers-and-compact",
+     "title": "Headers and compact forms",
+     "summary": "Compact header names are aliases from RFC 3261, with a few more aliases defined in the extension RFCs.",
+     "minutes": 14,
+     "tags": [
+      "headers",
+      "compact"
+     ]
+    },
+    {
+     "id": "transactions",
+     "title": "Transactions and the branch cookie",
+     "summary": "A transaction is identified by the branch, and a retransmission repeats that branch instead of starting a new one.",
+     "minutes": 15,
+     "tags": [
+      "transaction",
+      "branch"
+     ]
+    },
+    {
+     "id": "dialogs",
+     "title": "Dialog identity",
+     "summary": "A dialog is identified by Call-ID, the From tag, and the To tag, and the initial request has no To tag.",
+     "minutes": 14,
+     "tags": [
+      "dialog",
+      "tags"
+     ]
+    },
+    {
+     "id": "three-clocks",
+     "title": "T1, the transaction timeout, and Timer C",
+     "summary": "T1 seeds retransmissions, 64 times T1 ends the transaction, and Timer C is the proxy's longer INVITE arm.",
+     "minutes": 13,
+     "tags": [
+      "timers",
+      "t1"
+     ]
+    },
+    {
+     "id": "transports",
+     "title": "UDP, TCP, TLS, and WebSocket",
+     "summary": "The transport is a property of the hop, written in Via, and it changes retransmission and framing rather than the SIP methods.",
+     "minutes": 13,
+     "tags": [
+      "udp",
+      "tcp",
+      "tls",
+      "websocket"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "call-flows",
+   "title": "Call flows that operators actually trace",
+   "summary": "The ACK split, route sets, PRACK, UPDATE, session timers, teardown, and transfer.",
+   "level": "Core",
+   "order": 3,
+   "file": "data/tracks/03-call-flows.json",
+   "lessons": [
+    {
+     "id": "two-acks",
+     "title": "Two different ACK rules",
+     "summary": "The ACK for a non-2xx is hop by hop inside the INVITE transaction, and the ACK for a 2xx is a new end-to-end transaction.",
+     "minutes": 15,
+     "tags": [
+      "ack",
+      "rfc6026"
+     ]
+    },
+    {
+     "id": "record-route",
+     "title": "Record-Route and the route set",
+     "summary": "A proxy that wants to stay on the dialog prepends a Record-Route URI, and that URI has to contain lr.",
+     "minutes": 15,
+     "tags": [
+      "record-route",
+      "route"
+     ]
+    },
+    {
+     "id": "prack",
+     "title": "PRACK and reliable provisionals",
+     "summary": "A provisional response with Require: 100rel is retransmitted until PRACK, and RAck names that exact response.",
+     "minutes": 14,
+     "tags": [
+      "prack",
+      "100rel"
+     ]
+    },
+    {
+     "id": "update",
+     "title": "UPDATE before the INVITE completes",
+     "summary": "UPDATE can change the session while the initial INVITE is still outstanding, and it does not use the ACK rules.",
+     "minutes": 14,
+     "tags": [
+      "update",
+      "rfc3311"
+     ]
+    },
+    {
+     "id": "session-timers",
+     "title": "Session-Expires and 422",
+     "summary": "Session timers name who refreshes the dialog, and 422 tells the caller the interval was below Min-SE.",
+     "minutes": 13,
+     "tags": [
+      "timer",
+      "rfc4028"
+     ]
+    },
+    {
+     "id": "cancel-bye-reinvite",
+     "title": "CANCEL, BYE, and re-INVITE",
+     "summary": "CANCEL abandons an unanswered INVITE, BYE ends a confirmed dialog, and re-INVITE changes a dialog that already exists.",
+     "minutes": 14,
+     "tags": [
+      "cancel",
+      "bye",
+      "reinvite"
+     ]
+    },
+    {
+     "id": "refer-replaces",
+     "title": "REFER and Replaces",
+     "summary": "REFER asks another UA to send a request, and Replaces names the dialog that request should take over.",
+     "minutes": 14,
+     "tags": [
+      "refer",
+      "replaces"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "routing",
+   "title": "Registration, DNS, and routing",
+   "summary": "Bindings, DNS location, loose routing, outbound flows, Path, Service-Route, GRUU, and forking.",
+   "level": "Core",
+   "order": 4,
+   "file": "data/tracks/04-routing.json",
+   "lessons": [
+    {
+     "id": "register",
+     "title": "REGISTER and bindings",
+     "summary": "REGISTER binds an address-of-record to one or more Contacts, and the registrar is a different role from the proxy.",
+     "minutes": 14,
+     "tags": [
+      "register",
+      "bindings"
+     ]
+    },
+    {
+     "id": "dns-3263",
+     "title": "Locating a server with RFC 3263",
+     "summary": "RFC 3263 turns a SIP domain into a transport, a port, and an address with NAPTR, SRV, and A or AAAA.",
+     "minutes": 13,
+     "tags": [
+      "dns",
+      "naptr",
+      "srv"
+     ]
+    },
+    {
+     "id": "loose-routing",
+     "title": "Loose routing and Max-Forwards",
+     "summary": "With lr, the Request-URI stays the remote target, each hop pops its own Route, and Max-Forwards of 0 yields 483.",
+     "minutes": 14,
+     "tags": [
+      "lr",
+      "max-forwards",
+      "483"
+     ]
+    },
+    {
+     "id": "outbound",
+     "title": "Outbound, reg-id, and keepalives",
+     "summary": "RFC 5626 binds a UA instance to one or more flows with reg-id and +sip.instance, and keepalives hold those flows open.",
+     "minutes": 13,
+     "tags": [
+      "outbound",
+      "rfc5626"
+     ]
+    },
+    {
+     "id": "path-service-route",
+     "title": "Path and Service-Route",
+     "summary": "Path is the inbound vector stored with a binding, and Service-Route is the outbound vector the registrar gives the UA.",
+     "minutes": 13,
+     "tags": [
+      "path",
+      "service-route"
+     ]
+    },
+    {
+     "id": "gruu",
+     "title": "GRUU and a single instance",
+     "summary": "A GRUU routes to one UA instance, and the registrar returns it as pub-gruu or temp-gruu on the binding.",
+     "minutes": 12,
+     "tags": [
+      "gruu",
+      "rfc5627"
+     ]
+    },
+    {
+     "id": "forking",
+     "title": "Forking and early dialogs",
+     "summary": "A forking proxy creates one client transaction per binding, and each To tag is a separate early dialog.",
+     "minutes": 14,
+     "tags": [
+      "forking",
+      "early-dialog"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sdp",
+   "title": "SDP and offer/answer",
+   "summary": "How to read an SDP body, and how RFC 3264 matches offers to answers without reordering streams.",
+   "level": "Core",
+   "order": 5,
+   "file": "data/tracks/05-sdp.json",
+   "lessons": [
+    {
+     "id": "sdp-anatomy",
+     "title": "The lines in an SDP body",
+     "summary": "Read v, o, s, c, t, m, and a lines as a session description. RFC 8866 is the current SDP specification.",
+     "minutes": 14,
+     "tags": [
+      "sdp",
+      "rfc8866",
+      "session"
+     ]
+    },
+    {
+     "id": "offer-answer-order",
+     "title": "Same m-lines, same order",
+     "summary": "RFC 3264 matches streams by position. The answer has the same number of m-lines, in the same order.",
+     "minutes": 13,
+     "tags": [
+      "offer-answer",
+      "rfc3264",
+      "m-line"
+     ]
+    },
+    {
+     "id": "rtpmap-fmtp",
+     "title": "rtpmap names and fmtp parameters",
+     "summary": "Match codecs by the rtpmap encoding name. The G.722 rtpmap clock stays 8000.",
+     "minutes": 15,
+     "tags": [
+      "rtpmap",
+      "fmtp",
+      "g722"
+     ]
+    },
+    {
+     "id": "direction-hold",
+     "title": "Direction attributes and hold",
+     "summary": "sendrecv, sendonly, recvonly, and inactive are per stream. Hold is commonly sendonly or inactive.",
+     "minutes": 12,
+     "tags": [
+      "direction",
+      "hold",
+      "rfc3264"
+     ]
+    },
+    {
+     "id": "port-zero",
+     "title": "Port 0 rejects a stream",
+     "summary": "Port 0 refuses the stream in that slot. The m-line stays, with a protocol and a format list.",
+     "minutes": 11,
+     "tags": [
+      "port-zero",
+      "rfc3264",
+      "reject"
+     ]
+    },
+    {
+     "id": "early-media",
+     "title": "Early media and 183",
+     "summary": "183 Session Progress with SDP is the usual early-media pattern. 180 means ringing. A 183 does not always have SDP.",
+     "minutes": 14,
+     "tags": [
+      "early-media",
+      "rfc3960",
+      "183"
+     ]
+    },
+    {
+     "id": "pitfalls-6337",
+     "title": "Offer/answer pitfalls in RFC 6337",
+     "summary": "RFC 6337 is the usage document for offer/answer mistakes: order, version, delayed offer, and hold.",
+     "minutes": 13,
+     "tags": [
+      "rfc6337",
+      "pitfalls",
+      "reinvite"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "rtp",
+   "title": "RTP, codecs, and DTMF",
+   "summary": "RTP headers, payload types, codec documents, RTCP, telephone-event, packet time, and one-way audio.",
+   "level": "Core",
+   "order": 6,
+   "file": "data/tracks/06-rtp.json",
+   "lessons": [
+    {
+     "id": "rtp-header",
+     "title": "The RTP header",
+     "summary": "RTP version 2 carries a sequence number, a timestamp, an SSRC, and a marker bit. SIP does not carry those fields.",
+     "minutes": 12,
+     "tags": [
+      "rtp",
+      "rfc3550",
+      "header"
+     ]
+    },
+    {
+     "id": "payload-types",
+     "title": "Static and dynamic payload types",
+     "summary": "RFC 3551 assigns static payload types. Dynamic types are named by rtpmap, and G.722 stays at clock 8000.",
+     "minutes": 13,
+     "tags": [
+      "rfc3551",
+      "payload",
+      "g722"
+     ]
+    },
+    {
+     "id": "codec-choices",
+     "title": "G.711, G.729, and Opus",
+     "summary": "Choose a codec both sides named. Read RFC 6716 and the Opus license before you draw any legal conclusion.",
+     "minutes": 14,
+     "tags": [
+      "opus",
+      "g711",
+      "g729"
+     ]
+    },
+    {
+     "id": "rtcp",
+     "title": "RTCP sender and receiver reports",
+     "summary": "RTCP sender reports and receiver reports describe the RTP flow. A SIP 200 OK does not report loss.",
+     "minutes": 12,
+     "tags": [
+      "rtcp",
+      "rfc3550",
+      "loss"
+     ]
+    },
+    {
+     "id": "telephone-event",
+     "title": "telephone-event and other digit paths",
+     "summary": "telephone-event is RFC 4733, a dynamic payload. Events 0 through 15 are DTMF. INFO and KPML are different tools.",
+     "minutes": 15,
+     "tags": [
+      "dtmf",
+      "rfc4733",
+      "info"
+     ]
+    },
+    {
+     "id": "ptime",
+     "title": "ptime, packet rate, and EF",
+     "summary": "ptime is SDP. Twenty milliseconds of G.711 is 50 packets per second and 160 bytes of payload, plus headers. Voice sits in the EF class.",
+     "minutes": 13,
+     "tags": [
+      "ptime",
+      "bandwidth",
+      "ef"
+     ]
+    },
+    {
+     "id": "one-way-audio",
+     "title": "One-way audio",
+     "summary": "A 200 OK can be perfect while one RTP direction is missing. Read direction, c=, and who is actually sending.",
+     "minutes": 14,
+     "tags": [
+      "one-way",
+      "direction",
+      "rtp"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "security",
+   "title": "TLS, SRTP, identity, and abuse",
+   "summary": "Defensive digest, TLS certificates, SRTP keying, privacy headers, STIR, and abuse controls.",
+   "level": "Advanced",
+   "order": 7,
+   "file": "data/tracks/07-security.json",
+   "lessons": [
+    {
+     "id": "digest",
+     "title": "401, 407, and digest",
+     "summary": "A 401 from a UAS is answered with Authorization. A 407 from a proxy is answered with Proxy-Authorization.",
+     "minutes": 13,
+     "tags": [
+      "digest",
+      "401",
+      "407"
+     ]
+    },
+    {
+     "id": "tls-certs",
+     "title": "TLS and domain certificates",
+     "summary": "SIP over TLS is RFC 3261 section 18. The certificate has to identify the SIP domain, per RFC 5922.",
+     "minutes": 14,
+     "tags": [
+      "tls",
+      "rfc5922",
+      "certs"
+     ]
+    },
+    {
+     "id": "srtp-keying",
+     "title": "SRTP and two keying methods",
+     "summary": "SRTP is RFC 3711. SDES a=crypto is RFC 4568. DTLS-SRTP is RFC 5764. An SBC must not assume peers share one method.",
+     "minutes": 15,
+     "tags": [
+      "srtp",
+      "sdes",
+      "dtls-srtp"
+     ]
+    },
+    {
+     "id": "privacy-pai",
+     "title": "Privacy and asserted identity",
+     "summary": "Privacy is RFC 3323. P-Asserted-Identity and P-Preferred-Identity are for trusted networks, not cryptographic identity.",
+     "minutes": 12,
+     "tags": [
+      "privacy",
+      "pai",
+      "rfc3325"
+     ]
+    },
+    {
+     "id": "stir-shaken",
+     "title": "STIR, PASSporT, and SHAKEN",
+     "summary": "STIR is RFC 8224, PASSporT is RFC 8225, certificates are RFC 8226, and the SHAKEN extension is RFC 8588. Attestation levels are ATIS.",
+     "minutes": 14,
+     "tags": [
+      "stir",
+      "passport",
+      "shaken"
+     ]
+    },
+    {
+     "id": "threats",
+     "title": "Scanning, hijack, and toll fraud",
+     "summary": "Scanning, registration hijack, and toll fraud are classes of abuse. The response is authentication, exposure control, and alerting.",
+     "minutes": 13,
+     "tags": [
+      "abuse",
+      "toll-fraud",
+      "register"
+     ]
+    },
+    {
+     "id": "hardening",
+     "title": "Hardening a SIP edge",
+     "summary": "A defensive edge limits peers, requires digest and TLS, strips PAI, and does not share SRTP keying across legs.",
+     "minutes": 12,
+     "tags": [
+      "hardening",
+      "policy",
+      "edge"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "nat",
+   "title": "NAT, ICE, and the ALG problem",
+   "summary": "Why embedded addresses break, and what rport, STUN, TURN, ICE, SIP ALGs, and media latching each actually do.",
+   "level": "Advanced",
+   "order": 8,
+   "file": "data/tracks/08-nat.json",
+   "lessons": [
+    {
+     "id": "nat-breaks-sip",
+     "title": "Embedded addresses and NAT",
+     "summary": "SIP and SDP embed IP addresses. NAT rewrites the packet header and leaves those embedded addresses behind.",
+     "minutes": 14,
+     "tags": [
+      "nat",
+      "sdp",
+      "contact"
+     ]
+    },
+    {
+     "id": "rport",
+     "title": "rport and symmetric responses",
+     "summary": "RFC 3581 adds rport so the response is sent to the source address and port the request came from.",
+     "minutes": 12,
+     "tags": [
+      "rport",
+      "rfc3581",
+      "via"
+     ]
+    },
+    {
+     "id": "stun",
+     "title": "STUN server-reflexive addresses",
+     "summary": "STUN, RFC 8489, lets a client learn the address a server sees. It obsoletes RFC 5389.",
+     "minutes": 13,
+     "tags": [
+      "stun",
+      "rfc8489",
+      "srflx"
+     ]
+    },
+    {
+     "id": "turn",
+     "title": "TURN relays",
+     "summary": "TURN, RFC 8656, allocates a relay when host and server-reflexive paths fail. It obsoletes RFC 5766.",
+     "minutes": 12,
+     "tags": [
+      "turn",
+      "rfc8656",
+      "relay"
+     ]
+    },
+    {
+     "id": "ice",
+     "title": "ICE candidate types",
+     "summary": "ICE is RFC 8445, which obsoletes RFC 5245. Candidates are host, srflx, prflx, and relay.",
+     "minutes": 15,
+     "tags": [
+      "ice",
+      "rfc8445",
+      "candidates"
+     ]
+    },
+    {
+     "id": "sip-alg",
+     "title": "The SIP ALG problem",
+     "summary": "A SIP ALG rewrites SIP and SDP in transit and often corrupts the call. It cannot rewrite TLS.",
+     "minutes": 13,
+     "tags": [
+      "alg",
+      "tls",
+      "sdp"
+     ]
+    },
+    {
+     "id": "media-latching",
+     "title": "Media latching on an SBC",
+     "summary": "Many SBCs learn the remote RTP address from the first packet instead of trusting c=. That is deployment practice, and RFC 5853 is the requirements RFC.",
+     "minutes": 14,
+     "tags": [
+      "latching",
+      "rfc5853",
+      "sbc"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sbc",
+   "title": "Session border controllers",
+   "summary": "Deployment requirements, the B2BUA role, and the functions whose limits stay on the vendor datasheet.",
+   "level": "Advanced",
+   "order": 9,
+   "file": "data/tracks/09-sbc.json",
+   "lessons": [
+    {
+     "id": "requirements-5853",
+     "title": "RFC 5853 is requirements, not a protocol",
+     "summary": "RFC 5853 collects requirements from SBC deployments. It does not define an SBC wire protocol.",
+     "minutes": 14,
+     "tags": [
+      "sbc",
+      "rfc5853"
+     ]
+    },
+    {
+     "id": "b2bua-7092",
+     "title": "An SBC is commonly a B2BUA",
+     "summary": "RFC 7092 taxonomizes B2BUAs. An SBC is commonly a UAS on one side and a UAC on the other, not a pure proxy.",
+     "minutes": 14,
+     "tags": [
+      "b2bua",
+      "rfc7092"
+     ]
+    },
+    {
+     "id": "topology-hiding",
+     "title": "Topology hiding rewrites the addresses you leak",
+     "summary": "Topology hiding replaces caller addresses in signaling and, when media is anchored, in SDP.",
+     "minutes": 13,
+     "tags": [
+      "topology",
+      "contact",
+      "via"
+     ]
+    },
+    {
+     "id": "media-modes",
+     "title": "Anchor, bypass, transcode, and DTMF",
+     "summary": "Anchoring terminates RTP on the SBC. Bypass lets endpoints exchange media. Transcoding and DTMF interworking need the media path.",
+     "minutes": 15,
+     "tags": [
+      "media",
+      "dtmf",
+      "sdp"
+     ]
+    },
+    {
+     "id": "options-keepalive",
+     "title": "OPTIONS keepalives",
+     "summary": "SBCs probe a peer with OPTIONS. A 200 OK means the peer answered. The interval is product configuration.",
+     "minutes": 12,
+     "tags": [
+      "options",
+      "keepalive"
+     ]
+    },
+    {
+     "id": "admission",
+     "title": "Call admission stays on the datasheet",
+     "summary": "An SBC can refuse a new INVITE when its configured budget is exhausted. The number itself is platform-specific.",
+     "minutes": 12,
+     "tags": [
+      "admission",
+      "503"
+     ]
+    },
+    {
+     "id": "high-availability",
+     "title": "Active and standby, without a made-up timer",
+     "summary": "Active/standby is a product behavior. One unit owns the work and the other is ready. Timers belong in that product’s HA guide.",
+     "minutes": 12,
+     "tags": [
+      "ha",
+      "standby"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cisco",
+   "title": "Cisco CUBE, CUCM, and Unity Connection",
+   "summary": "CUBE as an IOS XE B2BUA, the dial-peer and SIP profile tools, and the CUCM and Unity documents that use different objects with similar names.",
+   "level": "Advanced",
+   "order": 10,
+   "file": "data/tracks/10-cisco.json",
+   "lessons": [
+    {
+     "id": "cube-role",
+     "title": "CUBE is an IOS XE B2BUA",
+     "summary": "Cisco Unified Border Element is a B2BUA on IOS XE. It shares the IOS voice stack with other voice features.",
+     "minutes": 13,
+     "tags": [
+      "cube",
+      "b2bua"
+     ]
+    },
+    {
+     "id": "dial-peers",
+     "title": "Dial peers select the SIP next hop",
+     "summary": "dial-peer voice N voip, session protocol sipv2, and session target ipv4: name a SIP next hop.",
+     "minutes": 13,
+     "tags": [
+      "dial-peer",
+      "cube"
+     ]
+    },
+    {
+     "id": "sip-profiles",
+     "title": "voice class sip-profiles",
+     "summary": "A voice class sip-profiles rule can add, modify, or remove a header on a named method. Inbound support arrived after Cisco IOS 15.4.",
+     "minutes": 15,
+     "tags": [
+      "sip-profiles",
+      "cube"
+     ]
+    },
+    {
+     "id": "early-delayed",
+     "title": "Early offer and delayed offer",
+     "summary": "Delayed offer means the INVITE has no SDP. voice-class sip early-offer forced makes the outbound dial peer send an offer in the INVITE.",
+     "minutes": 15,
+     "tags": [
+      "offer",
+      "early-offer"
+     ]
+    },
+    {
+     "id": "cucm-trunk",
+     "title": "CUCM trunks, SIP profiles, and Lua",
+     "summary": "A CUCM SIP trunk and a CUCM SIP profile are not the CUBE voice class. Lua normalization scripts exist. MTP required is version-specific.",
+     "minutes": 14,
+     "tags": [
+      "cucm",
+      "trunk",
+      "lua"
+     ]
+    },
+    {
+     "id": "unity",
+     "title": "Unity Connection SIP integration",
+     "summary": "SIP integration with CUCM is the documented Unity Connection path. Open the guide for your version. This lesson does not make SCCP the default.",
+     "minutes": 13,
+     "tags": [
+      "unity",
+      "diversion"
+     ]
+    },
+    {
+     "id": "debug-ccsip",
+     "title": "debug ccsip messages",
+     "summary": "debug ccsip messages displays sent and received SIP. Profile decisions have a separate debug, and the analyzer can test a profile offline.",
+     "minutes": 14,
+     "tags": [
+      "debug",
+      "capture",
+      "cube"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "multivendor",
+   "title": "Oracle, Ribbon, and AudioCodes",
+   "summary": "Object names and manipulation syntax you can verify in public docs, and the certificate name the peer actually checks.",
+   "level": "Advanced",
+   "order": 11,
+   "file": "data/tracks/11-multivendor.json",
+   "lessons": [
+    {
+     "id": "oracle-objects",
+     "title": "Oracle SBC objects",
+     "summary": "Oracle Communications SBC, formerly Acme Packet, is configured with realms, interfaces, session agents, and manipulation objects.",
+     "minutes": 14,
+     "tags": [
+      "oracle",
+      "realm",
+      "hmr"
+     ]
+    },
+    {
+     "id": "acme-hmr",
+     "title": "Header rules run in order",
+     "summary": "Oracle HMR header rules run in configured order. The 10.1 fundamentals page names add, delete, manipulate, store, and reject.",
+     "minutes": 15,
+     "tags": [
+      "hmr",
+      "oracle",
+      "acme"
+     ]
+    },
+    {
+     "id": "ribbon-families",
+     "title": "Ribbon Edge, Core, and public validation lists",
+     "summary": "SBC SWe Edge shares a software family with SBC 1000 and SBC 2000. SBC Core is a separate family. Admin guides and interop guides are the sources for procedures.",
+     "minutes": 13,
+     "tags": [
+      "ribbon",
+      "edge",
+      "core"
+     ]
+    },
+    {
+     "id": "audiocodes-rules",
+     "title": "AudioCodes manipulation in software 7.6",
+     "summary": "Software 7.6 message manipulation is a table of Message Type, Condition, Action Subject, Action Type, and Action Value, assigned to an IP group.",
+     "minutes": 14,
+     "tags": [
+      "audiocodes",
+      "manipulation"
+     ]
+    },
+    {
+     "id": "compare-manipulation",
+     "title": "Three manipulation grammars",
+     "summary": "CUBE, Oracle HMR, and AudioCodes 7.6 can each remove a header. The grammars are not interchangeable.",
+     "minutes": 14,
+     "tags": [
+      "compare",
+      "manipulation"
+     ]
+    },
+    {
+     "id": "pai-interop",
+     "title": "Identity at a trust boundary",
+     "summary": "P-Asserted-Identity is a network-asserted identity. An SBC at a trust boundary decides whether that assertion continues.",
+     "minutes": 14,
+     "tags": [
+      "pai",
+      "privacy",
+      "diversion"
+     ]
+    },
+    {
+     "id": "certificate-fqdn",
+     "title": "Certificate names and Contact",
+     "summary": "The certificate name and the SIP Contact need to be names the peer accepts. Teams and Webex Local Gateway do not share a wildcard rule.",
+     "minutes": 14,
+     "tags": [
+      "certificate",
+      "fqdn",
+      "tls"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cloud",
+   "title": "Cloud voice and CCaaS SIP",
+   "summary": "Documented SIP boundaries for Teams, Webex Calling, Amazon Connect, Five9, Twilio, Genesys, and NICE CXone.",
+   "level": "Advanced",
+   "order": 12,
+   "file": "data/tracks/12-cloud.json",
+   "lessons": [
+    {
+     "id": "teams-signaling",
+     "title": "Teams Direct Routing signaling",
+     "summary": "Direct Routing uses the pstnhub proxies on 5061, a certified SBC, and a verified domain. Contact must be an FQDN.",
+     "minutes": 16,
+     "tags": [
+      "teams",
+      "direct-routing",
+      "tls"
+     ]
+    },
+    {
+     "id": "teams-options-media",
+     "title": "OPTIONS health and SRTP media",
+     "summary": "OPTIONS followed by 200 marks the SBC healthy. Media processors use SRTP. The protocol article’s OPTIONS CSeq cell disagrees with RFC 3261.",
+     "minutes": 15,
+     "tags": [
+      "teams",
+      "options",
+      "srtp"
+     ]
+    },
+    {
+     "id": "webex-lgw",
+     "title": "Webex Calling Local Gateway",
+     "summary": "An IOS XE Local Gateway uses SIP TLS and SRTP. Third-party SBCs use a certificate-based trunk. Wildcard certificates are not supported. ByoPSTN means bring your own PSTN.",
+     "minutes": 15,
+     "tags": [
+      "webex",
+      "local-gateway"
+     ]
+    },
+    {
+     "id": "webex-pstn-models",
+     "title": "Three PSTN choices, one per location",
+     "summary": "Webex Calling offers Cisco Calling Plan, Cloud Connected PSTN, or premises-based PSTN through a Local Gateway. A location has one PSTN connection.",
+     "minutes": 14,
+     "tags": [
+      "webex",
+      "pstn"
+     ]
+    },
+    {
+     "id": "connect-boundaries",
+     "title": "Amazon Connect voice boundaries",
+     "summary": "Ordinary Connect calls use managed PSTN. SIPREC can feed a conversational analytics connector. A carrier bridged through Voice Connector is not the supported pattern.",
+     "minutes": 15,
+     "tags": [
+      "connect",
+      "siprec",
+      "chime"
+     ]
+    },
+    {
+     "id": "five9-twilio",
+     "title": "Five9 BYO SIP and Twilio trunks",
+     "summary": "Five9 BYO SIP connects your ITSP or gateway to Five9 SBCs. Twilio termination and origination are different directions, with a strict Request-URI rule.",
+     "minutes": 16,
+     "tags": [
+      "five9",
+      "twilio"
+     ]
+    },
+    {
+     "id": "genesys-cxone",
+     "title": "Genesys BYOC and NICE CXone SIP",
+     "summary": "BYOC Cloud and BYOC Premises can be combined. NICE CXone documents SIP trunks on 5060 and 5061 with dynamic RTP and SRTP. Confirm carrier details with NICE.",
+     "minutes": 16,
+     "tags": [
+      "genesys",
+      "cxone",
+      "byoc"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "troubleshoot",
+   "title": "Troubleshooting ladders, captures, and debug",
+   "summary": "Match Call-ID, CSeq, Via branch, and To tag, then read captures and IOS debug as themselves.",
+   "level": "Advanced",
+   "order": 13,
+   "file": "data/tracks/13-troubleshoot.json",
+   "lessons": [
+    {
+     "id": "read-a-ladder",
+     "title": "Match a ladder before you change anything",
+     "summary": "A ladder is one dialog only after Call-ID, CSeq, the Via branch, and the To tag agree.",
+     "minutes": 14,
+     "tags": [
+      "ladder",
+      "dialog",
+      "ack"
+     ]
+    },
+    {
+     "id": "status-codes",
+     "title": "Status codes you will actually see",
+     "summary": "Read provisional and final codes from RFC 3261 section 21, and keep 422 with RFC 4028.",
+     "minutes": 15,
+     "tags": [
+      "status",
+      "cancel",
+      "488"
+     ]
+    },
+    {
+     "id": "wireshark",
+     "title": "Display filters for SIP and RTP",
+     "summary": "Filter the capture with sip, rtp, and sip.Method, and confirm sip.CSeq.method in the SIP display-filter reference.",
+     "minutes": 13,
+     "tags": [
+      "wireshark",
+      "capture",
+      "filter"
+     ]
+    },
+    {
+     "id": "ccsip-output",
+     "title": "IOS ccsip and ccapi debug",
+     "summary": "debug ccsip messages prints SIP on IOS voice. debug voip ccapi inout prints call-control API output, which is not a SIP RFC.",
+     "minutes": 12,
+     "tags": [
+      "ios",
+      "debug",
+      "ccsip"
+     ]
+    },
+    {
+     "id": "codec-and-timer-failures",
+     "title": "488 codecs and 422 session timers",
+     "summary": "488 is this UA refusing the session description. 422 is a session interval below Min-SE.",
+     "minutes": 16,
+     "tags": [
+      "488",
+      "422",
+      "sdp"
+     ]
+    },
+    {
+     "id": "tls-failures",
+     "title": "TLS names, trust anchors, and version",
+     "summary": "Handshake failures stay below SIP. A Teams 403 is the Contact FQDN rule after TLS is up.",
+     "minutes": 14,
+     "tags": [
+      "tls",
+      "teams",
+      "certificate"
+     ]
+    },
+    {
+     "id": "build-a-timeline",
+     "title": "Read an RFC header before you cite it",
+     "summary": "Number, category, and Obsoletes or Updates. The RFC Editor header beats a remembered month.",
+     "minutes": 12,
+     "tags": [
+      "rfc",
+      "header",
+      "obsoletes"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "operations",
+   "title": "Toll fraud, E911, recording, and QoS",
+   "summary": "Defensive operations: source restrictions, emergency location, disclosed SIPREC, and the EF PHB.",
+   "level": "Advanced",
+   "order": 14,
+   "file": "data/tracks/14-operations.json",
+   "lessons": [
+    {
+     "id": "fraud-class",
+     "title": "The toll-fraud class, stated defensively",
+     "summary": "Four exposure classes, source restrictions, and caller-identity as a separate control.",
+     "minutes": 13,
+     "tags": [
+      "toll-fraud",
+      "defense",
+      "identity"
+     ]
+    },
+    {
+     "id": "trusted-list",
+     "title": "Trusted addresses and source restrictions",
+     "summary": "The IP address trusted list is per product page. CME and SRST do not share one list size.",
+     "minutes": 14,
+     "tags": [
+      "trusted-list",
+      "cme",
+      "srst"
+     ]
+    },
+    {
+     "id": "e911",
+     "title": "Emergency calling, location, and the FCC page",
+     "summary": "Service URN, location conveyance, and the FCC MLTS page. State PSAP rules are not invented here.",
+     "minutes": 15,
+     "tags": [
+      "e911",
+      "location",
+      "sos"
+     ]
+    },
+    {
+     "id": "siprec",
+     "title": "Disclosed recording with SIPREC",
+     "summary": "RFC 7866 is the recording protocol. RFC 7865 is the metadata. Notice and retention are legal questions.",
+     "minutes": 12,
+     "tags": [
+      "siprec",
+      "recording",
+      "compliance"
+     ]
+    },
+    {
+     "id": "qos",
+     "title": "Voice, EF, and what the PHB does not design",
+     "summary": "RFC 3246 defines the EF PHB. RFC 4594 maps telephony to EF. This lesson does not design a LAN.",
+     "minutes": 11,
+     "tags": [
+      "qos",
+      "ef",
+      "diffserv"
+     ]
+    },
+    {
+     "id": "alarms",
+     "title": "Alarms that match the failure",
+     "summary": "Alarm on OPTIONS, TLS expiry, 503, recording-session failure, and trusted-list rejects. Each alarm names its document.",
+     "minutes": 12,
+     "tags": [
+      "alarms",
+      "options",
+      "operations"
+     ]
+    },
+    {
+     "id": "change-window",
+     "title": "One change in the window",
+     "summary": "Freeze the baseline, change one variable, verify, and keep the previous snippet ready.",
+     "minutes": 11,
+     "tags": [
+      "change",
+      "rollback",
+      "operations"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ecosystem",
+   "title": "Ecosystem, certifications, and the UC bridge",
+   "summary": "Name only the certifications this edition confirmed, and keep CUCM, UCCX, CVP, and Webex Calling in their real roles.",
+   "level": "Bridge",
+   "order": 15,
+   "file": "data/tracks/15-ecosystem.json",
+   "lessons": [
+    {
+     "id": "glossary-habit",
+     "title": "A glossary tied to a document",
+     "summary": "Every term in your notes points at a role and a document, not at a product logo.",
+     "minutes": 11,
+     "tags": [
+      "glossary",
+      "roles",
+      "citations"
+     ]
+    },
+    {
+     "id": "neighbors",
+     "title": "Neighbors that are not SIP elements",
+     "summary": "WFM and QM are operations systems. CRM is not a SIP element. Recording, location, and the media path keep their real documents.",
+     "minutes": 13,
+     "tags": [
+      "wfm",
+      "crm",
+      "neighbors"
+     ]
+    },
+    {
+     "id": "workforce-and-ai",
+     "title": "Workforce tools and agents above the media",
+     "summary": "Agents and workforce tools sit above the media path. The session is still SIP, and the voice is still RTP.",
+     "minutes": 12,
+     "tags": [
+      "ai",
+      "wfm",
+      "media"
+     ]
+    },
+    {
+     "id": "certifications",
+     "title": "Certifications this edition will name",
+     "summary": "SSCA, CCNP Collaboration, and MS-721, with the dates this edition actually checked. Other vendor exam codes stay unconfirmed.",
+     "minutes": 16,
+     "tags": [
+      "ssca",
+      "ccnp",
+      "ms-721"
+     ]
+    },
+    {
+     "id": "reading-the-index",
+     "title": "When the page and the memory disagree",
+     "summary": "The RFC Editor banner, the Cisco exam page, and the Microsoft certification page outrank a remembered line.",
+     "minutes": 12,
+     "tags": [
+      "index",
+      "rfc-editor",
+      "exams"
+     ]
+    },
+    {
+     "id": "uc-bridge",
+     "title": "CUCM, UCCX, and CVP without a fake script",
+     "summary": "CUCM is the call-control point. UCCX rides on CUCM. CVP's SIP paths are in the guide for the version you run.",
+     "minutes": 14,
+     "tags": [
+      "cucm",
+      "uccx",
+      "cvp"
+     ]
+    },
+    {
+     "id": "cloud-bridge",
+     "title": "Webex Calling local gateway, and a separate contact center",
+     "summary": "Premises PSTN for Webex Calling uses Local Gateway. Webex Contact Center is a separate product with its own design guide.",
+     "minutes": 13,
+     "tags": [
+      "webex",
+      "local-gateway",
+      "pstn"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "capstone",
+   "title": "Interviews, incidents, and design drills",
+   "summary": "Cited answers in the lesson body, one-variable incidents, and interconnect checklists.",
+   "level": "Advanced",
+   "order": 16,
+   "file": "data/tracks/16-capstone.json",
+   "lessons": [
+    {
+     "id": "drill-signaling",
+     "title": "Signaling drill with the cited answer",
+     "summary": "Each signaling answer is written here, with the RFC, before the quiz asks it.",
+     "minutes": 14,
+     "tags": [
+      "interview",
+      "ack",
+      "dialog"
+     ]
+    },
+    {
+     "id": "drill-media",
+     "title": "Media drill with the cited answer",
+     "summary": "488, 422, telephone-event, RTP, and the SRTP keying choice, each answered in the prose.",
+     "minutes": 14,
+     "tags": [
+      "interview",
+      "488",
+      "srtp"
+     ]
+    },
+    {
+     "id": "drill-sbc",
+     "title": "SBC drill with the cited answer",
+     "summary": "B2BUA, where PSTN SIP lands, the trusted list, and Teams TLS, answered in the body.",
+     "minutes": 15,
+     "tags": [
+      "interview",
+      "b2bua",
+      "sbc"
+     ]
+    },
+    {
+     "id": "incident-method",
+     "title": "Symptom, ladder, one packet, one variable",
+     "summary": "The sequence is symptom, ladder, one packet, change one variable. The log in this lesson is synthetic.",
+     "minutes": 13,
+     "tags": [
+      "incident",
+      "method",
+      "synthetic"
+     ]
+    },
+    {
+     "id": "design-interconnect",
+     "title": "An interconnect checklist, not a config dump",
+     "summary": "Record TLS, codecs including telephone-event, E.164, trusted addresses, OPTIONS, and the SRTP keying choice.",
+     "minutes": 15,
+     "tags": [
+      "design",
+      "checklist",
+      "srtp"
+     ]
+    },
+    {
+     "id": "design-teams-cucm",
+     "title": "CUCM, a certified SBC, and Teams Direct Routing",
+     "summary": "CUBE or another certified SBC can sit between CUCM and Teams. No architecture SKU is invented here.",
+     "minutes": 14,
+     "tags": [
+      "teams",
+      "cucm",
+      "direct-routing"
+     ]
+    },
+    {
+     "id": "specs-move",
+     "title": "When the RFC number moves",
+     "summary": "SDP, ICE, STUN, and TURN moved. The RFC Editor banner beats a blog, and an uncited successor stays an open question.",
+     "minutes": 13,
+     "tags": [
+      "rfc",
+      "8866",
+      "8445"
+     ]
+    }
+   ]
+  }
+ ]
+}

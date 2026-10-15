@@ -1,0 +1,537 @@
+{
+ "incidents": [
+  {
+   "id": "one-way",
+   "title": "Caller hears silence after a carrier move",
+   "summary": "The 200 OK is fine. The address in c= is not.",
+   "epilogue": "Signaling health is not media health.",
+   "steps": [
+    {
+     "prompt": "The ladder completes. What do you open next?",
+     "log": "SIP/2.0 200 OK\nCSeq: 1 INVITE\nContent-Type: application/sdp\nc=IN IP4 10.1.2.3\nm=audio 19642 RTP/AVP 0",
+     "choices": [
+      "The c= line and whether 10.1.2.3 is reachable",
+      "The To display name",
+      "Max-Forwards",
+      "The Allow header"
+     ],
+     "answer": 0,
+     "why": "10.1.2.3 is not a public address. The phone will send RTP there and get nothing back.",
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 3550",
+       "url": "https://www.rfc-editor.org/rfc/rfc3550"
+      }
+     ]
+    },
+    {
+     "prompt": "TLS is not in use on this hop. What else rewrites private addresses into SDP?",
+     "log": "INVITE left the PBX with c=IN IP4 203.0.113.20\nThe carrier captured c=IN IP4 10.1.2.3",
+     "choices": [
+      "A SIP ALG on the path",
+      "RFC 4733",
+      "A GRUU",
+      "A session timer"
+     ],
+     "answer": 0,
+     "why": "ALGs rewrite SDP and then fail when the rewritten address is useless.",
+     "cites": [
+      {
+       "label": "RFC 3581",
+       "url": "https://www.rfc-editor.org/rfc/rfc3581"
+      }
+     ]
+    },
+    {
+     "prompt": "The fastest safe change is",
+     "log": "(No extra packet. Decide from the prompt and the last trace.)",
+     "choices": [
+      "Anchor media on the SBC you control and disable the ALG",
+      "Set Max-Forwards to 1",
+      "Remove Contact",
+      "Switch the codec to G.722 only"
+     ],
+     "answer": 0,
+     "why": "Media anchoring gives the carrier a public address you own. The ALG has to go. Give the far end an address that routes, and stop the middlebox from editing SDP.",
+     "cites": [
+      {
+       "label": "RFC 5853",
+       "url": "https://www.rfc-editor.org/rfc/rfc5853"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "codec-488",
+   "title": "Every Webex call dies with 488",
+   "summary": "The trunk is up. The offer has no codec the answerer will take.",
+   "steps": [
+    {
+     "prompt": "Where does 488 point?",
+     "log": "SIP/2.0 488 Not Acceptable Here\nCSeq: 1 INVITE\nWarning: 304 example.com \"Media type not available\"",
+     "choices": [
+      "This endpoint rejected the SDP offer",
+      "DNS failed",
+      "The registrar is down",
+      "Max-Forwards hit zero"
+     ],
+     "answer": 0,
+     "why": "488 is about this UA’s media, not about routing.",
+     "cites": [
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    },
+    {
+     "prompt": "The offer lists only G.729. The peer’s answer template lists PCMU and telephone-event. What is the overlap?",
+     "log": "m=audio 49170 RTP/AVP 18\na=rtpmap:18 G729/8000",
+     "choices": [
+      "No shared audio codec",
+      "PCMU is implied by PT 18",
+      "telephone-event is static PT 0",
+      "The call should fall back inside RTP"
+     ],
+     "answer": 0,
+     "why": "PT 18 is G.729 in the static table. It was not offered by the peer.",
+     "cites": [
+      {
+       "label": "RFC 3551",
+       "url": "https://www.rfc-editor.org/rfc/rfc3551"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    },
+    {
+     "prompt": "What do you change?",
+     "log": "(No extra packet. Decide from the prompt and the last trace.)",
+     "choices": [
+      "Add a shared codec, usually PCMU, on the SBC offer",
+      "Delete Call-ID",
+      "Send REGISTER",
+      "Set the port to 0"
+     ],
+     "answer": 0,
+     "why": "Port 0 would reject the stream on purpose. You need a shared encoding name. Offer a codec the peer actually answers.",
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "Local Gateway on IOS XE",
+       "url": "https://help.webex.com/en-us/article/jr1i3r/Configure-local-gateway-on-IOS-XE-for-Webex-Calling"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "options-tls",
+   "title": "Teams marks the SBC inactive",
+   "summary": "OPTIONS never completes. The certificate name and the Contact FQDN disagree.",
+   "steps": [
+    {
+     "prompt": "The admin center says inactive. What must succeed first?",
+     "log": "SBC TLS connect to sip.pstnhub.microsoft.com:5061\nContact: <sip:203.0.113.20:5061;transport=tls>",
+     "choices": [
+      "OPTIONS over TLS with 200 OK, and a Contact FQDN",
+      "A UDP REGISTER to port 5060",
+      "An RTP STUN binding",
+      "A BYE"
+     ],
+     "answer": 0,
+     "why": "Direct Routing health is OPTIONS, and an IP in Contact is refused.",
+     "cites": [
+      {
+       "label": "Direct Routing OPTIONS and TLS",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+      },
+      {
+       "label": "Direct Routing SIP protocol",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+      }
+     ]
+    },
+    {
+     "prompt": "The certificate SAN is sbc1.example.com. The Contact host is 203.0.113.20. Microsoft’s rule is",
+     "log": "(No extra packet. Decide from the prompt and the last trace.)",
+     "choices": [
+      "The FQDN in Contact must match the certificate name",
+      "Any public IP is acceptable",
+      "A self-signed certificate is preferred",
+      "TLS 1.0 is required"
+     ],
+     "answer": 0,
+     "why": "IP hosts are rejected with 403. The name has to be the one in the certificate.",
+     "cites": [
+      {
+       "label": "Direct Routing SIP protocol",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+      }
+     ]
+    },
+    {
+     "prompt": "TLS version on the SBC is 1.0. The troubleshooting article says",
+     "log": "(No extra packet. Decide from the prompt and the last trace.)",
+     "choices": [
+      "Use TLS 1.2 or higher",
+      "Disable TLS",
+      "Use UDP 5060 to pstnhub",
+      "Put the IP in Record-Route"
+     ],
+     "answer": 0,
+     "why": "The documented requirement is TLS 1.2 or higher. Present the FQDN, a public certificate, and TLS 1.2, then confirm OPTIONS both ways.",
+     "cites": [
+      {
+       "label": "Direct Routing OPTIONS and TLS",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "fraud-spike",
+   "title": "International minutes at 02:00",
+   "summary": "A diagnostic, not a recipe. The source address was never on the trust list.",
+   "steps": [
+    {
+     "prompt": "The CDR export shows 200 calls to premium international destinations from one UDP source. First control to check?",
+     "log": "show ip address trusted list\nSource 198.51.100.250 is not listed\nINVITE sip:90114415551212@203.0.113.20",
+     "choices": [
+      "Whether that source is allowed to place VoIP calls",
+      "The phone’s wallpaper",
+      "RTCP jitter",
+      "The SDP ptime"
+     ],
+     "answer": 0,
+     "why": "IOS voice trusted-IP authentication is the documented toll-fraud control.",
+     "cites": [
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      }
+     ]
+    },
+    {
+     "prompt": "A dial-peer matches destination-pattern 9T and points at the carrier. The risk is",
+     "log": "(No extra packet. Decide from the prompt and the last trace.)",
+     "choices": [
+      "Any caller who can reach the SBC can place outbound calls that match 9T",
+      "9T blocks international",
+      "T means TLS",
+      "9T is a codec"
+     ],
+     "answer": 0,
+     "why": "A wide pattern plus an open source list is the expensive combination.",
+     "cites": [
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      },
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      }
+     ]
+    },
+    {
+     "prompt": "The defensive change is",
+     "log": "(No extra packet. Decide from the prompt and the last trace.)",
+     "choices": [
+      "Trust only known peers and narrow outbound patterns",
+      "Publish the SBC on 0.0.0.0/0 and hope",
+      "Remove Max-Forwards",
+      "Disable 200 OK"
+     ],
+     "answer": 0,
+     "why": "Add the real peers to the trusted list. Do not open the list to every address. Restrict who may send INVITEs, then restrict what they may dial.",
+     "cites": [
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      },
+      {
+       "label": "Cisco SRST trusted IP authentication",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "timer-422",
+   "title": "Calls drop at the same age",
+   "summary": "Both sides want a refresh. They never agreed the interval.",
+   "steps": [
+    {
+     "prompt": "The second response is",
+     "log": "SIP/2.0 422 Session Interval Too Small\nMin-SE: 1800\nCSeq: 1 INVITE",
+     "choices": [
+      "The peer’s minimum session interval is higher than the offer",
+      "The codec list is empty",
+      "DNS SRV failed",
+      "ICE consent expired"
+     ],
+     "answer": 0,
+     "why": "422 and Min-SE are session timers.",
+     "cites": [
+      {
+       "label": "RFC 4028",
+       "url": "https://www.rfc-editor.org/rfc/rfc4028"
+      }
+     ]
+    },
+    {
+     "prompt": "Who sends the refresh?",
+     "log": "Session-Expires: 1800;refresher=uac",
+     "choices": [
+      "The refresher parameter says which side",
+      "Always the SBC",
+      "Always the phone",
+      "REFRESH is a SIP method"
+     ],
+     "answer": 0,
+     "why": "refresher is uac or uas.",
+     "cites": [
+      {
+       "label": "RFC 4028",
+       "url": "https://www.rfc-editor.org/rfc/rfc4028"
+      }
+     ]
+    },
+    {
+     "prompt": "A working retry uses",
+     "log": "(No extra packet. Decide from the prompt and the last trace.)",
+     "choices": [
+      "Session-Expires at or above Min-SE",
+      "Session-Expires: 1",
+      "Remove Contact",
+      "Port 0"
+     ],
+     "answer": 0,
+     "why": "Raise the offered interval to the peer’s minimum and try again. Honor Min-SE. Do not loop 422 with the same value.",
+     "cites": [
+      {
+       "label": "RFC 4028",
+       "url": "https://www.rfc-editor.org/rfc/rfc4028"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "delayed-offer",
+   "title": "CUCM inserts an MTP and audio sounds like a tunnel",
+   "summary": "The INVITE left without SDP. Something on the trunk demanded an MTP.",
+   "steps": [
+    {
+     "prompt": "This INVITE is",
+     "log": "INVITE sip:+15551212@198.51.100.30 SIP/2.0\nContent-Length: 0",
+     "choices": [
+      "Delayed offer",
+      "Early offer",
+      "A REGISTER",
+      "An ACK"
+     ],
+     "answer": 0,
+     "why": "No SDP in the INVITE means the offer is not here.",
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    },
+    {
+     "prompt": "CUCM may add an MTP when the trunk requires one. The lab’s advice is",
+     "log": "(No extra packet. Decide from the prompt and the last trace.)",
+     "choices": [
+      "Read the CUCM trunk guide for that version before assuming the checkbox",
+      "Always set MTP required",
+      "Delete the SIP trunk",
+      "Disable SDP"
+     ],
+     "answer": 0,
+     "why": "MTP required is real, and the exact UI belongs to the version’s admin guide.",
+     "cites": [
+      {
+       "label": "Cisco Unified Communications Manager",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+      }
+     ]
+    },
+    {
+     "prompt": "If the carrier needs early offer, the CUBE knob documented for that is",
+     "log": "(No extra packet. Decide from the prompt and the last trace.)",
+     "choices": [
+      "voice-class sip early-offer forced on the outbound dial-peer",
+      "no sip",
+      "codec g729 only with no offer",
+      "Max-Forwards 0"
+     ],
+     "answer": 0,
+     "why": "early-offer forced is the CUBE mechanism. Confirm it in the configuration guide. Decide which hop is allowed to delay the offer, and force early offer only where the peer requires it.",
+     "cites": [
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "too-many-hops",
+   "title": "483 after a routing loop",
+   "summary": "Two proxies keep sending the request to each other.",
+   "steps": [
+    {
+     "prompt": "The response is 483 Too Many Hops. The header that ran out is",
+     "log": "SIP/2.0 483 Too Many Hops\nCSeq: 1 INVITE",
+     "choices": [
+      "Max-Forwards",
+      "Content-Length",
+      "ptime",
+      "SSRC"
+     ],
+     "answer": 0,
+     "why": "Each hop decrements Max-Forwards. Zero becomes 483.",
+     "cites": [
+      {
+       "label": "RFC 3261 §8.1.1.6",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.6"
+      }
+     ]
+    },
+    {
+     "prompt": "The Record-Route set shows the same two proxies alternating. That means",
+     "log": "(No extra packet. Decide from the prompt and the last trace.)",
+     "choices": [
+      "A routing loop, not a codec problem",
+      "SRTP is disabled",
+      "The phone is on hold",
+      "ICE failed"
+     ],
+     "answer": 0,
+     "why": "Look at Route and the request URI, not the m-line.",
+     "cites": [
+      {
+       "label": "RFC 3261 §16",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+      }
+     ]
+    },
+    {
+     "prompt": "The fix is",
+     "log": "(No extra packet. Decide from the prompt and the last trace.)",
+     "choices": [
+      "Correct the route so the request leaves the loop",
+      "Raise Max-Forwards to 1000 and keep the loop",
+      "Remove To tags",
+      "Add a second Call-ID"
+     ],
+     "answer": 0,
+     "why": "A higher Max-Forwards only delays the failure. Break the loop in the dial plan or Route set.",
+     "cites": [
+      {
+       "label": "RFC 3261 §16",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "diversion",
+   "title": "Unity plays the wrong greeting",
+   "summary": "The forwarded-from number never arrived.",
+   "steps": [
+    {
+     "prompt": "The PBX sent Diversion. The SBC’s outbound INVITE has no Diversion and no History-Info. Unity keys the greeting from",
+     "log": "INVITE sip:voicemail@198.51.100.40 SIP/2.0\nTo: <sip:+15551212@example.com>\n(no Diversion, no History-Info)",
+     "choices": [
+      "The original called number, which is now missing",
+      "The RTP SSRC",
+      "The branch cookie",
+      "ptime"
+     ],
+     "answer": 0,
+     "why": "Diversion is widely used and is not the standards-track history mechanism. History-Info is.",
+     "cites": [
+      {
+       "label": "RFC 5806",
+       "url": "https://www.rfc-editor.org/rfc/rfc5806"
+      },
+      {
+       "label": "RFC 7044",
+       "url": "https://www.rfc-editor.org/rfc/rfc7044"
+      }
+     ]
+    },
+    {
+     "prompt": "A CUBE teaching rule that deletes every Diversion looks like",
+     "log": "request INVITE sip-header Diversion remove",
+     "choices": [
+      "That rule explains the missing header",
+      "That rule adds PAI",
+      "That rule forces early offer",
+      "That rule is an RTP command"
+     ],
+     "answer": 0,
+     "why": "remove drops the header on the way out.",
+     "cites": [
+      {
+       "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+      }
+     ]
+    },
+    {
+     "prompt": "The interop choice is",
+     "log": "(No extra packet. Decide from the prompt and the last trace.)",
+     "choices": [
+      "Pass Diversion or map it to History-Info on purpose",
+      "Always delete both",
+      "Replace them with Server",
+      "Strip Contact"
+     ],
+     "answer": 0,
+     "why": "Decide the history header the voicemail system documents, and keep that one. Restore the header the voicemail integration guide names.",
+     "cites": [
+      {
+       "label": "Cisco Unity Connection",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+      },
+      {
+       "label": "RFC 7044",
+       "url": "https://www.rfc-editor.org/rfc/rfc7044"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

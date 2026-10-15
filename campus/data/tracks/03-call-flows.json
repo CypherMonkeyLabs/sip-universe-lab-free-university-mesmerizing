@@ -1,0 +1,2179 @@
+{
+ "id": "call-flows",
+ "title": "Call flows that operators actually trace",
+ "summary": "The ACK split, route sets, PRACK, UPDATE, session timers, teardown, and transfer.",
+ "level": "Core",
+ "order": 3,
+ "lessons": [
+  {
+   "id": "two-acks",
+   "title": "Two different ACK rules",
+   "minutes": 15,
+   "tags": [
+    "ack",
+    "rfc6026"
+   ],
+   "summary": "The ACK for a non-2xx is hop by hop inside the INVITE transaction, and the ACK for a 2xx is a new end-to-end transaction.",
+   "objectives": [
+    "Reuse the INVITE branch only for a non-2xx ACK",
+    "Send a 2xx ACK end to end with a new branch",
+    "Keep the CSeq number and change the method token to ACK"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Which ACK is this?",
+    "caption": "Look at the status code first, then the branch.",
+    "columns": [
+     "Response",
+     "Who builds the ACK",
+     "Branch"
+    ],
+    "rows": [
+     [
+      "2xx",
+      "UAC transaction user, end to end",
+      "New branch"
+     ],
+     [
+      "3xx to 6xx",
+      "Client transaction, hop by hop",
+      "INVITE's branch"
+     ],
+     [
+      "Both",
+      "CSeq number equals the INVITE",
+      "Method token is ACK"
+     ],
+     [
+      "2xx late",
+      "RFC 6026 absorbs the extra 2xx",
+      "ACK is still end to end"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Non-2xx stays in the transaction",
+     "paragraphs": [
+      "A final response from 300 through 699 is acknowledged by the INVITE client transaction. That ACK uses the INVITE's branch, the INVITE's CSeq number, and the method token ACK. Each hop generates its own ACK. A proxy does not forward the caller's ACK downstream.",
+      "The ladder below is that case. The proxy ACKs the peer with branch z9hG4bKproxy01, the same branch it put on the forwarded INVITE. The caller ACKs the proxy with branch z9hG4bKalice01. Neither ACK is a new transaction."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §17",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+      },
+      {
+       "label": "RFC 3261 §8.1.1.7",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+      }
+     ]
+    },
+    {
+     "h": "2xx is end to end",
+     "paragraphs": [
+      "The ACK for a 200 OK is sent by the UAC using the dialog route set and the remote target. It carries a new branch because it is a different transaction. The CSeq number still matches the INVITE. Proxies that record-routed forward this ACK as they would any other mid-dialog request.",
+      "RFC 3261's overview describes INVITE as a three-way handshake, and that sentence is too small for the 2xx case. RFC 6026 corrects the state machine so a late 2xx is absorbed by the transaction, while the ACK remains the UAC's end-to-end request. The UAS retransmits the 200 OK until that ACK arrives."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §13",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+      },
+      {
+       "label": "RFC 6026",
+       "url": "https://www.rfc-editor.org/rfc/rfc6026"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Hop-by-hop ACK of a 603",
+    "parties": [
+     "UA",
+     "Proxy",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Caller branch z9hG4bKalice01. No To tag.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKalice01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The proxy generates 100. This is not the ACK.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKalice01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Proxy branch z9hG4bKproxy01 on a new Via. Max-Forwards is 69.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKproxy01\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKalice01\nMax-Forwards: 69\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "603",
+      "kind": "err",
+      "note": "603 Decline is a final non-2xx. Both Vias come back.",
+      "message": "SIP/2.0 603 Decline\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKproxy01\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKalice01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=dec603\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The proxy transaction ACKs the peer. Same branch as the proxy's INVITE.",
+      "message": "ACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKproxy01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=dec603\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "603",
+      "kind": "err",
+      "note": "The proxy forwards 603 upstream. It does not forward the peer's ACK.",
+      "message": "SIP/2.0 603 Decline\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKalice01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=dec603\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The caller transaction ACKs the proxy. Branch z9hG4bKalice01 again.",
+      "message": "ACK sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKalice01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=dec603\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The ACK for 603 uses",
+     "choices": [
+      "The same branch as the INVITE on that hop",
+      "A new branch",
+      "No CSeq",
+      "The To tag as the branch"
+     ],
+     "answer": 0,
+     "why": "Each client transaction acknowledges its own non-2xx. The branch matches that hop's INVITE.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "q": "The ACK for 200 OK uses",
+     "choices": [
+      "A new branch and travels end to end",
+      "The INVITE branch on every hop",
+      "No Route set even if Record-Route was present",
+      "CSeq method INVITE"
+     ],
+     "answer": 0,
+     "why": "It is a separate transaction. RFC 6026 keeps that ACK at the transaction user.",
+     "cite": {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    },
+    {
+     "q": "The CSeq of either ACK",
+     "choices": [
+      "Keeps the INVITE number and uses the method token ACK",
+      "Increments the number",
+      "Omits the method",
+      "Copies the status code"
+     ],
+     "answer": 0,
+     "why": "CSeq: 1 ACK answers CSeq: 1 INVITE.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    },
+    {
+     "q": "A proxy that receives the caller's ACK for a 603",
+     "choices": [
+      "Absorbs it and does not forward it",
+      "Forwards it to the peer as a new INVITE",
+      "Converts it to BYE",
+      "Answers 100 Trying"
+     ],
+     "answer": 0,
+     "why": "The proxy already generated the downstream ACK from its client transaction.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "q": "The UAS retransmits 200 OK until",
+     "choices": [
+      "The end-to-end ACK arrives",
+      "A 100 Trying arrives",
+      "Max-Forwards hits 0",
+      "Timer A is cancelled by the proxy"
+     ],
+     "answer": 0,
+     "why": "That retransmission is why the ACK has to match the dialog and reach the UAS.",
+     "cite": {
+      "label": "RFC 3261 §13",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+     }
+    },
+    {
+     "q": "RFC 6026 changes",
+     "choices": [
+      "How the INVITE transaction absorbs 2xx responses",
+      "The magic cookie spelling",
+      "The default SIP port",
+      "REGISTER expiry"
+     ],
+     "answer": 0,
+     "why": "The ACK for 2xx stays end to end. The correction is the transaction's handling of the response.",
+     "cite": {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Non-2xx ACK",
+     "back": "Same branch as that hop's INVITE. Generated by the client transaction.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    },
+    {
+     "front": "2xx ACK",
+     "back": "New branch, dialog route set, end to end.",
+     "cite": {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    },
+    {
+     "front": "CSeq: 1 ACK",
+     "back": "Same number as the INVITE. The method token changes to ACK.",
+     "cite": {
+      "label": "RFC 3261 §8",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+     }
+    },
+    {
+     "front": "603 then ACK",
+     "back": "Forward the 603. ACK it on this hop. Do not relay the ACK.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Whose branch is on the ACK?",
+    "kind": "ladder",
+    "prompt": "Inspect both ACKs. Each one repeats the branch of the INVITE on that hop.",
+    "steps": [
+     "Step to the proxy-to-peer ACK.",
+     "Read its branch.",
+     "Compare it with the caller-to-proxy ACK."
+    ],
+    "check": {
+     "q": "The ACK from the proxy to the peer uses branch",
+     "choices": [
+      "z9hG4bKproxy01",
+      "z9hG4bKalice01",
+      "z9hG4bKtxAck",
+      "a new cookie not on the INVITE"
+     ],
+     "answer": 0,
+     "why": "That is the branch the proxy put on the INVITE it sent downstream.",
+     "cite": {
+      "label": "RFC 3261 §8.1.1.7",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+     }
+    }
+   },
+   "fault": {
+    "title": "200 OK acknowledged hop by hop",
+    "symptom": "A proxy generates an ACK toward the caller for a 200 OK and never forwards the caller's ACK. The UAS keeps retransmitting 200 OK.",
+    "log": "SIP/2.0 200 OK\nCSeq: 1 INVITE\nTo: <sip:+15551212@example.com>;tag=314159\n\nProxy log: generated ACK for 200 toward caller, branch copied from INVITE\nUAS log: 200 OK retransmission 4, no ACK",
+    "choices": [
+     "The proxy must forward the end-to-end ACK for a 2xx",
+     "A 200 OK is acknowledged like a 603",
+     "The UAS should stop after one 200",
+     "CSeq must become 2 ACK"
+    ],
+    "answer": 0,
+    "why": "Only non-2xx ACKs are built by the transaction on each hop. The 2xx ACK belongs to the dialog.",
+    "cause": "The proxy treated 200 OK as a 6xx.",
+    "fix": "Forward the caller's ACK using the dialog route set and a transaction of its own. Read RFC 6026 before changing the 2xx state machine.",
+    "cites": [
+     {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     },
+     {
+      "label": "RFC 3261 §13",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "record-route",
+   "title": "Record-Route and the route set",
+   "minutes": 15,
+   "tags": [
+    "record-route",
+    "route"
+   ],
+   "summary": "A proxy that wants to stay on the dialog prepends a Record-Route URI, and that URI has to contain lr.",
+   "objectives": [
+    "Build the UAC route set by reversing Record-Route",
+    "Build the UAS route set in Record-Route order",
+    "Require lr on every Record-Route a proxy inserts"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Who is first on the way back",
+    "caption": "The proxy next to the caller ends up as the caller's first Route after the reverse.",
+    "layers": [
+     {
+      "name": "Request at the peer",
+      "detail": "Top Record-Route is the proxy next to the peer"
+     },
+     {
+      "name": "UAS route set",
+      "detail": "That order, unchanged"
+     },
+     {
+      "name": "UAC route set",
+      "detail": "The response list, reversed"
+     },
+     {
+      "name": "ACK Request-URI",
+      "detail": "The remote Contact, not the proxy"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Prepend, copy, reverse",
+     "paragraphs": [
+      "A proxy that wants later dialog requests inserts a Record-Route before any Record-Route already on the request. The URI is a sip or sips URI and it MUST contain lr. The UAS copies those values into the response in the same order.",
+      "The UAS route set is the request's Record-Route list in that order, so the proxy beside the UAS is first. The UAC route set is the response's Record-Route list in reverse order, so the proxy beside the UAC is first. The remote target is the Contact, and that becomes the Request-URI of the ACK."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §16",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+      },
+      {
+       "label": "RFC 3261 §12",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+      }
+     ]
+    },
+    {
+     "h": "lr keeps the target stable",
+     "paragraphs": [
+      "With lr, each hop removes a top Route that names itself and forwards toward the next Route, leaving the Request-URI as the remote target. A missing lr falls into the older strict-routing procedure, which rewrites the Request-URI.",
+      "On this ladder the peer sees Core and then Edge. The caller reverses that into Edge and then Core. The ACK's first Route is 203.0.113.20. Edge will pop that Route and forward the ACK toward 198.51.100.30."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §16",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+      },
+      {
+       "label": "RFC 3261 §12",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Two proxies stay on the dialog",
+    "parties": [
+     "UA",
+     "Edge",
+     "Core",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "No Record-Route yet. Max-Forwards is 70.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKua01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Edge prepends its own Record-Route with lr and decrements Max-Forwards to 69.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKedge01\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKua01\nMax-Forwards: 69\nRecord-Route: <sip:203.0.113.20;lr>\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 3,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Core prepends its URI, so it is the first Record-Route at the peer. Max-Forwards is 68.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKcore01\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKedge01\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKua01\nMax-Forwards: 68\nRecord-Route: <sip:198.51.100.30;lr>\nRecord-Route: <sip:203.0.113.20;lr>\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 3,
+      "to": 2,
+      "label": "200",
+      "kind": "res",
+      "note": "The peer copies both Record-Route values in the same order and adds Contact.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKcore01\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKedge01\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKua01\nRecord-Route: <sip:198.51.100.30;lr>\nRecord-Route: <sip:203.0.113.20;lr>\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The caller reverses the list. First Route is Edge. Request-URI is the peer Contact. New branch.",
+      "message": "ACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKuaAck\nMax-Forwards: 70\nRoute: <sip:203.0.113.20;lr>\nRoute: <sip:198.51.100.30;lr>\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A proxy inserts Record-Route",
+     "choices": [
+      "Before existing Record-Route values",
+      "After the body",
+      "Only on 100 Trying",
+      "Instead of Via"
+     ],
+     "answer": 0,
+     "why": "The newest proxy is the topmost Record-Route as the request moves downstream.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "That URI must contain",
+     "choices": [
+      "lr",
+      "user=phone",
+      "The To tag",
+      "expires=0"
+     ],
+     "answer": 0,
+     "why": "RFC 3261 requires lr on a Record-Route the proxy inserts.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "q": "The UAC builds its route set",
+     "choices": [
+      "From the response, in reverse order",
+      "From the response, in the same order",
+      "From Via",
+      "From Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "Reversing puts the neighboring proxy first.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "q": "The UAS builds its route set",
+     "choices": [
+      "From the request, in the order received",
+      "By reversing the request",
+      "From the ACK only",
+      "From the SDP c= line"
+     ],
+     "answer": 0,
+     "why": "The first Record-Route at the UAS is the neighboring proxy, and that order is already correct.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "q": "The ACK Request-URI is",
+     "choices": [
+      "The peer Contact",
+      "The first Route URI",
+      "The original domain only",
+      "The branch cookie"
+     ],
+     "answer": 0,
+     "why": "Route headers name the proxies. The Request-URI remains the remote target because lr is present.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "q": "A Record-Route without lr",
+     "choices": [
+      "Falls into strict routing, which rewrites the Request-URI",
+      "Is the required form",
+      "Deletes the dialog",
+      "Sets Max-Forwards to 70"
+     ],
+     "answer": 0,
+     "why": "Loose routing is the 3261 rule. Omitting lr is how the old procedure comes back.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Record-Route",
+     "back": "Inserted by a proxy that must see later requests in the dialog.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "front": "lr",
+     "back": "Required on that URI. It selects loose routing.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    },
+    {
+     "front": "UAC reverses",
+     "back": "Response Record-Route, reversed, becomes the caller's route set.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "front": "Contact",
+     "back": "The remote target. It becomes the mid-dialog Request-URI.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Put lr back",
+    "kind": "sandbox",
+    "dialect": "acme",
+    "prompt": "The header-rule matches a Record-Route that lost lr and writes the parameter back.",
+    "steps": [
+     "Read the header-rule.",
+     "Run it on the INVITE.",
+     "Confirm the Record-Route value contains ;lr."
+    ],
+    "rules": "header-rule\nname add-lr\nheader-name Record-Route\naction manipulate\ncomparison-type pattern-rule\nmatch-value <sip:203\\.0\\.113\\.20>\nnew-value <sip:203.0.113.20;lr>\nmsg-type request\n",
+    "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKrrlab\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nRecord-Route: <sip:203.0.113.20>\nContent-Length: 0\n",
+    "check": {
+     "q": "The rule's new Record-Route value contains",
+     "choices": [
+      ";lr",
+      "user=phone",
+      "branch=z9hG4bK",
+      "expires=0"
+     ],
+     "answer": 0,
+     "why": "lr is the loose-routing parameter. The pattern keeps the same host.",
+     "cite": {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    }
+   },
+   "fault": {
+    "title": "ACK sent to the peer IP with no Route",
+    "symptom": "The 200 OK had two Record-Route headers. The caller ACKs 192.0.2.40 directly and both proxies show no ACK.",
+    "log": "SIP/2.0 200 OK\nRecord-Route: <sip:198.51.100.30;lr>\nRecord-Route: <sip:203.0.113.20;lr>\nContact: <sip:+15551212@192.0.2.40>\n\nACK sip:+15551212@192.0.2.40 SIP/2.0\n(no Route header)",
+    "choices": [
+     "The caller skipped the route set, so the proxies are off the path",
+     "Record-Route is informational only",
+     "ACK must not leave the caller",
+     "lr means delete Contact"
+    ],
+    "answer": 0,
+    "why": "The UAC route set is the reversed Record-Route list. The first Route has to be the edge.",
+    "cause": "The ACK used the Contact and ignored Record-Route.",
+    "fix": "Send Route: <sip:203.0.113.20;lr> then Route: <sip:198.51.100.30;lr>, with the Contact as the Request-URI.",
+    "cites": [
+     {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     },
+     {
+      "label": "RFC 3261 §16",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "prack",
+   "title": "PRACK and reliable provisionals",
+   "minutes": 14,
+   "tags": [
+    "prack",
+    "100rel"
+   ],
+   "summary": "A provisional response with Require: 100rel is retransmitted until PRACK, and RAck names that exact response.",
+   "objectives": [
+    "Offer 100rel and answer with RSeq",
+    "Build RAck from RSeq and the INVITE CSeq",
+    "Give PRACK its own CSeq number"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "RAck fields",
+    "caption": "The first number is the provisional. The next two name the INVITE, not the PRACK.",
+    "columns": [
+     "Field",
+     "Example",
+     "Source"
+    ],
+    "rows": [
+     [
+      "RSeq",
+      "1",
+      "On the reliable 183"
+     ],
+     [
+      "RAck",
+      "1 1 INVITE",
+      "RSeq, INVITE CSeq number, method"
+     ],
+     [
+      "PRACK CSeq",
+      "2 PRACK",
+      "Next CSeq in the dialog"
+     ],
+     [
+      "PRACK result",
+      "200 OK",
+      "Matches CSeq 2 PRACK"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Reliability is an option tag",
+     "paragraphs": [
+      "RFC 3262 adds the option tag 100rel. The UAC puts it in Supported, or in Require when it will not proceed without reliable provisionals. The UAS sends the provisional with Require: 100rel and an RSeq number.",
+      "Until PRACK arrives, the UAS retransmits that provisional. 100 Trying is not made reliable this way. The responses you will see with RSeq are 180 and 183. Early media SDP in a 183 is reliable only after the PRACK succeeds."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3262",
+       "url": "https://www.rfc-editor.org/rfc/rfc3262"
+      },
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      }
+     ]
+    },
+    {
+     "h": "PRACK is its own transaction",
+     "paragraphs": [
+      "PRACK uses a new branch and the next CSeq number in the dialog. RAck carries three tokens: the RSeq, the CSeq number of the request being acknowledged, and that request's method. For the first INVITE that is RAck: 1 1 INVITE when RSeq is 1.",
+      "The UAS answers PRACK with 200 OK and CSeq 2 PRACK. That 200 is not the INVITE's final response. The INVITE transaction is still open until its own final response, and the ACK rules for that final response are unchanged."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3262",
+       "url": "https://www.rfc-editor.org/rfc/rfc3262"
+      },
+      {
+       "label": "RFC 3261 §12",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "183, then PRACK",
+    "parties": [
+     "UA",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Supported: 100rel tells the peer it may send a reliable provisional. The body is the offer.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKpr1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel\nAllow: INVITE,ACK,CANCEL,BYE,PRACK,UPDATE\nContent-Type: application/sdp\nContent-Length: 242\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "183",
+      "kind": "res",
+      "note": "Require: 100rel, RSeq 1, and the answer SDP. To tag creates the early dialog.",
+      "message": "SIP/2.0 183 Session Progress\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKpr1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nRequire: 100rel\nRSeq: 1\nContact: <sip:+15551212@192.0.2.40>\nAllow: INVITE,ACK,CANCEL,BYE,PRACK,UPDATE\nContent-Type: application/sdp\nContent-Length: 197\n\nv=0\no=peer 10 11 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "PRACK",
+      "kind": "req",
+      "note": "CSeq 2 PRACK. RAck is 1 1 INVITE. New branch.",
+      "message": "PRACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKprack1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 PRACK\nContact: <sip:alice@203.0.113.10>\nRAck: 1 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "This 200 matches the PRACK, not the INVITE. The INVITE is still unanswered.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKprack1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 PRACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "100rel is defined in",
+     "choices": [
+      "RFC 3262",
+      "RFC 3261 section 18",
+      "RFC 4028",
+      "RFC 3515"
+     ],
+     "answer": 0,
+     "why": "The option tag, RSeq, RAck, and PRACK are all in 3262.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    },
+    {
+     "q": "RAck: 1 1 INVITE means",
+     "choices": [
+      "RSeq 1, acknowledging CSeq 1 INVITE",
+      "CSeq 1 PRACK and RSeq 1",
+      "Three INVITEs",
+      "A route set of one hop"
+     ],
+     "answer": 0,
+     "why": "The middle number is the INVITE's CSeq number, not the PRACK's.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    },
+    {
+     "q": "PRACK's own CSeq on this ladder is",
+     "choices": [
+      "2 PRACK",
+      "1 PRACK",
+      "1 INVITE",
+      "1 ACK"
+     ],
+     "answer": 0,
+     "why": "PRACK is a new request in the early dialog, so the number advances.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    },
+    {
+     "q": "The UAS retransmits the 183 until",
+     "choices": [
+      "A matching PRACK arrives",
+      "Max-Forwards hits 70",
+      "A BYE arrives",
+      "DNS fails"
+     ],
+     "answer": 0,
+     "why": "That retransmission is the reliability. The INVITE transaction does not do it for you.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    },
+    {
+     "q": "100 Trying and 100rel",
+     "choices": [
+      "100 Trying is not the reliable provisional",
+      "100 must carry RSeq",
+      "100 replaces PRACK",
+      "100 confirms the dialog"
+     ],
+     "answer": 0,
+     "why": "Reliable provisionals are the ones the UAS chooses to send with RSeq, typically 18x.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    },
+    {
+     "q": "The 200 OK to PRACK",
+     "choices": [
+      "Completes the PRACK transaction only",
+      "Is the INVITE answer and needs ACK",
+      "Ends the dialog",
+      "Replaces the To tag"
+     ],
+     "answer": 0,
+     "why": "The INVITE still needs its own final response later.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Supported: 100rel",
+     "back": "The UAC can do reliable provisionals.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    },
+    {
+     "front": "RSeq",
+     "back": "Identifies the reliable provisional.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    },
+    {
+     "front": "RAck",
+     "back": "RSeq, then the CSeq number and method being acknowledged.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    },
+    {
+     "front": "PRACK",
+     "back": "A new transaction. Its success response is 200 OK, not ACK.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Check RAck",
+    "kind": "dissect",
+    "prompt": "Dissect the PRACK. Separate RAck from CSeq.",
+    "steps": [
+     "Dissect the PRACK.",
+     "Read RAck.",
+     "Read CSeq and confirm the method token is PRACK."
+    ],
+    "message": "PRACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKprack1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 PRACK\nContact: <sip:alice@203.0.113.10>\nRAck: 1 1 INVITE\nContent-Length: 0\n",
+    "check": {
+     "q": "RAck on this PRACK is",
+     "choices": [
+      "1 1 INVITE",
+      "2 PRACK",
+      "1 ACK",
+      "70"
+     ],
+     "answer": 0,
+     "why": "1 is RSeq, 1 INVITE is the request being acknowledged. CSeq 2 PRACK is the PRACK itself.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    }
+   },
+   "fault": {
+    "title": "RAck copied the PRACK CSeq",
+    "symptom": "The UAS keeps retransmitting 183. The PRACK is present and the UAS answers 481.",
+    "log": "SIP/2.0 183 Session Progress\nRSeq: 1\nCSeq: 1 INVITE\n\nPRACK sip:+15551212@192.0.2.40 SIP/2.0\nCSeq: 2 PRACK\nRAck: 1 2 PRACK",
+    "choices": [
+     "RAck must name the INVITE, so the middle token is 1 INVITE",
+     "PRACK is illegal in an early dialog",
+     "RSeq must be 70",
+     "CSeq 2 is too large"
+    ],
+    "answer": 0,
+    "why": "RAck's method and number identify the request that carried RSeq, which is the INVITE.",
+    "cause": "The sender put the PRACK's own CSeq into RAck.",
+    "fix": "Send RAck: 1 1 INVITE and keep CSeq: 2 PRACK on the PRACK.",
+    "cites": [
+     {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "update",
+   "title": "UPDATE before the INVITE completes",
+   "minutes": 14,
+   "tags": [
+    "update",
+    "rfc3311"
+   ],
+   "summary": "UPDATE can change the session while the initial INVITE is still outstanding, and it does not use the ACK rules.",
+   "objectives": [
+    "Send UPDATE only when no offer is outstanding",
+    "Treat UPDATE as a non-INVITE transaction",
+    "Keep dialog identifiers stable across the session change"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Offer, answer, then a new offer",
+    "caption": "The INVITE offer is answered in the 183. UPDATE is the next offer. The INVITE is still open.",
+    "nodes": [
+     "INVITE offer",
+     "183 answer",
+     "UPDATE offer",
+     "200 answer"
+    ]
+   },
+   "sections": [
+    {
+     "h": "A second transaction beside INVITE",
+     "paragraphs": [
+      "RFC 3311 defines UPDATE. It can be sent in an early dialog, before the initial INVITE transaction completes, and it can be sent again after the dialog is confirmed. Success is 200 OK. There is no ACK for UPDATE.",
+      "UPDATE uses the next CSeq number and a new branch. Call-ID and both tags stay the same. That is the dialog. Changing the session description does not mint a new dialog id."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3311",
+       "url": "https://www.rfc-editor.org/rfc/rfc3311"
+      },
+      {
+       "label": "RFC 3261 §12",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+      }
+     ]
+    },
+    {
+     "h": "One offer at a time",
+     "paragraphs": [
+      "If the INVITE carried an offer, wait until that answer has been sent and, when 100rel is in use, acknowledged, before UPDATE carries another offer. Two offers outstanding at once is not a legal offer/answer exchange.",
+      "An SDP-only UPDATE changes the session. It is not the target-refresh procedure. Changing the remote target URI is covered by RFC 6141, and the mid-dialog request that operators use for that change is the re-INVITE. Read 6141 before you treat a new Contact as harmless."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3311",
+       "url": "https://www.rfc-editor.org/rfc/rfc3311"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 6141",
+       "url": "https://www.rfc-editor.org/rfc/rfc6141"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Answer the INVITE, then UPDATE",
+    "parties": [
+     "UA",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Early offer. Allow includes UPDATE. Supported includes 100rel.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKup1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK\nContent-Type: application/sdp\nContent-Length: 242\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "183",
+      "kind": "res",
+      "note": "The answer SDP completes the first offer/answer. RSeq makes it reliable.",
+      "message": "SIP/2.0 183 Session Progress\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKup1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nRequire: 100rel\nRSeq: 1\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK\nContact: <sip:+15551212@192.0.2.40>\nContent-Type: application/sdp\nContent-Length: 197\n\nv=0\no=peer 10 11 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "PRACK",
+      "kind": "req",
+      "note": "RAck names the 183. The UAC waits for 200 OK to this PRACK before the next offer.",
+      "message": "PRACK sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKupPr\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 PRACK\nRAck: 1 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "CSeq 2 PRACK succeeded. The first offer/answer is finished and the INVITE is still open.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKupPr\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 PRACK\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "UPDATE",
+      "kind": "req",
+      "note": "CSeq 3 UPDATE carries a new offer. The INVITE transaction is still open.",
+      "message": "UPDATE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKup3\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 3 UPDATE\nContact: <sip:alice@203.0.113.10>\nContent-Type: application/sdp\nContent-Length: 242\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49180 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK with CSeq 3 UPDATE is the answer to UPDATE. No ACK follows it.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKup3\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 3 UPDATE\nContent-Type: application/sdp\nContent-Length: 197\n\nv=0\no=peer 10 11 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "UPDATE is defined in",
+     "choices": [
+      "RFC 3311",
+      "RFC 3262",
+      "RFC 4028",
+      "RFC 3515"
+     ],
+     "answer": 0,
+     "why": "3262 is PRACK. 3311 is the session update.",
+     "cite": {
+      "label": "RFC 3311",
+      "url": "https://www.rfc-editor.org/rfc/rfc3311"
+     }
+    },
+    {
+     "q": "A successful UPDATE is completed by",
+     "choices": [
+      "200 OK",
+      "ACK",
+      "PRACK",
+      "BYE"
+     ],
+     "answer": 0,
+     "why": "UPDATE is a non-INVITE transaction. ACK belongs to INVITE.",
+     "cite": {
+      "label": "RFC 3311",
+      "url": "https://www.rfc-editor.org/rfc/rfc3311"
+     }
+    },
+    {
+     "q": "UPDATE may run before the INVITE 200 when",
+     "choices": [
+      "The first offer has already been answered",
+      "The INVITE has no Call-ID",
+      "100 Trying contained SDP",
+      "Max-Forwards is 0"
+     ],
+     "answer": 0,
+     "why": "You need an early dialog and no outstanding offer.",
+     "cite": {
+      "label": "RFC 3311",
+      "url": "https://www.rfc-editor.org/rfc/rfc3311"
+     }
+    },
+    {
+     "q": "Call-ID and tags on UPDATE",
+     "choices": [
+      "Stay the dialog's values",
+      "Are replaced",
+      "Move into RAck",
+      "Are omitted"
+     ],
+     "answer": 0,
+     "why": "The session can change. The dialog id does not.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "q": "Target refresh is specified in",
+     "choices": [
+      "RFC 6141",
+      "RFC 5737",
+      "RFC 5411",
+      "RFC 3550"
+     ],
+     "answer": 0,
+     "why": "A new remote target is a different problem from an SDP update.",
+     "cite": {
+      "label": "RFC 6141",
+      "url": "https://www.rfc-editor.org/rfc/rfc6141"
+     }
+    },
+    {
+     "q": "The CSeq method token on the UPDATE is",
+     "choices": [
+      "UPDATE",
+      "INVITE",
+      "ACK",
+      "PRACK"
+     ],
+     "answer": 0,
+     "why": "The number is new. The method token matches the request line.",
+     "cite": {
+      "label": "RFC 3311",
+      "url": "https://www.rfc-editor.org/rfc/rfc3311"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "UPDATE",
+     "back": "Session refresh or change. Own transaction. RFC 3311.",
+     "cite": {
+      "label": "RFC 3311",
+      "url": "https://www.rfc-editor.org/rfc/rfc3311"
+     }
+    },
+    {
+     "front": "No ACK",
+     "back": "200 OK finishes UPDATE. ACK is reserved for INVITE.",
+     "cite": {
+      "label": "RFC 3311",
+      "url": "https://www.rfc-editor.org/rfc/rfc3311"
+     }
+    },
+    {
+     "front": "Early dialog",
+     "back": "UPDATE can run before the first INVITE completes.",
+     "cite": {
+      "label": "RFC 3311",
+      "url": "https://www.rfc-editor.org/rfc/rfc3311"
+     }
+    },
+    {
+     "front": "RFC 6141",
+     "back": "Read this before changing the remote target.",
+     "cite": {
+      "label": "RFC 6141",
+      "url": "https://www.rfc-editor.org/rfc/rfc6141"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Negotiate the second offer",
+    "kind": "sdp",
+    "prompt": "The UPDATE offer adds a port change and still lists PCMU and PCMA. The answer keeps PCMU.",
+    "steps": [
+     "Compare the m= lines.",
+     "See which payload the answer kept.",
+     "Note telephone-event on both sides."
+    ],
+    "offer": "v=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49180 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n",
+    "answer": "v=0\no=peer 10 11 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n",
+    "check": {
+     "q": "Which speech codec is in both the UPDATE offer and the answer?",
+     "choices": [
+      "PCMU",
+      "PCMA",
+      "G.729",
+      "Opus"
+     ],
+     "answer": 0,
+     "why": "The answer keeps payload 0 and drops payload 8. PCMU is the speech codec they share.",
+     "cite": {
+      "label": "RFC 3264 §6",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264#section-6"
+     }
+    }
+   },
+   "fault": {
+    "title": "Second offer while the first is open",
+    "symptom": "The INVITE contains SDP. UPDATE with a new offer arrives before any answer. The UAS returns 491.",
+    "log": "INVITE CSeq: 1 INVITE\nContent-Type: application/sdp\n(no answer yet)\n\nUPDATE sip:+15551212@192.0.2.40 SIP/2.0\nCSeq: 2 UPDATE\nContent-Type: application/sdp\n\nSIP/2.0 491 Request Pending",
+    "choices": [
+     "An offer is already outstanding, so UPDATE must wait for the answer",
+     "491 means the branch cookie is wrong",
+     "UPDATE is forbidden after 100rel",
+     "491 is success"
+    ],
+    "answer": 0,
+    "why": "Offer/answer allows one outstanding offer. The INVITE offer has not been answered.",
+    "cause": "UPDATE carried SDP too early.",
+    "fix": "Wait for the answer, PRACK it when 100rel is in use, then send UPDATE.",
+    "cites": [
+     {
+      "label": "RFC 3311",
+      "url": "https://www.rfc-editor.org/rfc/rfc3311"
+     },
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "session-timers",
+   "title": "Session-Expires and 422",
+   "minutes": 13,
+   "tags": [
+    "timer",
+    "rfc4028"
+   ],
+   "summary": "Session timers name who refreshes the dialog, and 422 tells the caller the interval was below Min-SE.",
+   "objectives": [
+    "Read Session-Expires and the refresher parameter",
+    "Retry after 422 using the Min-SE from the response",
+    "Refresh with re-INVITE or UPDATE before the interval ends"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Timer headers",
+    "caption": "Min-SE is a floor. The absolute minimum in the specification is 90 seconds.",
+    "columns": [
+     "Header",
+     "Example",
+     "Role"
+    ],
+    "rows": [
+     [
+      "Session-Expires",
+      "1800;refresher=uac",
+      "Interval and who refreshes"
+     ],
+     [
+      "Min-SE",
+      "1800",
+      "Lowest interval this UA will accept"
+     ],
+     [
+      "422",
+      "Session Interval Too Small",
+      "Ask again with a higher floor"
+     ],
+     [
+      "refresher",
+      "uac or uas",
+      "Which side sends the refresh"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "The interval and the refresher",
+     "paragraphs": [
+      "RFC 4028 adds Session-Expires and Min-SE. The interval is in seconds. The refresher parameter is uac or uas and names who will send the refresh. Supported: timer means the UA can do this. Require: timer means the other side must.",
+      "Min-SE MUST NOT be lower than 90 seconds. A request may still be too small for the peer. The peer then answers 422 Session Interval Too Small and includes the Min-SE it will accept. That 422 is a non-2xx final response, so it is acknowledged inside the INVITE transaction."
+     ],
+     "cites": [
+      {
+       "label": "RFC 4028",
+       "url": "https://www.rfc-editor.org/rfc/rfc4028"
+      },
+      {
+       "label": "RFC 3261 §17",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+      }
+     ]
+    },
+    {
+     "h": "Refresh or the session ends",
+     "paragraphs": [
+      "The UAC retries with Session-Expires at least as large as the received Min-SE, and it raises its own Min-SE to that value. If the UAC asked to be the refresher and the UAS agrees, the 200 OK repeats refresher=uac.",
+      "The refresher sends a re-INVITE or an UPDATE before the interval expires. If the refresh does not happen, the UA treats the session as finished and sends BYE. The refresh is ordinary dialog work. It does not create a new Call-ID."
+     ],
+     "cites": [
+      {
+       "label": "RFC 4028",
+       "url": "https://www.rfc-editor.org/rfc/rfc4028"
+      },
+      {
+       "label": "RFC 3311",
+       "url": "https://www.rfc-editor.org/rfc/rfc3311"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "422, then a longer interval",
+    "parties": [
+     "UA",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "90 seconds is the specification floor and still too small for this peer.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKse1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: timer\nSession-Expires: 90\nMin-SE: 90\nContent-Type: application/sdp\nContent-Length: 242\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "422",
+      "kind": "err",
+      "note": "422 carries Min-SE: 1800. The session was not created.",
+      "message": "SIP/2.0 422 Session Interval Too Small\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKse1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=se422\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nMin-SE: 1800\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "Non-2xx ACK. Same branch as the first INVITE.",
+      "message": "ACK sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKse1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=se422\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "New transaction. Session-Expires 1800 and refresher=uac. Min-SE raised to 1800.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKse2\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: timer\nSession-Expires: 1800;refresher=uac\nMin-SE: 1800\nContent-Type: application/sdp\nContent-Length: 242\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Require: timer and refresher=uac. The UAC will refresh.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKse2\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 INVITE\nRequire: timer\nSession-Expires: 1800;refresher=uac\nContact: <sip:+15551212@192.0.2.40>\nContent-Type: application/sdp\nContent-Length: 197\n\nv=0\no=peer 10 11 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Session timers are defined in",
+     "choices": [
+      "RFC 4028",
+      "RFC 3261 section 17",
+      "RFC 6026",
+      "RFC 3966"
+     ],
+     "answer": 0,
+     "why": "T1 and Timer B are the transaction clocks. Session-Expires is 4028.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    },
+    {
+     "q": "422 means",
+     "choices": [
+      "The session interval is below the peer's Min-SE",
+      "The branch cookie is missing",
+      "The codec was refused",
+      "The dialog is confirmed"
+     ],
+     "answer": 0,
+     "why": "The response includes the Min-SE to use on the retry.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    },
+    {
+     "q": "The lowest Min-SE the specification allows is",
+     "choices": [
+      "90 seconds",
+      "1 second",
+      "70",
+      "500 ms"
+     ],
+     "answer": 0,
+     "why": "A peer may demand more. It may not demand a floor under 90.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    },
+    {
+     "q": "refresher=uac means",
+     "choices": [
+      "The caller sends the refresh",
+      "The registrar sends REGISTER",
+      "The proxy deletes the route set",
+      "ACK is hop by hop"
+     ],
+     "answer": 0,
+     "why": "refresher=uas would put the refresh on the answerer.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    },
+    {
+     "q": "The refresh method is",
+     "choices": [
+      "re-INVITE or UPDATE",
+      "CANCEL",
+      "Only ACK",
+      "OPTIONS on a new Call-ID"
+     ],
+     "answer": 0,
+     "why": "Either request runs inside the existing dialog before the interval expires.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    },
+    {
+     "q": "The ACK of the 422 uses",
+     "choices": [
+      "The first INVITE's branch",
+      "A new branch like a 2xx ACK",
+      "No CSeq",
+      "RAck"
+     ],
+     "answer": 0,
+     "why": "422 is a non-2xx final response.",
+     "cite": {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Session-Expires",
+     "back": "Seconds until the session must be refreshed, plus an optional refresher.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    },
+    {
+     "front": "Min-SE",
+     "back": "Minimum interval. Never below 90 seconds.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    },
+    {
+     "front": "422",
+     "back": "Session Interval Too Small. Retry with the Min-SE from the response.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    },
+    {
+     "front": "refresher",
+     "back": "uac or uas. That side sends re-INVITE or UPDATE.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the 422",
+    "kind": "dissect",
+    "prompt": "The response tells you the floor. The next INVITE has to meet it.",
+    "steps": [
+     "Dissect the 422.",
+     "Read Min-SE.",
+     "Note the status code class."
+    ],
+    "message": "SIP/2.0 422 Session Interval Too Small\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKse1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=se422\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nMin-SE: 1800\nContent-Length: 0\n",
+    "check": {
+     "q": "Min-SE on this 422 is",
+     "choices": [
+      "1800",
+      "90",
+      "70",
+      "500"
+     ],
+     "answer": 0,
+     "why": "The retry in the lesson uses 1800 because that is the value the peer sent.",
+     "cite": {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    }
+   },
+   "fault": {
+    "title": "Refresh never came",
+    "symptom": "Both sides agreed Session-Expires 1800 refresher=uac. At 1800 seconds the UAS sends BYE. No re-INVITE or UPDATE is in the trace.",
+    "log": "SIP/2.0 200 OK\nSession-Expires: 1800;refresher=uac\nRequire: timer\n\n(no in-dialog request for 1800 seconds)\nBYE sip:alice@203.0.113.10 SIP/2.0\nCSeq: 2 BYE",
+    "choices": [
+     "The UAC was the refresher and did not refresh, so the session is over",
+     "BYE is illegal after Session-Expires",
+     "refresher=uac means the UAS must refresh",
+     "1800 is below the 90 second floor"
+    ],
+    "answer": 0,
+    "why": "The parameter named the UAC. The interval expired with no re-INVITE or UPDATE.",
+    "cause": "The refresher timer was not running.",
+    "fix": "Send UPDATE or re-INVITE with Session-Expires before the interval expires, or expect BYE.",
+    "cites": [
+     {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "cancel-bye-reinvite",
+   "title": "CANCEL, BYE, and re-INVITE",
+   "minutes": 14,
+   "tags": [
+    "cancel",
+    "bye",
+    "reinvite"
+   ],
+   "summary": "CANCEL abandons an unanswered INVITE, BYE ends a confirmed dialog, and re-INVITE changes a dialog that already exists.",
+   "objectives": [
+    "Pair 200 OK for CANCEL with 487 for the INVITE",
+    "Use BYE only on a confirmed dialog",
+    "Treat a mid-dialog INVITE as a re-INVITE and a possible target refresh"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Three requests people mix up",
+    "caption": "The dialog state decides the method. The branch decides whether CANCEL matches.",
+    "columns": [
+     "Method",
+     "When",
+     "What finishes it"
+    ],
+    "rows": [
+     [
+      "CANCEL",
+      "INVITE has no final response",
+      "200 for CANCEL, 487 for INVITE, then ACK"
+     ],
+     [
+      "BYE",
+      "Dialog is confirmed",
+      "200 OK"
+     ],
+     [
+      "re-INVITE",
+      "Mid-dialog change",
+      "200 OK, then a 2xx ACK"
+     ],
+     [
+      "491",
+      "The other INVITE is still open",
+      "Wait and retry"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "CANCEL matches the INVITE",
+     "paragraphs": [
+      "CANCEL uses the same Request-URI, Call-ID, From, To, and CSeq number as the INVITE, and the same branch. The method token is CANCEL. It applies only while that INVITE has no final response. The UAS answers 200 OK to the CANCEL.",
+      "If the UAS stops the INVITE, the INVITE's final response is 487 Request Terminated. That 487 is a non-2xx, so the ACK reuses the INVITE branch. A 200 OK to CANCEL means the CANCEL was received. It does not mean the INVITE is already dead."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      },
+      {
+       "label": "RFC 3261 §8.1.1.7",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+      }
+     ]
+    },
+    {
+     "h": "BYE and re-INVITE need the dialog",
+     "paragraphs": [
+      "BYE is sent only in a confirmed dialog, with both tags and a higher CSeq. If a 200 OK to the INVITE crosses the CANCEL, the dialog is confirmed and CANCEL will not tear it down. Send BYE.",
+      "A re-INVITE is a mid-dialog INVITE with a new CSeq. It can carry a new offer. If it changes the remote target in Contact, it is a target refresh and RFC 6141 is the document to read. A 491 Request Pending means the other side has an INVITE outstanding. Wait a short randomized time, as section 14 describes, and retry so the two requests do not collide again."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 6141",
+       "url": "https://www.rfc-editor.org/rfc/rfc6141"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "CANCEL, then 487",
+    "parties": [
+     "UA",
+     "Peer"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "No final response yet, so CANCEL is still legal. Branch z9hG4bKcan1.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKcan1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 does not create a confirmed dialog.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKcan1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Early dialog only. The INVITE is still unanswered.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKcan1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "CANCEL",
+      "kind": "req",
+      "note": "Same branch, CSeq 1 CANCEL.",
+      "message": "CANCEL sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKcan1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 CANCEL\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK is for the CANCEL. CSeq method is CANCEL.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKcan1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 CANCEL\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "487",
+      "kind": "err",
+      "note": "487 is the INVITE's final response.",
+      "message": "SIP/2.0 487 Request Terminated\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKcan1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "Non-2xx ACK. Same branch again. CSeq 1 ACK.",
+      "message": "ACK sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKcan1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "CANCEL uses",
+     "choices": [
+      "The INVITE's branch and CSeq number",
+      "A new branch and CSeq plus one",
+      "The ACK branch",
+      "No Via"
+     ],
+     "answer": 0,
+     "why": "That is how the server finds the INVITE transaction.",
+     "cite": {
+      "label": "RFC 3261 §8.1.1.7",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+     }
+    },
+    {
+     "q": "After a successful cancel, the INVITE completes with",
+     "choices": [
+      "487 Request Terminated",
+      "200 OK",
+      "180 Ringing",
+      "401"
+     ],
+     "answer": 0,
+     "why": "The CANCEL's own response is 200 OK. The INVITE still needs a final response.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "BYE is appropriate when",
+     "choices": [
+      "The dialog is confirmed",
+      "Only 100 Trying has arrived",
+      "You want to refresh a binding",
+      "DNS failed"
+     ],
+     "answer": 0,
+     "why": "An early dialog is ended by rejecting or cancelling the INVITE, not by BYE.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "If 200 OK and CANCEL cross",
+     "choices": [
+      "The dialog is up, so send BYE to end it",
+      "CANCEL deletes the 200",
+      "ACK is forbidden",
+      "Send REGISTER"
+     ],
+     "answer": 0,
+     "why": "CANCEL does not end a confirmed dialog.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "A re-INVITE is",
+     "choices": [
+      "A mid-dialog INVITE with a higher CSeq",
+      "The same bytes as CANCEL",
+      "Only legal before the To tag",
+      "A non-2xx ACK"
+     ],
+     "answer": 0,
+     "why": "The 2xx ACK rules apply to its 200 OK. Target changes are RFC 6141.",
+     "cite": {
+      "label": "RFC 6141",
+      "url": "https://www.rfc-editor.org/rfc/rfc6141"
+     }
+    },
+    {
+     "q": "491 Request Pending means",
+     "choices": [
+      "The other side already has an INVITE in progress",
+      "The session interval is too small",
+      "The registrar rejected the expiry",
+      "Max-Forwards hit zero"
+     ],
+     "answer": 0,
+     "why": "422 is the session-timer code. 491 is the glare code.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "CANCEL",
+     "back": "Same branch as the unanswered INVITE. CSeq number unchanged.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "487",
+     "back": "Final response to the INVITE that was cancelled. Then ACK.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "front": "BYE",
+     "back": "Ends a confirmed dialog. Higher CSeq. Both tags.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "front": "re-INVITE",
+     "back": "Mid-dialog INVITE. See RFC 6141 if Contact changes the target.",
+     "cite": {
+      "label": "RFC 6141",
+      "url": "https://www.rfc-editor.org/rfc/rfc6141"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Dissect a BYE",
+    "kind": "dissect",
+    "prompt": "This BYE assumes the dialog already exists. Find the CSeq and the To tag.",
+    "steps": [
+     "Dissect the BYE.",
+     "Confirm both tags are present.",
+     "Read the CSeq number."
+    ],
+    "message": "BYE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKbye9\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 BYE\nContent-Length: 0\n",
+    "check": {
+     "q": "The CSeq on this BYE is",
+     "choices": [
+      "2 BYE",
+      "1 CANCEL",
+      "1 ACK",
+      "1 INVITE"
+     ],
+     "answer": 0,
+     "why": "BYE is a new request. It does not reuse the INVITE number the way CANCEL does.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    }
+   },
+   "fault": {
+    "title": "CANCEL after the call was up",
+    "symptom": "The 200 OK and the CANCEL crossed. The caller sends no BYE. The callee stays off hook and RTP continues.",
+    "log": "SIP/2.0 200 OK\nCSeq: 1 INVITE\nTo: <sip:+15551212@example.com>;tag=314159\n\nCANCEL sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKcan1\nCSeq: 1 CANCEL\n\n(no BYE)",
+    "choices": [
+     "The dialog is confirmed. BYE is required to end it",
+     "CANCEL always stops RTP",
+     "487 will still arrive and hang up the media",
+     "ACK can replace BYE"
+    ],
+    "answer": 0,
+    "why": "A late CANCEL does not unwind a 200 OK. The UAS may answer 200 to the CANCEL and leave the dialog up.",
+    "cause": "The caller treated CANCEL as a universal teardown.",
+    "fix": "ACK the 200 OK, then send BYE with the next CSeq and both tags.",
+    "cites": [
+     {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     },
+     {
+      "label": "RFC 3261 §13",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "refer-replaces",
+   "title": "REFER and Replaces",
+   "minutes": 14,
+   "tags": [
+    "refer",
+    "replaces"
+   ],
+   "summary": "REFER asks another UA to send a request, and Replaces names the dialog that request should take over.",
+   "objectives": [
+    "Read Refer-To and the 202 Accepted",
+    "Follow progress in NOTIFY sipfrag bodies",
+    "Match a Replaces dialog by Call-ID and both tags"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Attended transfer",
+    "caption": "REFER stays in the original dialog. The INVITE it causes is a new dialog that names the old one.",
+    "layers": [
+     {
+      "name": "REFER",
+      "detail": "Refer-To carries the target and the Replaces parameter"
+     },
+     {
+      "name": "202",
+      "detail": "The REFER was accepted, not the new call"
+     },
+     {
+      "name": "INVITE",
+      "detail": "Replaces names call-id, to-tag, and from-tag"
+     },
+     {
+      "name": "NOTIFY",
+      "detail": "sipfrag reports how that INVITE is going"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "REFER starts a subscription",
+     "paragraphs": [
+      "RFC 3515 defines REFER. Refer-To is the URI the recipient should request. Referred-By names who asked. The compact forms are r and b. The immediate response is 202 Accepted, which means the request to try was accepted.",
+      "The recipient then sends NOTIFY with Event: refer. The body is a sipfrag, a status line such as SIP/2.0 200 OK, showing how the referred request is progressing. 202 is not that result. You have to read the NOTIFY."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3515",
+       "url": "https://www.rfc-editor.org/rfc/rfc3515"
+      },
+      {
+       "label": "RFC 6665",
+       "url": "https://www.rfc-editor.org/rfc/rfc6665"
+      }
+     ]
+    },
+    {
+     "h": "Replaces names an existing dialog",
+     "paragraphs": [
+      "RFC 3891 defines Replaces. An attended transfer puts the dialog id into the Refer-To URI as a Replaces parameter, escaped. The UA that receives the resulting INVITE sees a Replaces header with call-id, to-tag, and from-tag.",
+      "Those three values are the same dialog identity you already use. If they match a confirmed dialog, the UA accepts the new INVITE and ends the replaced dialog. The early-only parameter limits Replaces to an early dialog. A mismatch is a failed replace, not a new unrelated call you should guess at."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3891",
+       "url": "https://www.rfc-editor.org/rfc/rfc3891"
+      },
+      {
+       "label": "RFC 3261 §12",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "REFER with Replaces",
+    "parties": [
+     "Transferor",
+     "Transferee",
+     "Target"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "REFER",
+      "kind": "req",
+      "note": "Refer-To includes an escaped Replaces parameter. CSeq 2 REFER is inside the original dialog.",
+      "message": "REFER sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKref1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 REFER\nContact: <sip:alice@203.0.113.10>\nRefer-To: <sip:+15551213@example.com?Replaces=b7c8d9e0f1%40example.com%3Bto-tag%3Dpeertag%3Bfrom-tag%3D9fxced76sl>\nReferred-By: <sip:alice@example.com>\nSupported: replaces\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "202",
+      "kind": "res",
+      "note": "202 Accepted means the transferee will try. It is not the target's answer.",
+      "message": "SIP/2.0 202 Accepted\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKref1\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 REFER\nContact: <sip:+15551212@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "New Call-ID. The Replaces header names the dialog to take over.",
+      "message": "INVITE sip:+15551213@example.com SIP/2.0\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKrefInv\nMax-Forwards: 70\nFrom: <sip:+15551212@example.com>;tag=peertag\nTo: <sip:+15551213@example.com>\nCall-ID: c0ffee01@example.com\nCSeq: 1 INVITE\nContact: <sip:+15551212@192.0.2.40>\nReplaces: b7c8d9e0f1@example.com;to-tag=peertag;from-tag=9fxced76sl\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "NOTIFY",
+      "kind": "req",
+      "note": "Event: refer and a sipfrag of SIP/2.0 200 OK. This is the progress report.",
+      "message": "NOTIFY sip:alice@203.0.113.10 SIP/2.0\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKrefN\nMax-Forwards: 70\nFrom: <sip:+15551212@example.com>;tag=314159\nTo: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 NOTIFY\nContact: <sip:+15551212@192.0.2.40>\nEvent: refer\nSubscription-State: active;expires=60\nContent-Type: message/sipfrag\nContent-Length: 16\n\nSIP/2.0 200 OK\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK completes the NOTIFY. The subscription can continue until a final sipfrag.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKrefN\nFrom: <sip:+15551212@example.com>;tag=314159\nTo: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 NOTIFY\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "REFER is defined in",
+     "choices": [
+      "RFC 3515",
+      "RFC 3891",
+      "RFC 3311",
+      "RFC 4028"
+     ],
+     "answer": 0,
+     "why": "3891 is Replaces. 3515 is the method that carries Refer-To.",
+     "cite": {
+      "label": "RFC 3515",
+      "url": "https://www.rfc-editor.org/rfc/rfc3515"
+     }
+    },
+    {
+     "q": "202 Accepted means",
+     "choices": [
+      "The recipient accepted the REFER, not that the new call succeeded",
+      "The target sent 200 OK",
+      "The dialog is terminated",
+      "PRACK is complete"
+     ],
+     "answer": 0,
+     "why": "The outcome of the referred request arrives in NOTIFY.",
+     "cite": {
+      "label": "RFC 3515",
+      "url": "https://www.rfc-editor.org/rfc/rfc3515"
+     }
+    },
+    {
+     "q": "Replaces identifies a dialog by",
+     "choices": [
+      "Call-ID, to-tag, and from-tag",
+      "The Via branch only",
+      "Max-Forwards",
+      "The SDP port"
+     ],
+     "answer": 0,
+     "why": "That is the same triple as dialog identity.",
+     "cite": {
+      "label": "RFC 3891",
+      "url": "https://www.rfc-editor.org/rfc/rfc3891"
+     }
+    },
+    {
+     "q": "The compact form of Refer-To is",
+     "choices": [
+      "r",
+      "b",
+      "o",
+      "m"
+     ],
+     "answer": 0,
+     "why": "b is Referred-By. Both are RFC 3515, not the base compact list.",
+     "cite": {
+      "label": "RFC 3515",
+      "url": "https://www.rfc-editor.org/rfc/rfc3515"
+     }
+    },
+    {
+     "q": "A NOTIFY for this transfer carries",
+     "choices": [
+      "Event: refer and a sipfrag body",
+      "RAck",
+      "Session-Expires only",
+      "No Call-ID"
+     ],
+     "answer": 0,
+     "why": "The sipfrag is a status line from the referred request.",
+     "cite": {
+      "label": "RFC 3515",
+      "url": "https://www.rfc-editor.org/rfc/rfc3515"
+     }
+    },
+    {
+     "q": "early-only on Replaces means",
+     "choices": [
+      "Only an early dialog may be replaced",
+      "The call must already be confirmed",
+      "CANCEL is forbidden",
+      "The route set is deleted"
+     ],
+     "answer": 0,
+     "why": "A confirmed dialog does not match an early-only replace.",
+     "cite": {
+      "label": "RFC 3891",
+      "url": "https://www.rfc-editor.org/rfc/rfc3891"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Refer-To",
+     "back": "The request the recipient should send. Compact form r.",
+     "cite": {
+      "label": "RFC 3515",
+      "url": "https://www.rfc-editor.org/rfc/rfc3515"
+     }
+    },
+    {
+     "front": "202 Accepted",
+     "back": "REFER was accepted. Watch NOTIFY for the real result.",
+     "cite": {
+      "label": "RFC 3515",
+      "url": "https://www.rfc-editor.org/rfc/rfc3515"
+     }
+    },
+    {
+     "front": "Replaces",
+     "back": "call-id, to-tag, from-tag of the dialog to take over.",
+     "cite": {
+      "label": "RFC 3891",
+      "url": "https://www.rfc-editor.org/rfc/rfc3891"
+     }
+    },
+    {
+     "front": "sipfrag",
+     "back": "A status line in the NOTIFY body, such as SIP/2.0 200 OK.",
+     "cite": {
+      "label": "RFC 3515",
+      "url": "https://www.rfc-editor.org/rfc/rfc3515"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read Refer-To",
+    "kind": "dissect",
+    "prompt": "Find the Replaces parameter inside Refer-To. It is escaped.",
+    "steps": [
+     "Dissect the REFER.",
+     "Decode the idea of the Replaces parameter.",
+     "Note that 202 has not happened yet in this message."
+    ],
+    "message": "REFER sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKref1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 REFER\nContact: <sip:alice@203.0.113.10>\nRefer-To: <sip:+15551213@example.com?Replaces=b7c8d9e0f1%40example.com%3Bto-tag%3Dpeertag%3Bfrom-tag%3D9fxced76sl>\nReferred-By: <sip:alice@example.com>\nSupported: replaces\nContent-Length: 0\n",
+    "check": {
+     "q": "The header that carries the target URI is",
+     "choices": [
+      "Refer-To",
+      "Replaces",
+      "RAck",
+      "Path"
+     ],
+     "answer": 0,
+     "why": "Replaces appears as a URI parameter on Refer-To in this message. The referred INVITE will lift it into a header.",
+     "cite": {
+      "label": "RFC 3515",
+      "url": "https://www.rfc-editor.org/rfc/rfc3515"
+     }
+    }
+   },
+   "fault": {
+    "title": "Transfer marked done at 202",
+    "symptom": "A tool closes the transfer when it sees 202 Accepted. The NOTIFY sipfrag later says SIP/2.0 486 Busy Here.",
+    "log": "SIP/2.0 202 Accepted\nCSeq: 2 REFER\n\nNOTIFY\nEvent: refer\nContent-Type: message/sipfrag\n\nSIP/2.0 486 Busy Here",
+    "choices": [
+     "202 only accepts the REFER. The sipfrag is the referred call's result",
+     "486 means the REFER header was compact",
+     "NOTIFY cannot carry a status",
+     "Replaces forbids 486"
+    ],
+    "answer": 0,
+    "why": "The subscription exists so the transferor can see failure as well as success.",
+    "cause": "The tool treated 202 as the target's final response.",
+    "fix": "Display the sipfrag status from NOTIFY. Keep the original dialog up until that result is final.",
+    "cites": [
+     {
+      "label": "RFC 3515",
+      "url": "https://www.rfc-editor.org/rfc/rfc3515"
+     },
+     {
+      "label": "RFC 3891",
+      "url": "https://www.rfc-editor.org/rfc/rfc3891"
+     }
+    ]
+   },
+   "level": "Core"
+  }
+ ]
+}

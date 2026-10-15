@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="observatory" data-font="md">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SIP Universe</title>
+  <meta name="description" content="SIP Universe is a field guide to SIP, SDP, RTP/SRTP, and session border controllers, with ladders, a message dissector, an offer/answer negotiator, and a 3D topology.">
+  <meta name="theme-color" content="#070b14">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%23070b14' width='32' height='32' rx='6'/%3E%3Cpath d='M6 16h8M18 10l8 6-8 6' stroke='%233ddcff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/app.css">
+  <script>
+    try {
+      var saved = JSON.parse(localStorage.getItem("sip-universe-settings") || "{}");
+      if (saved.theme) document.documentElement.dataset.theme = saved.theme;
+      if (saved.font) document.documentElement.dataset.font = saved.font;
+      if (saved.motion) document.documentElement.dataset.motion = saved.motion;
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#/">
+        <span class="mark" aria-hidden="true"></span>
+        <span><strong>SIP Universe</strong><small>Signaling, media, borders</small></span>
+      </a>
+      <form class="search" id="search-form" role="search">
+        <label class="sr-only" for="q">Search lessons</label>
+        <input id="q" name="q" type="search" placeholder="Search PRACK, CUBE, 488…" autocomplete="off">
+      </form>
+      <div class="top-actions">
+        <span class="progress-pill" id="progress-pill">0 read</span>
+        <button type="button" id="open-settings">Settings</button>
+      </div>
+    </header>
+    <div class="layout">
+      <nav class="rail" id="rail" aria-label="Primary"></nav>
+      <main id="main">
+        <p id="announcer" class="sr-only" aria-live="polite"></p>
+        <h1 id="view-title">SIP Universe</h1>
+        <div id="view" aria-busy="true">
+          <p class="lede">Loading the field guide…</p>
+        </div>
+      </main>
+    </div>
+  </div>
+  <nav class="bottom" id="bottom" aria-label="Mobile"></nav>
+  <dialog id="settings" aria-labelledby="settings-title">
+    <form method="dialog" class="settings-grid" id="settings-form">
+      <h2 id="settings-title">Settings</h2>
+      <fieldset>
+        <legend>Theme</legend>
+        <label><input type="radio" name="theme" value="observatory"> Observatory</label>
+        <label><input type="radio" name="theme" value="daylight"> Daylight</label>
+        <label><input type="radio" name="theme" value="contrast"> High contrast</label>
+        <label><input type="radio" name="theme" value="phosphor"> Phosphor</label>
+      </fieldset>
+      <fieldset>
+        <legend>Font size</legend>
+        <label><input type="radio" name="font" value="sm"> Small</label>
+        <label><input type="radio" name="font" value="md"> Medium</label>
+        <label><input type="radio" name="font" value="lg"> Large</label>
+        <label><input type="radio" name="font" value="xl"> Extra large</label>
+      </fieldset>
+      <label><input type="checkbox" name="sfx"> Sound effects</label>
+      <label><input type="checkbox" name="narration"> Narration</label>
+      <label class="stack" for="voice">Voice
+        <select id="voice" name="voiceURI"></select>
+      </label>
+      <label class="stack" for="rate">Narration speed <span id="rate-val">1</span>
+        <input id="rate" name="rate" type="range" min="0.8" max="1.5" step="0.1" value="1">
+      </label>
+      <label><input type="checkbox" name="motion"> Reduce motion</label>
+      <p class="fine">Sound stays off until you enable it. Narration waits for the browser voice list and will not select a classic robotic Microsoft David, Zira, or Mark voice on its own.</p>
+      <button type="submit" class="primary">Close</button>
+    </form>
+  </dialog>
+  <dialog id="more" aria-labelledby="more-title">
+    <h2 id="more-title">More</h2>
+    <div class="more-list" id="more-list"></div>
+    <form method="dialog"><button type="submit" class="primary">Close</button></form>
+  </dialog>
+  <noscript><p>SIP Universe’s router needs JavaScript. The track files are in <a href="data/catalog.json">data/catalog.json</a>.</p></noscript>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

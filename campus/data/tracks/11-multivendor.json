@@ -1,0 +1,2130 @@
+{
+ "id": "multivendor",
+ "title": "Oracle, Ribbon, and AudioCodes",
+ "summary": "Object names and manipulation syntax you can verify in public docs, and the certificate name the peer actually checks.",
+ "level": "Advanced",
+ "order": 11,
+ "lessons": [
+  {
+   "id": "oracle-objects",
+   "title": "Oracle SBC objects",
+   "minutes": 14,
+   "tags": [
+    "oracle",
+    "realm",
+    "hmr"
+   ],
+   "summary": "Oracle Communications SBC, formerly Acme Packet, is configured with realms, interfaces, session agents, and manipulation objects.",
+   "objectives": [
+    "Name the objects the 10.1 docs use",
+    "Attach a manipulation inbound or outbound",
+    "Leave element-rule syntax in the configuration guide"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Objects you may name",
+    "caption": "This is a vocabulary list from the documentation, not a command script.",
+    "columns": [
+     "Object",
+     "Role in the docs"
+    ],
+    "rows": [
+     [
+      "realm",
+      "Routing and policy context"
+     ],
+     [
+      "sip-interface",
+      "SIP service address on a realm"
+     ],
+     [
+      "session-agent",
+      "Named next hop"
+     ],
+     [
+      "sip-manipulation",
+      "Named set of header rules"
+     ],
+     [
+      "in-manipulationid",
+      "Manipulation on messages arriving"
+     ],
+     [
+      "out-manipulationid",
+      "Manipulation on messages leaving"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Realm, interface, and next hop",
+     "paragraphs": [
+      "Oracle Communications SBC was formerly Acme Packet. A realm is the routing and policy context, a sip-interface binds a SIP service address to a realm, and a session-agent is a named next hop.",
+      "In this synthetic the inside address is 203.0.113.10, the sip-interface address is 203.0.113.20, and the session-agent toward the carrier is 192.0.2.40. The product documentation, not this lesson, prints the configuration fields for those objects."
+     ],
+     "cites": [
+      {
+       "label": "Oracle Communications SBC documentation",
+       "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html"
+      },
+      {
+       "label": "Oracle SBC HMR configuration (10.1)",
+       "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+      }
+     ]
+    },
+    {
+     "h": "Where manipulation is attached",
+     "paragraphs": [
+      "A sip-manipulation is a named set of header rules. In-manipulationid selects the manipulation for messages arriving on a sip-interface or session-agent, and out-manipulationid selects the manipulation for messages leaving.",
+      "An element-rule targets part of a header and lives under a header rule. Its field names are in the HMR configuration guide. This lesson names the object and does not invent the fields."
+     ],
+     "cites": [
+      {
+       "label": "Oracle SBC HMR fundamentals (10.1)",
+       "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+      },
+      {
+       "label": "Oracle SBC HMR configuration (10.1)",
+       "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Two sides of one Oracle SBC",
+    "parties": [
+     "Phone",
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The request arrives on the inside sip-interface.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nServer: ExampleProxy/1.0\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The SBC answers as the UAS.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The session-agent INVITE is a new request. Server was not copied.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "100",
+      "kind": "res",
+      "note": "The carrier sees only the outside dialog.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Oracle Communications SBC was formerly",
+     "choices": [
+      "Acme Packet",
+      "A Ribbon SBC 1000 only",
+      "CUCM",
+      "A codec"
+     ],
+     "answer": 0,
+     "why": "The docs still describe the Acme Packet lineage product.",
+     "cite": {
+      "label": "Oracle Communications SBC documentation",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html"
+     }
+    },
+    {
+     "q": "A session-agent is",
+     "choices": [
+      "A named next hop",
+      "A SIP method",
+      "An RTP payload",
+      "A certificate extension"
+     ],
+     "answer": 0,
+     "why": "The carrier at 192.0.2.40 would be represented as a session-agent.",
+     "cite": {
+      "label": "Oracle Communications SBC documentation",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html"
+     }
+    },
+    {
+     "q": "out-manipulationid selects",
+     "choices": [
+      "The manipulation applied to messages leaving",
+      "The RTP port",
+      "The realm’s DNS resolver only",
+      "A reject status code"
+     ],
+     "answer": 0,
+     "why": "in-manipulationid is the arrival direction.",
+     "cite": {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+     }
+    },
+    {
+     "q": "A sip-manipulation contains",
+     "choices": [
+      "Header rules",
+      "Only SDP port numbers",
+      "Dial-peer voice lines",
+      "CUCM Lua menus"
+     ],
+     "answer": 0,
+     "why": "header-rule objects live in that set.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    },
+    {
+     "q": "An element-rule",
+     "choices": [
+      "Targets part of a header, with fields defined in the HMR guide",
+      "Is a Ribbon CLI command",
+      "Sets a SIP status this lesson invents",
+      "Replaces the realm"
+     ],
+     "answer": 0,
+     "why": "Name it. Read the release guide for the syntax.",
+     "cite": {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+     }
+    },
+    {
+     "q": "A sip-interface is",
+     "choices": [
+      "The SIP service address bound to a realm",
+      "The datasheet CPS formula",
+      "An AudioCodes IP group",
+      "A Teams FQDN"
+     ],
+     "answer": 0,
+     "why": "It is where signaling is anchored for that realm.",
+     "cite": {
+      "label": "Oracle Communications SBC documentation",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "realm",
+     "back": "Routing and policy context on the Oracle SBC.",
+     "cite": {
+      "label": "Oracle Communications SBC documentation",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html"
+     }
+    },
+    {
+     "front": "session-agent",
+     "back": "Named next hop.",
+     "cite": {
+      "label": "Oracle Communications SBC documentation",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html"
+     }
+    },
+    {
+     "front": "in-manipulationid",
+     "back": "Which sip-manipulation runs on arrival.",
+     "cite": {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+     }
+    },
+    {
+     "front": "out-manipulationid",
+     "back": "Which sip-manipulation runs on the way out.",
+     "cite": {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Name the attachment",
+    "kind": "config",
+    "prompt": "These are documentation object names. Which one selects manipulation for messages leaving?",
+    "config": "realm\nsip-interface\nsession-agent\nsip-manipulation\nheader-rule\nelement-rule\nin-manipulationid\nout-manipulationid\n",
+    "steps": [
+     "Read the list as vocabulary.",
+     "Separate interface objects from manipulation objects.",
+     "Pick the outbound attachment."
+    ],
+    "check": {
+     "q": "Messages leaving use",
+     "choices": [
+      "out-manipulationid",
+      "in-manipulationid",
+      "A CUBE dial peer",
+      "An invented reject status"
+     ],
+     "answer": 0,
+     "why": "out-manipulationid is the egress attachment.",
+     "cite": {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "Server still present on the egress INVITE",
+    "symptom": "A header rule was written to delete Server, and the carrier INVITE still contains Server: ExampleProxy/1.0.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nServer: ExampleProxy/1.0\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "choices": [
+     "The manipulation is not referenced by out-manipulationid on the egress object",
+     "RFC 3261 requires Server on every INVITE",
+     "A realm cannot have a sip-interface",
+     "element-rule deletes Call-ID automatically"
+    ],
+    "answer": 0,
+    "why": "The egress request still shows the header.",
+    "cause": "The sip-manipulation exists, but the leaving path does not reference it.",
+    "fix": "Set out-manipulationid on the egress sip-interface or session-agent to the sip-manipulation that holds the header rule. Confirm the direction in the HMR configuration guide.",
+    "cites": [
+     {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+     },
+     {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "acme-hmr",
+   "title": "Header rules run in order",
+   "minutes": 15,
+   "tags": [
+    "hmr",
+    "oracle",
+    "acme"
+   ],
+   "summary": "Oracle HMR header rules run in configured order. The 10.1 fundamentals page names add, delete, manipulate, store, and reject.",
+   "objectives": [
+    "Put header rules in configured order",
+    "Name the documented actions",
+    "Leave the reject status code in the release guide"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Order is the feature",
+    "caption": "A later rule sees the message earlier rules produced.",
+    "nodes": [
+     "First rule",
+     "Second rule",
+     "store before delete",
+     "Read the guide"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Actions the fundamentals page names",
+     "paragraphs": [
+      "The 10.1 HMR fundamentals page describes the actions add, delete, manipulate, and store. Reject also exists as an HMR action.",
+      "This lesson does not invent the SIP status code that reject sends. Read the release guide before you use reject. The lab uses delete, which removes the named header."
+     ],
+     "cites": [
+      {
+       "label": "Oracle SBC HMR fundamentals (10.1)",
+       "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+      },
+      {
+       "label": "Oracle SBC HMR configuration (10.1)",
+       "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+      }
+     ]
+    },
+    {
+     "h": "Configured order",
+     "paragraphs": [
+      "Header rules run in configured order. If a store rule needs the Server value, that rule has to run before a delete rule on Server.",
+      "The teaching rule in the lab is a header-rule named strip-server. It sets header-name Server, action delete, comparison-type boolean, and msg-type any."
+     ],
+     "cites": [
+      {
+       "label": "Oracle SBC HMR fundamentals (10.1)",
+       "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Server removed on the way out",
+    "parties": [
+     "Phone",
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The inbound INVITE still has Server: ExampleProxy/1.0.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nServer: ExampleProxy/1.0\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The UAS responds before the egress rules matter to the carrier.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "After the delete rule, the carrier INVITE has no Server header.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "The carrier response is a different message and a later rule set.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>;tag=carrier77\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Header rules on the Oracle SBC run",
+     "choices": [
+      "In configured order",
+      "In alphabetical header order only",
+      "After the call ends",
+      "Only on REGISTER"
+     ],
+     "answer": 0,
+     "why": "A later rule sees earlier edits.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    },
+    {
+     "q": "add, delete, manipulate, and store are",
+     "choices": [
+      "Actions described on the 10.1 fundamentals page",
+      "AudioCodes Action Type values",
+      "CUBE dial-peer commands",
+      "RTP directions"
+     ],
+     "answer": 0,
+     "why": "reject is also an HMR action.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    },
+    {
+     "q": "The SIP status produced by reject",
+     "choices": [
+      "Is in the release guide, and is not invented here",
+      "Is always 200 OK",
+      "Is always 180",
+      "Is carried in the branch cookie"
+     ],
+     "answer": 0,
+     "why": "Read the guide for the code.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    },
+    {
+     "q": "action delete on header-name Server",
+     "choices": [
+      "Removes the Server header",
+      "Adds Server",
+      "Stores the SDP port",
+      "Changes Call-ID"
+     ],
+     "answer": 0,
+     "why": "That is the lab rule strip-server.",
+     "cite": {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+     }
+    },
+    {
+     "q": "msg-type any means the teaching rule is considered for",
+     "choices": [
+      "Requests and responses",
+      "INVITE only, by RFC 3261",
+      "ACK only",
+      "No messages"
+     ],
+     "answer": 0,
+     "why": "The fundamentals page is still the source for production policy.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    },
+    {
+     "q": "A store of Server must be placed",
+     "choices": [
+      "Before the delete of Server",
+      "After the delete",
+      "Inside SDP",
+      "On the CUCM trunk"
+     ],
+     "answer": 0,
+     "why": "Order decides whether the value still exists.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "header-rule",
+     "back": "One rule inside a sip-manipulation.",
+     "cite": {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+     }
+    },
+    {
+     "front": "delete",
+     "back": "Removes the named header. Lab rule strip-server.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    },
+    {
+     "front": "store",
+     "back": "Keeps a value for a later rule. Run it first.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    },
+    {
+     "front": "reject",
+     "back": "An HMR action. Read the release guide for the status.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Delete Server",
+    "kind": "sandbox",
+    "dialect": "acme",
+    "prompt": "Run this Acme header-rule subset against the INVITE. Server should disappear.",
+    "rules": "header-rule\nname strip-server\nheader-name Server\naction delete\ncomparison-type boolean\nmsg-type any\n",
+    "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nServer: ExampleProxy/1.0\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "steps": [
+     "Read header-name and action.",
+     "Run the rule.",
+     "Confirm Server is gone."
+    ],
+    "check": {
+     "q": "action delete on Server",
+     "choices": [
+      "Removes the Server header",
+      "Adds a second Server header",
+      "Rewrites the SDP codec",
+      "Sends a status code this lab invents"
+     ],
+     "answer": 0,
+     "why": "comparison-type boolean and msg-type any select the header for deletion.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "store ran after delete",
+    "symptom": "A later rule that stores Server records an empty result. The delete rule is configured first.",
+    "log": "header-rule\nname drop-server\nheader-name Server\naction delete\nheader-rule\nname keep-server\nheader-name Server\naction store\n",
+    "choices": [
+     "The store rule is after the delete, so the header is already gone",
+     "store is not a documented action",
+     "delete always runs last regardless of configuration",
+     "msg-type any skips INVITE"
+    ],
+    "answer": 0,
+    "why": "Header rules run in configured order.",
+    "cause": "keep-server is ordered after drop-server.",
+    "fix": "Configure the store rule before the delete rule. Confirm the order in the 10.1 HMR configuration guide.",
+    "cites": [
+     {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     },
+     {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "ribbon-families",
+   "title": "Ribbon Edge, Core, and public validation lists",
+   "minutes": 13,
+   "tags": [
+    "ribbon",
+    "edge",
+    "core"
+   ],
+   "summary": "SBC SWe Edge shares a software family with SBC 1000 and SBC 2000. SBC Core is a separate family. Admin guides and interop guides are the sources for procedures.",
+   "objectives": [
+    "Separate Edge from Core",
+    "Read the ACS validation list as a snapshot",
+    "Use the documentation portal instead of invented CLI"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "What each public source is for",
+    "caption": "The ACS list is not a price list.",
+    "columns": [
+     "Source",
+     "What it supports saying"
+    ],
+    "rows": [
+     [
+      "SBC Edge product page",
+      "SWe Edge, and the family that includes SBC 1000 and SBC 2000"
+     ],
+     [
+      "Separate family",
+      "SBC Core"
+     ],
+     [
+      "ACS validation document",
+      "SBC 5110, 5210, 5400, 7000, and SBC SWe for that test"
+     ],
+     [
+      "Documentation portal",
+      "Admin guides"
+     ],
+     [
+      "Interop guides",
+      "Peer-specific notes"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Two families",
+     "paragraphs": [
+      "The SBC Edge product page describes SBC SWe Edge and says the same software family includes SBC 1000 and SBC 2000. SBC Core is a separate family.",
+      "This lesson does not invent Ribbon CLI. Procedures belong in the admin guide on the documentation portal, and peer notes belong in the interoperability guides."
+     ],
+     "cites": [
+      {
+       "label": "Ribbon SBC SWe Edge",
+       "url": "https://ribboncommunications.com/products/enterprise-products/session-border-controllers/sbc-software-edition-edge-sbc-swe-edge"
+      },
+      {
+       "label": "Ribbon documentation portal",
+       "url": "https://ribboncommunications.com/services/support-services/documentation"
+      },
+      {
+       "label": "Ribbon SBC interoperability guides",
+       "url": "https://ribboncommunications.com/partners/interoperability-guides"
+      }
+     ]
+    },
+    {
+     "h": "A validation list is not a catalog",
+     "paragraphs": [
+      "A public Ribbon document about Azure Communication Services names support on SBC 5110, SBC 5210, SBC 5400, SBC 7000, and SBC SWe for that validation. Those model numbers belong to that validation, not to a price list.",
+      "That list is a validation snapshot. It is not the full current price list and it is not a complete product catalog. Do not treat those model numbers as every SKU Ribbon sells."
+     ],
+     "cites": [
+      {
+       "label": "Ribbon documentation portal",
+       "url": "https://ribboncommunications.com/services/support-services/documentation"
+      },
+      {
+       "label": "Ribbon SBC SWe Edge",
+       "url": "https://ribboncommunications.com/products/enterprise-products/session-border-controllers/sbc-software-edition-edge-sbc-swe-edge"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "SIP still looks like SIP on either family",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The phone sends a normal INVITE. The family name is not a SIP method.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 216\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying comes from the SBC in the lab.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The SBC opens the carrier leg.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 216\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 Ringing returns.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "The caller leg is notified.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK carries the answer.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 199\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The caller receives 200 OK.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 199\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK completes the dialog. Configuration commands are not in the SIP.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "SBC 1000 and SBC 2000 belong with",
+     "choices": [
+      "The SBC Edge software family that includes SBC SWe Edge",
+      "A CUBE dial peer",
+      "Oracle header rules",
+      "Teams Direct Routing proxies"
+     ],
+     "answer": 0,
+     "why": "That is what the Edge product page says.",
+     "cite": {
+      "label": "Ribbon SBC SWe Edge",
+      "url": "https://ribboncommunications.com/products/enterprise-products/session-border-controllers/sbc-software-edition-edge-sbc-swe-edge"
+     }
+    },
+    {
+     "q": "SBC Core is",
+     "choices": [
+      "A separate family from SBC Edge",
+      "The same software image as SBC 1000 by definition",
+      "An AudioCodes manipulation set",
+      "A SIP method"
+     ],
+     "answer": 0,
+     "why": "Do not copy procedures from one family onto the other.",
+     "cite": {
+      "label": "Ribbon SBC SWe Edge",
+      "url": "https://ribboncommunications.com/products/enterprise-products/session-border-controllers/sbc-software-edition-edge-sbc-swe-edge"
+     }
+    },
+    {
+     "q": "The ACS document’s model list is",
+     "choices": [
+      "A validation snapshot, not a price list",
+      "The complete current catalog",
+      "An RFC",
+      "A CUCM menu"
+     ],
+     "answer": 0,
+     "why": "It names 5110, 5210, 5400, 7000, and SBC SWe for that test.",
+     "cite": {
+      "label": "Ribbon documentation portal",
+      "url": "https://ribboncommunications.com/services/support-services/documentation"
+     }
+    },
+    {
+     "q": "Admin procedures are found",
+     "choices": [
+      "Behind the Ribbon documentation portal",
+      "In an invented CLI in this lesson",
+      "In RFC 7092",
+      "In the SDP fmtp line"
+     ],
+     "answer": 0,
+     "why": "This course does not invent Ribbon CLI.",
+     "cite": {
+      "label": "Ribbon documentation portal",
+      "url": "https://ribboncommunications.com/services/support-services/documentation"
+     }
+    },
+    {
+     "q": "Peer-specific Ribbon notes are published as",
+     "choices": [
+      "Interoperability guides",
+      "CUBE voice class sip-profiles",
+      "Oracle element-rule field lists",
+      "RFC 5853"
+     ],
+     "answer": 0,
+     "why": "Use ribbon-iot for those guides.",
+     "cite": {
+      "label": "Ribbon SBC interoperability guides",
+      "url": "https://ribboncommunications.com/partners/interoperability-guides"
+     }
+    },
+    {
+     "q": "SBC 5110 appears here as",
+     "choices": [
+      "A model named in that ACS validation",
+      "The universal Edge replacement for SBC 1000",
+      "A SIP response code",
+      "A codec"
+     ],
+     "answer": 0,
+     "why": "Do not promote the validation list into a catalog.",
+     "cite": {
+      "label": "Ribbon documentation portal",
+      "url": "https://ribboncommunications.com/services/support-services/documentation"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "SWe Edge",
+     "back": "Edge product. Family includes SBC 1000 and SBC 2000.",
+     "cite": {
+      "label": "Ribbon SBC SWe Edge",
+      "url": "https://ribboncommunications.com/products/enterprise-products/session-border-controllers/sbc-software-edition-edge-sbc-swe-edge"
+     }
+    },
+    {
+     "front": "SBC Core",
+     "back": "A separate family.",
+     "cite": {
+      "label": "Ribbon SBC SWe Edge",
+      "url": "https://ribboncommunications.com/products/enterprise-products/session-border-controllers/sbc-software-edition-edge-sbc-swe-edge"
+     }
+    },
+    {
+     "front": "ACS snapshot",
+     "back": "5110, 5210, 5400, 7000, and SWe for that validation.",
+     "cite": {
+      "label": "Ribbon documentation portal",
+      "url": "https://ribboncommunications.com/services/support-services/documentation"
+     }
+    },
+    {
+     "front": "No invented CLI",
+     "back": "Admin guides live on the documentation portal.",
+     "cite": {
+      "label": "Ribbon documentation portal",
+      "url": "https://ribboncommunications.com/services/support-services/documentation"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Keep the families apart",
+    "kind": "ladder",
+    "prompt": "Play the call. Which SIP method names the Ribbon family?",
+    "steps": [
+     "Play the ladder.",
+     "Read the methods.",
+     "Notice the family is a product fact, not a method."
+    ],
+    "check": {
+     "q": "The ladder’s request methods are",
+     "choices": [
+      "INVITE and ACK",
+      "EDGE and CORE",
+      "RIBBON and INVITE",
+      "HMR and OPTIONS"
+     ],
+     "answer": 0,
+     "why": "Product family is chosen in the admin guide, not in the start line.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   },
+   "fault": {
+    "title": "One procedure applied to two families",
+    "symptom": "A change written for an Edge box was repeated unchanged on a Core box. The peer then stopped answering OPTIONS.",
+    "log": "OPTIONS sip:192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKoptkeep01\nCSeq: 1 OPTIONS\nCall-ID: opt-keep-1@example.com\n(no response)\n",
+    "choices": [
+     "Edge and Core are different families and this course has no shared CLI",
+     "OPTIONS is illegal on Ribbon",
+     "RFC 5853 defines one CLI for both",
+     "A missing 180 proves the certificate"
+    ],
+    "answer": 0,
+    "why": "The probe is ordinary SIP. The broken part is the assumption that one family’s procedure is the other’s.",
+    "cause": "Configuration was copied across families.",
+    "fix": "Open the admin guide on the documentation portal for the product you are touching, and the interoperability guide for that peer.",
+    "cites": [
+     {
+      "label": "Ribbon documentation portal",
+      "url": "https://ribboncommunications.com/services/support-services/documentation"
+     },
+     {
+      "label": "Ribbon SBC interoperability guides",
+      "url": "https://ribboncommunications.com/partners/interoperability-guides"
+     },
+     {
+      "label": "Ribbon SBC SWe Edge",
+      "url": "https://ribboncommunications.com/products/enterprise-products/session-border-controllers/sbc-software-edition-edge-sbc-swe-edge"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "audiocodes-rules",
+   "title": "AudioCodes manipulation in software 7.6",
+   "minutes": 14,
+   "tags": [
+    "audiocodes",
+    "manipulation"
+   ],
+   "summary": "Software 7.6 message manipulation is a table of Message Type, Condition, Action Subject, Action Type, and Action Value, assigned to an IP group.",
+   "objectives": [
+    "Name the five table fields",
+    "Name the documented action types",
+    "Treat the menu as release-specific"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "7.6 manipulation columns",
+    "caption": "The menu that opens this table changes by release.",
+    "columns": [
+     "Field",
+     "Lab value"
+    ],
+    "rows": [
+     [
+      "Message Type",
+      "INVITE"
+     ],
+     [
+      "Condition",
+      "See the syntax guide"
+     ],
+     [
+      "Action Subject",
+      "Server"
+     ],
+     [
+      "Action Type",
+      "Remove"
+     ],
+     [
+      "Action Value",
+      "Empty for Remove"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "The table",
+     "paragraphs": [
+      "AudioCodes Mediant message manipulation in software 7.6 uses the fields Message Type, Condition, Action Subject, Action Type, and Action Value. Each rule is one row in that table.",
+      "Action types include Add, Remove, Modify, Add Prefix, Add Suffix, Remove Prefix, Remove Suffix, and Normalize. The syntax guide defines the values. This lesson does not invent a normalization grammar."
+     ],
+     "cites": [
+      {
+       "label": "AudioCodes SIP message manipulation (7.6)",
+       "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+      },
+      {
+       "label": "AudioCodes manipulation syntax 7.6",
+       "url": "https://www.audiocodes.com/media/aomncwrs/sip-message-manipulation-syntax-reference-guide-ver-76.pdf"
+      }
+     ]
+    },
+    {
+     "h": "Where the set is attached",
+     "paragraphs": [
+      "A manipulation set is assigned to an IP group inbound or outbound. The direction decides which messages the set sees.",
+      "The on-screen menu is release-specific. Open the 7.6 manual for the software you are running instead of memorizing a click-path from a different release."
+     ],
+     "cites": [
+      {
+       "label": "AudioCodes SIP message manipulation (7.6)",
+       "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Remove Server toward the carrier",
+    "parties": [
+     "Phone",
+     "Mediant",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Server is still present on the inbound INVITE.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nServer: ExampleProxy/1.0\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The Mediant accepts the dialog.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "An outbound Remove on subject Server produces this INVITE.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "100",
+      "kind": "res",
+      "note": "The carrier transaction continues.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Software 7.6 manipulation fields include",
+     "choices": [
+      "Message Type, Condition, Action Subject, Action Type, Action Value",
+      "Only a CUBE sip-header line",
+      "realm and session-agent",
+      "dial-peer voice N voip"
+     ],
+     "answer": 0,
+     "why": "Those five names are the table.",
+     "cite": {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+     }
+    },
+    {
+     "q": "Remove is",
+     "choices": [
+      "An Action Type",
+      "A Message Type only",
+      "An RTP codec",
+      "A Ribbon family"
+     ],
+     "answer": 0,
+     "why": "Add, Modify, and the prefix and suffix actions are Action Types too.",
+     "cite": {
+      "label": "AudioCodes manipulation syntax 7.6",
+      "url": "https://www.audiocodes.com/media/aomncwrs/sip-message-manipulation-syntax-reference-guide-ver-76.pdf"
+     }
+    },
+    {
+     "q": "Normalize is",
+     "choices": [
+      "An Action Type whose value format is in the syntax guide",
+      "A SIP method",
+      "A CUCM trunk setting",
+      "Forbidden in 7.6"
+     ],
+     "answer": 0,
+     "why": "Do not invent the grammar.",
+     "cite": {
+      "label": "AudioCodes manipulation syntax 7.6",
+      "url": "https://www.audiocodes.com/media/aomncwrs/sip-message-manipulation-syntax-reference-guide-ver-76.pdf"
+     }
+    },
+    {
+     "q": "The manipulation set is assigned to",
+     "choices": [
+      "An IP group, inbound or outbound",
+      "A DNS NAPTR record only",
+      "The SDP v= line",
+      "A Teams wildcard certificate"
+     ],
+     "answer": 0,
+     "why": "Direction is part of the assignment.",
+     "cite": {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+     }
+    },
+    {
+     "q": "The menu location is",
+     "choices": [
+      "Release-specific",
+      "Identical in every AudioCodes PDF ever published",
+      "Defined by RFC 7092",
+      "The same as voice class sip-profiles"
+     ],
+     "answer": 0,
+     "why": "Open the manual for the software you run.",
+     "cite": {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+     }
+    },
+    {
+     "q": "Add Prefix and Remove Suffix are",
+     "choices": [
+      "Action types in the 7.6 list",
+      "Oracle HMR actions",
+      "CUBE debug commands",
+      "Response codes"
+     ],
+     "answer": 0,
+     "why": "They edit the action subject using the syntax guide’s value.",
+     "cite": {
+      "label": "AudioCodes manipulation syntax 7.6",
+      "url": "https://www.audiocodes.com/media/aomncwrs/sip-message-manipulation-syntax-reference-guide-ver-76.pdf"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Action Subject",
+     "back": "Which header or element the rule touches.",
+     "cite": {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+     }
+    },
+    {
+     "front": "Action Type",
+     "back": "Add, Remove, Modify, prefix, suffix, or Normalize.",
+     "cite": {
+      "label": "AudioCodes manipulation syntax 7.6",
+      "url": "https://www.audiocodes.com/media/aomncwrs/sip-message-manipulation-syntax-reference-guide-ver-76.pdf"
+     }
+    },
+    {
+     "front": "IP group",
+     "back": "Inbound or outbound assignment of the set.",
+     "cite": {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+     }
+    },
+    {
+     "front": "Release menu",
+     "back": "The clicks change. Use the 7.6 manual you are running.",
+     "cite": {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read one 7.6 row",
+    "kind": "config",
+    "prompt": "Which column contains Remove?",
+    "config": "Message Type: INVITE\nCondition: see the 7.6 syntax guide\nAction Subject: Server\nAction Type: Remove\nAction Value:\n",
+    "steps": [
+     "Find Action Type.",
+     "Find Action Subject.",
+     "Leave Condition’s grammar in the syntax guide."
+    ],
+    "check": {
+     "q": "Remove is written in",
+     "choices": [
+      "Action Type",
+      "Message Type",
+      "The SDP c= line",
+      "Call-ID"
+     ],
+     "answer": 0,
+     "why": "Server is the Action Subject.",
+     "cite": {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+     }
+    }
+   },
+   "fault": {
+    "title": "Outbound set, inbound header",
+    "symptom": "Server still arrives from the carrier and is forwarded inward. The manipulation set is assigned outbound only.",
+    "log": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>;tag=carrier77\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nServer: ExampleProxy/1.0\nContact: <sip:bob@192.0.2.40>\nContent-Length: 202\n\nv=0\no=carrier 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 24000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "choices": [
+     "The set is bound to the IP group in the outbound direction, and this Server header is inbound",
+     "Remove is not an Action Type in 7.6",
+     "Message Type INVITE cannot match a response, so the table has no message field",
+     "RFC 3261 forbids Action Subject"
+    ],
+    "answer": 0,
+    "why": "The 200 OK is arriving from the carrier, which is the inbound direction on that IP group.",
+    "cause": "The manipulation set was assigned outbound.",
+    "fix": "Assign the set inbound on that IP group if the header to remove is the one arriving. Confirm the menu in the 7.6 manual for this release.",
+    "cites": [
+     {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+     },
+     {
+      "label": "AudioCodes manipulation syntax 7.6",
+      "url": "https://www.audiocodes.com/media/aomncwrs/sip-message-manipulation-syntax-reference-guide-ver-76.pdf"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "compare-manipulation",
+   "title": "Three manipulation grammars",
+   "minutes": 14,
+   "tags": [
+    "compare",
+    "manipulation"
+   ],
+   "summary": "CUBE, Oracle HMR, and AudioCodes 7.6 can each remove a header. The grammars are not interchangeable.",
+   "objectives": [
+    "Match a snippet to its product",
+    "Keep rule order in mind on each product",
+    "Stop pasting one syntax into another box"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Same job, three texts",
+    "caption": "Removing Server or Diversion is the job. The text is product-specific.",
+    "columns": [
+     "Product",
+     "Text you can defend",
+     "Order"
+    ],
+    "rows": [
+     [
+      "CUBE",
+      "request INVITE sip-header Diversion remove",
+      "Rules in the profile, as written"
+     ],
+     [
+      "Oracle",
+      "header-rule action delete",
+      "Configured header-rule order"
+     ],
+     [
+      "AudioCodes 7.6",
+      "Action Type Remove",
+      "The set on the IP group direction"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "What is safe to copy from this course",
+     "paragraphs": [
+      "On CUBE the defended line is request INVITE sip-header Diversion remove inside voice class sip-profiles. On Oracle the defended block is a header-rule with action delete.",
+      "On AudioCodes software 7.6 the defended row uses Action Type Remove and an Action Subject. Pasting the CUBE line into an Oracle header-rule does not configure either product."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+      },
+      {
+       "label": "Oracle SBC HMR fundamentals (10.1)",
+       "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+      },
+      {
+       "label": "AudioCodes SIP message manipulation (7.6)",
+       "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+      }
+     ]
+    },
+    {
+     "h": "Order and direction",
+     "paragraphs": [
+      "CUBE applies the profile rules on the leg where that profile is attached. Oracle header rules run in configured order. AudioCodes uses the manipulation set assigned inbound or outbound on the IP group.",
+      "When a header survives, check those three attachments before inventing a fourth syntax. Ribbon procedures stay in the Ribbon admin guide and are not given a CLI here."
+     ],
+     "cites": [
+      {
+       "label": "Oracle SBC HMR configuration (10.1)",
+       "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+      },
+      {
+       "label": "Ribbon documentation portal",
+       "url": "https://ribboncommunications.com/services/support-services/documentation"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "One header, removed only by the grammar that is loaded",
+    "parties": [
+     "Phone",
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Diversion and Server are both still present.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nDiversion: <sip:+15551212@example.com>;reason=unconditional\nServer: ExampleProxy/1.0\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The inbound transaction is accepted.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "A successful egress rule set produced an INVITE without those two headers.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "100",
+      "kind": "res",
+      "note": "The carrier sees the edited request.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "request INVITE sip-header Diversion remove is",
+     "choices": [
+      "CUBE voice class sip-profiles syntax",
+      "An Oracle header-rule",
+      "An AudioCodes Action Value",
+      "A Ribbon CLI line"
+     ],
+     "answer": 0,
+     "why": "It belongs on IOS XE.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    },
+    {
+     "q": "action delete belongs to",
+     "choices": [
+      "An Oracle header-rule",
+      "A CUBE dial peer",
+      "An AudioCodes Message Type",
+      "debug ccsip messages"
+     ],
+     "answer": 0,
+     "why": "The header-name line names the header.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    },
+    {
+     "q": "Action Type Remove belongs to",
+     "choices": [
+      "AudioCodes 7.6",
+      "RFC 3261",
+      "A CUCM Lua menu this course invents",
+      "The Teams OPTIONS table"
+     ],
+     "answer": 0,
+     "why": "It is one cell in the manipulation table.",
+     "cite": {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+     }
+    },
+    {
+     "q": "Oracle rule order is",
+     "choices": [
+      "The configured header-rule order",
+      "Always alphabetical",
+      "Random",
+      "Defined by Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "Earlier rules feed later rules.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    },
+    {
+     "q": "Pasting a CUBE profile line into Oracle",
+     "choices": [
+      "Does not configure the header-rule",
+      "Is the documented migration",
+      "Sets reject to 200",
+      "Creates a realm"
+     ],
+     "answer": 0,
+     "why": "Use the grammar the box actually parses.",
+     "cite": {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+     }
+    },
+    {
+     "q": "Ribbon’s absence from the syntax table means",
+     "choices": [
+      "This course does not invent Ribbon CLI",
+      "Ribbon cannot manipulate headers",
+      "Ribbon uses voice class sip-profiles",
+      "Ribbon is an AudioCodes Action Type"
+     ],
+     "answer": 0,
+     "why": "Use the admin guide and the interop guide.",
+     "cite": {
+      "label": "Ribbon documentation portal",
+      "url": "https://ribboncommunications.com/services/support-services/documentation"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "CUBE line",
+     "back": "request INVITE sip-header NAME remove.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    },
+    {
+     "front": "Oracle block",
+     "back": "header-rule, header-name, action delete.",
+     "cite": {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     }
+    },
+    {
+     "front": "AudioCodes row",
+     "back": "Action Type Remove on an IP group.",
+     "cite": {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+     }
+    },
+    {
+     "front": "Do not paste across",
+     "back": "Each grammar is parsed by its own product.",
+     "cite": {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Identify the row",
+    "kind": "config",
+    "prompt": "Three fragments are printed. Which one is the AudioCodes 7.6 action?",
+    "config": "request INVITE sip-header Diversion remove\n\nheader-rule\nname strip-server\nheader-name Server\naction delete\n\nAction Type: Remove\nAction Subject: Server\n",
+    "steps": [
+     "Find the CUBE line.",
+     "Find the Oracle block.",
+     "Find Action Type."
+    ],
+    "check": {
+     "q": "Action Type: Remove is",
+     "choices": [
+      "AudioCodes 7.6",
+      "CUBE",
+      "Oracle HMR",
+      "A SIP method"
+     ],
+     "answer": 0,
+     "why": "The CUBE line starts with request INVITE. The Oracle block starts with header-rule.",
+     "cite": {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+     }
+    }
+   },
+   "fault": {
+    "title": "CUBE syntax on an Oracle box",
+    "symptom": "The Oracle configuration was saved with a CUBE profile line where a header-rule was required. Server is unchanged.",
+    "log": "request INVITE sip-header Server remove\nINVITE sip:+15551212@192.0.2.40 SIP/2.0\nServer: ExampleProxy/1.0\n",
+    "choices": [
+     "The loaded text is CUBE syntax, so the Oracle rule never ran",
+     "action delete is illegal on Server",
+     "RFC 3261 reinserts Server",
+     "AudioCodes Normalize runs on Oracle automatically"
+    ],
+    "answer": 0,
+    "why": "The configuration text is a sip-header line, not a header-rule.",
+    "cause": "A CUBE snippet was pasted into the Oracle manipulation.",
+    "fix": "Replace it with a header-rule whose action is delete and whose header-name is Server. Keep the CUBE line on CUBE.",
+    "cites": [
+     {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+     },
+     {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "pai-interop",
+   "title": "Identity at a trust boundary",
+   "minutes": 14,
+   "tags": [
+    "pai",
+    "privacy",
+    "diversion"
+   ],
+   "summary": "P-Asserted-Identity is a network-asserted identity. An SBC at a trust boundary decides whether that assertion continues.",
+   "objectives": [
+    "Read P-Asserted-Identity and Privacy",
+    "Strip an assertion that arrives from an untrusted peer",
+    "Use the interop guide for header mapping"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Trust boundary",
+    "caption": "Add an assertion only for a peer you are willing to tell the identity to.",
+    "layers": [
+     {
+      "name": "Untrusted ingress",
+      "detail": "Carrier INVITE may contain PAI"
+     },
+     {
+      "name": "SBC policy",
+      "detail": "Strip or replace the assertion"
+     },
+     {
+      "name": "Trusted egress",
+      "detail": "Assert only an identity you authenticated"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "What arrived",
+     "paragraphs": [
+      "RFC 3325 defines P-Asserted-Identity as an identity asserted by a network element. The synthetic carrier INVITE asserts sip:+15551212@example.com and sets Privacy: id, which asks downstream elements to withhold that identity.",
+      "An untrusted peer can put any URI in that header. Forwarding it onto the enterprise leg treats the carrier’s assertion as your own. The defensive action is to remove or replace it on ingress."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3325",
+       "url": "https://www.rfc-editor.org/rfc/rfc3325"
+      },
+      {
+       "label": "RFC 3323",
+       "url": "https://www.rfc-editor.org/rfc/rfc3323"
+      }
+     ]
+    },
+    {
+     "h": "Mapping is an interop problem",
+     "paragraphs": [
+      "Diversion and History-Info are different redirecting headers. If one side sends Diversion and the other accepts History-Info, the mapping belongs in the interop guide for that pair.",
+      "CUBE profiles, Oracle header rules, and AudioCodes manipulation sets are the tools. Ribbon peer notes are in the interoperability guides. This lesson does not invent a Ribbon command or a universal translation formula."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5806",
+       "url": "https://www.rfc-editor.org/rfc/rfc5806"
+      },
+      {
+       "label": "RFC 7044",
+       "url": "https://www.rfc-editor.org/rfc/rfc7044"
+      },
+      {
+       "label": "Ribbon SBC interoperability guides",
+       "url": "https://ribboncommunications.com/partners/interoperability-guides"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "PAI arrives from the carrier",
+    "parties": [
+     "Carrier",
+     "SBC",
+     "CUCM"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The untrusted INVITE carries P-Asserted-Identity and Privacy: id.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKpai01\nMax-Forwards: 70\nFrom: \"Bob\" <sip:bob@example.com>;tag=paitag\nTo: <sip:+15551212@example.com>\nCall-ID: pai-in-1@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nP-Asserted-Identity: \"Bob\" <sip:+15551212@example.com>\nPrivacy: id\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=carrier 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 24000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The SBC accepts the dialog without yet vouching for the identity.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKpai01\nFrom: \"Bob\" <sip:bob@example.com>;tag=paitag\nTo: <sip:+15551212@example.com>\nCall-ID: pai-in-1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The trusted leg in this synthetic does not copy the carrier assertion.",
+      "message": "INVITE sip:+15551212@198.51.100.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "100",
+      "kind": "res",
+      "note": "CUCM answers the new dialog.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "P-Asserted-Identity is defined by",
+     "choices": [
+      "RFC 3325",
+      "RFC 4733",
+      "RFC 3550",
+      "The AudioCodes menu"
+     ],
+     "answer": 0,
+     "why": "It is a network-asserted identity.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    },
+    {
+     "q": "Privacy: id asks the network to",
+     "choices": [
+      "Withhold the asserted identity from untrusted parties",
+      "Anchor RTP",
+      "Force early offer",
+      "Delete Call-ID"
+     ],
+     "answer": 0,
+     "why": "RFC 3323 defines the Privacy header.",
+     "cite": {
+      "label": "RFC 3323",
+      "url": "https://www.rfc-editor.org/rfc/rfc3323"
+     }
+    },
+    {
+     "q": "PAI from an untrusted carrier should be",
+     "choices": [
+      "Removed or replaced before it is treated as your assertion",
+      "Copied onto every internal trunk",
+      "Written into SDP c=",
+      "Used as the Via branch"
+     ],
+     "answer": 0,
+     "why": "The carrier did not authenticate the caller for you.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    },
+    {
+     "q": "Adding PAI toward a peer is appropriate when",
+     "choices": [
+      "That peer is inside the trust you configured and you authenticated the identity",
+      "The peer sent Privacy: id",
+      "You want a shorter Call-ID",
+      "The datasheet is unread"
+     ],
+     "answer": 0,
+     "why": "Assertion is a trust decision.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    },
+    {
+     "q": "Diversion and History-Info",
+     "choices": [
+      "Are different headers, mapped per the interop guide",
+      "Are the same header",
+      "Are RTP payloads",
+      "Are Ribbon CLI verbs"
+     ],
+     "answer": 0,
+     "why": "RFC 5806 and RFC 7044.",
+     "cite": {
+      "label": "RFC 5806",
+      "url": "https://www.rfc-editor.org/rfc/rfc5806"
+     }
+    },
+    {
+     "q": "A Ribbon peer’s header requirements are in",
+     "choices": [
+      "The interoperability guides",
+      "An invented CLI in this lesson",
+      "RFC 5853’s method list",
+      "voice class sip-profiles on Ribbon"
+     ],
+     "answer": 0,
+     "why": "Do not invent the command.",
+     "cite": {
+      "label": "Ribbon SBC interoperability guides",
+      "url": "https://ribboncommunications.com/partners/interoperability-guides"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "PAI",
+     "back": "P-Asserted-Identity, RFC 3325.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    },
+    {
+     "front": "Privacy",
+     "back": "RFC 3323. id asks the network to withhold identity.",
+     "cite": {
+      "label": "RFC 3323",
+      "url": "https://www.rfc-editor.org/rfc/rfc3323"
+     }
+    },
+    {
+     "front": "Diversion",
+     "back": "RFC 5806 redirecting header.",
+     "cite": {
+      "label": "RFC 5806",
+      "url": "https://www.rfc-editor.org/rfc/rfc5806"
+     }
+    },
+    {
+     "front": "History-Info",
+     "back": "RFC 7044. Map it only as the interop guide says.",
+     "cite": {
+      "label": "RFC 7044",
+      "url": "https://www.rfc-editor.org/rfc/rfc7044"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Find the assertion",
+    "kind": "dissect",
+    "prompt": "Dissect the carrier INVITE. Which header asserts the identity?",
+    "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKpai01\nMax-Forwards: 70\nFrom: \"Bob\" <sip:bob@example.com>;tag=paitag\nTo: <sip:+15551212@example.com>\nCall-ID: pai-in-1@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nP-Asserted-Identity: \"Bob\" <sip:+15551212@example.com>\nPrivacy: id\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=carrier 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 24000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "check": {
+     "q": "The asserted identity header is",
+     "choices": [
+      "P-Asserted-Identity",
+      "Via",
+      "Content-Length",
+      "Allow"
+     ],
+     "answer": 0,
+     "why": "Privacy: id is also present.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    }
+   },
+   "fault": {
+    "title": "Untrusted PAI forwarded",
+    "symptom": "CUCM receives P-Asserted-Identity copied from the carrier INVITE. The carrier is not inside the trust boundary.",
+    "log": "INVITE sip:+15551212@198.51.100.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nP-Asserted-Identity: \"Bob\" <sip:+15551212@example.com>\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "choices": [
+     "The ingress policy forwarded an assertion the SBC did not make",
+     "RFC 3325 requires every B2BUA to copy PAI",
+     "Privacy: id means copy the header",
+     "The SDP c= line is the identity"
+    ],
+    "answer": 0,
+    "why": "The outbound INVITE still contains the carrier’s P-Asserted-Identity.",
+    "cause": "No ingress manipulation removed the untrusted assertion.",
+    "fix": "Delete or replace P-Asserted-Identity on the untrusted ingress with the manipulation tool for that SBC. Assert an identity on the way out only when the peer is trusted and you authenticated the caller.",
+    "cites": [
+     {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     },
+     {
+      "label": "RFC 3323",
+      "url": "https://www.rfc-editor.org/rfc/rfc3323"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "certificate-fqdn",
+   "title": "Certificate names and Contact",
+   "minutes": 14,
+   "tags": [
+    "certificate",
+    "fqdn",
+    "tls"
+   ],
+   "summary": "The certificate name and the SIP Contact need to be names the peer accepts. Teams and Webex Local Gateway do not share a wildcard rule.",
+   "objectives": [
+    "Match a certificate name to the SIP name",
+    "Use an FQDN in a Teams Contact",
+    "Keep Webex Local Gateway off wildcard certificates"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Wildcard certificates",
+    "caption": "The same file can be acceptable to one peer and rejected by another.",
+    "columns": [
+     "Peer",
+     "Wildcard in CN or SAN",
+     "Contact"
+    ],
+    "rows": [
+     [
+      "Teams Direct Routing",
+      "Supported",
+      "FQDN, or the proxy returns 403"
+     ],
+     [
+      "Webex Local Gateway",
+      "Not supported",
+      "Certificate-based trunk for a third-party SBC"
+     ],
+     [
+      "Generic TLS peer",
+      "Read RFC 5922 and that peer’s guide",
+      "The name the peer expects"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Names, not a guess",
+     "paragraphs": [
+      "RFC 5922 describes domain certificates for SIP. The name in the certificate is the name the peer checks, and the SIP Contact on a TLS trunk should be the name that peer expects.",
+      "The synthetic Teams INVITE uses Contact sip:sbc@sbc1.example.com and Via host sbc1.example.com. The signaling port for Direct Routing is 5061 toward sip.pstnhub.microsoft.com."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5922",
+       "url": "https://www.rfc-editor.org/rfc/rfc5922"
+      },
+      {
+       "label": "Direct Routing SIP protocol",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+      },
+      {
+       "label": "Plan Direct Routing",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+      }
+     ]
+    },
+    {
+     "h": "Two documented wildcard rules",
+     "paragraphs": [
+      "Microsoft says wildcard names in the certificate CN or SAN are supported for Direct Routing. A Contact that is an IP address, such as 203.0.113.20, is not that pattern: the proxy returns 403.",
+      "The Webex Local Gateway get-started article says wildcard certificates are not supported for Local Gateway. A certificate that Teams accepts can still be the wrong certificate for a Webex Local Gateway."
+     ],
+     "cites": [
+      {
+       "label": "Plan Direct Routing",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+      },
+      {
+       "label": "Get started with Local Gateway",
+       "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "TLS INVITE with an FQDN Contact",
+    "parties": [
+     "SBC",
+     "Teams proxy"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Contact is sip:sbc@sbc1.example.com. The Request-URI host is sip.pstnhub.microsoft.com.",
+      "message": "INVITE sip:+15551212@sip.pstnhub.microsoft.com:5061 SIP/2.0\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKcert01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=certtag\nTo: <sip:+15551212@example.com>\nCall-ID: cert-fqdn-1@sbc1.example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 147\n\nv=0\no=sbc 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "A provisional response copies the Via, including the FQDN.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKcert01\nFrom: \"Alice\" <sip:alice@example.com>;tag=certtag\nTo: <sip:+15551212@example.com>\nCall-ID: cert-fqdn-1@sbc1.example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Alerting still addresses the FQDN Contact’s dialog.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKcert01\nFrom: \"Alice\" <sip:alice@example.com>;tag=certtag\nTo: <sip:+15551212@example.com>;tag=teamstag\nCall-ID: cert-fqdn-1@sbc1.example.com\nCSeq: 1 INVITE\nContact: <sip:sip.pstnhub.microsoft.com:5061;transport=tls>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer SDP uses SRTP on the SBC media address.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKcert01\nFrom: \"Alice\" <sip:alice@example.com>;tag=certtag\nTo: <sip:+15551212@example.com>;tag=teamstag\nCall-ID: cert-fqdn-1@sbc1.example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:sip.pstnhub.microsoft.com:5061;transport=tls>\nContent-Length: 147\n\nv=0\no=sbc 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "RFC 5922 is about",
+     "choices": [
+      "Domain certificates for SIP",
+      "DTMF events",
+      "B2BUA taxonomy",
+      "Call admission formulas"
+     ],
+     "answer": 0,
+     "why": "The certificate identity is a domain name question.",
+     "cite": {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+     }
+    },
+    {
+     "q": "A Teams Contact that is an IP address",
+     "choices": [
+      "Gets 403 from the proxy",
+      "Is required",
+      "Selects the media bypass datasheet",
+      "Disables TLS"
+     ],
+     "answer": 0,
+     "why": "The Contact must be an FQDN.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    },
+    {
+     "q": "Wildcard names in the certificate CN or SAN for Direct Routing are",
+     "choices": [
+      "Supported",
+      "Forbidden by the plan document",
+      "The same rule as Webex Local Gateway",
+      "Carried in Max-Forwards"
+     ],
+     "answer": 0,
+     "why": "Microsoft documents wildcard support for Direct Routing.",
+     "cite": {
+      "label": "Plan Direct Routing",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+     }
+    },
+    {
+     "q": "Wildcard certificates for a Webex Local Gateway are",
+     "choices": [
+      "Not supported",
+      "Required",
+      "Defined by RFC 4733",
+      "The same as a Teams wildcard"
+     ],
+     "answer": 0,
+     "why": "The get-started article says they are not supported.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    },
+    {
+     "q": "The Direct Routing signaling port in this lesson is",
+     "choices": [
+      "5061",
+      "5060 only",
+      "443 only",
+      "The RTP port in SDP"
+     ],
+     "answer": 0,
+     "why": "The INVITE targets sip.pstnhub.microsoft.com on 5061.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    },
+    {
+     "q": "sbc1.example.com in the lab Contact is",
+     "choices": [
+      "The FQDN the certificate name should agree with",
+      "An IP address",
+      "A CUCM Lua script",
+      "An onmicrosoft.com domain"
+     ],
+     "answer": 0,
+     "why": "The proxy is checking a name.",
+     "cite": {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 5922",
+     "back": "SIP domain certificates.",
+     "cite": {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+     }
+    },
+    {
+     "front": "Teams Contact",
+     "back": "FQDN. An IP draws 403.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    },
+    {
+     "front": "Teams wildcard",
+     "back": "CN or SAN wildcards are supported for Direct Routing.",
+     "cite": {
+      "label": "Plan Direct Routing",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+     }
+    },
+    {
+     "front": "Webex LGW wildcard",
+     "back": "Not supported for Local Gateway.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the Teams Contact",
+    "kind": "dissect",
+    "prompt": "Dissect the TLS INVITE. Is Contact an FQDN or an IP?",
+    "message": "INVITE sip:+15551212@sip.pstnhub.microsoft.com:5061 SIP/2.0\nVia: SIP/2.0/TLS sbc1.example.com;branch=z9hG4bKcert01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=certtag\nTo: <sip:+15551212@example.com>\nCall-ID: cert-fqdn-1@sbc1.example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@sbc1.example.com>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 147\n\nv=0\no=sbc 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv",
+    "check": {
+     "q": "Contact host is",
+     "choices": [
+      "sbc1.example.com",
+      "203.0.113.20",
+      "198.51.100.30",
+      "Missing"
+     ],
+     "answer": 0,
+     "why": "The FQDN is what Direct Routing will accept.",
+     "cite": {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     }
+    }
+   },
+   "fault": {
+    "title": "403 on an IP Contact",
+    "symptom": "Direct Routing returns 403. The INVITE is TLS to port 5061, and Contact uses 203.0.113.20.",
+    "log": "SIP/2.0 403 Forbidden\nCSeq: 1 INVITE\nCall-ID: cert-fqdn-1@sbc1.example.com\nINVITE had Contact: <sip:sbc@203.0.113.20>\n",
+    "choices": [
+     "Contact is an IP address, and the proxy requires an FQDN",
+     "TLS 1.2 is forbidden for Direct Routing",
+     "A wildcard is required on Webex and Teams equally",
+     "503 would be the documented Contact failure"
+    ],
+    "answer": 0,
+    "why": "The plan and protocol articles require a name in Contact.",
+    "cause": "The Contact host is 203.0.113.20.",
+    "fix": "Use Contact sip:sbc@sbc1.example.com, with that name in the certificate. Keep wildcard rules separate: supported for Direct Routing, not supported for a Webex Local Gateway.",
+    "cites": [
+     {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+     },
+     {
+      "label": "Plan Direct Routing",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+     },
+     {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    ]
+   },
+   "level": "Advanced"
+  }
+ ]
+}

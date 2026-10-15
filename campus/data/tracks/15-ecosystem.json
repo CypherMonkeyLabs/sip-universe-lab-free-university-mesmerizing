@@ -1,0 +1,2365 @@
+{
+ "id": "ecosystem",
+ "title": "Ecosystem, certifications, and the UC bridge",
+ "summary": "Name only the certifications this edition confirmed, and keep CUCM, UCCX, CVP, and Webex Calling in their real roles.",
+ "level": "Bridge",
+ "order": 15,
+ "lessons": [
+  {
+   "id": "glossary-habit",
+   "title": "A glossary tied to a document",
+   "minutes": 11,
+   "tags": [
+    "glossary",
+    "roles",
+    "citations"
+   ],
+   "summary": "Every term in your notes points at a role and a document, not at a product logo.",
+   "objectives": [
+    "Write the expansion and the role",
+    "Attach a cite key that exists",
+    "Keep product names out of the role column"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "A row in the glossary",
+    "caption": "If you cannot name the document, the row is not ready.",
+    "columns": [
+     "Term",
+     "Role",
+     "Document"
+    ],
+    "rows": [
+     [
+      "UA",
+      "Endpoint that originates or answers",
+      "RFC 3261"
+     ],
+     [
+      "Proxy",
+      "Routes requests",
+      "RFC 3261"
+     ],
+     [
+      "B2BUA",
+      "UAS glued to a UAC",
+      "RFC 7092"
+     ],
+     [
+      "Registrar",
+      "Stores Contact bindings",
+      "RFC 3261"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "The habit",
+     "paragraphs": [
+      "When you meet a term, write the expansion, the role it plays on a ladder, and the document that defines it. SIP, SDP, and RTP stay three rows. An SBC is usually a B2BUA in the sense RFC 7092 taxonomizes, which is a different row from a pure proxy.",
+      "Product names go in a separate column. CUCM can hold registrar and call-control duties. CUBE is a B2BUA you configure from the CUBE basic guide. The glossary row still says the role. The logo does not become the definition."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 7092",
+       "url": "https://www.rfc-editor.org/rfc/rfc7092"
+      },
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      },
+      {
+       "label": "Cisco Unified Communications Manager",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+      }
+     ]
+    },
+    {
+     "h": "What you refuse to enter",
+     "paragraphs": [
+      "A row without a document waits. This library's cite keys are the allowed pointers. If a neighbor system has no SIP RFC, the row says so, and you cite the vendor series page or you leave the protocol column blank on purpose.",
+      "Re-read the row the next time the RFC Editor header moves. SDP's row in this edition says RFC 8866, with RFC 4566 named as the document it moved from. The header is how you update the row later."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      },
+      {
+       "label": "RFC 4566",
+       "url": "https://www.rfc-editor.org/rfc/rfc4566"
+      },
+      {
+       "label": "RFC 5411",
+       "url": "https://www.rfc-editor.org/rfc/rfc5411"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Roles on a single call",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Alice is a user agent. The INVITE is her request. The glossary row for UA cites RFC 3261.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying is the next hop doing proxy or B2BUA work. Name which one after you see whether Call-ID changes.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "This outbound INVITE is a new leg. If Call-ID changes, write B2BUA, RFC 7092, not proxy.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 is a response from the far user agent, forwarded back. The status phrase is RFC 3261 section 21.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "The SBC forwarding 180 is still the same role you wrote down on the outbound INVITE.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK carries the answer. SDP is its own glossary row, RFC 8866, negotiated by RFC 3264.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Alice receives the answer. She is still the UAC for this dialog.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The 2xx ACK is end to end. The glossary row for that ACK cites RFC 3261 and RFC 6026.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A glossary row contains",
+     "choices": [
+      "The term, the role, and the document",
+      "Only the product logo",
+      "A publication month you remembered",
+      "A customer name"
+     ],
+     "answer": 0,
+     "why": "The document is a cite key or an honest gap.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "An SBC's usual role name is",
+     "choices": [
+      "B2BUA",
+      "Registrar only",
+      "DNS resolver",
+      "CRM"
+     ],
+     "answer": 0,
+     "why": "RFC 7092 is the taxonomy. The product guide is a separate column.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "q": "CUCM in the glossary is",
+     "choices": [
+      "A product that can be the registrar and the call-control point",
+      "A synonym for RTP",
+      "The definition of a proxy in RFC 3261",
+      "A SIPREC metadata field"
+     ],
+     "answer": 0,
+     "why": "Cite cucm for the product and RFC 3261 for the role.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "q": "SDP's row in this edition cites",
+     "choices": [
+      "RFC 8866",
+      "RFC 4566 as the current specification",
+      "RFC 4028",
+      "The FCC MLTS page"
+     ],
+     "answer": 0,
+     "why": "RFC 4566 is the predecessor you mention, not the current number.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "q": "A neighbor with no SIP RFC",
+     "choices": [
+      "Gets an honest gap, not a fake RFC number",
+      "Is assigned RFC 3261 section 99",
+      "Becomes a Via branch",
+      "Is omitted from every design"
+     ],
+     "answer": 0,
+     "why": "Say there is no SIP RFC in this library. Cite a vendor page when you have one.",
+     "cite": {
+      "label": "RFC 5411",
+      "url": "https://www.rfc-editor.org/rfc/rfc5411"
+     }
+    },
+    {
+     "q": "The 2xx ACK row cites",
+     "choices": [
+      "RFC 3261 and RFC 6026",
+      "Only the Wireshark RTP page",
+      "RFC 4594",
+      "A list size"
+     ],
+     "answer": 0,
+     "why": "End-to-end ACK is a protocol fact, not a product feature.",
+     "cite": {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Role",
+     "back": "What the box does on the ladder: UA, proxy, registrar, B2BUA.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "B2BUA",
+     "back": "UAS plus UAC. RFC 7092. Typical SBC.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "front": "Document",
+     "back": "The cite you can open. A logo is not a document.",
+     "cite": {
+      "label": "RFC 5411",
+      "url": "https://www.rfc-editor.org/rfc/rfc5411"
+     }
+    },
+    {
+     "front": "SDP row",
+     "back": "RFC 8866 now. RFC 4566 is the one it moved from.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Name the outbound role",
+    "kind": "ladder",
+    "prompt": "On the outbound INVITE, which role do you write if this SBC is a B2BUA?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "The glossary role for a typical SBC is",
+     "choices": [
+      "B2BUA",
+      "CRM",
+      "EF PHB",
+      "SRS metadata"
+     ],
+     "answer": 0,
+     "why": "RFC 7092. The product name stays in the other column.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    }
+   },
+   "fault": {
+    "title": "Logo in the role column",
+    "symptom": "A ticket says the failed hop is a CUCM, so the status code must be a CUCM invention. The message is SIP/2.0 180 Ringing with a normal To tag.",
+    "log": "SIP/2.0 180 Ringing\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nTicket role: CUCM (no RFC cited)",
+    "choices": [
+     "Call 180 Ringing a SIP provisional, and name CUCM as the product",
+     "Treat 180 as a vendor-private code",
+     "Replace the glossary with the logo only",
+     "Cite a fake RFC for the product name"
+    ],
+    "answer": 0,
+    "why": "180 is RFC 3261 section 21. CUCM is the product series that sent or forwarded it.",
+    "cause": "The role column and the product column were the same cell.",
+    "fix": "Write UA or B2BUA or proxy for the role, cite RFC 3261, and put CUCM in the product column with its series page.",
+    "cites": [
+     {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     },
+     {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    ]
+   },
+   "level": "Bridge"
+  },
+  {
+   "id": "neighbors",
+   "title": "Neighbors that are not SIP elements",
+   "minutes": 13,
+   "tags": [
+    "wfm",
+    "crm",
+    "neighbors"
+   ],
+   "summary": "WFM and QM are operations systems. CRM is not a SIP element. Recording, location, and the media path keep their real documents.",
+   "objectives": [
+    "Place WFM and QM outside the SIP RFC set",
+    "Tie recording to SIPREC and emergency to the BCP",
+    "Leave CRM off the ladder"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Who sits where",
+    "caption": "SIP still carries the session. Several neighbors never appear as a Via.",
+    "layers": [
+     {
+      "name": "SIP dialog",
+      "detail": "UA, proxy or B2BUA, registrar"
+     },
+     {
+      "name": "SIPREC / emergency",
+      "detail": "RFC 7866 and RFC 6881 when those features are on"
+     },
+     {
+      "name": "WFM, QM, CRM",
+      "detail": "Operations or business systems. No SIP RFC invented here."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Operations systems",
+     "paragraphs": [
+      "Workforce management and quality management are contact-center operations systems. This library has no SIP RFC for them, and this lesson does not invent one. They consume events and recordings from the contact center. They do not appear as the Via that routed the INVITE.",
+      "Recording that the SBC forks is SIPREC. Cite RFC 7866 for the protocol and RFC 7865 for metadata. That is the SIP-adjacent neighbor. Quality management may listen to the result. The listening product is not itself RFC 7866."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7866",
+       "url": "https://www.rfc-editor.org/rfc/rfc7866"
+      },
+      {
+       "label": "RFC 7865",
+       "url": "https://www.rfc-editor.org/rfc/rfc7865"
+      }
+     ]
+    },
+    {
+     "h": "Location, analytics, and the media path",
+     "paragraphs": [
+      "Emergency calling stays with RFC 6881, RFC 6442, and the FCC MLTS page. Analytics and AI agents sit above the media path. SIP still carries the session. RTP still carries the voice once the answer is done. An insight attached to a Call-ID is not a new SIP method.",
+      "CRM is not a SIP element. This lesson does not invent product features for Salesforce or any other CRM. A screen pop may use a Call-ID your contact center already has. The CRM does not authenticate the INVITE, choose the codec, or terminate the carrier trunk."
+     ],
+     "cites": [
+      {
+       "label": "RFC 6881",
+       "url": "https://www.rfc-editor.org/rfc/rfc6881"
+      },
+      {
+       "label": "RFC 6442",
+       "url": "https://www.rfc-editor.org/rfc/rfc6442"
+      },
+      {
+       "label": "FCC MLTS 911 requirements",
+       "url": "https://www.fcc.gov/mlts-911-requirements"
+      },
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 3550",
+       "url": "https://www.rfc-editor.org/rfc/rfc3550"
+      }
+     ]
+    },
+    {
+     "h": "Messaging beside the call",
+     "paragraphs": [
+      "Unity Connection is a messaging application reached through the call-control platform. It is not the PSTN trunk point. Cite its series page for the product, and keep the trunk on CUBE or CUCM.",
+      "When a neighbor has a series page in this library, use that page. When it does not, say the gap. WFM and QM are in the gap on purpose."
+     ],
+     "cites": [
+      {
+       "label": "Cisco Unity Connection",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+      },
+      {
+       "label": "Cisco Unified Communications Manager",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+      },
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "The ladder stays SIP",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Alice's INVITE is SIP. A CRM record of this call is not a header on this request.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying is the next SIP hop. WFM did not generate it.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The B2BUA creates the outbound leg. QM is not a party on this arrow.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 is alerting. A workforce schedule does not change the reason phrase.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Forwarded 180 is still SIP. Analytics may subscribe to the outcome later.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK names RTP. Recording, if disclosed, is a separate SIPREC dialog under RFC 7866.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Alice receives the answer. The media path is RTP. An AI summary sits above that path.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The 2xx ACK completes signaling. Emergency location, if this were urn:service:sos, would have been RFC 6442 on the INVITE, not a CRM field.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "WFM and QM in this lesson are",
+     "choices": [
+      "Contact-center operations systems, with no SIP RFC invented for them",
+      "SIP proxies",
+      "Defined by RFC 3261 section 21",
+      "The carrier trunk"
+     ],
+     "answer": 0,
+     "why": "Say the gap. Do not coin an RFC number.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "q": "A disclosed SBC recording cites",
+     "choices": [
+      "RFC 7866 and RFC 7865",
+      "A CRM vendor blog",
+      "RFC 4594 as the recording protocol",
+      "The trusted-list size"
+     ],
+     "answer": 0,
+     "why": "SIPREC is the SIP neighbor. QM may use the recording afterward.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "q": "CRM is",
+     "choices": [
+      "Not a SIP element",
+      "The registrar",
+      "Required on every INVITE",
+      "The EF PHB"
+     ],
+     "answer": 0,
+     "why": "No Salesforce feature list belongs in this lesson.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "Analytics and AI agents",
+     "choices": [
+      "Sit above the media path while SIP carries the session",
+      "Replace the Via header",
+      "Are the SRS by definition",
+      "Obsolete RFC 3261"
+     ],
+     "answer": 0,
+     "why": "RTP still carries voice. The agent is not a SIP role.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "Emergency location stays with",
+     "choices": [
+      "RFC 6881, RFC 6442, and the FCC MLTS page",
+      "The CRM object's custom fields only",
+      "RFC 4028",
+      "debug voip ccapi inout"
+     ],
+     "answer": 0,
+     "why": "National rules point at the FCC page. State PSAP rules are not invented here.",
+     "cite": {
+      "label": "FCC MLTS 911 requirements",
+      "url": "https://www.fcc.gov/mlts-911-requirements"
+     }
+    },
+    {
+     "q": "Unity Connection is",
+     "choices": [
+      "A messaging application, not the PSTN trunk point",
+      "The carrier SBC",
+      "A Wireshark display filter",
+      "The definition of B2BUA"
+     ],
+     "answer": 0,
+     "why": "Trunks land on CUBE or CUCM. Cite the Unity series page for messaging.",
+     "cite": {
+      "label": "Cisco Unity Connection",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "WFM / QM",
+     "back": "Operations systems. No SIP RFC in this library.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "front": "SIPREC",
+     "back": "The recording neighbor that is SIP. RFC 7866 and RFC 7865.",
+     "cite": {
+      "label": "RFC 7865",
+      "url": "https://www.rfc-editor.org/rfc/rfc7865"
+     }
+    },
+    {
+     "front": "CRM",
+     "back": "Not a SIP element. No invented vendor features.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "Above the media",
+     "back": "Analytics and agents. SIP and RTP still carry the session.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Keep CRM off the arrow",
+    "kind": "ladder",
+    "prompt": "Which party list would wrongly add a CRM as a SIP hop?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "A CRM belongs",
+     "choices": [
+      "Off the SIP ladder",
+      "Between Alice and the SBC as a proxy",
+      "In the Via branch",
+      "As the emergency URN"
+     ],
+     "answer": 0,
+     "why": "The ladder parties are SIP roles. CRM is a business system.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   },
+   "fault": {
+    "title": "A CRM field treated as Geolocation",
+    "symptom": "An emergency INVITE copies a CRM city string into a private header and omits RFC 6442 location. The ticket calls the private header sufficient for RAY BAUM's Act.",
+    "log": "INVITE urn:service:sos SIP/2.0\nX-Crm-City: example\nCall-ID: sos-1@example.com\n(no Geolocation)",
+    "choices": [
+     "Carry location per RFC 6442 and check the FCC MLTS page",
+     "The CRM city string is the conveyance specification",
+     "WFM routing replaces the URN",
+     "488 carries dispatchable location"
+    ],
+    "answer": 0,
+    "why": "CRM is not a SIP location element. RFC 6442 is the conveyance specification.",
+    "cause": "A business-system field was substituted for the emergency documents.",
+    "fix": "Send location as RFC 6442 describes, keep the service URN, and confirm Kari's Law and RAY BAUM's Act on the FCC page.",
+    "cites": [
+     {
+      "label": "RFC 6442",
+      "url": "https://www.rfc-editor.org/rfc/rfc6442"
+     },
+     {
+      "label": "FCC MLTS 911 requirements",
+      "url": "https://www.fcc.gov/mlts-911-requirements"
+     }
+    ]
+   },
+   "level": "Bridge"
+  },
+  {
+   "id": "workforce-and-ai",
+   "title": "Workforce tools and agents above the media",
+   "minutes": 12,
+   "tags": [
+    "ai",
+    "wfm",
+    "media"
+   ],
+   "summary": "Agents and workforce tools sit above the media path. The session is still SIP, and the voice is still RTP.",
+   "objectives": [
+    "Keep SIP as the session protocol",
+    "Place AI assistance above RTP",
+    "Refuse invented agent features"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Stack, from the wire up",
+    "caption": "Assistance that cannot see SIP still does not become SIP.",
+    "layers": [
+     {
+      "name": "SIP",
+      "detail": "Dialog, transactions, offer"
+     },
+     {
+      "name": "RTP",
+      "detail": "Voice packets after the answer"
+     },
+     {
+      "name": "Assist",
+      "detail": "WFM, QM, analytics, agents. Above the media path."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "The session does not move upstairs",
+     "paragraphs": [
+      "An agent that summarizes a call, suggests a reply, or scores a conversation is using the contact center's own application interfaces. The SIP dialog is still between the user agents and the B2BUA. Call-ID, CSeq, and the To tag still identify that dialog.",
+      "RTP, RFC 3550, still carries the samples. If the assistant needs the words, something in the disclosed recording or the contact-center media path provided them. This lesson does not describe a hidden tap. Disclosed recording stays SIPREC when the SBC forks to an SRS."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 3550",
+       "url": "https://www.rfc-editor.org/rfc/rfc3550"
+      },
+      {
+       "label": "RFC 7866",
+       "url": "https://www.rfc-editor.org/rfc/rfc7866"
+      }
+     ]
+    },
+    {
+     "h": "What you will not invent",
+     "paragraphs": [
+      "This edition does not invent features for a named AI product, a named CRM, or a named workforce suite. If a design needs one of those, cite that vendor's current guide, which may not be in this library. Say the gap.",
+      "Workforce schedules and quality scores can change how many people are on shift. They do not change 180 into 200, and they do not select the codec. When the ladder is wrong, fix the ladder. When the schedule is wrong, fix the schedule in its own system."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Assistance is not a hop",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The INVITE is the session. An agent platform is not the From header.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying is hop-by-hop SIP. No model answers Trying.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The outbound leg is the B2BUA. A workforce tool did not create the branch.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 means alerting. A quality score does not arrive as 180.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Forwarded alerting is still the SBC's job.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK starts the media clock. Voice is RTP. An assistant may see a disclosed recording later.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Alice gets the answer SDP. The assistant does not rewrite c= by being present.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The 2xx ACK is end to end. Cite RFC 6026 for that ACK, not an agent framework.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "An assistive agent sits",
+     "choices": [
+      "Above the media path",
+      "Inside the Via branch",
+      "In place of RFC 3261",
+      "As the carrier trusted address"
+     ],
+     "answer": 0,
+     "why": "SIP carries the session. RTP carries the voice.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "Voice samples are",
+     "choices": [
+      "RTP",
+      "A CRM field",
+      "The To tag",
+      "Min-SE"
+     ],
+     "answer": 0,
+     "why": "RFC 3550. The assistant does not replace the media protocol.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "A disclosed SBC fork to a recorder is",
+     "choices": [
+      "SIPREC, RFC 7866",
+      "A hidden tap this lesson specifies",
+      "EF configuration",
+      "An IOS ccapi status code"
+     ],
+     "answer": 0,
+     "why": "Notice and retention stay legal questions outside the RFC.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "q": "A wrong 488 is fixed in",
+     "choices": [
+      "The offer/answer, RFC 3264",
+      "The workforce schedule",
+      "A guessed AI feature",
+      "The publication month"
+     ],
+     "answer": 0,
+     "why": "Codec overlap is a SIP and SDP problem.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "Named AI product features in this edition are",
+     "choices": [
+      "Not invented. Cite the vendor guide if you have one.",
+      "Listed as RFC requirements",
+      "Substitutes for telephone-event",
+      "The trusted-list size"
+     ],
+     "answer": 0,
+     "why": "Say the gap when this library has no page.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "Call-ID still identifies",
+     "choices": [
+      "The SIP dialog the assistant may later mention",
+      "The WFM shift",
+      "The EF queue",
+      "A state PSAP"
+     ],
+     "answer": 0,
+     "why": "The dialog rules did not move upstairs.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Above RTP",
+     "back": "Analytics and agents. The packets remain RTP.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "front": "Dialog",
+     "back": "Still Call-ID, CSeq, To tag. RFC 3261.",
+     "cite": {
+      "label": "RFC 3261 §12",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+     }
+    },
+    {
+     "front": "Disclosed fork",
+     "back": "SIPREC when the SBC records. RFC 7866.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "front": "No invented features",
+     "back": "Vendor guides or an honest gap. Not a fake RFC.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Point at the media hop",
+    "kind": "ladder",
+    "prompt": "Which response carries the answer that lets RTP start?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "RTP becomes the voice path after",
+     "choices": [
+      "The 200 OK answer",
+      "100 Trying",
+      "The workforce schedule",
+      "A CRM update"
+     ],
+     "answer": 0,
+     "why": "The assistant can only see media that this session actually started.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   },
+   "fault": {
+    "title": "Agent blamed for a missing ACK",
+    "symptom": "Silence after connect, and the ticket says the AI agent consumed the ACK. The ladder shows 200 OK and no ACK. The agent platform has no SIP socket.",
+    "log": "SIP/2.0 200 OK\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\n(no ACK)\nAgent platform: no SIP listener",
+    "choices": [
+     "The missing ACK is end-to-end SIP. The agent is above the media path.",
+     "The agent is a SIP proxy by assumption",
+     "Send 487 because an agent is present",
+     "Replace Call-ID with the agent's name"
+    ],
+    "answer": 0,
+    "why": "A 2xx ACK is end to end between SIP roles. RFC 6026. The agent is not one of those roles.",
+    "cause": "A system that sits above RTP was blamed for a signaling gap.",
+    "fix": "Find the ACK on Call-ID a84b4c76e66710@example.com. Leave the agent platform out of the SIP fix.",
+    "cites": [
+     {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     },
+     {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    ]
+   },
+   "level": "Bridge"
+  },
+  {
+   "id": "certifications",
+   "title": "Certifications this edition will name",
+   "minutes": 16,
+   "tags": [
+    "ssca",
+    "ccnp",
+    "ms-721"
+   ],
+   "summary": "SSCA, CCNP Collaboration, and MS-721, with the dates this edition actually checked. Other vendor exam codes stay unconfirmed.",
+   "objectives": [
+    "State the SIP School, Cisco, and Microsoft credentials this edition names",
+    "Keep the checked dates attached to their pages",
+    "Send Oracle, Ribbon, and AudioCodes readers to product docs"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Credentials this edition will state",
+    "caption": "Exam topics change. The vendor page wins over this table.",
+    "columns": [
+     "Credential",
+     "What you sit",
+     "Cite"
+    ],
+    "rows": [
+     [
+      "SSCA Elite",
+      "SIP School Certified Associate",
+      "ssca"
+     ],
+     [
+      "CCNP Collaboration",
+      "350-801 CLCOR plus one concentration",
+      "ccnp"
+     ],
+     [
+      "Collaboration Core specialist",
+      "350-801 CLCOR",
+      "clcor"
+     ],
+     [
+      "CCIE Collaboration",
+      "Core exam plus the lab exam",
+      "cisco-exams"
+     ],
+     [
+      "MS-721",
+      "Collaboration Communications Systems Engineer Associate",
+      "ms-721"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "SIP School",
+     "paragraphs": [
+      "SIP School Certified Associate is SSCA Elite. Cite the SSCA page and the SIP School courses page. The courses page also lists SSVVP and SSSP. This lesson does not expand those two acronyms. The courses page is the label.",
+      "The SSCA page says passing is worth 20 CEC credits toward a BICSI certification. That sentence is cited to the SSCA page. If the page changes the credit number, the page wins."
+     ],
+     "cites": [
+      {
+       "label": "SSCA Elite",
+       "url": "https://www.thesipschool.com/ssca.html"
+      },
+      {
+       "label": "The SIP School courses",
+       "url": "https://www.thesipschool.com/courses/view"
+      }
+     ]
+    },
+    {
+     "h": "Cisco Collaboration",
+     "paragraphs": [
+      "CCNP Collaboration is the core exam 350-801 CLCOR plus one concentration: 300-815 CLACC, 300-820 CLHCT, or 300-830 CLCCE. CLCOR also earns Cisco Certified Specialist - Collaboration Core. CCIE Collaboration is the core exam plus the lab exam. Cite the CCNP page, the CLCOR page, the Cisco exams list, and the learning-network update page.",
+      "The learning-network update page says the first date to test for the Collaboration Cloud Customer Experience specialist was February 3, 2026. This lesson invents no other dates. Exam topics change, and the Cisco page wins."
+     ],
+     "cites": [
+      {
+       "label": "CCNP Collaboration",
+       "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html"
+      },
+      {
+       "label": "350-801 CLCOR",
+       "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/clcor.html"
+      },
+      {
+       "label": "Cisco exams list",
+       "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/list.html"
+      },
+      {
+       "label": "Cisco certification updates",
+       "url": "https://learningnetwork.cisco.com/s/a-new-era-for-cisco-certifications"
+      }
+     ]
+    },
+    {
+     "h": "Microsoft, and the codes this edition will not invent",
+     "paragraphs": [
+      "Microsoft 365 Certified: Collaboration Communications Systems Engineer Associate is exam MS-721. Cite the certification page and the study guide. The certification page showed last updated April 28, 2026, and an English skills update on October 29, 2026. As of this lab's source check on 2026-10-14, MS-721 was not on Microsoft's retirement list. Certifications change. Use the link.",
+      "No Oracle, Ribbon, or AudioCodes exam code was confirmed for this edition. Use the Oracle SBC documentation, the Ribbon documentation portal, and the AudioCodes manipulation guide for product training. Do not fill the blank with a code you remember from somewhere else."
+     ],
+     "cites": [
+      {
+       "label": "MS-721 certification",
+       "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/"
+      },
+      {
+       "label": "MS-721 study guide",
+       "url": "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ms-721"
+      },
+      {
+       "label": "Oracle Communications SBC documentation",
+       "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html"
+      },
+      {
+       "label": "Ribbon documentation portal",
+       "url": "https://ribboncommunications.com/services/support-services/documentation"
+      },
+      {
+       "label": "AudioCodes SIP message manipulation (7.6)",
+       "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "The call the exams still expect you to read",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Early offer. SSCA and CLCOR both expect you to see SDP in the INVITE and cite the offer/answer model.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying is hop by hop. Say so before you talk about a product.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "A B2BUA leg is RFC 7092 territory. CCNP Collaboration concentrates on call control still have to read this hop.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 Ringing is provisional. MS-721 candidates meet the same status when they debug Direct Routing.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Forwarded 180. Match Call-ID and branch. The exam page does not replace that habit.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK is the answer. Codecs and telephone-event are in the SDP, which is the media part of every one of these credentials.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The caller receives the answer. Topics change. The Cisco page, the Microsoft page, and the SIP School page win over a memory.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The 2xx ACK is end to end, RFC 3261 and RFC 6026. That fact is in the lesson, not only in a trivia card.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "SSCA passing, per the SSCA page, is worth",
+     "choices": [
+      "20 CEC credits toward a BICSI certification",
+      "The CCIE lab",
+      "MS-721",
+      "A number this lesson invented"
+     ],
+     "answer": 0,
+     "why": "Cite ssca for that sentence. The page wins if it changes.",
+     "cite": {
+      "label": "SSCA Elite",
+      "url": "https://www.thesipschool.com/ssca.html"
+     }
+    },
+    {
+     "q": "The courses page also lists",
+     "choices": [
+      "SSVVP and SSSP",
+      "Only a Cisco lab code",
+      "Oracle exam codes confirmed here",
+      "State PSAP rules"
+     ],
+     "answer": 0,
+     "why": "This lesson does not expand SSVVP or SSSP.",
+     "cite": {
+      "label": "The SIP School courses",
+      "url": "https://www.thesipschool.com/courses/view"
+     }
+    },
+    {
+     "q": "CCNP Collaboration requires",
+     "choices": [
+      "350-801 CLCOR plus 300-815, 300-820, or 300-830",
+      "Only the lab exam",
+      "MS-721",
+      "RFC 8866 as an exam"
+     ],
+     "answer": 0,
+     "why": "CLCOR also earns the Collaboration Core specialist.",
+     "cite": {
+      "label": "CCNP Collaboration",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html"
+     }
+    },
+    {
+     "q": "CCIE Collaboration in this lesson is",
+     "choices": [
+      "The core exam plus the lab exam",
+      "300-815 alone",
+      "SSCA Elite",
+      "An AudioCodes code"
+     ],
+     "answer": 0,
+     "why": "Cite the Cisco exams list. No lab code is invented here.",
+     "cite": {
+      "label": "Cisco exams list",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/list.html"
+     }
+    },
+    {
+     "q": "The Collaboration Cloud Customer Experience specialist first test date stated here is",
+     "choices": [
+      "February 3, 2026",
+      "A date this lesson guessed for CLCOR",
+      "October 29, 2026 as a Cisco date",
+      "April 28, 2026 as a Cisco date"
+     ],
+     "answer": 0,
+     "why": "That date is from the learning-network update page. No other Cisco dates are stated.",
+     "cite": {
+      "label": "Cisco certification updates",
+      "url": "https://learningnetwork.cisco.com/s/a-new-era-for-cisco-certifications"
+     }
+    },
+    {
+     "q": "MS-721's source check in this lab",
+     "choices": [
+      "On 2026-10-14 it was not on Microsoft's retirement list",
+      "It retired on February 3, 2026",
+      "It replaces CCNP",
+      "It is an Oracle exam"
+     ],
+     "answer": 0,
+     "why": "The certification page showed last updated April 28, 2026, and an English skills update on October 29, 2026. Use the link.",
+     "cite": {
+      "label": "MS-721 certification",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "SSCA",
+     "back": "SIP School Certified Associate. 20 CEC credits toward BICSI, per the SSCA page.",
+     "cite": {
+      "label": "SSCA Elite",
+      "url": "https://www.thesipschool.com/ssca.html"
+     }
+    },
+    {
+     "front": "CLCOR",
+     "back": "350-801. Core for CCNP Collaboration and the Collaboration Core specialist.",
+     "cite": {
+      "label": "350-801 CLCOR",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/clcor.html"
+     }
+    },
+    {
+     "front": "Concentrations",
+     "back": "300-815 CLACC, 300-820 CLHCT, or 300-830 CLCCE. One of them, plus the core.",
+     "cite": {
+      "label": "CCNP Collaboration",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html"
+     }
+    },
+    {
+     "front": "MS-721",
+     "back": "Collaboration Communications Systems Engineer Associate. Certifications change. Use the link.",
+     "cite": {
+      "label": "MS-721 certification",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Cite the ACK the exams share",
+    "kind": "ladder",
+    "prompt": "The last hop is the ACK for 200 OK. Which documents cover it?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "The 2xx ACK is covered by",
+     "choices": [
+      "RFC 3261 and RFC 6026",
+      "A vendor exam code with no page",
+      "RFC 4594 only",
+      "The CME list size"
+     ],
+     "answer": 0,
+     "why": "The credential pages change. This signaling fact stays with the RFCs.",
+     "cite": {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+     }
+    }
+   },
+   "fault": {
+    "title": "An exam code that was not confirmed",
+    "symptom": "A study plan adds an Oracle exam code, a Ribbon exam code, and an AudioCodes exam code, and it dates the CCIE lab to a month this edition never stated.",
+    "log": "Plan (synthetic): Oracle, Ribbon, and AudioCodes exam codes filled from memory.\nCCIE lab month invented.\nCisco page not opened.",
+    "choices": [
+     "Drop the unconfirmed codes and use oracle-sbc, ribbon-docs, and audiocodes. Let the Cisco page win.",
+     "Keep the remembered codes",
+     "Replace MS-721 with those codes",
+     "Cite February 3, 2026 as the MS-721 retirement date"
+    ],
+    "answer": 0,
+    "why": "This edition confirmed no exam codes for those three vendors. The only Cisco date stated here is February 3, 2026 for the Collaboration Cloud Customer Experience specialist.",
+    "cause": "Blanks were filled from memory.",
+    "fix": "Link the product docs. Open ccnp, clcor, cisco-exams, and cisco-era for Cisco. Open ms-721 for Microsoft. State no date you did not read.",
+    "cites": [
+     {
+      "label": "Oracle Communications SBC documentation",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html"
+     },
+     {
+      "label": "Ribbon documentation portal",
+      "url": "https://ribboncommunications.com/services/support-services/documentation"
+     },
+     {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+     },
+     {
+      "label": "Cisco certification updates",
+      "url": "https://learningnetwork.cisco.com/s/a-new-era-for-cisco-certifications"
+     }
+    ]
+   },
+   "level": "Bridge"
+  },
+  {
+   "id": "reading-the-index",
+   "title": "When the page and the memory disagree",
+   "minutes": 12,
+   "tags": [
+    "index",
+    "rfc-editor",
+    "exams"
+   ],
+   "summary": "The RFC Editor banner, the Cisco exam page, and the Microsoft certification page outrank a remembered line.",
+   "objectives": [
+    "Open the document index before you freeze a number",
+    "Let the vendor page win on exam topics",
+    "Keep the few dates this edition checked"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Disagreement",
+    "caption": "Memory is the draft. The page you cite is the record.",
+    "nodes": [
+     "Remember",
+     "Open",
+     "Read header",
+     "Cite page"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Three indexes",
+     "paragraphs": [
+      "For a protocol fact, open rfc-editor.org and read the header: number, category, Obsoletes, Updates. RFC 5411 can orient you in the SIP family, and it can lag. The header of the RFC you are about to cite is the row that counts.",
+      "For a Cisco credential, open the CCNP page, the CLCOR page, and the exams list. The learning-network update page is where this edition read February 3, 2026 as the first test date for the Collaboration Cloud Customer Experience specialist. Exam topics change, and the Cisco page wins. For Microsoft, open the MS-721 certification page and the study guide."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5411",
+       "url": "https://www.rfc-editor.org/rfc/rfc5411"
+      },
+      {
+       "label": "CCNP Collaboration",
+       "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html"
+      },
+      {
+       "label": "350-801 CLCOR",
+       "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/clcor.html"
+      },
+      {
+       "label": "Cisco exams list",
+       "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/list.html"
+      },
+      {
+       "label": "Cisco certification updates",
+       "url": "https://learningnetwork.cisco.com/s/a-new-era-for-cisco-certifications"
+      },
+      {
+       "label": "MS-721 certification",
+       "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/"
+      }
+     ]
+    },
+    {
+     "h": "Dates you may repeat",
+     "paragraphs": [
+      "This edition states February 3, 2026 for that Cisco specialist's first test date, April 28, 2026 as the MS-721 page last-updated line it saw, October 29, 2026 as the English skills update it saw, and 2026-10-14 as the day MS-721 was not on Microsoft's retirement list. Other dates are not in this lesson.",
+      "A blog that disagrees with the RFC Editor banner loses. A blog that disagrees with the Cisco or Microsoft page loses. Write the URL you opened, which in this curriculum is the cite key, and move on."
+     ],
+     "cites": [
+      {
+       "label": "MS-721 study guide",
+       "url": "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ms-721"
+      },
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      },
+      {
+       "label": "The SIP School courses",
+       "url": "https://www.thesipschool.com/courses/view"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Which page owns the hop",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Offer SDP. The number you cite is the RFC Editor header for SDP, RFC 8866 in this library.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying. RFC 3261 section 21. A certification outline does not renumber it.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Outbound INVITE. If the question is exam scope, the Cisco or Microsoft page owns the outline. The branch is still RFC 3261.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 Ringing stays a provisional response whatever the blueprint's wording.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Forwarded 180. Match headers first. Then see which exam objective the hop illustrates.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "Answer SDP. Offer/answer is RFC 3264 even when an exam renames the objective.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The caller sees the answer. If a page and this lesson disagree on a date, the page wins.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "2xx ACK, RFC 6026. Confirm Updates on the header before you say it obsoletes the base specification. It does not.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "When a blog and the RFC Editor banner disagree",
+     "choices": [
+      "The banner wins",
+      "The blog wins",
+      "The older memory wins",
+      "Either, if the month sounds right"
+     ],
+     "answer": 0,
+     "why": "Number, category, Obsoletes, and Updates come from the header.",
+     "cite": {
+      "label": "RFC 5411",
+      "url": "https://www.rfc-editor.org/rfc/rfc5411"
+     }
+    },
+    {
+     "q": "When this lesson and the Cisco exam page disagree on topics",
+     "choices": [
+      "The Cisco page wins",
+      "This lesson wins",
+      "A forum thread wins",
+      "The MS-721 study guide decides Cisco scope"
+     ],
+     "answer": 0,
+     "why": "Topics change. Cite ccnp, clcor, or cisco-exams as appropriate.",
+     "cite": {
+      "label": "CCNP Collaboration",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html"
+     }
+    },
+    {
+     "q": "February 3, 2026 in this edition is",
+     "choices": [
+      "The first test date named for the Collaboration Cloud Customer Experience specialist",
+      "The MS-721 retirement date",
+      "The publication month of RFC 3261",
+      "A universal exam date"
+     ],
+     "answer": 0,
+     "why": "That date is on the learning-network update page. No other Cisco dates are added.",
+     "cite": {
+      "label": "Cisco certification updates",
+      "url": "https://learningnetwork.cisco.com/s/a-new-era-for-cisco-certifications"
+     }
+    },
+    {
+     "q": "RFC 5411 is",
+     "choices": [
+      "A hitchhiker's guide that can lag the header you are citing",
+      "The current SDP specification",
+      "A substitute for the Cisco exams list",
+      "The EF PHB"
+     ],
+     "answer": 0,
+     "why": "Use it to find the family. Cite the specific header for the fact.",
+     "cite": {
+      "label": "RFC 5411",
+      "url": "https://www.rfc-editor.org/rfc/rfc5411"
+     }
+    },
+    {
+     "q": "MS-721 disagreements are settled on",
+     "choices": [
+      "The certification page and the study guide",
+      "The CME toll-fraud page",
+      "RFC 4594",
+      "A remembered exam code"
+     ],
+     "answer": 0,
+     "why": "April 28, 2026, October 29, 2026, and the 2026-10-14 retirement check are the lines this edition read.",
+     "cite": {
+      "label": "MS-721 certification",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/"
+     }
+    },
+    {
+     "q": "Publication months of RFCs in this curriculum are",
+     "choices": [
+      "Copied from the header when needed, not invented here",
+      "January for all of them",
+      "Taken from the exam blueprint",
+      "Optional"
+     ],
+     "answer": 0,
+     "why": "The build-a-timeline lesson states no months. The index lesson does not add any.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Banner",
+     "back": "RFC Editor header beats a blog.",
+     "cite": {
+      "label": "RFC 5411",
+      "url": "https://www.rfc-editor.org/rfc/rfc5411"
+     }
+    },
+    {
+     "front": "Cisco page",
+     "back": "Exam topics change. The Cisco page wins.",
+     "cite": {
+      "label": "Cisco exams list",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/list.html"
+     }
+    },
+    {
+     "front": "MS-721 link",
+     "back": "Certifications change. Use the certification page.",
+     "cite": {
+      "label": "MS-721 certification",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/"
+     }
+    },
+    {
+     "front": "Checked dates",
+     "back": "February 3, 2026. April 28, 2026. October 29, 2026. Source check 2026-10-14.",
+     "cite": {
+      "label": "Cisco certification updates",
+      "url": "https://learningnetwork.cisco.com/s/a-new-era-for-cisco-certifications"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Who wins on SDP",
+    "kind": "ladder",
+    "prompt": "The offer is SDP. Which number do you cite when a blog still says 4566 is current?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "You cite",
+     "choices": [
+      "RFC 8866, and you confirm the header",
+      "The blog",
+      "RFC 4028",
+      "An exam code"
+     ],
+     "answer": 0,
+     "why": "4566 is the predecessor. The banner on 8866 is the check.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    }
+   },
+   "fault": {
+    "title": "A remembered retirement",
+    "symptom": "A plan says MS-721 retired on February 3, 2026, and it skips the certification page. That date in this edition is the Cisco specialist's first test date.",
+    "log": "Plan (synthetic): MS-721 retired February 3, 2026.\nSource check 2026-10-14 not consulted.\nCertification page not opened.",
+    "choices": [
+     "Open the MS-721 page. February 3, 2026 is the Cisco date this edition stated.",
+     "Treat the dates as interchangeable",
+     "Invent a new retirement date",
+     "Cite SSCA for Microsoft retirement"
+    ],
+    "answer": 0,
+    "why": "On 2026-10-14 this lab's source check did not find MS-721 on Microsoft's retirement list. Certifications change. Use the link.",
+    "cause": "A Cisco date was pasted onto a Microsoft credential.",
+    "fix": "Read ms-721 and ms-721-guide. Keep February 3, 2026 on the cisco-era page where this edition found it.",
+    "cites": [
+     {
+      "label": "MS-721 certification",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/"
+     },
+     {
+      "label": "Cisco certification updates",
+      "url": "https://learningnetwork.cisco.com/s/a-new-era-for-cisco-certifications"
+     }
+    ]
+   },
+   "level": "Bridge"
+  },
+  {
+   "id": "uc-bridge",
+   "title": "CUCM, UCCX, and CVP without a fake script",
+   "minutes": 14,
+   "tags": [
+    "cucm",
+    "uccx",
+    "cvp"
+   ],
+   "summary": "CUCM is the call-control point. UCCX rides on CUCM. CVP's SIP paths are in the guide for the version you run.",
+   "objectives": [
+    "Place PSTN SIP on CUBE or CUCM",
+    "Keep UCCX off the carrier trunk",
+    "Send CVP readers to the matching configuration guide"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Where the carrier INVITE lands",
+    "caption": "Contact-center products sit behind call control. They do not replace the trunk.",
+    "layers": [
+     {
+      "name": "Carrier",
+      "detail": "PSTN SIP toward CUBE or CUCM"
+     },
+     {
+      "name": "CUCM",
+      "detail": "Registrar and trunk call-control point"
+     },
+     {
+      "name": "UCCX / CVP",
+      "detail": "Contact center through CUCM, or SIP as that version's CVP guide describes"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "CUCM",
+     "paragraphs": [
+      "CUCM is the call-control registrar and trunk point in this picture. Phones register there. Trunks toward CUBE or a carrier are configured there. Cite the CUCM series page for the product, and cite RFC 3261 for the SIP those trunks speak.",
+      "CUBE, when it is the border, is the B2BUA that faces the carrier. The basic CUBE SIP guide is the configuration context. The carrier INVITE in this lab arrives at 203.0.113.20 from 192.0.2.40, and CUCM at 198.51.100.30 is the call agent behind it."
+     ],
+     "cites": [
+      {
+       "label": "Cisco Unified Communications Manager",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+      },
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      },
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      }
+     ]
+    },
+    {
+     "h": "UCCX",
+     "paragraphs": [
+      "UCCX call control is through CUCM. The product series page is uccx. This lesson does not claim that UCCX terminates carrier SIP trunks. PSTN SIP lands on CUBE or CUCM.",
+      "Agent legs, route points, and queue treatment are CUCM's call-control relationship with UCCX. Drawing the carrier INVITE as if it ended on UCCX is the picture this lesson refuses."
+     ],
+     "cites": [
+      {
+       "label": "Cisco Unified Contact Center Express",
+       "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-contact-center-express/series.html"
+      },
+      {
+       "label": "Cisco Unified Communications Manager",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+      }
+     ]
+    },
+    {
+     "h": "CVP, by the guide you actually have",
+     "paragraphs": [
+      "CVP configuration guides describe SIP between CVP, gateways, and CUCM. Cite the CVP series page, then open the guide for the exact version you run. The version decides the call flow. This lesson does not invent a comprehensive script.",
+      "If you need a sequence for a design review, copy it from that version's guide and label the version. A remembered comprehensive flow from a different release is how trunks get drawn onto the wrong box."
+     ],
+     "cites": [
+      {
+       "label": "Cisco Unified Customer Voice Portal",
+       "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-customer-voice-portal/series.html"
+      },
+      {
+       "label": "Cisco Unified Communications Manager",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "PSTN lands on CUBE, then CUCM",
+    "parties": [
+     "Carrier",
+     "CUBE",
+     "CUCM"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "PSTN SIP from 192.0.2.40 lands on CUBE at 203.0.113.20. It does not land on UCCX.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKpstn01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@192.0.2.40>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 214\n\nv=0\no=alice 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "CUBE acknowledges the carrier hop. UCCX is not this transaction.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "CUBE sends the call to CUCM at 198.51.100.30. CUCM is the registrar and trunk call-control point.",
+      "message": "INVITE sip:+15551212@198.51.100.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKtoCucm\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "CUCM alerts. If an agent is on UCCX, that relationship is through CUCM and is not a second carrier trunk.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:cucm@198.51.100.30>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "PSTN SIP in this picture lands on",
+     "choices": [
+      "CUBE or CUCM",
+      "UCCX",
+      "A CRM",
+      "The SRS only"
+     ],
+     "answer": 0,
+     "why": "UCCX call control is through CUCM. It does not terminate the carrier trunk.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "q": "CUCM's role here is",
+     "choices": [
+      "Call-control registrar and trunk point",
+      "A Wireshark filter",
+      "The EF PHB",
+      "A SIPREC metadata schema"
+     ],
+     "answer": 0,
+     "why": "Cite the CUCM series page for the product.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "q": "UCCX is reached",
+     "choices": [
+      "Through CUCM",
+      "As the carrier SBC",
+      "By replacing the Request-URI with a CRM field",
+      "Only over RTP"
+     ],
+     "answer": 0,
+     "why": "The product series is uccx. The trunk is not.",
+     "cite": {
+      "label": "Cisco Unified Contact Center Express",
+      "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-contact-center-express/series.html"
+     }
+    },
+    {
+     "q": "CVP SIP paths are taken from",
+     "choices": [
+      "The configuration guide for the exact version",
+      "A comprehensive script this lesson invented",
+      "RFC 4028",
+      "The SSCA page"
+     ],
+     "answer": 0,
+     "why": "Guides describe SIP among CVP, gateways, and CUCM. Use the version you run.",
+     "cite": {
+      "label": "Cisco Unified Customer Voice Portal",
+      "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-customer-voice-portal/series.html"
+     }
+    },
+    {
+     "q": "The carrier address in this lab ladder is",
+     "choices": [
+      "192.0.2.40",
+      "A subscriber address from a customer",
+      "sip.pstnhub.microsoft.com",
+      "The WFM server"
+     ],
+     "answer": 0,
+     "why": "CUBE is 203.0.113.20. CUCM is 198.51.100.30.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "A comprehensive UCCE call flow in this lesson is",
+     "choices": [
+      "Not invented. Use the CVP guide for the version.",
+      "Printed as the only legal sequence",
+      "The same as Webex Calling Local Gateway",
+      "An MS-721 requirement"
+     ],
+     "answer": 0,
+     "why": "Label the version when you copy a sequence from the guide.",
+     "cite": {
+      "label": "Cisco Unified Customer Voice Portal",
+      "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-customer-voice-portal/series.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "CUCM",
+     "back": "Registrar and trunk call-control point.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "front": "UCCX",
+     "back": "Call control through CUCM. Not the carrier trunk.",
+     "cite": {
+      "label": "Cisco Unified Contact Center Express",
+      "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-contact-center-express/series.html"
+     }
+    },
+    {
+     "front": "CUBE or CUCM",
+     "back": "Where PSTN SIP lands.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "front": "CVP",
+     "back": "SIP among CVP, gateways, and CUCM, in that version's guide.",
+     "cite": {
+      "label": "Cisco Unified Customer Voice Portal",
+      "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-customer-voice-portal/series.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Where the carrier INVITE stops first",
+    "kind": "ladder",
+    "prompt": "The first hop is the carrier. Which element receives it?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "The carrier INVITE is drawn to",
+     "choices": [
+      "CUBE",
+      "UCCX",
+      "A CRM",
+      "The SRS"
+     ],
+     "answer": 0,
+     "why": "From CUBE it goes to CUCM. UCCX stays behind CUCM.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "Carrier trunk drawn on UCCX",
+    "symptom": "A design shows the carrier at 192.0.2.40 sending INVITEs directly to UCCX, and it adds a full UCCE script from memory.",
+    "log": "INVITE sip:+15551212@198.51.100.30 SIP/2.0\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKbad\nTicket: terminates on UCCX\nScript: invented comprehensive flow",
+    "choices": [
+     "Land PSTN SIP on CUBE or CUCM. Keep UCCX behind CUCM. Open the CVP guide for the version.",
+     "Leave the carrier on UCCX",
+     "Replace CUCM with the CRM",
+     "Cite 488 as the trunk"
+    ],
+    "answer": 0,
+    "why": "UCCX call control is through CUCM. CVP paths come from the version's guide.",
+    "cause": "The contact-center product was drawn as the carrier border.",
+    "fix": "Redraw the INVITE to CUBE or CUCM. Cite uccx, cucm, and cube-basic. For CVP, cite cvp and the guide that matches the version. Do not invent the script.",
+    "cites": [
+     {
+      "label": "Cisco Unified Contact Center Express",
+      "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-contact-center-express/series.html"
+     },
+     {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     },
+     {
+      "label": "Cisco Unified Customer Voice Portal",
+      "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-customer-voice-portal/series.html"
+     }
+    ]
+   },
+   "level": "Bridge"
+  },
+  {
+   "id": "cloud-bridge",
+   "title": "Webex Calling local gateway, and a separate contact center",
+   "minutes": 13,
+   "tags": [
+    "webex",
+    "local-gateway",
+    "pstn"
+   ],
+   "summary": "Premises PSTN for Webex Calling uses Local Gateway. Webex Contact Center is a separate product with its own design guide.",
+   "objectives": [
+    "Place premises PSTN on the Local Gateway pattern",
+    "Cite the Webex Calling PSTN and Local Gateway pages",
+    "Keep Webex Contact Center off this pattern until its own guide says otherwise"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Webex Calling premises PSTN",
+    "caption": "The edge hostname in production comes from the Local Gateway guide. This ladder uses example.com so it does not invent that name.",
+    "layers": [
+     {
+      "name": "Premises PSTN",
+      "detail": "Carrier at 192.0.2.40"
+     },
+     {
+      "name": "Local Gateway",
+      "detail": "Border at 203.0.113.20, Webex Calling pattern"
+     },
+     {
+      "name": "Webex Calling",
+      "detail": "Cloud call control. Not the contact-center product."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Local Gateway for Webex Calling",
+     "paragraphs": [
+      "Webex Calling premises PSTN uses a local gateway. Cite the get-started Local Gateway page and the page that configures Webex Calling PSTN for the organization. The gateway in this lab is the border address 203.0.113.20, and the carrier is 192.0.2.40.",
+      "The production Request-URI and the Webex edge hostname come from the Local Gateway guide for the tenant you are building. The synthetic INVITE uses example.com so this lesson does not invent that hostname. Read the guide before you copy a target into a trunk."
+     ],
+     "cites": [
+      {
+       "label": "Get started with Local Gateway",
+       "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+      },
+      {
+       "label": "Configure Webex Calling PSTN",
+       "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+      }
+     ]
+    },
+    {
+     "h": "A separate contact-center product",
+     "paragraphs": [
+      "Webex Contact Center is a separate product. This lesson does not claim it uses the same Local Gateway pattern. Check Cisco's current Webex Contact Center design guide before you reuse this picture. This library has no cite key for that guide, so the lesson names the document and does not invent a URL.",
+      "Call control in the Webex Calling picture is the Webex Calling organization, reached through the local gateway. CUCM-style trunks from the previous lesson are a different bridge. Say which product you are in before you draw the arrow."
+     ],
+     "cites": [
+      {
+       "label": "Get started with Local Gateway",
+       "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+      },
+      {
+       "label": "Configure Webex Calling PSTN",
+       "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+      },
+      {
+       "label": "Cisco Unified Communications Manager",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Premises PSTN through Local Gateway",
+    "parties": [
+     "PSTN",
+     "Local Gateway",
+     "Webex Calling"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Premises PSTN from 192.0.2.40 hits the local gateway at 203.0.113.20. This is the Webex Calling pattern.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKlgw01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@192.0.2.40>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 214\n\nv=0\no=alice 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The gateway has the INVITE. Webex Contact Center is not assumed on this hop.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Outbound INVITE toward Webex Calling. The production target hostname is in the Local Gateway guide. This message uses example.com on purpose.",
+      "message": "INVITE sip:+15551212@example.com SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.20:5061;branch=z9hG4bKlgw02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=lgw1\nTo: <sip:+15551212@example.com>\nCall-ID: lgw-1@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc.example.com:5061;transport=tls>\nContent-Type: application/sdp\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "Synthetic answer. Confirm codec and telephone-event against the guide, not against this placeholder host.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/TLS 203.0.113.20:5061;branch=z9hG4bKlgw02\nFrom: \"Alice\" <sip:alice@example.com>;tag=lgw1\nTo: <sip:+15551212@example.com>;tag=wx1\nCall-ID: lgw-1@example.com\nCSeq: 1 INVITE\nContact: <sip:edge.example.com:5061;transport=tls>\nContent-Type: application/sdp\nContent-Length: 224\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Premises PSTN for Webex Calling uses",
+     "choices": [
+      "A local gateway",
+      "UCCX as the carrier trunk",
+      "A CRM",
+      "The emergency URN as the trunk target"
+     ],
+     "answer": 0,
+     "why": "Cite webex-lgw and webex-org.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    },
+    {
+     "q": "The edge hostname in production is",
+     "choices": [
+      "The one in the Local Gateway guide for that tenant",
+      "Invented by this lesson as a permanent target",
+      "Always sip.pstnhub.microsoft.com",
+      "198.51.100.30"
+     ],
+     "answer": 0,
+     "why": "example.com in the ladder is a placeholder so the lesson does not invent the real name.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    },
+    {
+     "q": "Webex Contact Center",
+     "choices": [
+      "Is a separate product. Check its current design guide.",
+      "Uses this Local Gateway pattern by definition",
+      "Is the same box as CUCM",
+      "Is defined by RFC 7865"
+     ],
+     "answer": 0,
+     "why": "This library does not invent a URL for that design guide.",
+     "cite": {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    },
+    {
+     "q": "Organization PSTN settings are cited from",
+     "choices": [
+      "The Webex Calling PSTN configuration page",
+      "The FCC MLTS page",
+      "RFC 4028",
+      "The AudioCodes exam that was not confirmed"
+     ],
+     "answer": 0,
+     "why": "webex-org is that page. Local Gateway get-started is webex-lgw.",
+     "cite": {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    },
+    {
+     "q": "CUCM trunks and this local gateway are",
+     "choices": [
+      "Different bridges. Say which product you are in.",
+      "The same configuration",
+      "Both terminated on UCCX",
+      "Both SIPREC metadata"
+     ],
+     "answer": 0,
+     "why": "The previous lesson is the CUCM bridge. This one is Webex Calling.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "q": "The carrier address on this ladder is",
+     "choices": [
+      "192.0.2.40",
+      "A real subscriber DID",
+      "The SRS",
+      "Min-SE"
+     ],
+     "answer": 0,
+     "why": "The gateway address in the lab is 203.0.113.20.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Local Gateway",
+     "back": "Premises PSTN pattern for Webex Calling.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    },
+    {
+     "front": "Organization PSTN",
+     "back": "Configured on the Webex Calling PSTN page.",
+     "cite": {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    },
+    {
+     "front": "Placeholder host",
+     "back": "example.com stands in so the lesson does not invent the edge FQDN.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    },
+    {
+     "front": "Separate product",
+     "back": "Webex Contact Center. Check its current design guide.",
+     "cite": {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Name the pattern",
+    "kind": "ladder",
+    "prompt": "Which product's premises-PSTN pattern is this ladder?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "This ladder is",
+     "choices": [
+      "Webex Calling Local Gateway",
+      "Webex Contact Center by assumption",
+      "UCCX terminating the carrier",
+      "Teams Direct Routing"
+     ],
+     "answer": 0,
+     "why": "Contact center cloud is a separate design guide.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    }
+   },
+   "fault": {
+    "title": "Contact center drawn as Local Gateway",
+    "symptom": "A design reuses the Webex Calling Local Gateway picture for Webex Contact Center and writes example.com into production as if it were the edge.",
+    "log": "Trunk target copied from the lab: example.com\nProduct named on the drawing: Webex Contact Center\nLocal Gateway guide cited for that product.",
+    "choices": [
+     "Open the current Webex Contact Center design guide. Keep Local Gateway on Webex Calling.",
+     "Ship example.com as the production edge",
+     "Point the carrier at UCCX",
+     "Use February 3, 2026 as a hostname"
+    ],
+    "answer": 0,
+    "why": "webex-lgw and webex-org are the Webex Calling pages. Contact center is a separate product.",
+    "cause": "Two products shared one drawing, and a placeholder hostname escaped the lab.",
+    "fix": "Cite webex-lgw and webex-org only for Webex Calling premises PSTN. For Webex Contact Center, use Cisco's current design guide and do not invent a URL.",
+    "cites": [
+     {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     },
+     {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+     }
+    ]
+   },
+   "level": "Bridge"
+  }
+ ]
+}

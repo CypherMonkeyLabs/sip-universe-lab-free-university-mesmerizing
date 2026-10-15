@@ -1,0 +1,2125 @@
+{
+ "id": "sdp",
+ "title": "SDP and offer/answer",
+ "summary": "How to read an SDP body, and how RFC 3264 matches offers to answers without reordering streams.",
+ "level": "Core",
+ "order": 5,
+ "lessons": [
+  {
+   "id": "sdp-anatomy",
+   "title": "The lines in an SDP body",
+   "minutes": 14,
+   "tags": [
+    "sdp",
+    "rfc8866",
+    "session"
+   ],
+   "summary": "Read v, o, s, c, t, m, and a lines as a session description. RFC 8866 is the current SDP specification.",
+   "objectives": [
+    "Name the session lines and the media lines",
+    "State that RFC 8866 obsoletes RFC 4566 and where status is decided",
+    "Separate the connection address from the RTP packets"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "One SDP body, top to bottom",
+    "caption": "Session lines apply until an m-line starts a stream. Media lines and their a-lines belong to that stream.",
+    "layers": [
+     {
+      "name": "v, o, s",
+      "detail": "Version, origin, session name"
+     },
+     {
+      "name": "c and t",
+      "detail": "Connection address and timing"
+     },
+     {
+      "name": "m",
+      "detail": "Media type, port, proto, formats"
+     },
+     {
+      "name": "a",
+      "detail": "rtpmap, fmtp, direction, ptime"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Which document is current",
+     "paragraphs": [
+      "RFC 8866 is the current SDP specification, and it obsoletes RFC 4566. The RFC Editor status banner on each document is the authority for that status, so a page that still quotes only 4566 is checked against the banner before it is treated as current.",
+      "The addresses 203.0.113.10, 203.0.113.20, 198.51.100.30, and 192.0.2.40 are documentation addresses from RFC 5737, and the telephone number in these labs is +15551212 at example.com. They exist so a trace can be shared without pointing at a real network."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      },
+      {
+       "label": "RFC 4566",
+       "url": "https://www.rfc-editor.org/rfc/rfc4566"
+      },
+      {
+       "label": "RFC 5737",
+       "url": "https://www.rfc-editor.org/rfc/rfc5737"
+      }
+     ]
+    },
+    {
+     "h": "Session lines, then media lines",
+     "paragraphs": [
+      "A body starts with v=0, an o= origin that carries a session id and a session version, an s= name, a c= connection address, and a t= time. The c= line names where media should be sent, and it is an address inside the description, not a sample of audio.",
+      "Each m= line opens one media stream and lists a port, a transport, and payload types. a= lines after that m= line belong to that stream, while a session-level a= line is only the default for streams that do not override it."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "SDP rides inside the INVITE",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The offer is the SDP body of this INVITE. Count v, c, and m before you read any RTP.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 209\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 49172 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying has no SDP. It does not accept or reject a stream.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The SBC forwards an offer. The m-line order in this body is the order the answer must follow.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 209\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 49172 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer keeps two m-lines. The second port is 0, which rejects that stream and leaves the slot in place.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 183\n\nv=0\no=bob 20 20 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 0 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Which RFC is the current SDP specification?",
+     "choices": [
+      "RFC 8866",
+      "RFC 3261",
+      "RFC 3550",
+      "RFC 4733"
+     ],
+     "answer": 0,
+     "why": "RFC 8866 obsoletes RFC 4566. The RFC Editor status banner is the authority for that status.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "q": "What does the c= line name?",
+     "choices": [
+      "The connection address for media",
+      "The SIP request URI",
+      "The RTCP fraction lost",
+      "The digest nonce"
+     ],
+     "answer": 0,
+     "why": "c= is inside SDP. It is not a SIP header and it is not an RTP sample.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "q": "An a= line placed after an m= line applies to",
+     "choices": [
+      "That media stream",
+      "Every SIP header",
+      "Only the Via branch",
+      "The registrar binding"
+     ],
+     "answer": 0,
+     "why": "Media-level attributes belong to the m-line they follow.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "q": "The documentation addresses in these labs come from",
+     "choices": [
+      "RFC 5737",
+      "RFC 3711",
+      "RFC 4730",
+      "RFC 8588"
+     ],
+     "answer": 0,
+     "why": "203.0.113.0/24, 198.51.100.0/24, and 192.0.2.0/24 are documentation ranges.",
+     "cite": {
+      "label": "RFC 5737",
+      "url": "https://www.rfc-editor.org/rfc/rfc5737"
+     }
+    },
+    {
+     "q": "o= includes",
+     "choices": [
+      "A session id and a session version",
+      "The RTP marker bit",
+      "A Proxy-Authenticate nonce",
+      "The STUN magic cookie"
+     ],
+     "answer": 0,
+     "why": "The session version is how a later offer shows that the description changed.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "q": "SDP itself carries",
+     "choices": [
+      "A description of the session",
+      "The voice samples",
+      "RTCP receiver reports",
+      "A PASSporT signature"
+     ],
+     "answer": 0,
+     "why": "Voice samples are RTP. SDP names the address, port, and codecs.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 8866",
+     "back": "Current SDP. It obsoletes RFC 4566. Trust the RFC Editor status banner.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "front": "c=",
+     "back": "Connection address where media should be sent.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "front": "m=",
+     "back": "One media stream: type, port, protocol, and payload types.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "front": "a=",
+     "back": "An attribute. After m=, it belongs to that stream.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Point at c= and m=",
+    "kind": "dissect",
+    "prompt": "Dissect the INVITE and find the connection line and both media lines.",
+    "steps": [
+     "Press Dissect.",
+     "Find c=.",
+     "Count the m= lines and read each port."
+    ],
+    "check": {
+     "q": "How many m= lines are in this offer?",
+     "choices": [
+      "2",
+      "0",
+      "1",
+      "4"
+     ],
+     "answer": 0,
+     "why": "The body has an audio PCMU stream and an audio PCMA stream, in that order.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 209\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 49172 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "Reading RTP inside the SDP body",
+    "symptom": "The INVITE is present and the listener still hears silence.",
+    "log": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 209\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 49172 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n\n(no UDP packets on 49170 or 49172)\n",
+    "choices": [
+     "Signaling carried a description, and media has not arrived",
+     "c= is illegal syntax",
+     "v=0 means the call failed",
+     "m= lines are SIP methods"
+    ],
+    "answer": 0,
+    "why": "SDP names the RTP destination. Silence means those packets are not in the capture.",
+    "cause": "The session description is present. The voice samples are a separate RTP flow.",
+    "fix": "Capture UDP on the ports in the m= lines and confirm the address in c=. Keep the SDP open only to read that address and those ports.",
+    "cites": [
+     {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     },
+     {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "offer-answer-order",
+   "title": "Same m-lines, same order",
+   "minutes": 13,
+   "tags": [
+    "offer-answer",
+    "rfc3264",
+    "m-line"
+   ],
+   "summary": "RFC 3264 matches streams by position. The answer has the same number of m-lines, in the same order.",
+   "objectives": [
+    "Count m-lines in the offer and in the answer",
+    "Reject a stream without deleting its position",
+    "Keep later offers in the same order"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Position is the match",
+    "caption": "Stream 1 stays stream 1. A rejected second stream is still the second m-line.",
+    "nodes": [
+     "Offer",
+     "Same count",
+     "Same order",
+     "Answer"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Match on position",
+     "paragraphs": [
+      "The answer must contain the same number of m-lines as the offer, and those lines stay in the same order. RFC 3264 uses that position to decide which answer stream belongs to which offered stream, so dropping a line or swapping two lines breaks the match.",
+      "The media type and the transport on an accepted line must match the offer. A second audio line in the offer is still a second audio line in the answer, even when the answerer only wants the first codec."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 3264 §6",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264#section-6"
+      }
+     ]
+    },
+    {
+     "h": "Rejection is not deletion",
+     "paragraphs": [
+      "To refuse one stream, the answer sets that m-line port to 0 and still includes a media type, a protocol, and a format list. The refused stream occupies the same slot, which is why the following lines do not slide up.",
+      "A later offer in the same dialog keeps those positions. RFC 6337 is the usage document that shows how easy it is to break a call by rebuilding the m-line list from scratch."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 6337",
+       "url": "https://www.rfc-editor.org/rfc/rfc6337"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Two streams, one refused",
+    "parties": [
+     "Alice",
+     "SBC"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Offer: PCMU on the first m-line, PCMA on the second. Order is part of the offer.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 209\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 49172 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying does not answer any m-line.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "180 Ringing is alerting. This one carries no SDP, so it is not the answer.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer still has two m-lines. Port 0 on the second line rejects PCMA and leaves the slot in place.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 183\n\nv=0\no=bob 20 20 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 0 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "An answer to a two-m-line offer must contain",
+     "choices": [
+      "Two m-lines in the same order",
+      "One m-line, the accepted one",
+      "The m-lines sorted by port",
+      "No port numbers"
+     ],
+     "answer": 0,
+     "why": "RFC 3264 matches streams by position, so the count and the order are mandatory.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "Swapping the two m-lines in the answer",
+     "choices": [
+      "Pairs each answer with the wrong offer stream",
+      "Is required when the codec changes",
+      "Sets the call on hold",
+      "Satisfies RFC 8866 by itself"
+     ],
+     "answer": 0,
+     "why": "Position is the identifier. Swapping audio and a second audio stream mis-assigns both.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "Port 0 on an answer m-line means",
+     "choices": [
+      "That stream is rejected and the slot remains",
+      "The whole dialog is gone",
+      "The codec clock is 8000",
+      "RTP may use any port"
+     ],
+     "answer": 0,
+     "why": "Rejection keeps the line. It does not remove it.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "RFC 6337 is",
+     "choices": [
+      "The offer/answer usage document for these pitfalls",
+      "The RTP header specification",
+      "The STUN binding method",
+      "The digest challenge rules"
+     ],
+     "answer": 0,
+     "why": "Use it beside RFC 3264 when an answer looks locally reasonable and still fails.",
+     "cite": {
+      "label": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337"
+     }
+    },
+    {
+     "q": "A format list on a port-0 line",
+     "choices": [
+      "Is still present, even though the stream is unused",
+      "Must be omitted",
+      "Must be a SIP method",
+      "Replaces the c= line"
+     ],
+     "answer": 0,
+     "why": "RFC 3264 keeps media type, protocol, and a format list on a rejected stream.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "The offer in the lab has which order?",
+     "choices": [
+      "PCMU, then PCMA",
+      "PCMA, then PCMU",
+      "opus only",
+      "No m-lines"
+     ],
+     "answer": 0,
+     "why": "First m-line payload 0, second m-line payload 8.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Same count",
+     "back": "The answer has exactly as many m-lines as the offer.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "Same order",
+     "back": "Line n in the answer answers line n in the offer.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "Port 0",
+     "back": "Rejects that stream and keeps its position.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "RFC 6337",
+     "back": "Usage examples and the pitfalls of rebuilding SDP.",
+     "cite": {
+      "label": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Negotiate two m-lines",
+    "kind": "sdp",
+    "prompt": "Run the negotiator. The answer refuses the second stream without deleting it.",
+    "steps": [
+     "Press Negotiate.",
+     "Confirm both m-lines are present.",
+     "Read the second port."
+    ],
+    "check": {
+     "q": "What does port 0 on the second answer m-line do?",
+     "choices": [
+      "Rejects that stream and keeps the order",
+      "Deletes the line so the answer has one m-line",
+      "Holds the call with sendonly",
+      "Switches the codec clock to 16000"
+     ],
+     "answer": 0,
+     "why": "RFC 3264 refuses a stream by port 0. The line stays so the first stream is still the first stream.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    "offer": "v=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 49172 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n",
+    "answer": "v=0\no=bob 20 20 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 0 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "Answer dropped the refused m-line",
+    "symptom": "The offer had two m-lines. The answer body has only the PCMU line, and the call fails.",
+    "log": "offer m-lines: 2\nanswer body:\nc=IN IP4 192.0.2.40\nm=audio 40000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\n",
+    "choices": [
+     "The answer has fewer m-lines than the offer",
+     "PCMU is illegal",
+     "Port 40000 means reject",
+     "c= must be 0.0.0.0"
+    ],
+    "answer": 0,
+    "why": "RFC 3264 requires the same number of m-lines in the same order. A missing line is not a clean refusal.",
+    "cause": "The answerer deleted the stream it did not want instead of answering it with port 0.",
+    "fix": "Put the refused stream back in the same position with port 0, a protocol, and a format list.",
+    "cites": [
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     },
+     {
+      "label": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "rtpmap-fmtp",
+   "title": "rtpmap names and fmtp parameters",
+   "minutes": 15,
+   "tags": [
+    "rtpmap",
+    "fmtp",
+    "g722"
+   ],
+   "summary": "Match codecs by the rtpmap encoding name. The G.722 rtpmap clock stays 8000.",
+   "objectives": [
+    "Match dynamic codecs by encoding name",
+    "Recite the static payload types 0, 8, 9, and 18",
+    "Keep the G.722 rtpmap clock at 8000"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Names that survive a payload-type change",
+    "caption": "Static types may omit rtpmap. Dynamic types are meaningless until rtpmap names them. G722/8000 is the required clock.",
+    "columns": [
+     "PT",
+     "rtpmap name",
+     "Clock",
+     "Role"
+    ],
+    "rows": [
+     [
+      "0",
+      "PCMU",
+      "8000",
+      "Static, G.711 mu-law"
+     ],
+     [
+      "8",
+      "PCMA",
+      "8000",
+      "Static, G.711 A-law"
+     ],
+     [
+      "9",
+      "G722",
+      "8000",
+      "Static clock, 16 kHz audio"
+     ],
+     [
+      "18",
+      "G729",
+      "8000",
+      "Static"
+     ],
+     [
+      "96-127",
+      "from rtpmap",
+      "in rtpmap",
+      "Dynamic, match the name"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Match the encoding name",
+     "paragraphs": [
+      "A dynamic payload type is a number from 96 through 127, and that number has no codec meaning until a=rtpmap assigns an encoding name. RFC 3264 matching uses the encoding name, so payload type 96 for opus and payload type 111 for opus are the same codec.",
+      "Static payload types from RFC 3551 include 0 PCMU/8000, 8 PCMA/8000, 9 G722/8000, and 18 G729/8000, and those names apply even when rtpmap is omitted. Writing the rtpmap anyway is legal, and it is how you show the clock you expect the peer to use."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 3551",
+       "url": "https://www.rfc-editor.org/rfc/rfc3551"
+      },
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      }
+     ]
+    },
+    {
+     "h": "fmtp belongs to one payload type",
+     "paragraphs": [
+      "a=fmtp parameters apply only to the payload type named on that line, on that m-line. Accept a format parameter only when you implement it, and reject that payload type instead of guessing when the parameter is unknown.",
+      "The G.722 line is the clock-rate trap inside an otherwise ordinary rtpmap attribute, and the token you write is G722/8000 even though the audio sample rate is 16 kHz, because RFC 3551 fixed the RTP clock at 8000. A 20 ms packet advances the timestamp by 160 on that 8000 Hz clock, and rewriting the clock to 16000 will miss a peer that followed the RFC."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3551",
+       "url": "https://www.rfc-editor.org/rfc/rfc3551"
+      },
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "96 and 111 are both opus",
+    "parties": [
+     "Alice",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The offer uses payload 96 for opus and payload 9 for G722/8000. The number 96 is local to this offer.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 205\n\nv=0\no=alice 2890844526 2890844527 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 96 9\na=rtpmap:96 opus/48000/2\na=fmtp:96 useinbandfec=1\na=rtpmap:9 G722/8000\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying carries no rtpmap, so it selects nothing.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Ringing is not a codec selection.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer uses payload 111 for opus. The encoding name matches. G722 stays at clock 8000 on both sides.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 186\n\nv=0\no=bob 21 21 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40010 RTP/AVP 111 9\na=rtpmap:111 opus/48000/2\na=fmtp:111 useinbandfec=1\na=rtpmap:9 G722/8000\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Dynamic payload types are matched by",
+     "choices": [
+      "The rtpmap encoding name",
+      "The payload type number alone",
+      "The UDP source port",
+      "The Call-ID"
+     ],
+     "answer": 0,
+     "why": "96 and 111 can be the same codec when both rtpmap lines name it.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "RFC 3551 assigns payload type 0 to",
+     "choices": [
+      "PCMU/8000",
+      "PCMA/8000",
+      "G722/16000",
+      "G729/16000"
+     ],
+     "answer": 0,
+     "why": "0 is PCMU/8000. 8 is PCMA/8000.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "q": "The rtpmap clock for G.722 is",
+     "choices": [
+      "8000",
+      "16000",
+      "48000",
+      "90000"
+     ],
+     "answer": 0,
+     "why": "The audio sample rate is 16 kHz. RFC 3551 keeps the RTP clock at 8000.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "q": "A 20 ms G.722 timestamp increases by",
+     "choices": [
+      "160, using the 8000 Hz rtpmap clock",
+      "320, using a 16000 Hz rtpmap clock",
+      "20, one step per millisecond",
+      "1, one step per packet only"
+     ],
+     "answer": 0,
+     "why": "Timestamp units are the rtpmap clock. 8000 times 0.020 is 160.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "q": "a=fmtp applies to",
+     "choices": [
+      "The payload type named on that fmtp line",
+      "Every m-line in the body",
+      "The SIP From header",
+      "RTCP only"
+     ],
+     "answer": 0,
+     "why": "Format parameters are per payload type. Unknown parameters are a reason to reject that format.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "q": "Payload type 18 is",
+     "choices": [
+      "G729/8000",
+      "PCMU/8000",
+      "opus/48000/2",
+      "telephone-event/8000"
+     ],
+     "answer": 0,
+     "why": "18 is the static G729 mapping. telephone-event is dynamic.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Encoding name",
+     "back": "Match opus to opus even when the payload type numbers differ.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "0 / 8 / 9 / 18",
+     "back": "PCMU/8000, PCMA/8000, G722/8000, G729/8000.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "front": "G722/8000",
+     "back": "RTP clock is 8000. Audio sample rate is 16 kHz.",
+     "cite": {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     }
+    },
+    {
+     "front": "fmtp",
+     "back": "Parameters for one payload type. Do not guess unknown ones.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Match opus on the name",
+    "kind": "sdp",
+    "prompt": "The offer says payload 96 opus. The answer says payload 111 opus. G722/8000 is on payload 9 on both sides.",
+    "steps": [
+     "Press Negotiate.",
+     "Find opus and compare the payload type numbers.",
+     "Read the G722 clock on both sides."
+    ],
+    "check": {
+     "q": "Why do payload types 96 and 111 both carry the call?",
+     "choices": [
+      "Both rtpmap lines name opus",
+      "96 and 111 are fixed by RFC 3551",
+      "The ports are equal",
+      "fmtp is ignored and the numbers must match"
+     ],
+     "answer": 0,
+     "why": "Dynamic payload types are local numbers. The encoding name is the match.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    "offer": "v=0\no=alice 2890844526 2890844527 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 96 9\na=rtpmap:96 opus/48000/2\na=fmtp:96 useinbandfec=1\na=rtpmap:9 G722/8000\na=sendrecv\n",
+    "answer": "v=0\no=bob 21 21 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40010 RTP/AVP 111 9\na=rtpmap:111 opus/48000/2\na=fmtp:111 useinbandfec=1\na=rtpmap:9 G722/8000\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "G722 clock rewritten to 16000",
+    "symptom": "One side offers a=rtpmap:9 G722/8000. The other side answers a=rtpmap:9 G722/16000 and no audio starts.",
+    "log": "offer: a=rtpmap:9 G722/8000\nanswer: a=rtpmap:9 G722/16000\n",
+    "choices": [
+     "The rtpmap clock must stay 8000 for G.722",
+     "G.722 audio is 8 kHz so 16000 is required",
+     "Payload type 9 is opus",
+     "fmtp 0-15 belongs on G722"
+    ],
+    "answer": 0,
+    "why": "RFC 3551 sets the G.722 RTP clock to 8000 even though the audio sample rate is 16 kHz.",
+    "cause": "A policy rewrote the clock to the sample rate and the encoding no longer matches.",
+    "fix": "Restore a=rtpmap:9 G722/8000. Leave the audio sample rate at 16 kHz and step the timestamp by 160 for a 20 ms packet.",
+    "cites": [
+     {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+     },
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "direction-hold",
+   "title": "Direction attributes and hold",
+   "minutes": 12,
+   "tags": [
+    "direction",
+    "hold",
+    "rfc3264"
+   ],
+   "summary": "sendrecv, sendonly, recvonly, and inactive are per stream. Hold is commonly sendonly or inactive.",
+   "objectives": [
+    "List the four direction attributes",
+    "Answer sendonly with recvonly or inactive",
+    "Place a call on hold without c=0.0.0.0"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Legal answers",
+    "caption": "The answer direction is from the answerer. Hold offers are commonly sendonly or inactive.",
+    "columns": [
+     "Offer",
+     "Answer may be"
+    ],
+    "rows": [
+     [
+      "sendrecv",
+      "sendrecv, sendonly, recvonly, or inactive"
+     ],
+     [
+      "sendonly",
+      "recvonly or inactive"
+     ],
+     [
+      "recvonly",
+      "sendonly or inactive"
+     ],
+     [
+      "inactive",
+      "inactive"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Direction is a property of the stream",
+     "paragraphs": [
+      "Each stream is sendrecv, sendonly, recvonly, or inactive, and a media-level attribute overrides a session-level default. The answer uses the answerer's point of view, so an offer of sendonly is answered with recvonly or with inactive.",
+      "sendrecv means the agent will send and receive, sendonly means it will send and does not want to receive, and recvonly means it will only receive media on that stream. inactive means the agent will do neither, and an inactive offer is answered with inactive."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 3264 §6",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264#section-6"
+      }
+     ]
+    },
+    {
+     "h": "Hold is a direction change",
+     "paragraphs": [
+      "Hold is commonly sendonly, when the holder still sends such as music, or inactive, when neither side should send. The peer answers sendonly with recvonly, or answers inactive with inactive, in a new offer/answer exchange such as a re-INVITE.",
+      "Do not put a call on hold by setting c=IN IP4 0.0.0.0. RFC 3264 retired that old behavior because it breaks RTCP and IPv6, and RFC 6337 is the usage document for this family of mistakes."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 6337",
+       "url": "https://www.rfc-editor.org/rfc/rfc6337"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "re-INVITE to sendonly",
+    "parties": [
+     "Alice",
+     "SBC"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The first offer is sendrecv. Media can flow both ways after the answer.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer is sendrecv. This is the established call, before hold.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "re-INVITE",
+      "kind": "req",
+      "note": "Alice offers sendonly. That is a common hold: she may still send audio such as music, and she will not receive the other party's audio.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKhold0001\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 150\n\nv=0\no=alice 2890844526 2890844528 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendonly\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer is recvonly, which fits a sendonly offer. Bob will receive and will not send.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 128\n\nv=0\no=bob 22 22 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=recvonly\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A sendonly offer may be answered with",
+     "choices": [
+      "recvonly or inactive",
+      "sendrecv only",
+      "sendonly only",
+      "A port of 0 only"
+     ],
+     "answer": 0,
+     "why": "RFC 3264 section 6 limits the answer directions for each offer direction.",
+     "cite": {
+      "label": "RFC 3264 §6",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264#section-6"
+     }
+    },
+    {
+     "q": "Hold is commonly",
+     "choices": [
+      "sendonly or inactive",
+      "always recvonly in the offer",
+      "a change of Call-ID",
+      "payload type 0 only"
+     ],
+     "answer": 0,
+     "why": "sendonly still sends, for example music. inactive sends nothing.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "c=IN IP4 0.0.0.0 for hold is",
+     "choices": [
+      "Not the current rule. Use a direction attribute",
+      "Required by RFC 8866",
+      "The STUN mapped address",
+      "How port 0 is written"
+     ],
+     "answer": 0,
+     "why": "RFC 3264 stopped using the zero connection address for hold.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "An inactive offer is answered with",
+     "choices": [
+      "inactive",
+      "sendrecv",
+      "sendonly",
+      "recvonly"
+     ],
+     "answer": 0,
+     "why": "Neither side sends when the stream is inactive.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "A media-level direction attribute",
+     "choices": [
+      "Overrides the session-level default for that stream",
+      "Changes Max-Forwards",
+      "Rewrites the From tag",
+      "Sets the RTP version"
+     ],
+     "answer": 0,
+     "why": "Put a=sendonly under the m-line you are holding.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "q": "recvonly means the agent will",
+     "choices": [
+      "Only receive on that stream",
+      "Only send on that stream",
+      "Reject the m-line",
+      "Place the RTP clock at 16000"
+     ],
+     "answer": 0,
+     "why": "recvonly is the usual answer to a sendonly hold.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "sendrecv",
+     "back": "Send and receive. The usual active call.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "sendonly",
+     "back": "Send, and do not receive. A common hold.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "recvonly",
+     "back": "Receive only. The usual answer to sendonly.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "inactive",
+     "back": "Neither direction. Also a common hold.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Answer a hold",
+    "kind": "sdp",
+    "prompt": "The offer is sendonly. A legal answer is recvonly. Negotiate and read the direction line.",
+    "steps": [
+     "Press Negotiate.",
+     "Read the offer direction.",
+     "Read the answer direction."
+    ],
+    "check": {
+     "q": "Which answer direction fits this sendonly offer?",
+     "choices": [
+      "recvonly",
+      "sendrecv",
+      "sendonly",
+      "A deleted m-line"
+     ],
+     "answer": 0,
+     "why": "The answerer will receive the held stream, or it may answer inactive. sendrecv does not fit.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    "offer": "v=0\no=alice 2890844526 2890844528 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendonly\n",
+    "answer": "v=0\no=bob 22 22 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=recvonly\n"
+   },
+   "fault": {
+    "title": "Hold written as 0.0.0.0",
+    "symptom": "Music-on-hold re-INVITE sets the connection address to 0.0.0.0 and leaves a=sendrecv. The peer keeps the old media or drops RTCP.",
+    "log": "c=IN IP4 0.0.0.0\na=sendrecv\nm=audio 49170 RTP/AVP 0\n",
+    "choices": [
+     "Hold should be sendonly or inactive, not a zero connection address",
+     "0.0.0.0 is required by RFC 3550",
+     "sendrecv means the stream is rejected",
+     "The session version must be set to 0.0.0.0"
+    ],
+    "answer": 0,
+    "why": "RFC 3264 uses direction attributes for hold. The zero address is the retired behavior.",
+    "cause": "The offer tried to signal hold with c=0.0.0.0 and still advertised sendrecv.",
+    "fix": "Send a new offer with a=sendonly or a=inactive, keep a real c= address so RTCP still has a destination, and increment the o= session version.",
+    "cites": [
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     },
+     {
+      "label": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "port-zero",
+   "title": "Port 0 rejects a stream",
+   "minutes": 11,
+   "tags": [
+    "port-zero",
+    "rfc3264",
+    "reject"
+   ],
+   "summary": "Port 0 refuses the stream in that slot. The m-line stays, with a protocol and a format list.",
+   "objectives": [
+    "Write a rejection as port 0",
+    "Keep the rejected line in order",
+    "Refuse a stream that has no codec in common"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Refuse without renumbering",
+    "caption": "The second stream is unused. It is still the second m-line.",
+    "nodes": [
+     "Offered",
+     "Port 0",
+     "Slot kept",
+     "Later offer"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Zero rejects one stream",
+     "paragraphs": [
+      "Set the answer port to 0 to reject that offered stream. RFC 3264 still requires the media type, the transport protocol, and a format list on that line, so m=audio 0 RTP/AVP 0 is a refusal and not a blank line.",
+      "Use port 0 when the answerer has no payload type in common with that m-line. Omitting the m-line is a different bug, the count bug, and it mis-numbers every later stream."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 3264 §6",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264#section-6"
+      }
+     ]
+    },
+    {
+     "h": "The slot survives",
+     "paragraphs": [
+      "A re-offer that wants the stream to stay rejected offers it again at port 0 in the same position, and the answer also uses port 0 there. Adding a new stream means appending a new m-line, not recycling a rejected slot's place in line.",
+      "An offered port of 0 must be rejected. Do not answer a zero offer port with a real port, and do not treat port 0 as a request to pick a port of your own."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 6337",
+       "url": "https://www.rfc-editor.org/rfc/rfc6337"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Second stream refused",
+    "parties": [
+     "Alice",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Two audio streams are offered, PCMU then PCMA.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 193\n\nv=0\no=alice 30 30 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 49174 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying is not a rejection of either stream.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "PCMU is accepted on a real port. PCMA is answered with port 0 and still listed second.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 171\n\nv=0\no=bob 31 31 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 41000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 0 RTP/AVP 8\na=rtpmap:8 PCMA/8000\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK completes the dialog. It does not add or remove m-lines.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Which answer port rejects a stream?",
+     "choices": [
+      "0",
+      "5060",
+      "9",
+      "65535"
+     ],
+     "answer": 0,
+     "why": "Port 0 is the RFC 3264 rejection. 5060 is a SIP port, not an m-line rejection.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "A rejected m-line still includes",
+     "choices": [
+      "Media type, protocol, and a format list",
+      "Only the digit 0",
+      "A STUN binding",
+      "An Identity header"
+     ],
+     "answer": 0,
+     "why": "The rest of the line stays so parsers can keep the slot.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "No shared codec on one m-line means",
+     "choices": [
+      "Reject that m-line with port 0",
+      "Delete every m-line",
+      "Reuse payload type 0 for opus",
+      "Set c= to 0.0.0.0"
+     ],
+     "answer": 0,
+     "why": "Refuse the stream you cannot speak. Leave the other streams in their positions.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "An offer that already uses port 0",
+     "choices": [
+      "Must be rejected with port 0",
+      "Must be answered with port 49170",
+      "Is a hold",
+      "Is early media"
+     ],
+     "answer": 0,
+     "why": "A zero port in the offer is not a request for the answerer to allocate a port.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "Appending a new stream",
+     "choices": [
+      "Adds an m-line at the end",
+      "Reuses a rejected line's index",
+      "Changes the Call-ID",
+      "Sets a=inactive on line 1"
+     ],
+     "answer": 0,
+     "why": "Positions are stable. New media is a new line.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "Removing a rejected line from the answer",
+     "choices": [
+      "Changes the count and breaks RFC 3264",
+      "Is the preferred rejection",
+      "Is required by RFC 3551",
+      "Sets the G.722 clock correctly"
+     ],
+     "answer": 0,
+     "why": "Count and order stay aligned with the offer.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "m=audio 0",
+     "back": "Rejects that audio stream. Keep proto and a format.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "Same index",
+     "back": "A rejected line is still answered in its original position.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "No common codec",
+     "back": "Port 0 on that m-line, not a deleted body.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "Offer port 0",
+     "back": "The answer port is also 0.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   ],
+   "lab": {
+    "title": "See a zero port",
+    "kind": "sdp",
+    "prompt": "Negotiate an offer of two audio lines. The answer accepts the first and zeros the second.",
+    "steps": [
+     "Press Negotiate.",
+     "Read m-line 1.",
+     "Read the port on m-line 2."
+    ],
+    "check": {
+     "q": "The second answer m-line is",
+     "choices": [
+      "Rejected with port 0 and still present",
+      "Missing, which is correct",
+      "sendonly hold",
+      "A SIP 488 by itself"
+     ],
+     "answer": 0,
+     "why": "Port 0 rejects PCMA. PCMU remains the first stream.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    "offer": "v=0\no=alice 30 30 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 49174 RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=sendrecv\n",
+    "answer": "v=0\no=bob 31 31 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 41000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\nm=audio 0 RTP/AVP 8\na=rtpmap:8 PCMA/8000\n"
+   },
+   "fault": {
+    "title": "Zero port answered with a real port",
+    "symptom": "A re-INVITE offers m=audio 0 RTP/AVP 8 in the second slot. The peer answers m=audio 40002 RTP/AVP 8 and media appears on a stream that was supposed to be gone.",
+    "log": "offer line 2: m=audio 0 RTP/AVP 8\nanswer line 2: m=audio 40002 RTP/AVP 8\n",
+    "choices": [
+     "An offered port of 0 must be answered with port 0",
+     "40002 means rejection",
+     "The first m-line had to be deleted",
+     "PCMA's clock must become 16000"
+    ],
+    "answer": 0,
+    "why": "RFC 3264 requires a zero offer port to be rejected.",
+    "cause": "The answerer allocated a media port for a stream the offer had already removed.",
+    "fix": "Answer that slot with port 0, keep the line in place, and do not send RTP on it.",
+    "cites": [
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     },
+     {
+      "label": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "early-media",
+   "title": "Early media and 183",
+   "minutes": 14,
+   "tags": [
+    "early-media",
+    "rfc3960",
+    "183"
+   ],
+   "summary": "183 Session Progress with SDP is the usual early-media pattern. 180 means ringing. A 183 does not always have SDP.",
+   "objectives": [
+    "Recognize 183 with SDP as a usual early-media pattern",
+    "Treat 180 as ringing",
+    "Read a 183 that has no SDP as still a 183"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Progress is not one body",
+    "caption": "This ladder's 183 happens to carry SDP. 180 is ringing and has no SDP here. A 183 is allowed to omit SDP.",
+    "nodes": [
+     "INVITE",
+     "183",
+     "PRACK",
+     "180"
+    ]
+   },
+   "sections": [
+    {
+     "h": "183 is progress, and SDP is optional on it",
+     "paragraphs": [
+      "RFC 3960 describes early media, and the usual pattern is 183 Session Progress carrying SDP so the caller can play an announcement or remote ringback. A 183 does not always contain SDP, so you read the body of that message instead of treating the status code as proof of media.",
+      "180 Ringing means the far end is alerting, and when that 180 has no SDP the caller generates local ringback unless early media from an earlier 183 is already playing. Keep those two jobs separate, because ringing is not the same event as early media."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3960",
+       "url": "https://www.rfc-editor.org/rfc/rfc3960"
+      },
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      }
+     ]
+    },
+    {
+     "h": "Reliable provisional responses",
+     "paragraphs": [
+      "A provisional response is not reliable unless RFC 3262 applies, which means Require 100rel, an RSeq, and a PRACK. If the INVITE carried the offer, a reliable 183 can carry the answer, and an unreliable 183 with SDP is a common carrier pattern that is not the same thing as a finished reliable answer.",
+      "Read the SDP in the 200 OK to the INVITE as well. Early-media ports and the final answer ports can differ, and RFC 6337 is the usage document when those two bodies disagree."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3262",
+       "url": "https://www.rfc-editor.org/rfc/rfc3262"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 6337",
+       "url": "https://www.rfc-editor.org/rfc/rfc6337"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "183 with SDP, then 180 without it",
+    "parties": [
+     "Alice",
+     "SBC"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Early offer. The INVITE carries the SDP offer.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying stops retransmissions. It is not early media.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "183",
+      "kind": "res",
+      "note": "This 183 carries SDP, the usual early-media pattern. A 183 is also valid with no SDP at all.",
+      "message": "SIP/2.0 183 Session Progress\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nRequire: 100rel\nRSeq: 1\nContact: <sip:bob@203.0.113.20>\nContent-Length: 128\n\nv=0\no=bob 40 40 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40002 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "PRACK",
+      "kind": "req",
+      "note": "PRACK acknowledges the reliable provisional response. RAck echoes RSeq 1 and CSeq 1 INVITE.",
+      "message": "PRACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKprack01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 PRACK\nRAck: 1 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK to the PRACK. The INVITE is still unanswered.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 PRACK\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "180 Ringing has no SDP in this ladder. It means alerting, not a second offer.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The usual early-media pattern in RFC 3960 is",
+     "choices": [
+      "183 Session Progress with SDP",
+      "180 Ringing with no status line",
+      "ACK carrying the RTP samples",
+      "A 407 challenge"
+     ],
+     "answer": 0,
+     "why": "183 with SDP is usual. It is not mandatory on every 183.",
+     "cite": {
+      "label": "RFC 3960",
+      "url": "https://www.rfc-editor.org/rfc/rfc3960"
+     }
+    },
+    {
+     "q": "A 183 response",
+     "choices": [
+      "May omit SDP",
+      "Always includes SDP",
+      "Always rejects the call",
+      "Is a final response"
+     ],
+     "answer": 0,
+     "why": "Read the body. The status code alone does not prove that SDP is present.",
+     "cite": {
+      "label": "RFC 3960",
+      "url": "https://www.rfc-editor.org/rfc/rfc3960"
+     }
+    },
+    {
+     "q": "180 Ringing means",
+     "choices": [
+      "The far end is alerting",
+      "Early media is required",
+      "The offer was rejected",
+      "Digest failed"
+     ],
+     "answer": 0,
+     "why": "Local ringback is appropriate when the 180 has no SDP and early media is not already playing.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "100rel reliability uses",
+     "choices": [
+      "Require, RSeq, and PRACK, per RFC 3262",
+      "Only a second INVITE",
+      "RTP sequence numbers",
+      "a=inactive"
+     ],
+     "answer": 0,
+     "why": "An unreliable 183 is not a completed reliable answer.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    },
+    {
+     "q": "If early-media SDP and the 200 OK SDP differ",
+     "choices": [
+      "Read both. The ports can change",
+      "Ignore the 200 OK",
+      "Assume 183 always wins because it is earlier",
+      "Set every port to 0"
+     ],
+     "answer": 0,
+     "why": "RFC 6337 collects this class of offer/answer mistake.",
+     "cite": {
+      "label": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337"
+     }
+    },
+    {
+     "q": "100 Trying",
+     "choices": [
+      "Does not establish early media",
+      "Carries the answer SDP",
+      "Is the ringing signal",
+      "Is defined by RFC 4733"
+     ],
+     "answer": 0,
+     "why": "Trying is hop-by-hop progress with no media description in this pattern.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "183 + SDP",
+     "back": "Usual early-media pattern. Not true of every 183.",
+     "cite": {
+      "label": "RFC 3960",
+      "url": "https://www.rfc-editor.org/rfc/rfc3960"
+     }
+    },
+    {
+     "front": "180",
+     "back": "Ringing. Local ringback when this message has no SDP.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "front": "100rel",
+     "back": "Makes a provisional response reliable. PRACK it.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    },
+    {
+     "front": "Two bodies",
+     "back": "Compare 183 SDP with the 200 OK SDP before you lock the port.",
+     "cite": {
+      "label": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337"
+     }
+    }
+   ],
+   "lab": {
+    "title": "183 has SDP, 180 does not",
+    "kind": "capture",
+    "prompt": "Extract both responses. One progress message has SDP and the ringing message does not.",
+    "steps": [
+     "Press Extract SIP.",
+     "Open the 183 and look for m=.",
+     "Open the 180 and confirm there is no SDP."
+    ],
+    "check": {
+     "q": "Which message is the usual early-media carrier in this capture?",
+     "choices": [
+      "The 183 that contains SDP",
+      "The 180, because ringing always includes SDP",
+      "The 100 Trying",
+      "Every 183, whether or not a body is present"
+     ],
+     "answer": 0,
+     "why": "This 183 has SDP. That is the usual pattern, and it is a property of this message, not of every 183.",
+     "cite": {
+      "label": "RFC 3960",
+      "url": "https://www.rfc-editor.org/rfc/rfc3960"
+     }
+    },
+    "message": "Sent:\nINVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n\nReceived:\nSIP/2.0 183 Session Progress\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nRequire: 100rel\nRSeq: 1\nContact: <sip:bob@203.0.113.20>\nContent-Length: 128\n\nv=0\no=bob 40 40 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40002 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n\nReceived:\nSIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+   },
+   "fault": {
+    "title": "Local ringback on top of early media",
+    "symptom": "The caller plays local ringback and a remote announcement at the same time.",
+    "log": "SIP/2.0 183 Session Progress\nContent-Type: application/sdp\nm=audio 40002 RTP/AVP 0\nSIP/2.0 180 Ringing\nContent-Length: 0\n",
+    "choices": [
+     "Early media from the 183 is already playing, so the 180 should not start a second local ringback",
+     "180 always carries SDP and 183 never does",
+     "Both codes mean the call failed",
+     "PRACK is the audio codec"
+    ],
+    "answer": 0,
+    "why": "RFC 3960 separates remote early media from local ringback. Playing both is the clipping and double-audio failure.",
+    "cause": "The phone treated 180 as an order to start local ringback even though the 183 SDP session was already up.",
+    "fix": "If early media is established, do not add local ringback when the later 180 has no SDP. Keep reading each body, because a different 183 might have no SDP at all.",
+    "cites": [
+     {
+      "label": "RFC 3960",
+      "url": "https://www.rfc-editor.org/rfc/rfc3960"
+     },
+     {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    ]
+   },
+   "level": "Core"
+  },
+  {
+   "id": "pitfalls-6337",
+   "title": "Offer/answer pitfalls in RFC 6337",
+   "minutes": 13,
+   "tags": [
+    "rfc6337",
+    "pitfalls",
+    "reinvite"
+   ],
+   "summary": "RFC 6337 is the usage document for offer/answer mistakes: order, version, delayed offer, and hold.",
+   "objectives": [
+    "Increment the SDP session version when the description changes",
+    "Tell an early offer from a delayed offer",
+    "Stop using a zero connection address as hold"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Four ways an answer goes wrong",
+    "caption": "RFC 3264 is the rule. RFC 6337 is where the same mistakes show up in real exchanges.",
+    "layers": [
+     {
+      "name": "Count",
+      "detail": "Fewer m-lines than the offer"
+     },
+     {
+      "name": "Order",
+      "detail": "Lines swapped or a slot reused"
+     },
+     {
+      "name": "Version",
+      "detail": "o= sess-version not increased"
+     },
+     {
+      "name": "Hold",
+      "detail": "0.0.0.0 instead of a direction"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Usage, not a second protocol",
+     "paragraphs": [
+      "RFC 6337 is the offer/answer usage document that operators open when a locally reasonable SDP still fails. It does not replace RFC 3264, and it shows the failures that follow from rebuilding SDP instead of editing it, including dropped m-lines, swapped m-lines, and payload types matched by number.",
+      "When the SDP you send is different from the SDP you sent before, increment the sess-version in o=. Peers treat an unchanged version as the same description, so a hold or a new port hidden under the old version is easy to ignore."
+     ],
+     "cites": [
+      {
+       "label": "RFC 6337",
+       "url": "https://www.rfc-editor.org/rfc/rfc6337"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 8866",
+       "url": "https://www.rfc-editor.org/rfc/rfc8866"
+      }
+     ]
+    },
+    {
+     "h": "Where the offer sits",
+     "paragraphs": [
+      "If the INVITE contains SDP, that body is the offer and the answer belongs in a reliable response. If the INVITE contains no SDP, the offer is in a reliable response from the far side and the answer is in the ACK, which is the delayed-offer pattern.",
+      "Do not put an answer in the 200 OK when the INVITE already carried the offer, and do not put a second offer in that 200 OK just because a 183 already answered. Read RFC 6337 when a call has SDP in more than one response."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 6337",
+       "url": "https://www.rfc-editor.org/rfc/rfc6337"
+      },
+      {
+       "label": "RFC 3261 §13",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+      }
+     ]
+    },
+    {
+     "h": "Hold and rejected streams, again",
+     "paragraphs": [
+      "The usage mistakes that operators repeat are hold via c=IN IP4 0.0.0.0, and deletion of a rejected m-line. Direction attributes perform hold, and port 0 performs rejection, and both leave the rest of the body aligned.",
+      "A codec change uses the rtpmap name, including G722/8000 rather than a rewritten 16000 Hz clock. RFC 6337 is the checklist you open after the rules in RFC 3264 are already in front of you."
+     ],
+     "cites": [
+      {
+       "label": "RFC 6337",
+       "url": "https://www.rfc-editor.org/rfc/rfc6337"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 3551",
+       "url": "https://www.rfc-editor.org/rfc/rfc3551"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Delayed offer, then the ACK answer",
+    "parties": [
+     "Alice",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "This INVITE has no SDP. It is a delayed offer, so Alice has not offered yet.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying still has no offer.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The offer arrives in the 200 OK because the INVITE had none. This pattern is not the early-offer pattern.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 128\n\nv=0\no=bob 40 41 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40008 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The answer to a delayed offer goes in the ACK. Do not wait for a later re-INVITE to answer.",
+      "message": "ACK sip:bob@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKackdelay\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Type: application/sdp\nContent-Length: 128\n\nv=0\no=bob 22 22 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "RFC 6337 is best used as",
+     "choices": [
+      "The usage document for offer/answer pitfalls",
+      "A replacement for RFC 3264",
+      "The RTP payload-type registry",
+      "The digest algorithm list"
+     ],
+     "answer": 0,
+     "why": "The rules stay in RFC 3264. RFC 6337 shows how they fail in practice.",
+     "cite": {
+      "label": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337"
+     }
+    },
+    {
+     "q": "When a new SDP differs from the previous one, you",
+     "choices": [
+      "Increment o= sess-version",
+      "Keep the same sess-version so it looks stable",
+      "Reset v= to 1",
+      "Remove c="
+     ],
+     "answer": 0,
+     "why": "An unchanged session version tells the peer the description did not change.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "q": "An INVITE with no SDP means",
+     "choices": [
+      "The offer will arrive in a reliable response, and the answer goes in the ACK",
+      "The call cannot use media",
+      "The ACK must be empty",
+      "183 is forbidden"
+     ],
+     "answer": 0,
+     "why": "That is delayed offer. Early offer is SDP in the INVITE.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "Matching payload type 96 to payload type 96 without rtpmap",
+     "choices": [
+      "Is the pitfall. Match the encoding name",
+      "Is required by RFC 6337",
+      "Sets G.722 correctly",
+      "Rejects with port 5060"
+     ],
+     "answer": 0,
+     "why": "Dynamic numbers are not globally assigned.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "Hold in a current offer uses",
+     "choices": [
+      "sendonly or inactive",
+      "c=IN IP4 0.0.0.0 and sendrecv",
+      "A new Call-ID",
+      "Port 5061"
+     ],
+     "answer": 0,
+     "why": "The zero connection address is the old hold behavior RFC 3264 moved away from.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "Deleting a rejected m-line",
+     "choices": [
+      "Breaks the equal-count rule",
+      "Is the RFC 6337 recommendation",
+      "Is required when using PCMU",
+      "Changes the RTP version field"
+     ],
+     "answer": 0,
+     "why": "Keep the line and set the port to 0.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 6337",
+     "back": "Offer/answer usage and the mistakes to stop repeating.",
+     "cite": {
+      "label": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337"
+     }
+    },
+    {
+     "front": "sess-version",
+     "back": "Increase it when the SDP changes.",
+     "cite": {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     }
+    },
+    {
+     "front": "Delayed offer",
+     "back": "No SDP in the INVITE. Offer in the reliable response. Answer in the ACK.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "Do not rebuild",
+     "back": "Edit m-lines in place. Do not drop, swap, or renumber them.",
+     "cite": {
+      "label": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Find the delayed offer",
+    "kind": "dissect",
+    "prompt": "This INVITE has an empty body. Decide where the offer is allowed to appear.",
+    "steps": [
+     "Dissect the INVITE.",
+     "Confirm Content-Length is 0.",
+     "Name the message that will carry the offer."
+    ],
+    "check": {
+     "q": "Where does the offer go when the INVITE has no SDP?",
+     "choices": [
+      "In a reliable response from the callee",
+      "It is illegal to continue",
+      "Only inside 100 Trying",
+      "Only inside a REGISTER"
+     ],
+     "answer": 0,
+     "why": "Delayed offer puts the offer in a reliable response and the answer in the ACK.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 0\n"
+   },
+   "fault": {
+    "title": "Session version left unchanged on hold",
+    "symptom": "A re-INVITE changes a=sendrecv to a=sendonly but o= still says session version 2890844526. The peer keeps sending media.",
+    "log": "o=alice 2890844526 2890844526 IN IP4 203.0.113.10\nprevious direction a=sendrecv\nnew body direction a=sendonly\nsess-version unchanged\n",
+    "choices": [
+     "The session version did not increase, so the peer can treat the SDP as unchanged",
+     "sendonly is illegal",
+     "2890844526 is a port",
+     "Hold requires payload type 18"
+    ],
+    "answer": 0,
+    "why": "RFC 8866 uses sess-version to signal a modified session description.",
+    "cause": "The hold offer reused the previous version number, so the change looked like a retransmission of the old SDP.",
+    "fix": "Increment sess-version, keep a=sendonly or a=inactive, and do not signal hold with c=0.0.0.0.",
+    "cites": [
+     {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+     },
+     {
+      "label": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337"
+     },
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    ]
+   },
+   "level": "Core"
+  }
+ ]
+}

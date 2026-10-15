@@ -1,0 +1,2152 @@
+{
+ "id": "operations",
+ "title": "Toll fraud, E911, recording, and QoS",
+ "summary": "Defensive operations: source restrictions, emergency location, disclosed SIPREC, and the EF PHB.",
+ "level": "Advanced",
+ "order": 14,
+ "lessons": [
+  {
+   "id": "fraud-class",
+   "title": "The toll-fraud class, stated defensively",
+   "minutes": 13,
+   "tags": [
+    "toll-fraud",
+    "defense",
+    "identity"
+   ],
+   "summary": "Four exposure classes, source restrictions, and caller-identity as a separate control.",
+   "objectives": [
+    "Name the four exposure classes",
+    "Point prevention at source restrictions and the numbering plan",
+    "Keep STIR identity separate from the trusted list"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Class and the control that answers it",
+    "caption": "Recognition and prevention. This lesson does not build the sessions it warns about.",
+    "columns": [
+     "Class",
+     "What operators watch",
+     "Prevention"
+    ],
+    "rows": [
+     [
+      "Unauthenticated INVITEs",
+      "Signaling from an address you did not list",
+      "Trusted list and source restrictions"
+     ],
+     [
+      "Weak digest passwords",
+      "Short, shared, or unchanged secrets",
+      "Unique long secrets on 401 and 407"
+     ],
+     [
+      "Wide dial-peers",
+      "A pattern broader than the numbering plan",
+      "Patterns that match only intended destinations"
+     ],
+     [
+      "International destinations",
+      "Completions the plan did not include",
+      "Routes and alarms aligned to the plan"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "The class, for operators",
+     "paragraphs": [
+      "Toll fraud here means billable sessions the enterprise did not intend. The four situations you classify are unauthenticated INVITEs from the public internet, digest passwords that are short or shared or still at a vendor default, dial-peers whose destination pattern matches more numbers than the numbering plan, and routes that can complete calls to international destinations outside that plan.",
+      "The job in this lesson is to recognize the class and close it. You list the addresses allowed to present signaling, you make each dial-peer match the plan, and you alarm when completions fall outside the plan. The ladder below is a normal call among the lab addresses. It is the path you intend to keep."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      },
+      {
+       "label": "RFC 3261 §22",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+      }
+     ]
+    },
+    {
+     "h": "Source restrictions and digest",
+     "paragraphs": [
+      "Source restrictions mean inbound VoIP signaling is accepted from addresses you listed. In this lab those documentation addresses are 203.0.113.10, 203.0.113.20, 198.51.100.30, and 192.0.2.40. On the border, the usual remote sources are the call agent at 198.51.100.30 and the carrier at 192.0.2.40.",
+      "401 and 407 remain the SIP challenges from RFC 3261, with the digest algorithm work in RFC 7616. The secret is operational: unique, long, and stored as a secret. This lesson does not print a password, a hash, or a default."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §22",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+      },
+      {
+       "label": "RFC 7616",
+       "url": "https://www.rfc-editor.org/rfc/rfc7616"
+      },
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      },
+      {
+       "label": "Cisco SRST trusted IP authentication",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html"
+      }
+     ]
+    },
+    {
+     "h": "Authenticated caller ID is a second control",
+     "paragraphs": [
+      "The FCC call-authentication page is the public context for authenticated caller ID. RFC 8224 is the SIP authenticated-identity specification in this library. Together they describe signing calling identity for the providers who verify it.",
+      "Identity and the trusted list answer different questions. STIR speaks to who the calling identity claims to be. The trusted list speaks to which addresses may present VoIP signaling into the PBX. Keep both, and let the CME and SRST pages own the list procedure for those products."
+     ],
+     "cites": [
+      {
+       "label": "FCC call authentication",
+       "url": "https://www.fcc.gov/call-authentication"
+      },
+      {
+       "label": "RFC 8224",
+       "url": "https://www.rfc-editor.org/rfc/rfc8224"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "An intended path among lab addresses",
+    "parties": [
+     "CUCM",
+     "CUBE",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Source 198.51.100.30 is a listed call agent. The request is eligible to be routed. An unlisted source is disconnected under the product's trusted-list procedure and is not drawn here.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@198.51.100.30>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 220\n\nv=0\no=alice 2890844526 2890844526 IN IP4 198.51.100.30\ns=-\nc=IN IP4 198.51.100.30\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "CUBE has the INVITE from the call agent.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Outbound leg toward the carrier at 192.0.2.40. The destination is one the numbering plan allows.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "Carrier accepts. International destinations outside the plan are an alarm, not a second route you add in this lesson.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Unauthenticated INVITEs from the internet are closed by",
+     "choices": [
+      "Source restrictions and a trusted address list",
+      "A shorter digest password",
+      "Removing Call-ID",
+      "Disabling OPTIONS"
+     ],
+     "answer": 0,
+     "why": "The address that presents signaling has to be one you listed.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "q": "A weak digest password in this lesson means",
+     "choices": [
+      "A short, shared, or unchanged secret",
+      "A published sample you should reuse",
+      "The RTP payload type",
+      "Min-SE"
+     ],
+     "answer": 0,
+     "why": "401 and 407 challenge. The secret stays unique and unprinted.",
+     "cite": {
+      "label": "RFC 7616",
+      "url": "https://www.rfc-editor.org/rfc/rfc7616"
+     }
+    },
+    {
+     "q": "A dial-peer that matches too widely is fixed by",
+     "choices": [
+      "Narrowing the pattern to the numbering plan",
+      "Matching every international destination on purpose",
+      "Printing the pattern in a public ticket",
+      "Turning off TLS"
+     ],
+     "answer": 0,
+     "why": "The pattern implements the plan. This lesson does not supply a catch-all pattern.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "q": "FCC call authentication is cited here for",
+     "choices": [
+      "Authenticated caller-ID context",
+      "The CME list size",
+      "Wireshark display fields",
+      "SDP offer/answer"
+     ],
+     "answer": 0,
+     "why": "STIR identity and the trusted list stay separate.",
+     "cite": {
+      "label": "FCC call authentication",
+      "url": "https://www.fcc.gov/call-authentication"
+     }
+    },
+    {
+     "q": "RFC 8224 in this lesson is",
+     "choices": [
+      "SIP authenticated identity",
+      "The EF PHB",
+      "SIPREC metadata",
+      "A replacement for the trusted list"
+     ],
+     "answer": 0,
+     "why": "Identity signing does not choose which IPs may send INVITEs.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    },
+    {
+     "q": "The ladder in this lesson shows",
+     "choices": [
+      "A call among listed lab addresses",
+      "A recipe for unlisted sources",
+      "A customer fraud trace",
+      "How to skip 401"
+     ],
+     "answer": 0,
+     "why": "Prevention is the point. The drawn path is the intended one.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Trusted list",
+     "back": "Who may present VoIP signaling. CME and SRST each have a page.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "front": "401 / 407",
+     "back": "UAS and proxy digest challenges. Secrets stay unprinted.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "front": "Numbering plan",
+     "back": "Dial-peers match the plan, including whether international destinations are in it.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "front": "STIR context",
+     "back": "FCC call authentication and RFC 8224. A different question from the source list.",
+     "cite": {
+      "label": "FCC call authentication",
+      "url": "https://www.fcc.gov/call-authentication"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Name the listed source",
+    "kind": "ladder",
+    "prompt": "Which source address on the first hop is the listed call agent?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "The INVITE source the lesson treats as the listed call agent is",
+     "choices": [
+      "198.51.100.30",
+      "an address that was never listed",
+      "the RTP port",
+      "Min-SE"
+     ],
+     "answer": 0,
+     "why": "CUBE's usual remote sources in this lab are the call agent and the carrier.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "Identity used as a source list",
+    "symptom": "A trunk shows a signed calling identity and the operator removes the trusted list because the identity passed.",
+    "log": "Synthetic ticket: STIR identity present, ip address trusted list removed, INVITEs now accepted from any source.\nLab addresses that were listed: 198.51.100.30 and 192.0.2.40.",
+    "choices": [
+     "Put the trusted list back. Identity does not replace it.",
+     "A signed identity is the trusted list",
+     "407 is the emergency URN",
+     "Delete dial-peers until the pattern matches everything"
+    ],
+    "answer": 0,
+    "why": "RFC 8224 and the FCC page cover caller identity. CME and SRST cover who may send signaling.",
+    "cause": "Two controls were collapsed into one.",
+    "fix": "Restore source restrictions from the product page. Keep authenticated caller ID as its own control.",
+    "cites": [
+     {
+      "label": "FCC call authentication",
+      "url": "https://www.fcc.gov/call-authentication"
+     },
+     {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     },
+     {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "trusted-list",
+   "title": "Trusted addresses and source restrictions",
+   "minutes": 14,
+   "tags": [
+    "trusted-list",
+    "cme",
+    "srst"
+   ],
+   "summary": "The IP address trusted list is per product page. CME and SRST do not share one list size.",
+   "objectives": [
+    "Apply the trusted-list commands as a teaching snippet",
+    "Refuse a single universal list size",
+    "Keep source restrictions on the lab addresses"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "What the snippet is",
+    "caption": "A border trusts the call agent and the carrier. Phones register to the call agent.",
+    "layers": [
+     {
+      "name": "198.51.100.30",
+      "detail": "CUCM, listed remote source"
+     },
+     {
+      "name": "192.0.2.40",
+      "detail": "Carrier, listed remote source"
+     },
+     {
+      "name": "List size",
+      "detail": "Read the page for the product. Quote no shared maximum."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "The teaching snippet",
+     "paragraphs": [
+      "Under voice service voip, ip address trusted authenticate turns on the check, and ip address trusted list holds the addresses allowed to present inbound VoIP calls. The teaching snippet lists 198.51.100.30 and 192.0.2.40. That is the call agent and the carrier in this lab, which is the usual pair on a border element.",
+      "The CME toll-fraud page is the procedure for CME, including how an address that fails the check is disconnected on the release that page describes. Copy the cause and the show commands from that page for the release you run. This lesson does not paste a customer log of a disconnect."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      }
+     ]
+    },
+    {
+     "h": "SRST is a different page",
+     "paragraphs": [
+      "SRST trusted IP authentication has its own document. The list size on that page and the list size on the CME page are not one number, so this lesson quotes neither as universal. When you build a lab for SRST, follow the SRST page.",
+      "Source restrictions sit beside the list. The interfaces that accept SIP should be the ones facing addresses you operate or an agreed carrier. Adding a host is a change window of its own: one address, then a test call from that address, then stop."
+     ],
+     "cites": [
+      {
+       "label": "Cisco SRST trusted IP authentication",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html"
+      },
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Listed sources only",
+    "parties": [
+     "CUCM",
+     "CUBE",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "198.51.100.30 is on the teaching snippet. The request is eligible.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@198.51.100.30>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 220\n\nv=0\no=alice 2890844526 2890844526 IN IP4 198.51.100.30\ns=-\nc=IN IP4 198.51.100.30\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The border accepted the source and answered Trying.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "192.0.2.40 is the carrier on the snippet. The outbound leg is a destination the plan allows.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "Alerting from the carrier. Source restrictions already happened on the way in.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The teaching snippet lists",
+     "choices": [
+      "198.51.100.30 and 192.0.2.40",
+      "Every public address",
+      "Only a list size",
+      "RTP ports as trusted SIP peers"
+     ],
+     "answer": 0,
+     "why": "Call agent and carrier. The snippet is not a complete gateway build.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "q": "CME and SRST list sizes",
+     "choices": [
+      "Come from each document. This lesson quotes neither as universal.",
+      "Are the same number on both pages",
+      "Are defined by RFC 3261",
+      "Are the EF codepoint"
+     ],
+     "answer": 0,
+     "why": "Use cme-toll or srst-toll for the product you run.",
+     "cite": {
+      "label": "Cisco SRST trusted IP authentication",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html"
+     }
+    },
+    {
+     "q": "ip address trusted authenticate",
+     "choices": [
+      "Enables the inbound VoIP source check",
+      "Sets a codec",
+      "Replaces TLS",
+      "Writes a SIPREC metadata body"
+     ],
+     "answer": 0,
+     "why": "The list is the set of addresses. Authenticate is the check.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "q": "A failed check on the CME page",
+     "choices": [
+      "Disconnects the inbound VoIP call, per that page",
+      "Returns 180 Ringing",
+      "Is an RFC 4028 timer",
+      "Adds the source dynamically without a procedure"
+     ],
+     "answer": 0,
+     "why": "Read the cause code from the CME page for your release. Do not invent one for SRST.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "q": "Phones in this border picture",
+     "choices": [
+      "Register to the call agent. The border lists the call agent.",
+      "Each send SIP directly to the carrier with no list",
+      "Are the same host as 192.0.2.40",
+      "Must be omitted from every CME line-side page"
+     ],
+     "answer": 0,
+     "why": "Line-side CME has its own page for endpoints. The border snippet is the call agent and the carrier.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "q": "Adding an address is",
+     "choices": [
+      "One change, then a test from that address",
+      "A dump of every interface at once",
+      "A SIP method",
+      "Defined by RFC 3550"
+     ],
+     "answer": 0,
+     "why": "Source restrictions change in a window, one variable at a time.",
+     "cite": {
+      "label": "Cisco SRST trusted IP authentication",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "trusted list",
+     "back": "Addresses allowed to present inbound VoIP. CME page or SRST page.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "front": "authenticate",
+     "back": "The check that uses the list.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "front": "Two pages",
+     "back": "CME and SRST differ. Quote no shared list size.",
+     "cite": {
+      "label": "Cisco SRST trusted IP authentication",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html"
+     }
+    },
+    {
+     "front": "Border pair",
+     "back": "198.51.100.30 and 192.0.2.40 in the teaching snippet.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Trusted list teaching snippet",
+    "kind": "config",
+    "prompt": "Read the snippet. It is the CME pattern for a border that trusts the call agent and the carrier. SRST uses its own page. No list size is stated.",
+    "config": "! Teaching snippet only. CME trusted-list pattern.\n! SRST uses its own trusted-IP page. The two documents do not share one list size.\nvoice service voip\n ip address trusted authenticate\n ip address trusted list\n  ipv4 198.51.100.30\n  ipv4 192.0.2.40\n",
+    "snippet": "! Teaching snippet only. CME trusted-list pattern.\n! SRST uses its own trusted-IP page. The two documents do not share one list size.\nvoice service voip\n ip address trusted authenticate\n ip address trusted list\n  ipv4 198.51.100.30\n  ipv4 192.0.2.40\n",
+    "steps": [
+     "Read voice service voip.",
+     "Name the two ipv4 addresses.",
+     "Say why a list size is absent."
+    ],
+    "check": {
+     "q": "Which pair does the snippet mark as trusted?",
+     "choices": [
+      "198.51.100.30 and 192.0.2.40",
+      "Every address",
+      "Only 203.0.113.10",
+      "A single size shared by CME and SRST"
+     ],
+     "answer": 0,
+     "why": "Those two are the call agent and the carrier.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "One list size pasted into both products",
+    "symptom": "A change copies a maximum entry count from the CME page into an SRST box and drops the carrier address to make the count fit.",
+    "log": "! synthetic change note\nvoice service voip\n ip address trusted list\n  ipv4 198.51.100.30\n! 192.0.2.40 removed to satisfy a list size copied from the other product's page",
+    "choices": [
+     "Restore 192.0.2.40 and take the size from the SRST page if this box is SRST",
+     "The copied size is universal",
+     "Deleting the carrier is required by RFC 3261",
+     "503 means the list is correct"
+    ],
+    "answer": 0,
+    "why": "The lesson quotes no universal size. The carrier address belongs on this border snippet.",
+    "cause": "A number from the wrong product page drove a real address off the list.",
+    "fix": "Open srst-toll or cme-toll for the product you run. Put 192.0.2.40 back if this border still terminates that carrier. Change one address in the window.",
+    "cites": [
+     {
+      "label": "Cisco SRST trusted IP authentication",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html"
+     },
+     {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "e911",
+   "title": "Emergency calling, location, and the FCC page",
+   "minutes": 15,
+   "tags": [
+    "e911",
+    "location",
+    "sos"
+   ],
+   "summary": "Service URN, location conveyance, and the FCC MLTS page. State PSAP rules are not invented here.",
+   "objectives": [
+    "Use urn:service:sos from RFC 5031",
+    "Carry location as RFC 6442 and RFC 6881 require",
+    "Point national MLTS duties at the FCC page"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "What the INVITE has to carry",
+    "caption": "The synthetic ladder shows the URN and the header name. It does not invent a civic address or a state route.",
+    "layers": [
+     {
+      "name": "urn:service:sos",
+      "detail": "RFC 5031 service URN. RFC 6881 is the BCP."
+     },
+     {
+      "name": "Geolocation",
+      "detail": "RFC 6442 location conveyance"
+     },
+     {
+      "name": "FCC MLTS",
+      "detail": "Kari's Law and RAY BAUM's Act, on the FCC page"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "The service URN and the BCP",
+     "paragraphs": [
+      "Emergency calling uses the service URN urn:service:sos, defined in RFC 5031. RFC 6881 is the Best Current Practice for communications services in support of emergency calling. The Request-URI on the synthetic INVITE is that URN.",
+      "Enterprise SIP has to carry location according to those documents and the current national rules. This lesson does not invent a state PSAP procedure, a PSAP address, or a civic record. The production location value is the one those documents and the national rules describe."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5031",
+       "url": "https://www.rfc-editor.org/rfc/rfc5031"
+      },
+      {
+       "label": "RFC 6881",
+       "url": "https://www.rfc-editor.org/rfc/rfc6881"
+      }
+     ]
+    },
+    {
+     "h": "Location conveyance",
+     "paragraphs": [
+      "RFC 6442 specifies location conveyance for SIP, including the Geolocation header. The ladder shows Geolocation and Geolocation-Routing so you can see the header names. The cid body is not attached. A real request carries the location by value or by reference the way RFC 6442 specifies.",
+      "Read the location as part of the emergency request, on the same Call-ID as the INVITE. A call that reaches an emergency route without location has missed this requirement even if a 100 Trying came back."
+     ],
+     "cites": [
+      {
+       "label": "RFC 6442",
+       "url": "https://www.rfc-editor.org/rfc/rfc6442"
+      },
+      {
+       "label": "RFC 6881",
+       "url": "https://www.rfc-editor.org/rfc/rfc6881"
+      }
+     ]
+    },
+    {
+     "h": "The FCC page",
+     "paragraphs": [
+      "The FCC MLTS page covers Kari's Law and RAY BAUM's Act. Kari's Law is the federal direct-dial and notification duty. RAY BAUM's Act is the federal dispatchable-location duty. Use the FCC page for the wording and for any update.",
+      "National rules change on that page, not in this lesson. When you design enterprise SIP, the request carries the service URN and the location, and the operator confirms the current FCC MLTS requirements before the design is called done."
+     ],
+     "cites": [
+      {
+       "label": "FCC MLTS 911 requirements",
+       "url": "https://www.fcc.gov/mlts-911-requirements"
+      },
+      {
+       "label": "RFC 6881",
+       "url": "https://www.rfc-editor.org/rfc/rfc6881"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Synthetic emergency request",
+    "parties": [
+     "Alice",
+     "SBC",
+     "CUCM"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Request-URI is urn:service:sos. Geolocation is the RFC 6442 header name. No civic address is invented in the body.",
+      "message": "INVITE urn:service:sos SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.10:5061;branch=z9hG4bKsos01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=sos1\nTo: <urn:service:sos>\nCall-ID: sos-1@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@example.com>\nGeolocation: <cid:loc@example.com>\nGeolocation-Routing: yes\nContent-Type: application/sdp\nContent-Length: 224\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Hop-by-hop Trying. Location is still required on the request you forwarded.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The SBC forwards the service URN toward CUCM at 198.51.100.30. The emergency path beyond the enterprise is the one national rules name. This hop does not invent it.",
+      "message": "INVITE urn:service:sos SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.20:5061;branch=z9hG4bKsos02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=sos1\nTo: <urn:service:sos>\nCall-ID: sos-1@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@example.com>\nGeolocation: <cid:loc@example.com>\nGeolocation-Routing: yes\nContent-Type: application/sdp\nContent-Length: 224\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "Synthetic alerting. A real emergency route follows the FCC page and RFC 6881, not a guessed PSAP.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/TLS 203.0.113.20:5061;branch=z9hG4bKsos02\nFrom: \"Alice\" <sip:alice@example.com>;tag=sos1\nTo: <urn:service:sos>;tag=sos9\nCall-ID: sos-1@example.com\nCSeq: 1 INVITE\nContact: <sip:emergency@example.com>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "urn:service:sos is defined in",
+     "choices": [
+      "RFC 5031",
+      "RFC 3261 §21 only",
+      "RFC 4594",
+      "RFC 7865"
+     ],
+     "answer": 0,
+     "why": "RFC 6881 is the emergency-calling BCP that uses that class of URN.",
+     "cite": {
+      "label": "RFC 5031",
+      "url": "https://www.rfc-editor.org/rfc/rfc5031"
+     }
+    },
+    {
+     "q": "Location conveyance for SIP is",
+     "choices": [
+      "RFC 6442",
+      "RFC 3550",
+      "A Wireshark filter",
+      "An IOS ccapi line"
+     ],
+     "answer": 0,
+     "why": "Geolocation is the header. The location object follows that RFC.",
+     "cite": {
+      "label": "RFC 6442",
+      "url": "https://www.rfc-editor.org/rfc/rfc6442"
+     }
+    },
+    {
+     "q": "Kari's Law and RAY BAUM's Act are covered on",
+     "choices": [
+      "The FCC MLTS page",
+      "RFC 4028",
+      "The SIP School courses page only",
+      "A state PSAP rule this lesson invented"
+     ],
+     "answer": 0,
+     "why": "Use the FCC page. This lesson does not restate state PSAP procedures.",
+     "cite": {
+      "label": "FCC MLTS 911 requirements",
+      "url": "https://www.fcc.gov/mlts-911-requirements"
+     }
+    },
+    {
+     "q": "Enterprise SIP for emergency calls must",
+     "choices": [
+      "Carry location per RFC 6881, RFC 6442, and current national rules",
+      "Omit location if 100 Trying was seen",
+      "Use 488 as the emergency URN",
+      "Drop the Request-URI"
+     ],
+     "answer": 0,
+     "why": "The FCC page is the national MLTS pointer in this lesson.",
+     "cite": {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881"
+     }
+    },
+    {
+     "q": "The synthetic Geolocation header",
+     "choices": [
+      "Names the conveyance header and does not invent a civic address",
+      "Is a complete PIDF for every state",
+      "Replaces the FCC page",
+      "Is an RTP packet"
+     ],
+     "answer": 0,
+     "why": "Production location follows RFC 6442 and the national rules.",
+     "cite": {
+      "label": "RFC 6442",
+      "url": "https://www.rfc-editor.org/rfc/rfc6442"
+     }
+    },
+    {
+     "q": "RFC 6881's category in this track is",
+     "choices": [
+      "BCP",
+      "A codec payload",
+      "A display filter",
+      "An IOS debug"
+     ],
+     "answer": 0,
+     "why": "Best Current Practice for emergency calling services.",
+     "cite": {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "urn:service:sos",
+     "back": "RFC 5031 service URN for emergency calling.",
+     "cite": {
+      "label": "RFC 5031",
+      "url": "https://www.rfc-editor.org/rfc/rfc5031"
+     }
+    },
+    {
+     "front": "RFC 6881",
+     "back": "BCP for emergency calling services.",
+     "cite": {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881"
+     }
+    },
+    {
+     "front": "Geolocation",
+     "back": "RFC 6442 location conveyance.",
+     "cite": {
+      "label": "RFC 6442",
+      "url": "https://www.rfc-editor.org/rfc/rfc6442"
+     }
+    },
+    {
+     "front": "fcc-mlts",
+     "back": "Kari's Law and RAY BAUM's Act. The page wins over a retelling.",
+     "cite": {
+      "label": "FCC MLTS 911 requirements",
+      "url": "https://www.fcc.gov/mlts-911-requirements"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the Request-URI",
+    "kind": "ladder",
+    "prompt": "Inspect the first INVITE. What is the Request-URI?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "The emergency Request-URI in this ladder is",
+     "choices": [
+      "urn:service:sos",
+      "sip:+15551212@example.com only",
+      "488 Not Acceptable Here",
+      "sip.pstnhub.microsoft.com"
+     ],
+     "answer": 0,
+     "why": "The URN is RFC 5031. Location still has to be conveyed per RFC 6442.",
+     "cite": {
+      "label": "RFC 5031",
+      "url": "https://www.rfc-editor.org/rfc/rfc5031"
+     }
+    }
+   },
+   "fault": {
+    "title": "Emergency INVITE with no location",
+    "symptom": "Call-ID sos-1@example.com reaches CUCM with Request-URI urn:service:sos and no Geolocation header. The ticket says 100 Trying made location optional.",
+    "log": "INVITE urn:service:sos SIP/2.0\nCall-ID: sos-1@example.com\nCSeq: 1 INVITE\n(no Geolocation header)\nSIP/2.0 100 Trying",
+    "choices": [
+     "Add location conveyance per RFC 6442 and confirm the FCC MLTS page",
+     "100 Trying satisfies RAY BAUM's Act",
+     "Replace the URN with a codec list",
+     "Cite a state PSAP rule from memory"
+    ],
+    "answer": 0,
+    "why": "Trying is hop by hop. Location is a requirement of the emergency request.",
+    "cause": "The service URN was present and the location was not.",
+    "fix": "Carry location as RFC 6442 and RFC 6881 describe, and check the current FCC MLTS page before you call the design done.",
+    "cites": [
+     {
+      "label": "RFC 6442",
+      "url": "https://www.rfc-editor.org/rfc/rfc6442"
+     },
+     {
+      "label": "FCC MLTS 911 requirements",
+      "url": "https://www.fcc.gov/mlts-911-requirements"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "siprec",
+   "title": "Disclosed recording with SIPREC",
+   "minutes": 12,
+   "tags": [
+    "siprec",
+    "recording",
+    "compliance"
+   ],
+   "summary": "RFC 7866 is the recording protocol. RFC 7865 is the metadata. Notice and retention are legal questions.",
+   "objectives": [
+    "Name SRC and SRS roles at a high level",
+    "Keep metadata with RFC 7865",
+    "Treat notice and retention as outside the RFC"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "A disclosed fork",
+    "caption": "The SBC may fork a session to a recording server. The parties are told.",
+    "layers": [
+     {
+      "name": "RFC 7866",
+      "detail": "Session recording protocol"
+     },
+     {
+      "name": "RFC 7865",
+      "detail": "Recording metadata"
+     },
+     {
+      "name": "SRS",
+      "detail": "Recording server. The SBC can act as the client that forks."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Protocol and metadata",
+     "paragraphs": [
+      "RFC 7866 is the session recording protocol. An SBC may fork a session to a recording server, the SRS, acting as the recording client. That fork is a SIP session of its own, with its own Call-ID, beside the call the parties are on.",
+      "RFC 7865 is the metadata for that recording session. This lesson does not paste a metadata document. When you need a field, read 7865. The synthetic INVITE below shows the fork toward srs.example.com and stops there."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7866",
+       "url": "https://www.rfc-editor.org/rfc/rfc7866"
+      },
+      {
+       "label": "RFC 7865",
+       "url": "https://www.rfc-editor.org/rfc/rfc7865"
+      }
+     ]
+    },
+    {
+     "h": "Disclosed use, and the legal line",
+     "paragraphs": [
+      "The recording in this lesson is disclosed quality monitoring and compliance. The participants are on notice under the program that authorized the recording. The ladder is that architecture.",
+      "Notice and retention rules are legal questions. They sit outside RFC 7866 and RFC 7865. The RFC tells you how the SBC and the SRS exchange the session and the metadata. Counsel and the retention schedule tell you whether you may record and how long you may keep it."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7866",
+       "url": "https://www.rfc-editor.org/rfc/rfc7866"
+      },
+      {
+       "label": "RFC 7865",
+       "url": "https://www.rfc-editor.org/rfc/rfc7865"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Fork to a disclosed SRS",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Peer",
+     "SRS"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The party's call. Recording is a second session, disclosed for quality monitoring and compliance.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "The SBC accepts the caller leg.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The peer leg. This is the conversation being monitored under the disclosed program.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 3,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The SBC forks a recording session to the SRS at srs.example.com. Metadata belongs to RFC 7865 and is not inlined.",
+      "message": "INVITE sip:srs.example.com SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.20:5061;branch=z9hG4bKrec01\nMax-Forwards: 70\nFrom: <sip:sbc@example.com>;tag=rec1\nTo: <sip:srs.example.com>\nCall-ID: rec-1@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc.example.com:5061;transport=tls>\nContent-Type: application/sdp\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 3,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The SRS accepts the recording session. Notice and retention are not in this 200.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/TLS 203.0.113.20:5061;branch=z9hG4bKrec01\nFrom: <sip:sbc@example.com>;tag=rec1\nTo: <sip:srs.example.com>;tag=srs9\nCall-ID: rec-1@example.com\nCSeq: 1 INVITE\nContact: <sip:srs.example.com:5061;transport=tls>\nContent-Type: application/sdp\nContent-Length: 224\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "RFC 7866 is",
+     "choices": [
+      "The session recording protocol",
+      "The metadata schema",
+      "The emergency BCP",
+      "The EF PHB"
+     ],
+     "answer": 0,
+     "why": "The fork to the SRS follows 7866.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "q": "RFC 7865 is",
+     "choices": [
+      "Recording metadata",
+      "The SIP base specification",
+      "A Wireshark filter",
+      "TLS 1.2"
+     ],
+     "answer": 0,
+     "why": "Metadata has its own RFC. This lesson does not paste a sample document.",
+     "cite": {
+      "label": "RFC 7865",
+      "url": "https://www.rfc-editor.org/rfc/rfc7865"
+     }
+    },
+    {
+     "q": "The SBC's role in this picture is",
+     "choices": [
+      "Fork a disclosed session to the SRS",
+      "Hide the recording from the parties",
+      "Replace CUCM",
+      "Define retention years"
+     ],
+     "answer": 0,
+     "why": "Quality monitoring and compliance, with notice left to the legal rules.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "q": "Notice and retention are",
+     "choices": [
+      "Legal questions outside the two RFCs",
+      "Status codes in RFC 3261 §21",
+      "Set by Min-SE",
+      "Display filters"
+     ],
+     "answer": 0,
+     "why": "Cite 7866 and 7865 for the protocol. Ask counsel for notice and retention.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "q": "The recording Call-ID on the ladder is",
+     "choices": [
+      "rec-1@example.com, separate from the caller dialog",
+      "Always the caller's Call-ID",
+      "An IOS debug command",
+      "urn:service:sos"
+     ],
+     "answer": 0,
+     "why": "The recording session is its own SIP dialog.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "q": "A missing metadata field is resolved by",
+     "choices": [
+      "Reading RFC 7865",
+      "Inventing an XML tag",
+      "Using 488",
+      "Quoting a list size"
+     ],
+     "answer": 0,
+     "why": "The metadata specification is the source.",
+     "cite": {
+      "label": "RFC 7865",
+      "url": "https://www.rfc-editor.org/rfc/rfc7865"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "7866",
+     "back": "Session recording protocol. SRC forks to an SRS.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "front": "7865",
+     "back": "Recording metadata. Read it for fields.",
+     "cite": {
+      "label": "RFC 7865",
+      "url": "https://www.rfc-editor.org/rfc/rfc7865"
+     }
+    },
+    {
+     "front": "Disclosed",
+     "back": "Quality monitoring and compliance, with the parties on notice.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "front": "Retention",
+     "back": "A legal question. Outside the RFC.",
+     "cite": {
+      "label": "RFC 7865",
+      "url": "https://www.rfc-editor.org/rfc/rfc7865"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Separate the two Call-IDs",
+    "kind": "ladder",
+    "prompt": "Which Call-ID belongs to the recording session toward the SRS?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "The SRS dialog is",
+     "choices": [
+      "rec-1@example.com",
+      "a84b4c76e66710@example.com",
+      "urn:service:sos",
+      "teams-403@example.com"
+     ],
+     "answer": 0,
+     "why": "The caller dialog and the recording session are different SIP calls.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    }
+   },
+   "fault": {
+    "title": "Metadata invented in the ticket",
+    "symptom": "The SRS rejected the recording session. The ticket adds an XML tag that RFC 7865 was not opened to check, and it shortens retention in the same change.",
+    "log": "INVITE sip:srs.example.com SIP/2.0\nCall-ID: rec-1@example.com\nSIP/2.0 488 Not Acceptable Here\nCSeq: 1 INVITE",
+    "choices": [
+     "Open RFC 7865 for the metadata and leave retention to the legal schedule",
+     "Invent a metadata tag and cut retention together",
+     "488 means the trusted-list size",
+     "Treat the recording as hidden so the 488 disappears"
+    ],
+    "answer": 0,
+    "why": "488 says this SRS did not accept the session description or the recording body. Retention is not an RFC field.",
+    "cause": "A protocol failure and a legal schedule were edited in one move.",
+    "fix": "Fix the recording session against RFC 7866 and RFC 7865. Change one variable. Leave notice and retention on the legal schedule.",
+    "cites": [
+     {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     },
+     {
+      "label": "RFC 7865",
+      "url": "https://www.rfc-editor.org/rfc/rfc7865"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "qos",
+   "title": "Voice, EF, and what the PHB does not design",
+   "minutes": 11,
+   "tags": [
+    "qos",
+    "ef",
+    "diffserv"
+   ],
+   "summary": "RFC 3246 defines the EF PHB. RFC 4594 maps telephony to EF. This lesson does not design a LAN.",
+   "objectives": [
+    "Name EF as the PHB for the telephony class",
+    "Keep the recommended codepoint inside the RFC",
+    "Leave switch queues and campus design out of the lesson"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "What this lesson claims",
+    "caption": "Voice media follows the telephony mapping. Signaling is a different service class in RFC 4594, and this table does not assign it a codepoint.",
+    "columns": [
+     "Item",
+     "Claim",
+     "Source"
+    ],
+    "rows": [
+     [
+      "PHB",
+      "Expedited Forwarding",
+      "RFC 3246"
+     ],
+     [
+      "Recommended codepoint",
+      "The one RFC 3246 prints for EF",
+      "RFC 3246"
+     ],
+     [
+      "Telephony class",
+      "Mapped to EF",
+      "RFC 4594"
+     ],
+     [
+      "LAN design",
+      "Not in this lesson",
+      "Operator's approved design"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "EF and the telephony class",
+     "paragraphs": [
+      "RFC 3246 defines the Expedited Forwarding per-hop behavior. It recommends a codepoint for that PHB. Use the value printed in the RFC when you mark voice media, and say that you took it from RFC 3246.",
+      "RFC 4594 is the configuration guideline for DiffServ service classes. In that guidance the telephony service class is mapped to EF. Voice media is the traffic this lesson marks that way. The SIP messages you debug are not the same service class, and this lesson does not assign them a codepoint from memory."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3246",
+       "url": "https://www.rfc-editor.org/rfc/rfc3246"
+      },
+      {
+       "label": "RFC 4594",
+       "url": "https://www.rfc-editor.org/rfc/rfc4594"
+      }
+     ]
+    },
+    {
+     "h": "The ladder is still SIP",
+     "paragraphs": [
+      "The call ladder ends in RTP on the addresses and ports in SDP. Those RTP packets are what the telephony mapping applies to. A 200 OK does not itself mark packets. The marking is a network behavior on the media path after the answer.",
+      "This lesson does not invent a LAN design, a queue depth, a switch policy, or a campus diagram. The operator's approved design is where those decisions live. If the voice is marked EF and still suffers, the next evidence is loss and delay on that path, not a new SIP status code."
+     ],
+     "cites": [
+      {
+       "label": "RFC 4594",
+       "url": "https://www.rfc-editor.org/rfc/rfc4594"
+      },
+      {
+       "label": "RFC 3550",
+       "url": "https://www.rfc-editor.org/rfc/rfc3550"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "SIP sets up the call. EF applies to the voice.",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The INVITE offers the media. Marking is not inside this request.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "100 Trying is signaling. This lesson does not assign it the telephony codepoint.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The outbound INVITE is another signaling hop.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 is signaling. RTP may not exist yet.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Forwarded 180 is still signaling.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK names the RTP address and port. Voice packets that follow are the telephony class RFC 4594 maps to EF.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The caller now has the answer. EF is a per-hop behavior on those media packets, from RFC 3246.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The 2xx ACK is signaling again. It does not carry the voice samples.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "RFC 3246 defines",
+     "choices": [
+      "The Expedited Forwarding PHB",
+      "SIP INVITE",
+      "SIPREC metadata",
+      "urn:service:sos"
+     ],
+     "answer": 0,
+     "why": "The recommended codepoint is the one that RFC prints.",
+     "cite": {
+      "label": "RFC 3246",
+      "url": "https://www.rfc-editor.org/rfc/rfc3246"
+     }
+    },
+    {
+     "q": "RFC 4594 maps telephony to",
+     "choices": [
+      "EF",
+      "A SIP 488",
+      "The trusted list",
+      "TLS 1.0"
+     ],
+     "answer": 0,
+     "why": "Voice media follows that service-class guidance.",
+     "cite": {
+      "label": "RFC 4594",
+      "url": "https://www.rfc-editor.org/rfc/rfc4594"
+     }
+    },
+    {
+     "q": "This lesson's LAN design is",
+     "choices": [
+      "Absent. The approved network design owns queues.",
+      "A specific three-queue campus",
+      "Part of RFC 3261",
+      "The CME list size"
+     ],
+     "answer": 0,
+     "why": "PHB and service class are in scope. Switch design is not.",
+     "cite": {
+      "label": "RFC 4594",
+      "url": "https://www.rfc-editor.org/rfc/rfc4594"
+     }
+    },
+    {
+     "q": "The packets you mark as telephony are",
+     "choices": [
+      "The RTP voice packets after the answer",
+      "Every SIP 100",
+      "The ACK only",
+      "DNS queries"
+     ],
+     "answer": 0,
+     "why": "SDP names the flow. RFC 3550 is the media protocol.",
+     "cite": {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+     }
+    },
+    {
+     "q": "A signaling hop in this lesson",
+     "choices": [
+      "Stays a SIP hop. It is not given a remembered codepoint.",
+      "Is always EF because it is about a phone call",
+      "Replaces the PHB",
+      "Is a recording metadata body"
+     ],
+     "answer": 0,
+     "why": "Telephony is the voice class in RFC 4594. Signaling is separate.",
+     "cite": {
+      "label": "RFC 4594",
+      "url": "https://www.rfc-editor.org/rfc/rfc4594"
+     }
+    },
+    {
+     "q": "If marked voice still drops",
+     "choices": [
+      "Look at loss and delay on the media path",
+      "Send a second INVITE with a new Call-ID and hope",
+      "Remove telephone-event",
+      "Cite 422"
+     ],
+     "answer": 0,
+     "why": "EF describes the PHB. It does not debug a SIP header.",
+     "cite": {
+      "label": "RFC 3246",
+      "url": "https://www.rfc-editor.org/rfc/rfc3246"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "EF",
+     "back": "Expedited Forwarding per-hop behavior. RFC 3246.",
+     "cite": {
+      "label": "RFC 3246",
+      "url": "https://www.rfc-editor.org/rfc/rfc3246"
+     }
+    },
+    {
+     "front": "Telephony",
+     "back": "The service class RFC 4594 maps to EF.",
+     "cite": {
+      "label": "RFC 4594",
+      "url": "https://www.rfc-editor.org/rfc/rfc4594"
+     }
+    },
+    {
+     "front": "Codepoint",
+     "back": "Use the value RFC 3246 recommends. Do not invent a second one.",
+     "cite": {
+      "label": "RFC 3246",
+      "url": "https://www.rfc-editor.org/rfc/rfc3246"
+     }
+    },
+    {
+     "front": "Not a LAN",
+     "back": "Queues and campus policy stay in the approved design.",
+     "cite": {
+      "label": "RFC 4594",
+      "url": "https://www.rfc-editor.org/rfc/rfc4594"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Where EF applies",
+    "kind": "ladder",
+    "prompt": "Which hop's SDP names the media that the telephony class covers?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "Voice packets mapped to EF are",
+     "choices": [
+      "RTP after the answer SDP",
+      "The 100 Trying",
+      "The Via branch",
+      "The trusted list"
+     ],
+     "answer": 0,
+     "why": "RFC 4594 maps the telephony class to the EF PHB from RFC 3246.",
+     "cite": {
+      "label": "RFC 4594",
+      "url": "https://www.rfc-editor.org/rfc/rfc4594"
+     }
+    }
+   },
+   "fault": {
+    "title": "A queue design written into the SIP ticket",
+    "symptom": "One-way audio is blamed on SIP, and the ticket adds a campus queue map that no design review approved. The 200 OK SDP says c=IN IP4 203.0.113.20 and m=audio 19642 RTP/AVP 0.",
+    "log": "SIP/2.0 200 OK\nc=IN IP4 203.0.113.20\nm=audio 19642 RTP/AVP 0\nTicket: invented three queues and a campus policer in the same note.",
+    "choices": [
+     "Mark voice as EF per RFC 3246 and RFC 4594, and take queues from the approved design",
+     "The invented queue map is the SIP fix",
+     "488 is the PHB",
+     "Delete the m= line"
+    ],
+    "answer": 0,
+    "why": "The SDP names the media. The PHB is EF. The queue map was invented.",
+    "cause": "A network design was improvised inside a signaling ticket.",
+    "fix": "Capture the RTP on the negotiated port. Mark that voice EF as the RFCs specify. Leave switch queues to the approved design.",
+    "cites": [
+     {
+      "label": "RFC 3246",
+      "url": "https://www.rfc-editor.org/rfc/rfc3246"
+     },
+     {
+      "label": "RFC 4594",
+      "url": "https://www.rfc-editor.org/rfc/rfc4594"
+     },
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "alarms",
+   "title": "Alarms that match the failure",
+   "minutes": 12,
+   "tags": [
+    "alarms",
+    "options",
+    "operations"
+   ],
+   "summary": "Alarm on OPTIONS, TLS expiry, 503, recording-session failure, and trusted-list rejects. Each alarm names its document.",
+   "objectives": [
+    "Tie each alarm to one failure class",
+    "Use OPTIONS as a liveness signal",
+    "Keep synthetic examples labeled synthetic"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Alarm path",
+    "caption": "Page someone with the class, the Call-ID if there is one, and the document.",
+    "nodes": [
+     "Signal",
+     "Class",
+     "Document",
+     "Page"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Signals worth paging",
+     "paragraphs": [
+      "OPTIONS to a trunk that stops answering is a liveness alarm. RFC 3261 section 11 defines OPTIONS. A burst of 503 Service Unavailable is a server-side alarm, often with Retry-After. Certificate expiry and a TLS version below the peer's floor are handshake alarms, and toward Teams that floor is TLS 1.2.",
+      "A SIPREC session to the SRS that fails is a recording alarm. Cite RFC 7866 for the session and keep notice and retention on the legal schedule. A trusted-list reject is an operations alarm: confirm the listed addresses against the CME or SRST page for the product, using the lab pair 198.51.100.30 and 192.0.2.40 when this border is the teaching snippet."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §11",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+      },
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      },
+      {
+       "label": "RFC 7866",
+       "url": "https://www.rfc-editor.org/rfc/rfc7866"
+      },
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      },
+      {
+       "label": "Direct Routing OPTIONS and TLS",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+      }
+     ]
+    },
+    {
+     "h": "What the page contains",
+     "paragraphs": [
+      "A useful page names the class, the synthetic or real identifier you are allowed to share, and the next single check. For a SIP failure include Call-ID and the status code. For a handshake failure say that no SIP status came back, and name mismatch, CA, or version.",
+      "Examples in this lesson are synthetic. A customer syslog stays in the customer's system. The alarm text you practice with uses example.com and the documentation addresses only."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      },
+      {
+       "label": "Cisco SRST trusted IP authentication",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "OPTIONS, then 503",
+    "parties": [
+     "CUBE",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "OPTIONS",
+      "kind": "req",
+      "note": "Liveness toward 192.0.2.40. A miss here is an alarm before users report a failed INVITE.",
+      "message": "OPTIONS sip:carrier@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKoptalm\nMax-Forwards: 70\nFrom: <sip:sbc@example.com>;tag=alm1\nTo: <sip:carrier@192.0.2.40>\nCall-ID: opt-alm-1@example.com\nCSeq: 1 OPTIONS\nContact: <sip:sbc@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "503",
+      "kind": "res",
+      "note": "503 Service Unavailable. Synthetic Retry-After: 30. Page the trunk class, not a codec rewrite.",
+      "message": "SIP/2.0 503 Service Unavailable\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 OPTIONS\nRetry-After: 30\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "Hop-by-hop ACK for a non-2xx final. The alarm still stands.",
+      "message": "ACK sip:carrier@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKoptalm\nMax-Forwards: 70\nFrom: <sip:sbc@example.com>;tag=alm1\nTo: <sip:carrier@192.0.2.40>;tag=314159\nCall-ID: opt-alm-1@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "OPTIONS",
+      "kind": "req",
+      "note": "A later probe. Clear the alarm only after a 200, not after the ACK to the 503.",
+      "message": "OPTIONS sip:carrier@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKoptalm2\nMax-Forwards: 70\nFrom: <sip:sbc@example.com>;tag=alm2\nTo: <sip:carrier@192.0.2.40>\nCall-ID: opt-alm-2@example.com\nCSeq: 1 OPTIONS\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "OPTIONS failures alarm on",
+     "choices": [
+      "Trunk liveness",
+      "Codec overlap inside SDP",
+      "The EF queue depth",
+      "A publication month"
+     ],
+     "answer": 0,
+     "why": "Section 11 defines OPTIONS. A miss is an operations signal.",
+     "cite": {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    },
+    {
+     "q": "A burst of 503 is",
+     "choices": [
+      "A server-unavailable alarm",
+      "Proof the trusted list is too small",
+      "A 2xx ACK",
+      "Location conveyance"
+     ],
+     "answer": 0,
+     "why": "503 Service Unavailable is the status. Retry-After may be present.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "A Teams handshake alarm includes",
+     "choices": [
+      "Name mismatch, untrusted CA, or TLS older than 1.2",
+      "Only SIP 180",
+      "A missing telephone-event after a 200",
+      "CME list size"
+     ],
+     "answer": 0,
+     "why": "Those fail before SIP. The OPTIONS page states the TLS floor.",
+     "cite": {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    },
+    {
+     "q": "An SRS session failure cites",
+     "choices": [
+      "RFC 7866",
+      "RFC 3246",
+      "The Wireshark RTP page only",
+      "RFC 4028 as the recording protocol"
+     ],
+     "answer": 0,
+     "why": "Recording-session failure is SIPREC. Retention stays legal.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "q": "A trusted-list alarm leads you to",
+     "choices": [
+      "The CME or SRST page for the product you run",
+      "A shared list size",
+      "RFC 606 as a command",
+      "Deleting the carrier to silence the alarm"
+     ],
+     "answer": 0,
+     "why": "Confirm listed addresses. Quote no universal size.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "q": "Synthetic alarm text uses",
+     "choices": [
+      "example.com and the documentation addresses",
+      "A pasted customer syslog",
+      "Real subscriber names",
+      "A guessed PSAP"
+     ],
+     "answer": 0,
+     "why": "Practice data stays on the lab addresses.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "OPTIONS",
+     "back": "Liveness. Alarm when the trunk stops answering.",
+     "cite": {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    },
+    {
+     "front": "503",
+     "back": "Service Unavailable. Page the server-side class.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "front": "TLS floor",
+     "back": "Toward Teams, 1.2 or newer, or the handshake never yields SIP.",
+     "cite": {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    },
+    {
+     "front": "SRS down",
+     "back": "Recording-session alarm. RFC 7866. Retention stays outside the RFC.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the 503",
+    "kind": "ladder",
+    "prompt": "What status did the carrier return to OPTIONS, and what class of alarm is it?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "The first response on this ladder is",
+     "choices": [
+      "503 Service Unavailable",
+      "200 OK for the media",
+      "422 Session Interval Too Small",
+      "606 Not Acceptable"
+     ],
+     "answer": 0,
+     "why": "Page trunk availability. The ACK does not clear the alarm.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    }
+   },
+   "fault": {
+    "title": "Codec change for a 503",
+    "symptom": "OPTIONS to 192.0.2.40 returns 503. The change window rewrites the codec list and the trusted list together.",
+    "log": "OPTIONS sip:carrier@192.0.2.40 SIP/2.0\nCall-ID: opt-alm-1@example.com\nSIP/2.0 503 Service Unavailable\nRetry-After: 30\nCSeq: 1 OPTIONS",
+    "choices": [
+     "Page the 503 and change nothing in SDP until the trunk answers",
+     "Rewrite codecs and the trusted list in one window",
+     "Treat 503 as 488",
+     "Remove location conveyance"
+    ],
+    "answer": 0,
+    "why": "503 is server unavailable. Retry-After tells you to wait, not to edit SDP.",
+    "cause": "The alarm class and the change list did not match.",
+    "fix": "Keep the codec list and the trusted list. Watch for OPTIONS 200 on a new Call-ID. Cite RFC 3261 section 21.",
+    "cites": [
+     {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     },
+     {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "change-window",
+   "title": "One change in the window",
+   "minutes": 11,
+   "tags": [
+    "change",
+    "rollback",
+    "operations"
+   ],
+   "summary": "Freeze the baseline, change one variable, verify, and keep the previous snippet ready.",
+   "objectives": [
+    "Record a baseline before the change",
+    "Change a single variable",
+    "Verify with one signal and roll back that variable"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "The window",
+    "caption": "Rollback is the previous value of the one variable you touched.",
+    "nodes": [
+     "Baseline",
+     "One change",
+     "Verify",
+     "Rollback"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Baseline, then one variable",
+     "paragraphs": [
+      "A change window starts from a baseline you can name: the last OPTIONS 200, the current trusted-list snippet, or the current codec offer. Write that down in the ticket with the lab addresses you are using.",
+      "Then change one variable. One new ipv4 line, or one codec in the offer, or one TLS setting. A window that edits the trusted list, the dial-peers, and the certificate template together cannot tell you which edit fixed or broke the call."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    },
+    {
+     "h": "Verify, then stop or roll back",
+     "paragraphs": [
+      "Verification is one signal. A test call to +15551212 among the lab addresses, or a fresh OPTIONS to 192.0.2.40, or a 200 that replaces a 503. Success is that signal, not a feeling that the config looks complete.",
+      "Rollback puts back the previous value of the same variable. Keep the teaching snippet's previous form in the ticket. Customer logs stay out of the practice record. Synthetic Call-IDs are enough to show the method."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §11",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+      },
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Baseline OPTIONS, then one INVITE",
+    "parties": [
+     "CUBE",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "OPTIONS",
+      "kind": "req",
+      "note": "Baseline. Record Call-ID opt-base-1@example.com and the 200 you hope comes back before you edit anything.",
+      "message": "OPTIONS sip:carrier@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKbase01\nMax-Forwards: 70\nFrom: <sip:sbc@example.com>;tag=base1\nTo: <sip:carrier@192.0.2.40>\nCall-ID: opt-base-1@example.com\nCSeq: 1 OPTIONS\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Baseline success. The one change happens after this, not before.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 OPTIONS\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "One variable changed: the offer now keeps telephone-event on purpose. Trusted list and TLS were not touched.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Verify on this 200 and its SDP. If it fails, roll back that one codec edit.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The first step in the window is",
+     "choices": [
+      "A named baseline",
+      "Three simultaneous edits",
+      "A customer log paste",
+      "A new list-size number"
+     ],
+     "answer": 0,
+     "why": "You need the previous signal and the previous value.",
+     "cite": {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    },
+    {
+     "q": "A legal edit in this lesson changes",
+     "choices": [
+      "One variable",
+      "Codecs, trusted list, and TLS together",
+      "Every dial-peer on the box",
+      "The RFC number of SIP"
+     ],
+     "answer": 0,
+     "why": "Otherwise you cannot tell what worked.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "Verification is",
+     "choices": [
+      "One signal, such as OPTIONS 200 or the test call",
+      "A reread of the whole running config",
+      "Silence",
+      "A new publication month"
+     ],
+     "answer": 0,
+     "why": "Name the signal in the ticket.",
+     "cite": {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    },
+    {
+     "q": "Rollback restores",
+     "choices": [
+      "The previous value of the variable you changed",
+      "A random earlier backup from another site",
+      "The invented queue map",
+      "RFC 4566 as current SDP"
+     ],
+     "answer": 0,
+     "why": "Keep that previous snippet in the ticket.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "q": "The test destination in this lab is",
+     "choices": [
+      "+15551212",
+      "A subscriber number from a customer log",
+      "urn:service:sos as a codec test",
+      "An unlisted internet source"
+     ],
+     "answer": 0,
+     "why": "Stay on the synthetic number.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "Trusted-list and codec edits",
+     "choices": [
+      "Happen in different windows",
+      "Belong in one window because both are voice",
+      "Are the same variable",
+      "Are required by 488"
+     ],
+     "answer": 0,
+     "why": "One variable. The next window can hold the next edit.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Baseline",
+     "back": "The last good OPTIONS or the current snippet, written down.",
+     "cite": {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     }
+    },
+    {
+     "front": "One variable",
+     "back": "A single address, codec, or TLS setting.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "Verify",
+     "back": "One signal. A 200, or the test call to +15551212.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "Rollback",
+     "back": "The previous value of that same variable.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Count the variables",
+    "kind": "ladder",
+    "prompt": "Between the baseline OPTIONS and the INVITE, how many variables did the lesson change?",
+    "steps": [
+     "Press Play.",
+     "Step until the hop named in the question.",
+     "Inspect that message and answer the check."
+    ],
+    "check": {
+     "q": "The change under test is",
+     "choices": [
+      "The offer now includes telephone-event on purpose",
+      "Trusted list plus TLS plus codecs",
+      "A new list size",
+      "A customer syslog"
+     ],
+     "answer": 0,
+     "why": "One variable. Rollback is the previous offer.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   },
+   "fault": {
+    "title": "Three edits, one outage",
+    "symptom": "After the window, OPTIONS to 192.0.2.40 fails. The window added an ipv4 line, removed telephone-event, and changed the TLS version.",
+    "log": "Baseline Call-ID: opt-base-1@example.com result 200\nWindow: trusted list + codec list + TLS version\nAfter: OPTIONS timeout, no SIP status",
+    "choices": [
+     "Roll back all three, then reapply one variable in a new window",
+     "Keep going and add a fourth edit",
+     "Cite the timeout as 200 OK",
+     "Invent a PSAP route to test TLS"
+    ],
+    "answer": 0,
+    "why": "A timeout with no SIP status is consistent with a handshake problem, but three edits make that a guess.",
+    "cause": "The window stacked variables, so the failure has no single cause.",
+    "fix": "Restore the baseline snippet, the previous offer, and the previous TLS version. Verify OPTIONS 200. Then change one variable.",
+    "cites": [
+     {
+      "label": "RFC 3261 §11",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+     },
+     {
+      "label": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+     }
+    ]
+   },
+   "level": "Advanced"
+  }
+ ]
+}

@@ -1,0 +1,1094 @@
+{
+ "terms": [
+  {
+   "term": "SIP",
+   "def": "Session Initiation Protocol. Application signaling that creates, modifies, and ends sessions.",
+   "cites": [
+    {
+     "label": "RFC 3261",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261"
+    }
+   ]
+  },
+  {
+   "term": "SDP",
+   "def": "Session Description Protocol. The text format that describes media streams for offer/answer.",
+   "cites": [
+    {
+     "label": "RFC 8866",
+     "url": "https://www.rfc-editor.org/rfc/rfc8866"
+    }
+   ]
+  },
+  {
+   "term": "Offer/answer",
+   "def": "The rule set that pairs one SDP offer with one SDP answer. The answer mirrors the offer’s m-line count and order.",
+   "cites": [
+    {
+     "label": "RFC 3264",
+     "url": "https://www.rfc-editor.org/rfc/rfc3264"
+    }
+   ]
+  },
+  {
+   "term": "RTP",
+   "def": "Real-time Transport Protocol. Carries media samples. It is not SIP.",
+   "cites": [
+    {
+     "label": "RFC 3550",
+     "url": "https://www.rfc-editor.org/rfc/rfc3550"
+    }
+   ]
+  },
+  {
+   "term": "RTCP",
+   "def": "RTP Control Protocol. Reports loss, jitter, and timing alongside RTP.",
+   "cites": [
+    {
+     "label": "RFC 3550",
+     "url": "https://www.rfc-editor.org/rfc/rfc3550"
+    }
+   ]
+  },
+  {
+   "term": "SRTP",
+   "def": "Secure RTP. Encrypts and authenticates media packets.",
+   "cites": [
+    {
+     "label": "RFC 3711",
+     "url": "https://www.rfc-editor.org/rfc/rfc3711"
+    }
+   ]
+  },
+  {
+   "term": "SDES",
+   "def": "Security Descriptions for SDP. Puts SRTP keying material in a=crypto.",
+   "cites": [
+    {
+     "label": "RFC 4568",
+     "url": "https://www.rfc-editor.org/rfc/rfc4568"
+    }
+   ]
+  },
+  {
+   "term": "DTLS-SRTP",
+   "def": "Keying SRTP with a DTLS handshake instead of embedding keys in SDP.",
+   "cites": [
+    {
+     "label": "RFC 5764",
+     "url": "https://www.rfc-editor.org/rfc/rfc5764"
+    }
+   ]
+  },
+  {
+   "term": "SBC",
+   "def": "Session border controller. A deployment role, usually a B2BUA, sitting on a trust boundary. Requirements are collected in RFC 5853.",
+   "cites": [
+    {
+     "label": "RFC 5853",
+     "url": "https://www.rfc-editor.org/rfc/rfc5853"
+    }
+   ]
+  },
+  {
+   "term": "B2BUA",
+   "def": "Back-to-back user agent. A UAS on one side glued to a UAC on the other. Taxonomy: RFC 7092.",
+   "cites": [
+    {
+     "label": "RFC 7092",
+     "url": "https://www.rfc-editor.org/rfc/rfc7092"
+    }
+   ]
+  },
+  {
+   "term": "User agent",
+   "def": "The SIP endpoint that originates or answers requests.",
+   "cites": [
+    {
+     "label": "RFC 3261",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261"
+    }
+   ]
+  },
+  {
+   "term": "UAC",
+   "def": "User agent client. The side that sends a request.",
+   "cites": [
+    {
+     "label": "RFC 3261",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261"
+    }
+   ]
+  },
+  {
+   "term": "UAS",
+   "def": "User agent server. The side that answers a request.",
+   "cites": [
+    {
+     "label": "RFC 3261",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261"
+    }
+   ]
+  },
+  {
+   "term": "Proxy",
+   "def": "A SIP element that routes requests and responses without, by itself, being the session endpoint.",
+   "cites": [
+    {
+     "label": "RFC 3261 §16",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+    }
+   ]
+  },
+  {
+   "term": "Registrar",
+   "def": "A server that accepts REGISTER and stores Contact bindings.",
+   "cites": [
+    {
+     "label": "RFC 3261 §10",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+    }
+   ]
+  },
+  {
+   "term": "Redirect server",
+   "def": "A server that answers with 3xx and does not stay in the path.",
+   "cites": [
+    {
+     "label": "RFC 3261",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261"
+    }
+   ]
+  },
+  {
+   "term": "Transaction",
+   "def": "One request and its responses, identified on a hop by the Via branch.",
+   "cites": [
+    {
+     "label": "RFC 3261 §17",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+    }
+   ]
+  },
+  {
+   "term": "Dialog",
+   "def": "A peer relationship identified by Call-ID, local tag, and remote tag.",
+   "cites": [
+    {
+     "label": "RFC 3261 §12",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+    }
+   ]
+  },
+  {
+   "term": "Session",
+   "def": "The media relationship negotiated with offer/answer. Distinct from the SIP dialog.",
+   "cites": [
+    {
+     "label": "RFC 3264",
+     "url": "https://www.rfc-editor.org/rfc/rfc3264"
+    }
+   ]
+  },
+  {
+   "term": "Call-ID",
+   "def": "Header that stays constant for a dialog. Compact form: i.",
+   "cites": [
+    {
+     "label": "RFC 3261 §20",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+    }
+   ]
+  },
+  {
+   "term": "From tag",
+   "def": "The tag parameter the UAC puts on From. It becomes part of the dialog ID.",
+   "cites": [
+    {
+     "label": "RFC 3261 §12",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+    }
+   ]
+  },
+  {
+   "term": "To tag",
+   "def": "The tag the UAS adds to To. Absent on the initial request.",
+   "cites": [
+    {
+     "label": "RFC 3261 §12",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+    }
+   ]
+  },
+  {
+   "term": "CSeq",
+   "def": "Command sequence: a number and a method token. The method must match the request.",
+   "cites": [
+    {
+     "label": "RFC 3261 §8",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+    }
+   ]
+  },
+  {
+   "term": "Via",
+   "def": "The hop the response must return through. Compact form: v. The branch parameter identifies the transaction.",
+   "cites": [
+    {
+     "label": "RFC 3261 §8.1.1.7",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+    }
+   ]
+  },
+  {
+   "term": "Magic cookie",
+   "def": "The branch prefix z9hG4bK required by RFC 3261 so proxies can tell old branches from new ones.",
+   "cites": [
+    {
+     "label": "RFC 3261 §8.1.1.7",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+    }
+   ]
+  },
+  {
+   "term": "Max-Forwards",
+   "def": "Hop limit on a request. The recommended initial value is 70.",
+   "cites": [
+    {
+     "label": "RFC 3261 §8.1.1.6",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.6"
+    }
+   ]
+  },
+  {
+   "term": "Contact",
+   "def": "Where this UA wants to be reached for this dialog. Compact form: m.",
+   "cites": [
+    {
+     "label": "RFC 3261 §20",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+    }
+   ]
+  },
+  {
+   "term": "Record-Route",
+   "def": "A proxy’s request to stay on the path. The route set is built from these values.",
+   "cites": [
+    {
+     "label": "RFC 3261 §16",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+    }
+   ]
+  },
+  {
+   "term": "Route",
+   "def": "The path a UA sends an in-dialog request along, learned from Record-Route.",
+   "cites": [
+    {
+     "label": "RFC 3261 §16",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+    }
+   ]
+  },
+  {
+   "term": "Request-URI",
+   "def": "The URI on the request line. It is the current target, not always the original To URI.",
+   "cites": [
+    {
+     "label": "RFC 3261 §8",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+    }
+   ]
+  },
+  {
+   "term": "SIP URI",
+   "def": "sip:user@host form defined by RFC 3261.",
+   "cites": [
+    {
+     "label": "RFC 3261",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261"
+    }
+   ]
+  },
+  {
+   "term": "SIPS URI",
+   "def": "sip over TLS scheme. It is not itself an SRTP promise.",
+   "cites": [
+    {
+     "label": "RFC 3261",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261"
+    }
+   ]
+  },
+  {
+   "term": "tel URI",
+   "def": "A telephone-number URI.",
+   "cites": [
+    {
+     "label": "RFC 3966",
+     "url": "https://www.rfc-editor.org/rfc/rfc3966"
+    }
+   ]
+  },
+  {
+   "term": "E.164",
+   "def": "The ITU numbering plan. SIP carries those digits; it does not define the plan.",
+   "cites": [
+    {
+     "label": "RFC 3966",
+     "url": "https://www.rfc-editor.org/rfc/rfc3966"
+    }
+   ]
+  },
+  {
+   "term": "Early offer",
+   "def": "An INVITE that already contains the SDP offer.",
+   "cites": [
+    {
+     "label": "RFC 3264",
+     "url": "https://www.rfc-editor.org/rfc/rfc3264"
+    }
+   ]
+  },
+  {
+   "term": "Delayed offer",
+   "def": "An INVITE with no SDP. The offer arrives in a reliable response.",
+   "cites": [
+    {
+     "label": "RFC 3264",
+     "url": "https://www.rfc-editor.org/rfc/rfc3264"
+    }
+   ]
+  },
+  {
+   "term": "PRACK",
+   "def": "Provisional acknowledgement. Makes selected 1xx responses reliable when 100rel is in use.",
+   "cites": [
+    {
+     "label": "RFC 3262",
+     "url": "https://www.rfc-editor.org/rfc/rfc3262"
+    }
+   ]
+  },
+  {
+   "term": "100rel",
+   "def": "The option tag that turns on reliable provisional responses.",
+   "cites": [
+    {
+     "label": "RFC 3262",
+     "url": "https://www.rfc-editor.org/rfc/rfc3262"
+    }
+   ]
+  },
+  {
+   "term": "UPDATE",
+   "def": "A method that can change session parameters, including before the initial INVITE finishes.",
+   "cites": [
+    {
+     "label": "RFC 3311",
+     "url": "https://www.rfc-editor.org/rfc/rfc3311"
+    }
+   ]
+  },
+  {
+   "term": "re-INVITE",
+   "def": "A mid-dialog INVITE used to modify the session or refresh the target.",
+   "cites": [
+    {
+     "label": "RFC 6141",
+     "url": "https://www.rfc-editor.org/rfc/rfc6141"
+    }
+   ]
+  },
+  {
+   "term": "ACK",
+   "def": "Acknowledges a final response to INVITE. The 2xx ACK is end to end; the non-2xx ACK is hop by hop.",
+   "cites": [
+    {
+     "label": "RFC 6026",
+     "url": "https://www.rfc-editor.org/rfc/rfc6026"
+    }
+   ]
+  },
+  {
+   "term": "BYE",
+   "def": "Ends an established dialog.",
+   "cites": [
+    {
+     "label": "RFC 3261",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261"
+    }
+   ]
+  },
+  {
+   "term": "CANCEL",
+   "def": "Gives up on an INVITE that has not received a final response.",
+   "cites": [
+    {
+     "label": "RFC 3261",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261"
+    }
+   ]
+  },
+  {
+   "term": "OPTIONS",
+   "def": "Asks a peer what it supports, and is widely reused as a keepalive.",
+   "cites": [
+    {
+     "label": "RFC 3261 §11",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+    }
+   ]
+  },
+  {
+   "term": "REGISTER",
+   "def": "Creates or refreshes a binding between an address-of-record and a Contact.",
+   "cites": [
+    {
+     "label": "RFC 3261 §10",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+    }
+   ]
+  },
+  {
+   "term": "REFER",
+   "def": "Asks another UA to issue a request, typically for transfer.",
+   "cites": [
+    {
+     "label": "RFC 3515",
+     "url": "https://www.rfc-editor.org/rfc/rfc3515"
+    }
+   ]
+  },
+  {
+   "term": "Replaces",
+   "def": "Header that identifies a dialog to be replaced, used with attended transfer.",
+   "cites": [
+    {
+     "label": "RFC 3891",
+     "url": "https://www.rfc-editor.org/rfc/rfc3891"
+    }
+   ]
+  },
+  {
+   "term": "INFO",
+   "def": "Mid-dialog application information. Not the IETF way to send DTMF digits.",
+   "cites": [
+    {
+     "label": "RFC 6086",
+     "url": "https://www.rfc-editor.org/rfc/rfc6086"
+    }
+   ]
+  },
+  {
+   "term": "KPML",
+   "def": "Keypad markup for reporting digits in the signaling plane.",
+   "cites": [
+    {
+     "label": "RFC 4730",
+     "url": "https://www.rfc-editor.org/rfc/rfc4730"
+    }
+   ]
+  },
+  {
+   "term": "telephone-event",
+   "def": "RTP payload for DTMF and related tones.",
+   "cites": [
+    {
+     "label": "RFC 4733",
+     "url": "https://www.rfc-editor.org/rfc/rfc4733"
+    }
+   ]
+  },
+  {
+   "term": "Session-Expires",
+   "def": "Header that proposes how long a session may stay up without a refresh.",
+   "cites": [
+    {
+     "label": "RFC 4028",
+     "url": "https://www.rfc-editor.org/rfc/rfc4028"
+    }
+   ]
+  },
+  {
+   "term": "422",
+   "def": "Session Interval Too Small. Defined with session timers, not in the original response list as a timer code.",
+   "cites": [
+    {
+     "label": "RFC 4028",
+     "url": "https://www.rfc-editor.org/rfc/rfc4028"
+    }
+   ]
+  },
+  {
+   "term": "488",
+   "def": "Not Acceptable Here. This UA cannot accept the offered media.",
+   "cites": [
+    {
+     "label": "RFC 3261 §21",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+    }
+   ]
+  },
+  {
+   "term": "487",
+   "def": "Request Terminated. The usual final response after a successful CANCEL.",
+   "cites": [
+    {
+     "label": "RFC 3261 §21",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+    }
+   ]
+  },
+  {
+   "term": "407",
+   "def": "Proxy Authentication Required. Answer with Proxy-Authorization.",
+   "cites": [
+    {
+     "label": "RFC 3261 §22",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+    }
+   ]
+  },
+  {
+   "term": "401",
+   "def": "Unauthorized. Answer with Authorization. This is the UAS challenge, not the proxy one.",
+   "cites": [
+    {
+     "label": "RFC 3261 §22",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+    }
+   ]
+  },
+  {
+   "term": "GRUU",
+   "def": "Globally Routable User Agent URI. A Contact that reaches one instance.",
+   "cites": [
+    {
+     "label": "RFC 5627",
+     "url": "https://www.rfc-editor.org/rfc/rfc5627"
+    }
+   ]
+  },
+  {
+   "term": "Outbound",
+   "def": "RFC 5626 flow management: reg-id, sip.instance, and keepalives so a NAT binding stays up.",
+   "cites": [
+    {
+     "label": "RFC 5626",
+     "url": "https://www.rfc-editor.org/rfc/rfc5626"
+    }
+   ]
+  },
+  {
+   "term": "Path",
+   "def": "Header a registrar uses to remember the edge proxies that must stay on a registration.",
+   "cites": [
+    {
+     "label": "RFC 3327",
+     "url": "https://www.rfc-editor.org/rfc/rfc3327"
+    }
+   ]
+  },
+  {
+   "term": "Service-Route",
+   "def": "Header a registrar returns so the UA learns the path for outbound initial requests.",
+   "cites": [
+    {
+     "label": "RFC 3608",
+     "url": "https://www.rfc-editor.org/rfc/rfc3608"
+    }
+   ]
+  },
+  {
+   "term": "Loose routing",
+   "def": "A Route/Record-Route URI with the lr parameter. The request URI stays the target.",
+   "cites": [
+    {
+     "label": "RFC 3261 §16",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+    }
+   ]
+  },
+  {
+   "term": "rport",
+   "def": "Via parameter that tells the peer to answer the source port it actually saw.",
+   "cites": [
+    {
+     "label": "RFC 3581",
+     "url": "https://www.rfc-editor.org/rfc/rfc3581"
+    }
+   ]
+  },
+  {
+   "term": "STUN",
+   "def": "Session Traversal Utilities for NAT. Binding checks and mapped addresses.",
+   "cites": [
+    {
+     "label": "RFC 8489",
+     "url": "https://www.rfc-editor.org/rfc/rfc8489"
+    }
+   ]
+  },
+  {
+   "term": "TURN",
+   "def": "Traversal Using Relays around NAT. Allocates a relayed media address.",
+   "cites": [
+    {
+     "label": "RFC 8656",
+     "url": "https://www.rfc-editor.org/rfc/rfc8656"
+    }
+   ]
+  },
+  {
+   "term": "ICE",
+   "def": "Interactive Connectivity Establishment. Tries candidate pairs until one works.",
+   "cites": [
+    {
+     "label": "RFC 8445",
+     "url": "https://www.rfc-editor.org/rfc/rfc8445"
+    }
+   ]
+  },
+  {
+   "term": "SIP ALG",
+   "def": "A middlebox that rewrites SIP or SDP addresses. It is a common cause of one-way audio and it cannot rewrite TLS.",
+   "cites": [
+    {
+     "label": "RFC 3581",
+     "url": "https://www.rfc-editor.org/rfc/rfc3581"
+    }
+   ]
+  },
+  {
+   "term": "PAI",
+   "def": "P-Asserted-Identity. An identity asserted inside a trusted network, not a cryptographic proof.",
+   "cites": [
+    {
+     "label": "RFC 3325",
+     "url": "https://www.rfc-editor.org/rfc/rfc3325"
+    }
+   ]
+  },
+  {
+   "term": "PPI",
+   "def": "P-Preferred-Identity. What an untrusted UA would like the trusted network to assert.",
+   "cites": [
+    {
+     "label": "RFC 3325",
+     "url": "https://www.rfc-editor.org/rfc/rfc3325"
+    }
+   ]
+  },
+  {
+   "term": "Privacy",
+   "def": "The Privacy header and related behavior for withholding identity.",
+   "cites": [
+    {
+     "label": "RFC 3323",
+     "url": "https://www.rfc-editor.org/rfc/rfc3323"
+    }
+   ]
+  },
+  {
+   "term": "STIR",
+   "def": "Secure Telephone Identity Revisited. Cryptographic Identity header for SIP.",
+   "cites": [
+    {
+     "label": "RFC 8224",
+     "url": "https://www.rfc-editor.org/rfc/rfc8224"
+    }
+   ]
+  },
+  {
+   "term": "PASSporT",
+   "def": "The token format STIR carries.",
+   "cites": [
+    {
+     "label": "RFC 8225",
+     "url": "https://www.rfc-editor.org/rfc/rfc8225"
+    }
+   ]
+  },
+  {
+   "term": "SHAKEN",
+   "def": "The telephone-industry profile for using STIR on the PSTN. Attestation details live in ATIS specifications; the FCC describes the program.",
+   "cites": [
+    {
+     "label": "FCC call authentication",
+     "url": "https://www.fcc.gov/call-authentication"
+    }
+   ]
+  },
+  {
+   "term": "Digest authentication",
+   "def": "Challenge-response using 401 or 407, specified for SIP by reference to HTTP digest.",
+   "cites": [
+    {
+     "label": "RFC 7616",
+     "url": "https://www.rfc-editor.org/rfc/rfc7616"
+    }
+   ]
+  },
+  {
+   "term": "SIPREC",
+   "def": "SIP recording protocol. A session is forked to a recording server.",
+   "cites": [
+    {
+     "label": "RFC 7866",
+     "url": "https://www.rfc-editor.org/rfc/rfc7866"
+    }
+   ]
+  },
+  {
+   "term": "SRS",
+   "def": "Session recording server. The SIPREC receiver.",
+   "cites": [
+    {
+     "label": "RFC 7866",
+     "url": "https://www.rfc-editor.org/rfc/rfc7866"
+    }
+   ]
+  },
+  {
+   "term": "E911",
+   "def": "Emergency calling from multi-line systems. Location and routing rules are in RFC 6881 and FCC MLTS rules.",
+   "cites": [
+    {
+     "label": "RFC 6881",
+     "url": "https://www.rfc-editor.org/rfc/rfc6881"
+    }
+   ]
+  },
+  {
+   "term": "Service URN",
+   "def": "A URN such as urn:service:sos that names an emergency service.",
+   "cites": [
+    {
+     "label": "RFC 5031",
+     "url": "https://www.rfc-editor.org/rfc/rfc5031"
+    }
+   ]
+  },
+  {
+   "term": "EF",
+   "def": "Expedited Forwarding per-hop behavior, the diffserv class RFC 4594 maps voice toward.",
+   "cites": [
+    {
+     "label": "RFC 3246",
+     "url": "https://www.rfc-editor.org/rfc/rfc3246"
+    }
+   ]
+  },
+  {
+   "term": "ptime",
+   "def": "SDP attribute for packetization time, in milliseconds.",
+   "cites": [
+    {
+     "label": "RFC 8866",
+     "url": "https://www.rfc-editor.org/rfc/rfc8866"
+    }
+   ]
+  },
+  {
+   "term": "rtpmap",
+   "def": "SDP attribute that names the codec for a payload type.",
+   "cites": [
+    {
+     "label": "RFC 8866",
+     "url": "https://www.rfc-editor.org/rfc/rfc8866"
+    }
+   ]
+  },
+  {
+   "term": "fmtp",
+   "def": "SDP attribute that carries codec parameters.",
+   "cites": [
+    {
+     "label": "RFC 8866",
+     "url": "https://www.rfc-editor.org/rfc/rfc8866"
+    }
+   ]
+  },
+  {
+   "term": "G.722 clock",
+   "def": "RFC 3551 assigns G.722 the rtpmap rate 8000 even though the audio is 16 kHz.",
+   "cites": [
+    {
+     "label": "RFC 3551",
+     "url": "https://www.rfc-editor.org/rfc/rfc3551"
+    }
+   ]
+  },
+  {
+   "term": "CUBE",
+   "def": "Cisco Unified Border Element. An IOS XE SIP B2BUA.",
+   "cites": [
+    {
+     "label": "Cisco CUBE basic SIP configuration",
+     "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+    }
+   ]
+  },
+  {
+   "term": "SIP profile",
+   "def": "On CUBE, a voice class sip-profiles ruleset that rewrites SIP or SDP. Not the same object as a CUCM SIP Profile.",
+   "cites": [
+    {
+     "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+     "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+    }
+   ]
+  },
+  {
+   "term": "HMR",
+   "def": "Header manipulation rules on Oracle Communications SBCs.",
+   "cites": [
+    {
+     "label": "Oracle SBC HMR fundamentals (10.1)",
+     "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+    }
+   ]
+  },
+  {
+   "term": "Local Gateway",
+   "def": "The customer-premises SBC role in Webex Calling premises-based PSTN.",
+   "cites": [
+    {
+     "label": "Get started with Local Gateway",
+     "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+    }
+   ]
+  },
+  {
+   "term": "Cloud Connected PSTN",
+   "def": "A Webex Calling PSTN option delivered by a Cisco PSTN partner, not by a Local Gateway.",
+   "cites": [
+    {
+     "label": "Configure Webex Calling PSTN",
+     "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+    }
+   ]
+  },
+  {
+   "term": "Direct Routing",
+   "def": "Microsoft Teams Phone connectivity through a certified customer SBC.",
+   "cites": [
+    {
+     "label": "Plan Direct Routing",
+     "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+    }
+   ]
+  },
+  {
+   "term": "Media bypass",
+   "def": "A Teams Direct Routing option described in Microsoft’s planning articles. Read the current article before you enable it; this glossary does not restate its conditions.",
+   "cites": [
+    {
+     "label": "Plan Direct Routing",
+     "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+    }
+   ]
+  },
+  {
+   "term": "BYOC",
+   "def": "Bring your own carrier. In Genesys Cloud this is a documented product name for BYOC Cloud and BYOC Premises.",
+   "cites": [
+    {
+     "label": "Genesys BYOC Cloud overview",
+     "url": "https://help.genesys.cloud/articles/byoc-cloud-overview/"
+    }
+   ]
+  },
+  {
+   "term": "Elastic SIP trunk",
+   "def": "Twilio’s name for a SIP trunk with separate termination and origination settings.",
+   "cites": [
+    {
+     "label": "Twilio Elastic SIP Trunking",
+     "url": "https://www.twilio.com/docs/sip-trunking"
+    }
+   ]
+  },
+  {
+   "term": "Termination",
+   "def": "In Twilio Elastic SIP Trunking, calls from your PBX toward the PSTN.",
+   "cites": [
+    {
+     "label": "Twilio Elastic SIP Trunking",
+     "url": "https://www.twilio.com/docs/sip-trunking"
+    }
+   ]
+  },
+  {
+   "term": "Origination",
+   "def": "In Twilio Elastic SIP Trunking, calls from the PSTN toward your PBX.",
+   "cites": [
+    {
+     "label": "Twilio Elastic SIP Trunking",
+     "url": "https://www.twilio.com/docs/sip-trunking"
+    }
+   ]
+  },
+  {
+   "term": "Early media",
+   "def": "Media that flows before the call is answered, discussed in RFC 3960.",
+   "cites": [
+    {
+     "label": "RFC 3960",
+     "url": "https://www.rfc-editor.org/rfc/rfc3960"
+    }
+   ]
+  },
+  {
+   "term": "One-way audio",
+   "def": "Signaling succeeds and RTP flows in only one direction. Start with c=, m=, and the return path.",
+   "cites": [
+    {
+     "label": "RFC 3550",
+     "url": "https://www.rfc-editor.org/rfc/rfc3550"
+    }
+   ]
+  },
+  {
+   "term": "Toll fraud",
+   "def": "Unauthorized calling that creates carrier charges. Prevention on IOS voice includes the trusted IP list.",
+   "cites": [
+    {
+     "label": "Cisco CME toll-fraud prevention",
+     "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+    }
+   ]
+  },
+  {
+   "term": "Content-Length",
+   "def": "Byte length of the body. Compact form: l. A mismatch means the framing is wrong.",
+   "cites": [
+    {
+     "label": "RFC 3261 §20",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+    }
+   ]
+  },
+  {
+   "term": "Compact form",
+   "def": "Single-letter header names defined for a subset of headers.",
+   "cites": [
+    {
+     "label": "RFC 3261 §20",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+    }
+   ]
+  },
+  {
+   "term": "Max-Forwards exhaustion",
+   "def": "A request that arrives with Max-Forwards 0 is answered with 483 Too Many Hops.",
+   "cites": [
+    {
+     "label": "RFC 3261 §8.1.1.6",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.6"
+    }
+   ]
+  },
+  {
+   "term": "Forking",
+   "def": "A proxy sending one request to several targets, which can create early dialogs.",
+   "cites": [
+    {
+     "label": "RFC 3261 §16",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+    }
+   ]
+  },
+  {
+   "term": "Early dialog",
+   "def": "A dialog created by a provisional response that already carries a To tag.",
+   "cites": [
+    {
+     "label": "RFC 3261 §12",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+    }
+   ]
+  },
+  {
+   "term": "Target refresh",
+   "def": "Changing the remote target with a mid-dialog request. re-INVITE handling is covered by RFC 6141.",
+   "cites": [
+    {
+     "label": "RFC 6141",
+     "url": "https://www.rfc-editor.org/rfc/rfc6141"
+    }
+   ]
+  },
+  {
+   "term": "History-Info",
+   "def": "A standards-track record of request history.",
+   "cites": [
+    {
+     "label": "RFC 7044",
+     "url": "https://www.rfc-editor.org/rfc/rfc7044"
+    }
+   ]
+  },
+  {
+   "term": "Diversion",
+   "def": "A widely implemented, non-standards-track header for forwarding history.",
+   "cites": [
+    {
+     "label": "RFC 5806",
+     "url": "https://www.rfc-editor.org/rfc/rfc5806"
+    }
+   ]
+  },
+  {
+   "term": "Reason",
+   "def": "A header that carries why a request or response happened.",
+   "cites": [
+    {
+     "label": "RFC 3326",
+     "url": "https://www.rfc-editor.org/rfc/rfc3326"
+    }
+   ]
+  },
+  {
+   "term": "WebSocket transport",
+   "def": "SIP over WebSocket, used by browser user agents.",
+   "cites": [
+    {
+     "label": "RFC 7118",
+     "url": "https://www.rfc-editor.org/rfc/rfc7118"
+    }
+   ]
+  },
+  {
+   "term": "Domain certificate",
+   "def": "Guidance for which names belong on a SIP TLS certificate.",
+   "cites": [
+    {
+     "label": "RFC 5922",
+     "url": "https://www.rfc-editor.org/rfc/rfc5922"
+    }
+   ]
+  },
+  {
+   "term": "Connection reuse",
+   "def": "RFC 5923 aliasing. Microsoft’s Direct Routing proxy documentation says it does not support this aliasing.",
+   "cites": [
+    {
+     "label": "RFC 5923",
+     "url": "https://www.rfc-editor.org/rfc/rfc5923"
+    }
+   ]
+  },
+  {
+   "term": "Documentation address",
+   "def": "203.0.113.0/24, 198.51.100.0/24, and 192.0.2.0/24 are reserved for examples.",
+   "cites": [
+    {
+     "label": "RFC 5737",
+     "url": "https://www.rfc-editor.org/rfc/rfc5737"
+    }
+   ]
+  }
+ ]
+}

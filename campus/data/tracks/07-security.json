@@ -1,0 +1,2132 @@
+{
+ "id": "security",
+ "title": "TLS, SRTP, identity, and abuse",
+ "summary": "Defensive digest, TLS certificates, SRTP keying, privacy headers, STIR, and abuse controls.",
+ "level": "Advanced",
+ "order": 7,
+ "lessons": [
+  {
+   "id": "digest",
+   "title": "401, 407, and digest",
+   "minutes": 13,
+   "tags": [
+    "digest",
+    "401",
+    "407"
+   ],
+   "summary": "A 401 from a UAS is answered with Authorization. A 407 from a proxy is answered with Proxy-Authorization.",
+   "objectives": [
+    "Pair 401 with Authorization and WWW-Authenticate",
+    "Pair 407 with Proxy-Authorization and Proxy-Authenticate",
+    "Stop at the header split and do not compute an attack"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Which challenge uses which header",
+    "caption": "RFC 3261 section 22 is the SIP rule. RFC 7616 is the HTTP digest specification for algorithms.",
+    "columns": [
+     "Status",
+     "Who sends it",
+     "Challenge",
+     "Client header"
+    ],
+    "rows": [
+     [
+      "401",
+      "UAS",
+      "WWW-Authenticate",
+      "Authorization"
+     ],
+     [
+      "407",
+      "Proxy",
+      "Proxy-Authenticate",
+      "Proxy-Authorization"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Two challenges, two headers",
+     "paragraphs": [
+      "RFC 3261 section 22 defines SIP digest and the two challenge statuses that use it. A UAS that needs to authenticate the user sends 401 Unauthorized and a WWW-Authenticate header, and the client retries with Authorization.",
+      "A proxy that needs to authenticate the user sends 407 Proxy Authentication Required and a Proxy-Authenticate header, and the client retries with Proxy-Authorization. A 401 does not ask for Proxy-Authorization, and a 407 does not ask for Authorization."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §22",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+      },
+      {
+       "label": "RFC 7616",
+       "url": "https://www.rfc-editor.org/rfc/rfc7616"
+      }
+     ]
+    },
+    {
+     "h": "Algorithms, not a worked attack",
+     "paragraphs": [
+      "The challenge names the realm and the algorithm. RFC 7616 is the HTTP digest specification that adds algorithms such as SHA-256, and many challenges still show an older algorithm, so you read the parameter instead of assuming SHA-256.",
+      "The Authorization or Proxy-Authorization header carries a digest response, not the password in the clear. This lesson stops at which header answers which status. It does not compute that digest and it does not describe an attack."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7616",
+       "url": "https://www.rfc-editor.org/rfc/rfc7616"
+      },
+      {
+       "label": "RFC 3261 §22",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "407 first, then a 401",
+    "parties": [
+     "Alice",
+     "Proxy",
+     "UAS"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The first INVITE has no digest header. The proxy has not authenticated Alice.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "407",
+      "kind": "res",
+      "note": "407 from the proxy. The matching client header on the retry is Proxy-Authorization.",
+      "message": "SIP/2.0 407 Proxy Authentication Required\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=p407\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nProxy-Authenticate: Digest realm=\"example.com\", nonce=\"c0ffee01\", algorithm=SHA-256, qop=\"auth\"\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The retry carries Proxy-Authorization. The response value here is the placeholder not-computed, so this trace is not a usable credential.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKauth02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nProxy-Authorization: Digest realm=\"example.com\", username=\"alice\", algorithm=SHA-256, uri=\"sip:+15551212@example.com\", response=\"not-computed\"\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "401",
+      "kind": "res",
+      "note": "The UAS still wants the user authenticated. 401 uses WWW-Authenticate, and the client answer is Authorization, while Proxy-Authorization stays in the request for the proxy.",
+      "message": "SIP/2.0 401 Unauthorized\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=u401\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nWWW-Authenticate: Digest realm=\"example.com\", nonce=\"c0ffee02\", algorithm=SHA-256, qop=\"auth\"\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A 407 is answered with",
+     "choices": [
+      "Proxy-Authorization",
+      "Authorization",
+      "WWW-Authenticate",
+      "a=crypto"
+     ],
+     "answer": 0,
+     "why": "407 comes from a proxy. The challenge header is Proxy-Authenticate.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "q": "A 401 is answered with",
+     "choices": [
+      "Authorization",
+      "Proxy-Authorization",
+      "Proxy-Authenticate",
+      "Identity"
+     ],
+     "answer": 0,
+     "why": "401 comes from a UAS. The challenge header is WWW-Authenticate.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "q": "RFC 7616 is",
+     "choices": [
+      "The HTTP digest specification, including newer algorithms such as SHA-256",
+      "The SDP offer/answer model",
+      "The RTP header",
+      "STUN"
+     ],
+     "answer": 0,
+     "why": "Read the algorithm parameter. Do not assume every peer sends SHA-256.",
+     "cite": {
+      "label": "RFC 7616",
+      "url": "https://www.rfc-editor.org/rfc/rfc7616"
+     }
+    },
+    {
+     "q": "The digest response in the client header is",
+     "choices": [
+      "Not the password in the clear. This lesson does not compute it",
+      "The user's password copied into SDP",
+      "An RTP sequence number",
+      "A certificate private key"
+     ],
+     "answer": 0,
+     "why": "Stop at the header split in RFC 3261 section 22.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "q": "Proxy-Authenticate appears on",
+     "choices": [
+      "407",
+      "401",
+      "180",
+      "200"
+     ],
+     "answer": 0,
+     "why": "WWW-Authenticate appears on the 401 from the UAS.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "q": "After a proxy accepts the hop, a UAS may still send",
+     "choices": [
+      "401, which requires Authorization",
+      "Another 407 that requires Authorization",
+      "183 with no further rules",
+      "Port 0 in a header"
+     ],
+     "answer": 0,
+     "why": "The two challenges can both happen. Keep their headers separate.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "401",
+     "back": "From the UAS. Challenge is WWW-Authenticate. Retry with Authorization.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "front": "407",
+     "back": "From the proxy. Challenge is Proxy-Authenticate. Retry with Proxy-Authorization.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "front": "RFC 7616",
+     "back": "HTTP digest algorithms. Read the algorithm parameter.",
+     "cite": {
+      "label": "RFC 7616",
+      "url": "https://www.rfc-editor.org/rfc/rfc7616"
+     }
+    },
+    {
+     "front": "Stop here",
+     "back": "Identify the header. Do not compute a digest in this lesson.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read a 407",
+    "kind": "dissect",
+    "prompt": "Dissect the 407. Name the challenge header and the header the client must send next.",
+    "steps": [
+     "Press Dissect.",
+     "Read the status line.",
+     "Find Proxy-Authenticate and note there is no computed response."
+    ],
+    "check": {
+     "q": "Which header answers this 407?",
+     "choices": [
+      "Proxy-Authorization",
+      "Authorization",
+      "P-Asserted-Identity",
+      "a=fingerprint"
+     ],
+     "answer": 0,
+     "why": "A proxy challenge uses Proxy-Authenticate and is answered with Proxy-Authorization.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    "message": "SIP/2.0 407 Proxy Authentication Required\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=p407\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nProxy-Authenticate: Digest realm=\"example.com\", nonce=\"c0ffee01\", algorithm=SHA-256, qop=\"auth\"\nContent-Length: 0\n"
+   },
+   "fault": {
+    "title": "401 retried with the proxy header",
+    "symptom": "A UAS returned 401 with WWW-Authenticate. The next INVITE adds only Proxy-Authorization, and the UAS challenges again.",
+    "log": "SIP/2.0 401 Unauthorized\nWWW-Authenticate: Digest realm=\"example.com\", nonce=\"c0ffee02\", algorithm=SHA-256, qop=\"auth\"\nnext request has Proxy-Authorization and no Authorization\n",
+    "choices": [
+     "A 401 is answered with Authorization, not with Proxy-Authorization",
+     "401 and 407 use the same client header",
+     "SHA-256 means the password is written in SDP",
+     "The nonce belongs in c="
+    ],
+    "answer": 0,
+    "why": "RFC 3261 section 22 splits the UAS challenge from the proxy challenge.",
+    "cause": "The client treated every digest challenge as a proxy challenge.",
+    "fix": "On 401, send Authorization built for that WWW-Authenticate challenge. On 407, send Proxy-Authorization. Read the algorithm from the challenge. Do not place the password in the trace.",
+    "cites": [
+     {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     },
+     {
+      "label": "RFC 7616",
+      "url": "https://www.rfc-editor.org/rfc/rfc7616"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "tls-certs",
+   "title": "TLS and domain certificates",
+   "minutes": 14,
+   "tags": [
+    "tls",
+    "rfc5922",
+    "certs"
+   ],
+   "summary": "SIP over TLS is RFC 3261 section 18. The certificate has to identify the SIP domain, per RFC 5922.",
+   "objectives": [
+    "Treat TLS as a transport for the same SIP messages",
+    "Check the certificate against the SIP domain",
+    "Refuse a name that is only a nearby web host"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "What TLS is protecting",
+    "caption": "TLS covers the SIP messages on that connection. It does not by itself choose SRTP.",
+    "layers": [
+     {
+      "name": "SIP",
+      "detail": "Same methods, Via transport TLS"
+     },
+     {
+      "name": "TLS",
+      "detail": "RFC 3261 section 18, often port 5061"
+     },
+     {
+      "name": "Certificate",
+      "detail": "Must identify the SIP domain, RFC 5922"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "TLS carries SIP",
+     "paragraphs": [
+      "RFC 3261 section 18 allows SIP over TLS. The request line and the headers are the same protocol, the Via transport token is TLS, and the usual port is 5061.",
+      "A sip URI with transport=tls and a sips URI both tell you to expect TLS, and they are not a statement that the media is SRTP. Media protection is negotiated in SDP and is a later lesson."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §18",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+      },
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      }
+     ]
+    },
+    {
+     "h": "The certificate names the SIP domain",
+     "paragraphs": [
+      "RFC 5922 requires the certificate to identify the SIP domain the client intended to reach. Compare that identity with example.com when example.com is the domain you looked up, and reject a certificate that only names a different host.",
+      "A certificate for files.example.com does not identify the SIP domain example.com. Operators confirm the name with the peer's documented domain before they enable the trunk, and they do not accept a raw address that was never in the certificate."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5922",
+       "url": "https://www.rfc-editor.org/rfc/rfc5922"
+      },
+      {
+       "label": "RFC 3261 §18",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "INVITE over TLS",
+    "parties": [
+     "Alice",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Via says SIP/2.0/TLS. The method is still INVITE. The certificate check is RFC 5922, against example.com.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nSupported: 100rel\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying on the same TLS connection. It does not skip the name check that already happened.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/TLS 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "180 Ringing is still a SIP response. TLS did not change its meaning.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40;transport=tls>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK can carry SDP. SRTP, if any, is in that body, not implied by the transport.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40;transport=tls>\nContent-Length: 201\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "SIP over TLS is specified in",
+     "choices": [
+      "RFC 3261 section 18",
+      "RFC 3550",
+      "RFC 4733",
+      "RFC 8445"
+     ],
+     "answer": 0,
+     "why": "The messages stay SIP. The transport is TLS.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    },
+    {
+     "q": "RFC 5922 checks",
+     "choices": [
+      "That the certificate identifies the SIP domain you meant to reach",
+      "The RTP sequence number",
+      "The ptime value",
+      "The digest nonce length only"
+     ],
+     "answer": 0,
+     "why": "files.example.com is not the domain example.com.",
+     "cite": {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+     }
+    },
+    {
+     "q": "The usual SIP TLS port in RFC 3261 is",
+     "choices": [
+      "5061",
+      "5060",
+      "443 only",
+      "49170"
+     ],
+     "answer": 0,
+     "why": "5060 is the usual UDP and TCP port. Confirm the peer's document anyway.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    },
+    {
+     "q": "A successful TLS handshake means",
+     "choices": [
+      "The signaling connection matched the certificate rules you applied",
+      "The media is automatically SRTP",
+      "Digest is no longer defined",
+      "SDP can omit c="
+     ],
+     "answer": 0,
+     "why": "SRTP is a separate negotiation.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    },
+    {
+     "q": "Via on a TLS hop shows",
+     "choices": [
+      "SIP/2.0/TLS",
+      "SIP/2.0/SRTP",
+      "SIP/2.0/DTMF",
+      "SIP/2.0/ICE"
+     ],
+     "answer": 0,
+     "why": "SRTP is not a Via transport.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    },
+    {
+     "q": "A certificate that names only files.example.com, for a request to example.com,",
+     "choices": [
+      "Fails the RFC 5922 domain check",
+      "Is always acceptable",
+      "Satisfies the check because both end in example",
+      "Replaces the need for SDP"
+     ],
+     "answer": 0,
+     "why": "The identity is the SIP domain the client intended.",
+     "cite": {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 3261 §18",
+     "back": "SIP over TLS. Same methods. Via transport TLS.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    },
+    {
+     "front": "5061",
+     "back": "Usual TLS port in RFC 3261.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    },
+    {
+     "front": "RFC 5922",
+     "back": "The certificate must identify the SIP domain.",
+     "cite": {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+     }
+    },
+    {
+     "front": "Not SRTP",
+     "back": "TLS on SIP does not select the media keying method.",
+     "cite": {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read a TLS Via",
+    "kind": "dissect",
+    "prompt": "Dissect the INVITE. The transport is TLS. The domain in the request is example.com.",
+    "steps": [
+     "Press Dissect.",
+     "Read Via.",
+     "Name the domain RFC 5922 must find in the certificate."
+    ],
+    "check": {
+     "q": "Which domain must the certificate identify for this request?",
+     "choices": [
+      "example.com",
+      "files.example.com",
+      "The RTP payload type",
+      "The nonce c0ffee01"
+     ],
+     "answer": 0,
+     "why": "RFC 5922 binds the certificate to the SIP domain you are trying to reach.",
+     "cite": {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+     }
+    },
+    "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nSupported: 100rel\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "Web name on a SIP trunk",
+    "symptom": "TLS to example.com fails. The certificate presented on 5061 names a different host.",
+    "log": "target SIP domain: example.com\npeer 192.0.2.40 port 5061\ncertificate SAN DNS:files.example.com\nresult: name mismatch\n",
+    "choices": [
+     "The certificate does not identify the SIP domain example.com",
+     "Any name under example.com is enough",
+     "Port 5061 means skip RFC 5922",
+     "A mismatch is fixed by deleting Via"
+    ],
+    "answer": 0,
+    "why": "RFC 5922 compares the certificate with the SIP domain the client intended to reach.",
+    "cause": "The trunk presented a certificate for files.example.com.",
+    "fix": "Install a certificate that identifies example.com and confirm that name with the peer before you enable the trunk. Do not disable the name check to force the call up.",
+    "cites": [
+     {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+     },
+     {
+      "label": "RFC 3261 §18",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "srtp-keying",
+   "title": "SRTP and two keying methods",
+   "minutes": 15,
+   "tags": [
+    "srtp",
+    "sdes",
+    "dtls-srtp"
+   ],
+   "summary": "SRTP is RFC 3711. SDES a=crypto is RFC 4568. DTLS-SRTP is RFC 5764. An SBC must not assume peers share one method.",
+   "objectives": [
+    "Separate SRTP from the way keys are obtained",
+    "Name SDES and DTLS-SRTP as different keying methods",
+    "Key each SBC leg with the method that leg negotiated"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Packet protection versus keying",
+    "caption": "Copying one leg's keying line onto the other leg is the failure this lesson prevents.",
+    "columns": [
+     "Piece",
+     "RFC",
+     "Where it appears"
+    ],
+    "rows": [
+     [
+      "SRTP",
+      "3711",
+      "Encrypted and authenticated RTP"
+     ],
+     [
+      "SDES",
+      "4568",
+      "a=crypto in SDP"
+     ],
+     [
+      "DTLS-SRTP",
+      "5764",
+      "DTLS on the media path, fingerprint in SDP"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "SRTP is not the key exchange",
+     "paragraphs": [
+      "RFC 3711 defines SRTP, which encrypts and authenticates RTP and keeps the sequence number, timestamp, and SSRC in the packet. The profile token RTP/SAVP is SRTP, and it does not interchange with RTP/AVP.",
+      "Keying is a separate decision from the SRTP packet format itself. SDES, RFC 4568, puts the keying material in an a=crypto line inside SDP, so that line is only as private as the signaling path that carries it, and you use it on TLS when you use it at all."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3711",
+       "url": "https://www.rfc-editor.org/rfc/rfc3711"
+      },
+      {
+       "label": "RFC 4568",
+       "url": "https://www.rfc-editor.org/rfc/rfc4568"
+      },
+      {
+       "label": "RFC 3261 §18",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+      }
+     ]
+    },
+    {
+     "h": "DTLS-SRTP is the other method",
+     "paragraphs": [
+      "DTLS-SRTP, RFC 5764, runs DTLS on the media path and derives the SRTP keys there. SDP carries a fingerprint so each side can check the certificate used in that handshake, and the profile token is UDP/TLS/RTP/SAVP rather than a bare RTP/AVP line.",
+      "An SBC must not assume two peers share one keying method. If one leg offers SDES and the other offers DTLS-SRTP, the SBC keys each leg with the method that leg negotiated and does not paste a=crypto onto the DTLS leg or paste a fingerprint onto a peer that asked for SDES."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5764",
+       "url": "https://www.rfc-editor.org/rfc/rfc5764"
+      },
+      {
+       "label": "RFC 4568",
+       "url": "https://www.rfc-editor.org/rfc/rfc4568"
+      },
+      {
+       "label": "RFC 3711",
+       "url": "https://www.rfc-editor.org/rfc/rfc3711"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Two legs, two methods",
+    "parties": [
+     "Peer A",
+     "SBC",
+     "Peer B"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Peer A offers RTP/SAVP. That is SRTP. Keying on this leg is SDES, a=crypto, and the key material is not printed in this ladder.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 135\n\nv=0\no=alice 70 70 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying does not choose a keying method.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Peer B is a different peer. This synthetic offer uses UDP/TLS/RTP/SAVP and a fingerprint, which is DTLS-SRTP. The SBC must not reuse Peer A's method.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.20;branch=z9hG4bKsrtp02\nMax-Forwards: 69\nFrom: \"Alice\" <sip:alice@example.com>;tag=sbc1\nTo: <sip:+15551212@example.com>\nCall-ID: b2b-srtp@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20;transport=tls>\nContent-Type: application/sdp\nContent-Length: 275\n\nv=0\no=sbc 1 1 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 UDP/TLS/RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=fingerprint:sha-256 00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF\na=setup:actpass\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "Peer B answers the DTLS-SRTP profile. The SBC still has to finish SDES toward Peer A. One shared key is not assumed.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40;transport=tls>\nContent-Length: 270\n\nv=0\no=bob 2 2 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40040 UDP/TLS/RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=fingerprint:sha-256 11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00\na=setup:active\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "SRTP is",
+     "choices": [
+      "RFC 3711",
+      "RFC 4568",
+      "RFC 5764",
+      "RFC 3323"
+     ],
+     "answer": 0,
+     "why": "4568 and 5764 are keying methods. 3711 is the protected RTP.",
+     "cite": {
+      "label": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711"
+     }
+    },
+    {
+     "q": "a=crypto is",
+     "choices": [
+      "SDES, RFC 4568",
+      "DTLS-SRTP",
+      "A digest challenge",
+      "An ICE candidate"
+     ],
+     "answer": 0,
+     "why": "The keying material rides in SDP, so the signaling path has to protect it.",
+     "cite": {
+      "label": "RFC 4568",
+      "url": "https://www.rfc-editor.org/rfc/rfc4568"
+     }
+    },
+    {
+     "q": "DTLS-SRTP is",
+     "choices": [
+      "RFC 5764",
+      "RFC 4568",
+      "RFC 3551",
+      "RFC 3581"
+     ],
+     "answer": 0,
+     "why": "Keys come from DTLS on the media path. SDP carries a fingerprint.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    },
+    {
+     "q": "RTP/AVP and RTP/SAVP",
+     "choices": [
+      "Do not interchange",
+      "Are the same profile",
+      "Both mean plaintext",
+      "Both mean DTLS-SRTP"
+     ],
+     "answer": 0,
+     "why": "RTP/SAVP is SRTP. RTP/AVP is not.",
+     "cite": {
+      "label": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711"
+     }
+    },
+    {
+     "q": "An SBC between SDES and DTLS-SRTP should",
+     "choices": [
+      "Key each leg with the method that leg negotiated",
+      "Copy a=crypto onto both legs",
+      "Assume both peers already share one master key",
+      "Delete c= to force plaintext"
+     ],
+     "answer": 0,
+     "why": "The peers did not agree to one method. The SBC terminates and re-keys.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    },
+    {
+     "q": "SDES keying material in SDP requires",
+     "choices": [
+      "A protected signaling path, such as TLS, if you use SDES",
+      "That DTLS be skipped on every peer",
+      "A public posting of the key",
+      "Payload type 9"
+     ],
+     "answer": 0,
+     "why": "RFC 4568 puts secrets in the signaling. Do not print them in tickets.",
+     "cite": {
+      "label": "RFC 4568",
+      "url": "https://www.rfc-editor.org/rfc/rfc4568"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 3711",
+     "back": "SRTP. Protects RTP. Profile RTP/SAVP.",
+     "cite": {
+      "label": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711"
+     }
+    },
+    {
+     "front": "RFC 4568",
+     "back": "SDES. a=crypto in SDP. Protect the signaling.",
+     "cite": {
+      "label": "RFC 4568",
+      "url": "https://www.rfc-editor.org/rfc/rfc4568"
+     }
+    },
+    {
+     "front": "RFC 5764",
+     "back": "DTLS-SRTP. Keys from DTLS. Fingerprint in SDP.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    },
+    {
+     "front": "Per leg",
+     "back": "Do not assume two peers share one keying method.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    }
+   ],
+   "lab": {
+    "title": "See the profile mismatch",
+    "kind": "sdp",
+    "prompt": "The offer is RTP/SAVP. The answer is RTP/AVP. Negotiate and read the profile warning.",
+    "steps": [
+     "Press Negotiate.",
+     "Compare the profile tokens.",
+     "State which profile is SRTP."
+    ],
+    "check": {
+     "q": "Why is this answer not SRTP toward the offerer?",
+     "choices": [
+      "The answer profile is RTP/AVP, which does not interchange with RTP/SAVP",
+      "RTP/AVP means DTLS-SRTP",
+      "Both profiles share a=crypto automatically",
+      "Port numbers differ, so the profiles match"
+     ],
+     "answer": 0,
+     "why": "SRTP uses RTP/SAVP. An SBC still has to key each real leg with the method that leg actually offered.",
+     "cite": {
+      "label": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711"
+     }
+    },
+    "offer": "v=0\no=alice 70 70 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/SAVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n",
+    "answer": "v=0\no=bob 71 71 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 40040 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "One keying line copied to both peers",
+    "symptom": "Peer A negotiated SDES. Peer B negotiated DTLS-SRTP. The SBC forwarded Peer A's a=crypto line onto Peer B and media stays silent.",
+    "log": "leg A m=audio 49170 RTP/SAVP 0\nleg A a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:<withheld>\nleg B m=audio 40040 UDP/TLS/RTP/SAVP 0\nleg B a=fingerprint:sha-256 00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF\nleg B a=setup:actpass\nSBC copied the a=crypto line onto leg B\n",
+    "choices": [
+     "The legs use different keying methods and must be keyed separately",
+     "a=crypto and a fingerprint are the same method",
+     "Copying the line is required by RFC 3711",
+     "Silence means the SIP Call-ID collided"
+    ],
+    "answer": 0,
+    "why": "SDES is RFC 4568. DTLS-SRTP is RFC 5764. SRTP itself is RFC 3711.",
+    "cause": "The SBC assumed the peers shared one keying method and pasted SDP keying from one leg onto the other.",
+    "fix": "Terminate media on the SBC and complete SDES only with the SDES peer and DTLS-SRTP only with the DTLS-SRTP peer. Keep key material out of tickets. Protect any SDES signaling with TLS.",
+    "cites": [
+     {
+      "label": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711"
+     },
+     {
+      "label": "RFC 4568",
+      "url": "https://www.rfc-editor.org/rfc/rfc4568"
+     },
+     {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "privacy-pai",
+   "title": "Privacy and asserted identity",
+   "minutes": 12,
+   "tags": [
+    "privacy",
+    "pai",
+    "rfc3325"
+   ],
+   "summary": "Privacy is RFC 3323. P-Asserted-Identity and P-Preferred-Identity are for trusted networks, not cryptographic identity.",
+   "objectives": [
+    "Name the Privacy header and the id token",
+    "Keep PAI and PPI inside a trust domain",
+    "Refuse to treat PAI as a signature"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Trust domain boundary",
+    "caption": "PPI is a hint from the UA. PAI is inserted by a trusted element. Both stop at the edge.",
+    "nodes": [
+     "PPI",
+     "Check",
+     "PAI",
+     "Strip"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Privacy asks for withholding",
+     "paragraphs": [
+      "RFC 3323 defines the Privacy header and the tokens a user agent can set on it. The id token asks intermediaries to withhold a network-asserted identity, and other tokens cover headers, the session description, and user-level information.",
+      "Privacy: none means the user is not asking for those withholdings. If you do not understand a privacy token marked critical, you fail the request instead of forwarding an identity the user asked you to hide."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3323",
+       "url": "https://www.rfc-editor.org/rfc/rfc3323"
+      }
+     ]
+    },
+    {
+     "h": "Asserted identity is not a signature",
+     "paragraphs": [
+      "RFC 3325 defines P-Asserted-Identity and P-Preferred-Identity for trusted networks. A user agent may send P-Preferred-Identity as a hint, and a trusted proxy that has authenticated the user may replace that hint with P-Asserted-Identity.",
+      "Outside the trust domain, remove both P-Asserted-Identity and P-Preferred-Identity before the request is forwarded. P-Asserted-Identity is not cryptographic identity, and it does not prove the caller to a carrier or to a user the way a signed token does, which is why STIR is the later lesson for that job."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3325",
+       "url": "https://www.rfc-editor.org/rfc/rfc3325"
+      },
+      {
+       "label": "RFC 3323",
+       "url": "https://www.rfc-editor.org/rfc/rfc3323"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "PAI stops at the edge",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Alice sends P-Preferred-Identity. That is a hint to her trusted proxy, not a proof.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nP-Preferred-Identity: <sip:alice@example.com>\nPrivacy: id\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying does not assert an identity.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "This hop leaves the trust domain. Privacy: id means the asserted identity is withheld, so PAI is not forwarded.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKpaiedge\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nPrivacy: id\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 Ringing has no identity header to display as verified.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "RFC 3323 defines",
+     "choices": [
+      "The Privacy header",
+      "SRTP",
+      "telephone-event",
+      "ICE"
+     ],
+     "answer": 0,
+     "why": "The id token asks that a network-asserted identity be withheld.",
+     "cite": {
+      "label": "RFC 3323",
+      "url": "https://www.rfc-editor.org/rfc/rfc3323"
+     }
+    },
+    {
+     "q": "P-Asserted-Identity is",
+     "choices": [
+      "For trusted networks, and it is not cryptographic identity",
+      "A PASSporT signature",
+      "Proof for any downstream carrier",
+      "An RTP header field"
+     ],
+     "answer": 0,
+     "why": "RFC 3325 scopes it to a trust domain.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    },
+    {
+     "q": "P-Preferred-Identity is",
+     "choices": [
+      "A hint from the UA to its trusted proxy",
+      "A certificate",
+      "The answer SDP",
+      "A 407 challenge"
+     ],
+     "answer": 0,
+     "why": "The proxy asserts an identity only after it authenticates the user.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    },
+    {
+     "q": "At the edge of the trust domain you",
+     "choices": [
+      "Remove PAI and PPI",
+      "Add PAI so the carrier can treat it as a signature",
+      "Copy PAI into a=crypto",
+      "Replace Privacy with a payload type"
+     ],
+     "answer": 0,
+     "why": "Privacy: id specifically asks that the asserted identity be withheld.",
+     "cite": {
+      "label": "RFC 3323",
+      "url": "https://www.rfc-editor.org/rfc/rfc3323"
+     }
+    },
+    {
+     "q": "Privacy: id means",
+     "choices": [
+      "Withhold the network-asserted identity",
+      "Publish the identity in RTP",
+      "Disable TLS",
+      "Set the call to sendonly"
+     ],
+     "answer": 0,
+     "why": "It is a privacy request, not a verification result.",
+     "cite": {
+      "label": "RFC 3323",
+      "url": "https://www.rfc-editor.org/rfc/rfc3323"
+     }
+    },
+    {
+     "q": "A screen that says verified because PAI is present is",
+     "choices": [
+      "Wrong. PAI is not a cryptographic identity",
+      "Required by RFC 3325 for every call",
+      "The STIR success state",
+      "Proof of digest"
+     ],
+     "answer": 0,
+     "why": "Cryptographic caller identity is STIR, not PAI.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 3323",
+     "back": "Privacy header. id withholds a network-asserted identity.",
+     "cite": {
+      "label": "RFC 3323",
+      "url": "https://www.rfc-editor.org/rfc/rfc3323"
+     }
+    },
+    {
+     "front": "PPI",
+     "back": "P-Preferred-Identity. A hint from the UA inside the trust domain.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    },
+    {
+     "front": "PAI",
+     "back": "P-Asserted-Identity. Trusted networks only. Not a signature.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    },
+    {
+     "front": "Strip",
+     "back": "Remove PAI and PPI when the request leaves the trust domain.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    }
+   ],
+   "lab": {
+    "title": "See PAI on the wrong hop",
+    "kind": "dissect",
+    "prompt": "This INVITE is addressed to the carrier and still contains P-Asserted-Identity and Privacy: id.",
+    "steps": [
+     "Press Dissect.",
+     "Find Privacy and P-Asserted-Identity.",
+     "Decide whether this hop is still inside a trust domain."
+    ],
+    "check": {
+     "q": "What should happen to P-Asserted-Identity before this request reaches the carrier?",
+     "choices": [
+      "Remove it. Privacy id asks that the asserted identity be withheld",
+      "Keep it, because PAI is a signature",
+      "Move it into SDP c=",
+      "Replace it with a payload type"
+     ],
+     "answer": 0,
+     "why": "RFC 3325 headers are for trusted networks. They are not cryptographic identity.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    },
+    "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKpai01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nPrivacy: id\nP-Asserted-Identity: <sip:alice@example.com>\nP-Preferred-Identity: <sip:alice@example.com>\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "Asserted identity forwarded anyway",
+    "symptom": "The carrier shows alice@example.com as a verified network identity. The SBC forwarded PAI on a request that also asked for Privacy id.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKpai01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nPrivacy: id\nP-Asserted-Identity: <sip:alice@example.com>\nP-Preferred-Identity: <sip:alice@example.com>\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n",
+    "choices": [
+     "PAI left the trust domain even though Privacy id asked for it to be withheld",
+     "PAI is a STIR signature so forwarding is required",
+     "Privacy id means attach a fingerprint",
+     "The From header is illegal"
+    ],
+    "answer": 0,
+    "why": "P-Asserted-Identity is a trusted-network header. It is not cryptographic identity, and Privacy id asks that it be withheld.",
+    "cause": "The edge forwarded both the privacy request and the identity the request asked to withhold.",
+    "fix": "Strip P-Asserted-Identity and P-Preferred-Identity at the trust boundary. Do not render PAI as a verified caller. Use STIR when you need a signed identity.",
+    "cites": [
+     {
+      "label": "RFC 3323",
+      "url": "https://www.rfc-editor.org/rfc/rfc3323"
+     },
+     {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "stir-shaken",
+   "title": "STIR, PASSporT, and SHAKEN",
+   "minutes": 14,
+   "tags": [
+    "stir",
+    "passport",
+    "shaken"
+   ],
+   "summary": "STIR is RFC 8224, PASSporT is RFC 8225, certificates are RFC 8226, and the SHAKEN extension is RFC 8588. Attestation levels are ATIS.",
+   "objectives": [
+    "Point at the four RFCs for STIR, PASSporT, certificates, and SHAKEN",
+    "Require a verified Identity header before calling a call authenticated",
+    "Attribute attestation levels to ATIS and confirm the current document"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "What has to be present",
+    "caption": "PAI is not a layer in this stack. Attestation levels are not invented here.",
+    "layers": [
+     {
+      "name": "RFC 8224",
+      "detail": "STIR, Identity header in SIP"
+     },
+     {
+      "name": "RFC 8225",
+      "detail": "PASSporT token"
+     },
+     {
+      "name": "RFC 8226",
+      "detail": "Certificates used to sign and verify"
+     },
+     {
+      "name": "RFC 8588",
+      "detail": "SHAKEN PASSporT extension"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "The IETF pieces",
+     "paragraphs": [
+      "STIR, RFC 8224, puts a signed identity in the SIP Identity header. The token format is PASSporT, RFC 8225, and the certificates used with that signature are RFC 8226.",
+      "RFC 8588 is the SHAKEN PASSporT extension, and it is how a SHAKEN profile rides on the IETF token. Verification that fails, or an Identity header that is absent, means you do not present the From value as STIR-authenticated."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8224",
+       "url": "https://www.rfc-editor.org/rfc/rfc8224"
+      },
+      {
+       "label": "RFC 8225",
+       "url": "https://www.rfc-editor.org/rfc/rfc8225"
+      },
+      {
+       "label": "RFC 8226",
+       "url": "https://www.rfc-editor.org/rfc/rfc8226"
+      },
+      {
+       "label": "RFC 8588",
+       "url": "https://www.rfc-editor.org/rfc/rfc8588"
+      }
+     ]
+    },
+    {
+     "h": "Attestation levels are ATIS",
+     "paragraphs": [
+      "Attestation levels people label A, B, and C are an ATIS SHAKEN concept. They are defined by ATIS SHAKEN specifications, and you confirm the current ATIS document before you teach or display those levels. This lesson does not invent an ATIS document number or a date.",
+      "The FCC call-authentication page is the public regulator summary to cite beside those specifications. P-Asserted-Identity does not fill in for a missing Identity header, and a failed signature stays failed."
+     ],
+     "cites": [
+      {
+       "label": "FCC call authentication",
+       "url": "https://www.fcc.gov/call-authentication"
+      },
+      {
+       "label": "RFC 8588",
+       "url": "https://www.rfc-editor.org/rfc/rfc8588"
+      },
+      {
+       "label": "RFC 3325",
+       "url": "https://www.rfc-editor.org/rfc/rfc3325"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "No Identity header, no STIR result",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "This INVITE has no Identity header. It is not a STIR-authenticated request.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKstir01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying does not add a PASSporT.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Forwarding the same request still does not create an Identity header. Do not mark the call verified.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKstir02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "180 means ringing. It is not a certificate check and it is not an attestation level.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "STIR is",
+     "choices": [
+      "RFC 8224",
+      "RFC 3325",
+      "RFC 3711",
+      "RFC 4733"
+     ],
+     "answer": 0,
+     "why": "The Identity header is the SIP piece.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    },
+    {
+     "q": "PASSporT is",
+     "choices": [
+      "RFC 8225",
+      "RFC 8224",
+      "RFC 3323",
+      "RFC 4568"
+     ],
+     "answer": 0,
+     "why": "Certificates for this signature are RFC 8226.",
+     "cite": {
+      "label": "RFC 8225",
+      "url": "https://www.rfc-editor.org/rfc/rfc8225"
+     }
+    },
+    {
+     "q": "The SHAKEN PASSporT extension is",
+     "choices": [
+      "RFC 8588",
+      "RFC 3261",
+      "RFC 3550",
+      "RFC 8489"
+     ],
+     "answer": 0,
+     "why": "Use it with the STIR base documents, not instead of them.",
+     "cite": {
+      "label": "RFC 8588",
+      "url": "https://www.rfc-editor.org/rfc/rfc8588"
+     }
+    },
+    {
+     "q": "Attestation levels A, B, and C are",
+     "choices": [
+      "Defined by ATIS SHAKEN specifications. Confirm the current ATIS document",
+      "Defined by a document number this lesson invents",
+      "The same thing as PAI",
+      "RTP payload types"
+     ],
+     "answer": 0,
+     "why": "Cite the FCC call-authentication page as the regulator summary. Do not invent a date.",
+     "cite": {
+      "label": "FCC call authentication",
+      "url": "https://www.fcc.gov/call-authentication"
+     }
+    },
+    {
+     "q": "An INVITE with no Identity header is",
+     "choices": [
+      "Not STIR-authenticated",
+      "Fully attested because From is present",
+      "Verified by 180 Ringing",
+      "Covered by ptime"
+     ],
+     "answer": 0,
+     "why": "Absence is not success. A failed signature is not success either.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    },
+    {
+     "q": "PAI can replace a missing STIR signature",
+     "choices": [
+      "No",
+      "Yes",
+      "Only when the codec is G.722",
+      "Only on 407"
+     ],
+     "answer": 0,
+     "why": "PAI is a trusted-network header, not cryptographic identity.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 8224",
+     "back": "STIR. Identity header in SIP.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    },
+    {
+     "front": "RFC 8225",
+     "back": "PASSporT.",
+     "cite": {
+      "label": "RFC 8225",
+      "url": "https://www.rfc-editor.org/rfc/rfc8225"
+     }
+    },
+    {
+     "front": "RFC 8226",
+     "back": "Certificates for STIR.",
+     "cite": {
+      "label": "RFC 8226",
+      "url": "https://www.rfc-editor.org/rfc/rfc8226"
+     }
+    },
+    {
+     "front": "Levels A/B/C",
+     "back": "ATIS SHAKEN. Confirm the current ATIS document. See also the FCC page.",
+     "cite": {
+      "label": "FCC call authentication",
+      "url": "https://www.fcc.gov/call-authentication"
+     }
+    }
+   ],
+   "lab": {
+    "title": "No Identity header",
+    "kind": "dissect",
+    "prompt": "Dissect the INVITE. Decide whether it is STIR-authenticated.",
+    "steps": [
+     "Press Dissect.",
+     "Search for an Identity header.",
+     "State the STIR result."
+    ],
+    "check": {
+     "q": "Is this INVITE STIR-authenticated?",
+     "choices": [
+      "No. There is no Identity header to verify",
+      "Yes, because the From user is Alice",
+      "Yes, because the domain is example.com",
+      "Yes, because Via is present"
+     ],
+     "answer": 0,
+     "why": "STIR verification needs the Identity header and the certificate check in RFC 8224 and RFC 8226.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    },
+    "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKstir01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+   },
+   "fault": {
+    "title": "PAI displayed as a verified caller",
+    "symptom": "A console labels the call verified. The INVITE has P-Asserted-Identity and no Identity header.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nP-Asserted-Identity: <sip:alice@example.com>\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\n(no Identity header)\nconsole: verified caller\n",
+    "choices": [
+     "PAI is not STIR. There is no Identity header to verify",
+     "PAI is PASSporT",
+     "180 Ringing would have been the signature",
+     "Attestation levels are payload types 0, 8, and 9"
+    ],
+    "answer": 0,
+    "why": "STIR is RFC 8224. A missing Identity header is not a successful verification.",
+    "cause": "The display treated a trusted-network header as a signed attestation.",
+    "fix": "Show the call as not STIR-authenticated. Verify Identity with the RFC 8226 certificate when the header is present. For attestation levels, use the current ATIS SHAKEN specification and the FCC call-authentication page, and do not invent a document number or a date.",
+    "cites": [
+     {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     },
+     {
+      "label": "RFC 8226",
+      "url": "https://www.rfc-editor.org/rfc/rfc8226"
+     },
+     {
+      "label": "FCC call authentication",
+      "url": "https://www.fcc.gov/call-authentication"
+     },
+     {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "threats",
+   "title": "Scanning, hijack, and toll fraud",
+   "minutes": 13,
+   "tags": [
+    "abuse",
+    "toll-fraud",
+    "register"
+   ],
+   "summary": "Scanning, registration hijack, and toll fraud are classes of abuse. The response is authentication, exposure control, and alerting.",
+   "objectives": [
+    "Recognize unsolicited SIP as scanning pressure on an open listener",
+    "Describe registration hijack as a replaced Contact binding",
+    "Treat toll fraud as unauthorized call completion"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Class of abuse and the defensive control",
+    "caption": "Each row is a failure mode a defender looks for. None of these rows is a procedure.",
+    "columns": [
+     "Class",
+     "What you observe",
+     "Control"
+    ],
+    "rows": [
+     [
+      "Scanning",
+      "INVITE and REGISTER from addresses you did not provision",
+      "Do not expose SIP to the whole Internet"
+     ],
+     [
+      "Registration hijack",
+      "Contact for an address-of-record changes unexpectedly",
+      "Authenticate REGISTER and alert on Contact changes"
+     ],
+     [
+      "Toll fraud",
+      "Calls complete from a source that is not allowed to place them",
+      "Authorize outbound calls. See the CME guide and FCC call authentication"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Scanning and registration hijack",
+     "paragraphs": [
+      "An Internet-reachable SIP port receives unsolicited INVITE and REGISTER requests. That traffic is scanning for open services, and the defensive response is to accept SIP only from peers you named and to require authentication on REGISTER.",
+      "Registration hijack is the failure in which a Contact binding for an address-of-record is replaced, so later calls are routed to a target the user did not request. RFC 3261 requires the registrar to authenticate REGISTER. Alert when Contact changes to an address you did not provision."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §22",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+      },
+      {
+       "label": "RFC 3261 §10",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+      }
+     ]
+    },
+    {
+     "h": "Toll fraud as a class",
+     "paragraphs": [
+      "Toll fraud is a class of abuse in which an unauthorized party completes calls that someone else pays for, and you treat it as an authorization failure. The Cisco CME toll-fraud prevention guide documents controls such as trusting only known sources.",
+      "Call authentication, summarized on the FCC call-authentication page, reduces spoofed caller identity and does not replace outbound authorization. This lesson names the classes and the controls, and it does not give steps for causing the abuse."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      },
+      {
+       "label": "FCC call authentication",
+       "url": "https://www.fcc.gov/call-authentication"
+      }
+     ]
+    },
+    {
+     "h": "What you log",
+     "paragraphs": [
+      "Log the source address, the method, the Request-URI, and whether a digest challenge was issued. A REGISTER that is stored with no challenge is a defect in the registrar configuration, and the fix is to refuse the binding.",
+      "Do not collect passwords into the ticket, and do not disable authentication to quiet an alarm. Pair this lesson with the hardening lesson for the allow list and the certificate check."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §22",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+      },
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "A REGISTER that should have been challenged",
+    "parties": [
+     "Unknown source",
+     "Registrar"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "REGISTER",
+      "kind": "req",
+      "note": "The source is 192.0.2.40. Alice's phone in this network is 203.0.113.10. This request is not from a provisioned phone.",
+      "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKregbad\nMax-Forwards: 70\nFrom: <sip:alice@example.com>;tag=regbad\nTo: <sip:alice@example.com>\nCall-ID: reg-bad@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "This 200 OK stored a binding with no digest challenge. That is the defect. The defensive result is a challenge, not a stored Contact.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKregbad\nFrom: <sip:alice@example.com>;tag=regbad\nTo: <sip:alice@example.com>;tag=regsrv\nCall-ID: reg-bad@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@192.0.2.40>;expires=3600\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "A later INVITE from an unnamed source is the same exposure class. It is not authorized because the source is not a provisioned peer.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKscan01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@192.0.2.40>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 214\n\nv=0\no=alice 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "403",
+      "kind": "res",
+      "note": "403 Forbidden is a reasonable policy response for a source you do not accept. It is not a codec negotiation.",
+      "message": "SIP/2.0 403 Forbidden\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=deny1\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Unsolicited INVITE and REGISTER from unnamed addresses are",
+     "choices": [
+      "Scanning pressure. Limit who can reach SIP",
+      "Proof the codec list is wrong",
+      "Required by RFC 3960",
+      "A form of RTCP"
+     ],
+     "answer": 0,
+     "why": "The control is exposure and authentication, not a payload-type change.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "q": "Registration hijack, as a class, means",
+     "choices": [
+      "A Contact binding is replaced so calls go to an unintended target",
+      "RTP sequence numbers wrap",
+      "ptime is 20",
+      "TLS port 5061 is closed"
+     ],
+     "answer": 0,
+     "why": "Authenticate REGISTER and alert on unexpected Contact changes.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    },
+    {
+     "q": "Toll fraud, as a class, means",
+     "choices": [
+      "Unauthorized call completion that someone else pays for",
+      "A G.722 clock of 8000",
+      "A missing fmtp line",
+      "An RTCP receiver report"
+     ],
+     "answer": 0,
+     "why": "It is an authorization failure. See the CME toll-fraud guide.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "q": "The FCC call-authentication page is cited here because",
+     "choices": [
+      "Call authentication reduces spoofed caller identity and does not replace outbound authorization",
+      "It assigns RTP payload types",
+      "It replaces RFC 3261 section 22",
+      "It is an ATIS document number"
+     ],
+     "answer": 0,
+     "why": "Use it at a high level beside the CME controls.",
+     "cite": {
+      "label": "FCC call authentication",
+      "url": "https://www.fcc.gov/call-authentication"
+     }
+    },
+    {
+     "q": "A REGISTER stored with no challenge is",
+     "choices": [
+      "A defect. Refuse the binding until digest succeeds",
+      "The recommended default",
+      "Required by SDP",
+      "Proof of STIR"
+     ],
+     "answer": 0,
+     "why": "RFC 3261 section 22 is how the registrar authenticates the user.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "q": "This lesson includes attack steps",
+     "choices": [
+      "No. It names classes and defensive controls",
+      "Yes, including password lists",
+      "Yes, including scanner commands",
+      "Yes, including forged signatures to replay"
+     ],
+     "answer": 0,
+     "why": "Log source, method, and whether a challenge was sent. Keep passwords out of the ticket.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Scanning",
+     "back": "Unsolicited SIP from addresses you did not provision. Close the exposure.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "front": "Hijack",
+     "back": "Unexpected Contact on an address-of-record. Authenticate REGISTER.",
+     "cite": {
+      "label": "RFC 3261 §10",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+     }
+    },
+    {
+     "front": "Toll fraud",
+     "back": "Unauthorized calls that run up charges. Authorize the source.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "front": "FCC page",
+     "back": "Call authentication is not a substitute for outbound authorization.",
+     "cite": {
+      "label": "FCC call authentication",
+      "url": "https://www.fcc.gov/call-authentication"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read an unchallenged REGISTER result",
+    "kind": "dissect",
+    "prompt": "Dissect the 200 OK. The Contact is 192.0.2.40 and there was no digest challenge.",
+    "steps": [
+     "Press Dissect.",
+     "Read Contact.",
+     "State the control that was missing."
+    ],
+    "check": {
+     "q": "What should have happened before this binding was stored?",
+     "choices": [
+      "A digest challenge, and a refusal if it fails",
+      "An immediate 200 OK for every source",
+      "A codec transcode",
+      "A ptime change"
+     ],
+     "answer": 0,
+     "why": "Registration hijack is a replaced Contact. Authentication is the control.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 192.0.2.40;branch=z9hG4bKregbad\nFrom: <sip:alice@example.com>;tag=regbad\nTo: <sip:alice@example.com>;tag=regsrv\nCall-ID: reg-bad@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@192.0.2.40>;expires=3600\nContent-Length: 0\n"
+   },
+   "fault": {
+    "title": "Outbound INVITE from a source that is not trusted",
+    "symptom": "Calls to +15551212 complete from 203.0.113.10, which is not on the trusted peer list, and usage charges appear.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKtoll01\nFrom: \"Alice\" <sip:alice@example.com>;tag=toll1\nTo: <sip:+15551212@example.com>\nsource 203.0.113.10 is not a trusted peer\noutbound class: not authorized\n",
+    "choices": [
+     "This is toll fraud as a class: the source is not authorized to complete calls",
+     "The fix is to disable digest so the alarm stops",
+     "The G.722 clock caused the charges",
+     "PAI makes every source authorized"
+    ],
+    "answer": 0,
+    "why": "Authorize who may place calls. The CME toll-fraud guide is the product document for that control, and FCC call authentication addresses a different problem, spoofed caller identity.",
+    "cause": "The edge accepted an INVITE from a source that was not on the trusted list and completed it.",
+    "fix": "Reject sources you have not provisioned, require digest or TLS for peers you do accept, and keep outbound permissions separate from caller-ID authentication. Do not weaken authentication to clear the alarm.",
+    "cites": [
+     {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     },
+     {
+      "label": "FCC call authentication",
+      "url": "https://www.fcc.gov/call-authentication"
+     },
+     {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "hardening",
+   "title": "Hardening a SIP edge",
+   "minutes": 12,
+   "tags": [
+    "hardening",
+    "policy",
+    "edge"
+   ],
+   "summary": "A defensive edge limits peers, requires digest and TLS, strips PAI, and does not share SRTP keying across legs.",
+   "objectives": [
+    "Write an allow list of signaling peers",
+    "Require digest on REGISTER and a domain certificate on TLS",
+    "Keep identity and media keying rules explicit"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Controls that stack",
+    "caption": "Each control answers a different failure. Removing one does not make the others optional.",
+    "layers": [
+     {
+      "name": "Peers",
+      "detail": "Only named addresses"
+     },
+     {
+      "name": "Digest",
+      "detail": "401 and 407 headers stay distinct"
+     },
+     {
+      "name": "TLS",
+      "detail": "RFC 5922 name check"
+     },
+     {
+      "name": "Identity",
+      "detail": "Strip PAI. Verify STIR separately"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Who may speak SIP to you",
+     "paragraphs": [
+      "Accept SIP from the peers you provisioned, such as 192.0.2.40 and 198.51.100.30 in this synthetic network, and refuse the rest. An open listener is the scanning condition from the threats lesson.",
+      "REGISTER is answered with 401 and WWW-Authenticate until Authorization checks out, and a proxy hop uses 407 and Proxy-Authorization. RFC 3261 section 22 and RFC 7616 are the references, and the password stays out of the configuration ticket."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261 §22",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+      },
+      {
+       "label": "RFC 7616",
+       "url": "https://www.rfc-editor.org/rfc/rfc7616"
+      },
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      }
+     ]
+    },
+    {
+     "h": "TLS, identity, and media",
+     "paragraphs": [
+      "Trunks that use TLS present a certificate that identifies the SIP domain, checked under RFC 5922, and a name mismatch stays a failed check. Do not override that failure to force the trunk up.",
+      "Strip P-Asserted-Identity at the trust boundary, and treat a call as STIR-authenticated only after the Identity header verifies. On media, key each leg with SDES or with DTLS-SRTP as that leg negotiated, and do not assume the peers share a method. The CME toll-fraud guide remains the product reference for trusted sources."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5922",
+       "url": "https://www.rfc-editor.org/rfc/rfc5922"
+      },
+      {
+       "label": "RFC 3325",
+       "url": "https://www.rfc-editor.org/rfc/rfc3325"
+      },
+      {
+       "label": "RFC 8224",
+       "url": "https://www.rfc-editor.org/rfc/rfc8224"
+      },
+      {
+       "label": "RFC 3711",
+       "url": "https://www.rfc-editor.org/rfc/rfc3711"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Policy on one INVITE",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Alice is a known source at 203.0.113.10. The request still needs whatever authentication the edge requires.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "407",
+      "kind": "res",
+      "note": "The proxy challenges. The client must answer with Proxy-Authorization, not with a copied password.",
+      "message": "SIP/2.0 407 Proxy Authentication Required\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=edge407\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nProxy-Authenticate: Digest realm=\"example.com\", nonce=\"c0ffee09\", algorithm=SHA-256, qop=\"auth\"\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Retry from the known source. The digest response is a placeholder, not a computed credential.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKedge02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 2 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nProxy-Authorization: Digest realm=\"example.com\", username=\"alice\", algorithm=SHA-256, uri=\"sip:+15551212@example.com\", response=\"not-computed\"\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Toward the carrier the edge uses TLS, strips PAI, and does not attach a fake verified label.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/TLS 203.0.113.20;branch=z9hG4bKedge03\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 218\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "An edge allow list should",
+     "choices": [
+      "Accept only provisioned peers",
+      "Accept every source and sort it out in RTP",
+      "Disable digest",
+      "Publish PAI to the carrier"
+     ],
+     "answer": 0,
+     "why": "Unnamed sources are the scanning case.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "q": "REGISTER authentication uses",
+     "choices": [
+      "401 and Authorization",
+      "407 and a=crypto",
+      "180 and SDP",
+      "Port 0"
+     ],
+     "answer": 0,
+     "why": "A proxy challenge is the 407 case, with Proxy-Authorization.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "q": "A TLS trunk certificate is checked against",
+     "choices": [
+      "The SIP domain, per RFC 5922",
+      "The first RTP SSRC",
+      "The ptime value",
+      "The fmtp range"
+     ],
+     "answer": 0,
+     "why": "files.example.com does not stand in for example.com.",
+     "cite": {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+     }
+    },
+    {
+     "q": "PAI at the trust boundary is",
+     "choices": [
+      "Removed",
+      "Converted into a PASSporT",
+      "Copied into a=crypto",
+      "Used as the digest password"
+     ],
+     "answer": 0,
+     "why": "It is not cryptographic identity.",
+     "cite": {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+     }
+    },
+    {
+     "q": "SRTP keying on an SBC",
+     "choices": [
+      "Follows the method negotiated on each leg",
+      "Uses one shared method for every peer",
+      "Is implied by port 5061",
+      "Is optional when PAI is present"
+     ],
+     "answer": 0,
+     "why": "SDES and DTLS-SRTP are different. RFC 3711 is the media protection.",
+     "cite": {
+      "label": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711"
+     }
+    },
+    {
+     "q": "Call authentication on the FCC page",
+     "choices": [
+      "Does not replace outbound authorization",
+      "Assigns G.722 clocks",
+      "Obsoletes RFC 3261",
+      "Is an RTP profile"
+     ],
+     "answer": 0,
+     "why": "Keep toll-fraud controls even when STIR is deployed.",
+     "cite": {
+      "label": "FCC call authentication",
+      "url": "https://www.fcc.gov/call-authentication"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Allow list",
+     "back": "Named peers only. See the CME toll-fraud guide for trusted sources.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "front": "Digest",
+     "back": "401 uses Authorization. 407 uses Proxy-Authorization.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    {
+     "front": "RFC 5922",
+     "back": "Certificate name equals the SIP domain.",
+     "cite": {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+     }
+    },
+    {
+     "front": "Per-leg SRTP",
+     "back": "Do not copy keying from one peer to another.",
+     "cite": {
+      "label": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Checklist, not a device stanza",
+    "kind": "config",
+    "prompt": "Read the teaching checklist. It is not a vendor configuration and it is not a router QoS policy.",
+    "steps": [
+     "Read each numbered line.",
+     "Name the RFC for the certificate line.",
+     "Name the header that answers a 407."
+    ],
+    "check": {
+     "q": "Which header answers a proxy challenge on this edge?",
+     "choices": [
+      "Proxy-Authorization",
+      "Authorization",
+      "P-Asserted-Identity",
+      "Identity"
+     ],
+     "answer": 0,
+     "why": "407 uses Proxy-Authorization. 401 uses Authorization. Keep them split.",
+     "cite": {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     }
+    },
+    "config": "; Teaching checklist. Not a vendor stanza and not a router QoS policy.\n; 1. Accept SIP only from 192.0.2.40 and 198.51.100.30.\n; 2. Require digest on REGISTER. 401 uses Authorization. 407 uses Proxy-Authorization.\n; 3. Require TLS. The certificate must identify example.com (RFC 5922).\n; 4. Strip P-Asserted-Identity at the trust boundary.\n; 5. Key each SRTP leg with the method that leg negotiated.\n; 6. Do not mark a call STIR-authenticated without a verified Identity header.\n"
+   },
+   "fault": {
+    "title": "Authentication removed to stop an alarm",
+    "symptom": "Operators cleared a scanning alarm by accepting every REGISTER. A new Contact appears for alice@example.com.",
+    "log": "policy change: digest disabled\nREGISTER sip:example.com SIP/2.0\nContact: <sip:alice@192.0.2.40>\nstored: yes\nchallenge: none\n",
+    "choices": [
+     "Restoring digest and the peer allow list is the fix",
+     "Leaving digest off is required by RFC 5922",
+     "The Contact is a valid STIR attestation",
+     "ptime caused the new binding"
+    ],
+    "answer": 0,
+    "why": "REGISTER without a challenge is how an unexpected Contact gets stored. That is the hijack class.",
+    "cause": "The edge traded a noisy alarm for unauthenticated bindings.",
+    "fix": "Turn digest back on, keep the allow list, and alert on Contact changes. Use the CME toll-fraud guide for trusted-source controls and keep FCC call authentication as a separate caller-identity control.",
+    "cites": [
+     {
+      "label": "RFC 3261 §22",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+     },
+     {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     },
+     {
+      "label": "FCC call authentication",
+      "url": "https://www.fcc.gov/call-authentication"
+     }
+    ]
+   },
+   "level": "Advanced"
+  }
+ ]
+}

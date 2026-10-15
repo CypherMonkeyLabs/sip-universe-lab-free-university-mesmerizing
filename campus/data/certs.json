@@ -1,0 +1,35 @@
+{
+ "summary": "Names and status below were checked against the vendor pages on 2026-10-14. Certifications change. The linked page wins over this paragraph.",
+ "items": [
+  {
+   "name": "SIP School Certified Associate (SSCA Elite)",
+   "status": "Offered on The SIP School site as of the page reviewed for this lab.",
+   "note": "The SIP School describes SSCA Elite as its SIP certification. The same courses page lists SSVVP and SSSP as separate tests. The SSCA page says passing is worth 20 CEC credits toward a BICSI certification.",
+   "url": "https://www.thesipschool.com/ssca.html"
+  },
+  {
+   "name": "Cisco Certified Network Professional (CCNP) Collaboration",
+   "status": "Listed on Cisco’s certification and exam pages.",
+   "note": "Cisco’s exam list shows the core exam 350-801 CLCOR and concentration exams 300-815 CLACC, 300-820 CLHCT, and 300-830 CLCCE. Cisco’s CLCOR page says passing the core exam also earns Cisco Certified Specialist - Collaboration Core and can be used toward CCNP Collaboration and CCIE Collaboration. Confirm the current topic list before you study.",
+   "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html"
+  },
+  {
+   "name": "CCIE Collaboration",
+   "status": "Listed on Cisco’s exam list as a lab exam plus the collaboration core.",
+   "note": "The lab exam is named on Cisco’s exam list. This lab does not restate lab topology details.",
+   "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/list.html"
+  },
+  {
+   "name": "Microsoft 365 Certified: Collaboration Communications Systems Engineer Associate (MS-721)",
+   "status": "Published on Microsoft Learn. The certification page showed a last-updated date of April 28, 2026, and an English-language skills update on October 29, 2026.",
+   "note": "On 2026-10-14 this certification was not on Microsoft’s published retirement list. Associate certifications renew on Microsoft’s schedule; use the study guide for the skills measured on your test date.",
+   "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/"
+  },
+  {
+   "name": "Oracle, Ribbon, and AudioCodes exams",
+   "status": "No public exam code was confirmed for this edition.",
+   "note": "Use the vendor documentation sets linked from the multivendor track. Do not treat a blog’s exam code as current.",
+   "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html"
+  }
+ ]
+}

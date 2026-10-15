@@ -1,0 +1,172 @@
+{
+ "labs": [
+  {
+   "title": "Read the OPTIONS",
+   "kind": "dissect",
+   "prompt": "Dissect the OPTIONS. The CSeq method token has to match the request line.",
+   "href": "#/lesson/foundations/prereq-network"
+  },
+  {
+   "title": "Dissect the phone URI",
+   "kind": "dissect",
+   "prompt": "Find the URI parameter that marks the user part as a phone number.",
+   "href": "#/lesson/foundations/e164-and-uris"
+  },
+  {
+   "title": "Name the codec document",
+   "kind": "dissect",
+   "prompt": "The offer uses static payload 0. Identify which recommendation defines that codec.",
+   "href": "#/lesson/foundations/licensing"
+  },
+  {
+   "title": "Dissect a debug INVITE",
+   "kind": "capture",
+   "prompt": "The capture bench strips the debug prefix. Read the branch and the missing To tag.",
+   "href": "#/lesson/foundations/first-message"
+  },
+  {
+   "title": "Class the code",
+   "kind": "dissect",
+   "prompt": "Dissect the final response in this lab message, which is the 486.",
+   "href": "#/lesson/sip-core/methods-and-codes"
+  },
+  {
+   "title": "Rewrite From on purpose",
+   "kind": "sandbox",
+   "prompt": "Run the profile. It is legal syntax and a dangerous edit. See which URI the From header contains afterward.",
+   "href": "#/lesson/sip-core/headers-and-compact"
+  },
+  {
+   "title": "Find the dialog id",
+   "kind": "dissect",
+   "prompt": "Dissect the 180. List the three values that identify the early dialog.",
+   "href": "#/lesson/sip-core/dialogs"
+  },
+  {
+   "title": "Read the teaching config",
+   "kind": "config",
+   "prompt": "The config is a dial-peer, a trusted source, an empty profile, and one debug command.",
+   "href": "#/lesson/sip-core/transports"
+  },
+  {
+   "title": "Put lr back",
+   "kind": "sandbox",
+   "prompt": "The header-rule matches a Record-Route that lost lr and writes the parameter back.",
+   "href": "#/lesson/call-flows/record-route"
+  },
+  {
+   "title": "Check RAck",
+   "kind": "dissect",
+   "prompt": "Dissect the PRACK. Separate RAck from CSeq.",
+   "href": "#/lesson/call-flows/prack"
+  },
+  {
+   "title": "Negotiate the second offer",
+   "kind": "sdp",
+   "prompt": "The UPDATE offer adds a port change and still lists PCMU and PCMA. The answer keeps PCMU.",
+   "href": "#/lesson/call-flows/update"
+  },
+  {
+   "title": "Read the 422",
+   "kind": "dissect",
+   "prompt": "The response tells you the floor. The next INVITE has to meet it.",
+   "href": "#/lesson/call-flows/session-timers"
+  },
+  {
+   "title": "Dissect a BYE",
+   "kind": "dissect",
+   "prompt": "This BYE assumes the dialog already exists. Find the CSeq and the To tag.",
+   "href": "#/lesson/call-flows/cancel-bye-reinvite"
+  },
+  {
+   "title": "Read Refer-To",
+   "kind": "dissect",
+   "prompt": "Find the Replaces parameter inside Refer-To. It is escaped.",
+   "href": "#/lesson/call-flows/refer-replaces"
+  },
+  {
+   "title": "Read the 423",
+   "kind": "dissect",
+   "prompt": "The registrar rejected the interval. The header you need is Min-Expires.",
+   "href": "#/lesson/routing/register"
+  },
+  {
+   "title": "Count the flows",
+   "kind": "dissect",
+   "prompt": "Dissect the second 200 OK. Two Contact headers share an instance and differ by reg-id.",
+   "href": "#/lesson/routing/outbound"
+  },
+  {
+   "title": "Which header is outbound?",
+   "kind": "dissect",
+   "prompt": "The 200 OK has both Path and Service-Route. Pick the one the UA will preload.",
+   "href": "#/lesson/routing/path-service-route"
+  },
+  {
+   "title": "Find both GRUUs",
+   "kind": "dissect",
+   "prompt": "The 200 OK Contact carries pub-gruu and temp-gruu.",
+   "href": "#/lesson/routing/gruu"
+  },
+  {
+   "title": "Point at c= and m=",
+   "kind": "dissect",
+   "prompt": "Dissect the INVITE and find the connection line and both media lines.",
+   "href": "#/lesson/sdp/sdp-anatomy"
+  },
+  {
+   "title": "Negotiate two m-lines",
+   "kind": "sdp",
+   "prompt": "Run the negotiator. The answer refuses the second stream without deleting it.",
+   "href": "#/lesson/sdp/offer-answer-order"
+  },
+  {
+   "title": "Match opus on the name",
+   "kind": "sdp",
+   "prompt": "The offer says payload 96 opus. The answer says payload 111 opus. G722/8000 is on payload 9 on both sides.",
+   "href": "#/lesson/sdp/rtpmap-fmtp"
+  },
+  {
+   "title": "Answer a hold",
+   "kind": "sdp",
+   "prompt": "The offer is sendonly. A legal answer is recvonly. Negotiate and read the direction line.",
+   "href": "#/lesson/sdp/direction-hold"
+  },
+  {
+   "title": "See a zero port",
+   "kind": "sdp",
+   "prompt": "Negotiate an offer of two audio lines. The answer accepts the first and zeros the second.",
+   "href": "#/lesson/sdp/port-zero"
+  },
+  {
+   "title": "183 has SDP, 180 does not",
+   "kind": "capture",
+   "prompt": "Extract both responses. One progress message has SDP and the ringing message does not.",
+   "href": "#/lesson/sdp/early-media"
+  },
+  {
+   "title": "Find the delayed offer",
+   "kind": "dissect",
+   "prompt": "This INVITE has an empty body. Decide where the offer is allowed to appear.",
+   "href": "#/lesson/sdp/pitfalls-6337"
+  },
+  {
+   "title": "Find where the header is not",
+   "kind": "dissect",
+   "prompt": "Dissect the 200 OK. The body names a port. The RTP header is not one of the SIP headers.",
+   "href": "#/lesson/rtp/rtp-header"
+  },
+  {
+   "title": "Read static types",
+   "kind": "sdp",
+   "prompt": "The offer lists PCMU and PCMA on separate m-lines. Confirm the clocks are 8000.",
+   "href": "#/lesson/rtp/payload-types"
+  },
+  {
+   "title": "See opus survive a new payload type",
+   "kind": "sdp",
+   "prompt": "Negotiate the offer and answer. Confirm opus matches across payload types 96 and 111, and that G722 stays at 8000.",
+   "href": "#/lesson/rtp/codec-choices"
+  }
+ ]
+}

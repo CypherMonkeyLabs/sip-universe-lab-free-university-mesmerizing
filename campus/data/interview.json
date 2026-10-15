@@ -1,0 +1,444 @@
+{
+ "items": [
+  {
+   "level": "Core",
+   "q": "What identifies a SIP dialog?",
+   "a": "Call-ID plus the From tag and the To tag.",
+   "cites": [
+    {
+     "label": "RFC 3261 §12",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+    }
+   ]
+  },
+  {
+   "level": "Core",
+   "q": "What identifies a transaction on a hop?",
+   "a": "The Via branch parameter. In RFC 3261 it starts with z9hG4bK.",
+   "cites": [
+    {
+     "label": "RFC 3261 §8.1.1.7",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+    }
+   ]
+  },
+  {
+   "level": "Core",
+   "q": "Why are there two kinds of ACK?",
+   "a": "A 2xx ACK is its own end-to-end transaction. A non-2xx ACK belongs to the INVITE transaction and is hop-by-hop. RFC 6026 tightens the 2xx rules.",
+   "cites": [
+    {
+     "label": "RFC 6026",
+     "url": "https://www.rfc-editor.org/rfc/rfc6026"
+    }
+   ]
+  },
+  {
+   "level": "Core",
+   "q": "What is the recommended initial Max-Forwards?",
+   "a": "70.",
+   "cites": [
+    {
+     "label": "RFC 3261 §8.1.1.6",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.6"
+    }
+   ]
+  },
+  {
+   "level": "Core",
+   "q": "What does 100 Trying mean?",
+   "a": "The next hop has the INVITE and the previous hop can stop retransmitting. It does not mean the phone is ringing.",
+   "cites": [
+    {
+     "label": "RFC 3261 §21",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+    }
+   ]
+  },
+  {
+   "level": "Core",
+   "q": "Name the compact form of Contact, To, From, and Via.",
+   "a": "m, t, f, and v.",
+   "cites": [
+    {
+     "label": "RFC 3261 §20",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+    }
+   ]
+  },
+  {
+   "level": "Core",
+   "q": "What is the difference between 401 and 407?",
+   "a": "401 is the UAS challenge and uses Authorization. 407 is the proxy challenge and uses Proxy-Authorization.",
+   "cites": [
+    {
+     "label": "RFC 3261 §22",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+    }
+   ]
+  },
+  {
+   "level": "Core",
+   "q": "What creates a registration binding?",
+   "a": "REGISTER, with Contact and an expiration. The registrar stores the binding.",
+   "cites": [
+    {
+     "label": "RFC 3261 §10",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+    }
+   ]
+  },
+  {
+   "level": "Core",
+   "q": "What is 423?",
+   "a": "Interval Too Brief. The registrar wants a longer Expires.",
+   "cites": [
+    {
+     "label": "RFC 3261 §10",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+    }
+   ]
+  },
+  {
+   "level": "Core",
+   "q": "What does RFC 3263 add?",
+   "a": "How to find a SIP server with NAPTR, SRV, and address records.",
+   "cites": [
+    {
+     "label": "RFC 3263",
+     "url": "https://www.rfc-editor.org/rfc/rfc3263"
+    }
+   ]
+  },
+  {
+   "level": "Media",
+   "q": "Which RFC is the current SDP specification?",
+   "a": "RFC 8866, which obsoletes RFC 4566.",
+   "cites": [
+    {
+     "label": "RFC 8866",
+     "url": "https://www.rfc-editor.org/rfc/rfc8866"
+    }
+   ]
+  },
+  {
+   "level": "Media",
+   "q": "How must an answer line up with an offer?",
+   "a": "Same number of m-lines, same order. Port 0 rejects a stream.",
+   "cites": [
+    {
+     "label": "RFC 3264",
+     "url": "https://www.rfc-editor.org/rfc/rfc3264"
+    }
+   ]
+  },
+  {
+   "level": "Media",
+   "q": "How do you match dynamic payload types?",
+   "a": "By the encoding name in rtpmap, not by the payload type number.",
+   "cites": [
+    {
+     "label": "RFC 3264",
+     "url": "https://www.rfc-editor.org/rfc/rfc3264"
+    }
+   ]
+  },
+  {
+   "level": "Media",
+   "q": "What is strange about G.722 in rtpmap?",
+   "a": "RFC 3551 uses clock rate 8000 even though the audio is 16 kHz.",
+   "cites": [
+    {
+     "label": "RFC 3551",
+     "url": "https://www.rfc-editor.org/rfc/rfc3551"
+    }
+   ]
+  },
+  {
+   "level": "Media",
+   "q": "Where do DTMF events belong if you follow the IETF media spec?",
+   "a": "In RTP as telephone-event, RFC 4733. SIP INFO is a different mechanism.",
+   "cites": [
+    {
+     "label": "RFC 4733",
+     "url": "https://www.rfc-editor.org/rfc/rfc4733"
+    }
+   ]
+  },
+  {
+   "level": "Media",
+   "q": "What does a=sendonly mean for hold?",
+   "a": "The offerer will send and not receive. The answerer should reply recvonly or inactive.",
+   "cites": [
+    {
+     "label": "RFC 3264 §6",
+     "url": "https://www.rfc-editor.org/rfc/rfc3264#section-6"
+    }
+   ]
+  },
+  {
+   "level": "Media",
+   "q": "What is in an RTP packet that a capture uses to spot loss?",
+   "a": "The sequence number. RTCP reports the loss fraction.",
+   "cites": [
+    {
+     "label": "RFC 3550",
+     "url": "https://www.rfc-editor.org/rfc/rfc3550"
+    }
+   ]
+  },
+  {
+   "level": "Media",
+   "q": "Name two SRTP keying styles and their RFCs.",
+   "a": "SDES, RFC 4568, puts keys in SDP. DTLS-SRTP, RFC 5764, keys in the media path. SRTP itself is RFC 3711.",
+   "cites": [
+    {
+     "label": "RFC 3711",
+     "url": "https://www.rfc-editor.org/rfc/rfc3711"
+    }
+   ]
+  },
+  {
+   "level": "Media",
+   "q": "What is early media?",
+   "a": "Media before the call is answered. RFC 3960 discusses it. 183 with SDP is the common signal, not a guarantee.",
+   "cites": [
+    {
+     "label": "RFC 3960",
+     "url": "https://www.rfc-editor.org/rfc/rfc3960"
+    }
+   ]
+  },
+  {
+   "level": "NAT",
+   "q": "Why do NATs break SIP?",
+   "a": "SIP and SDP name IP addresses and ports that the NAT does not know to rewrite consistently.",
+   "cites": [
+    {
+     "label": "RFC 3581",
+     "url": "https://www.rfc-editor.org/rfc/rfc3581"
+    }
+   ]
+  },
+  {
+   "level": "NAT",
+   "q": "What does rport do?",
+   "a": "It asks the peer to send the response to the source port it observed.",
+   "cites": [
+    {
+     "label": "RFC 3581",
+     "url": "https://www.rfc-editor.org/rfc/rfc3581"
+    }
+   ]
+  },
+  {
+   "level": "NAT",
+   "q": "Which RFC is current for ICE, STUN, and TURN?",
+   "a": "ICE is RFC 8445, STUN is RFC 8489, TURN is RFC 8656.",
+   "cites": [
+    {
+     "label": "RFC 8445",
+     "url": "https://www.rfc-editor.org/rfc/rfc8445"
+    }
+   ]
+  },
+  {
+   "level": "NAT",
+   "q": "What is a relay candidate?",
+   "a": "An address allocated on a TURN server.",
+   "cites": [
+    {
+     "label": "RFC 8656",
+     "url": "https://www.rfc-editor.org/rfc/rfc8656"
+    }
+   ]
+  },
+  {
+   "level": "NAT",
+   "q": "Why is a SIP ALG dangerous?",
+   "a": "It rewrites signaling or SDP in transit, often to a useless address, and it cannot see inside TLS.",
+   "cites": [
+    {
+     "label": "RFC 5853",
+     "url": "https://www.rfc-editor.org/rfc/rfc5853"
+    }
+   ]
+  },
+  {
+   "level": "Security",
+   "q": "Is P-Asserted-Identity cryptographic?",
+   "a": "No. RFC 3325 is an assertion inside a trust domain. STIR, RFC 8224, is the cryptographic identity.",
+   "cites": [
+    {
+     "label": "RFC 3325",
+     "url": "https://www.rfc-editor.org/rfc/rfc3325"
+    }
+   ]
+  },
+  {
+   "level": "Security",
+   "q": "What token does STIR carry?",
+   "a": "A PASSporT, RFC 8225.",
+   "cites": [
+    {
+     "label": "RFC 8225",
+     "url": "https://www.rfc-editor.org/rfc/rfc8225"
+    }
+   ]
+  },
+  {
+   "level": "Security",
+   "q": "Where are SHAKEN attestation rules published?",
+   "a": "In ATIS SHAKEN specifications. The FCC call-authentication page is the regulator’s overview. Do not quote an attestation letter from memory without the current ATIS text.",
+   "cites": [
+    {
+     "label": "FCC call authentication",
+     "url": "https://www.fcc.gov/call-authentication"
+    }
+   ]
+  },
+  {
+   "level": "SBC",
+   "q": "Is there an SBC protocol RFC?",
+   "a": "No. RFC 5853 records requirements. The device is usually a B2BUA, RFC 7092.",
+   "cites": [
+    {
+     "label": "RFC 5853",
+     "url": "https://www.rfc-editor.org/rfc/rfc5853"
+    }
+   ]
+  },
+  {
+   "level": "SBC",
+   "q": "What is topology hiding?",
+   "a": "Rewriting the signaling so the inside addresses and headers are not shown to the outside. It is a B2BUA behavior.",
+   "cites": [
+    {
+     "label": "RFC 7092",
+     "url": "https://www.rfc-editor.org/rfc/rfc7092"
+    }
+   ]
+  },
+  {
+   "level": "Cisco",
+   "q": "What does debug ccsip messages show?",
+   "a": "SIP messages the IOS voice stack sent and received.",
+   "cites": [
+    {
+     "label": "Cisco CUBE basic SIP configuration",
+     "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+    }
+   ]
+  },
+  {
+   "level": "Cisco",
+   "q": "How does a CUBE SIP profile differ from a CUCM SIP Profile?",
+   "a": "CUBE voice class sip-profiles is a header rewrite list. A CUCM SIP Profile is a trunk settings object.",
+   "cites": [
+    {
+     "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+     "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+    }
+   ]
+  },
+  {
+   "level": "Cisco",
+   "q": "What is early-offer forced?",
+   "a": "A CUBE dial-peer setting that sends the SDP offer in the outbound INVITE.",
+   "cites": [
+    {
+     "label": "Cisco CUBE basic SIP configuration",
+     "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+    }
+   ]
+  },
+  {
+   "level": "Cisco",
+   "q": "What does the IOS trusted IP list prevent?",
+   "a": "VoIP call setups from addresses that are not trusted. It is the documented toll-fraud control. Confirm the list size in the guide for your platform.",
+   "cites": [
+    {
+     "label": "Cisco CME toll-fraud prevention",
+     "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+    }
+   ]
+  },
+  {
+   "level": "Cloud",
+   "q": "Which three names does Direct Routing publish for SIP?",
+   "a": "sip.pstnhub.microsoft.com, sip2.pstnhub.microsoft.com, and sip3.pstnhub.microsoft.com, port 5061.",
+   "cites": [
+    {
+     "label": "Plan Direct Routing",
+     "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+    }
+   ]
+  },
+  {
+   "level": "Cloud",
+   "q": "Why does Teams reject a Contact that contains an IP address?",
+   "a": "Direct Routing requires the SBC FQDN in Contact, matching the certificate. An IP is refused with 403.",
+   "cites": [
+    {
+     "label": "Direct Routing SIP protocol",
+     "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+    }
+   ]
+  },
+  {
+   "level": "Cloud",
+   "q": "How is Webex premises PSTN different from Cloud Connected PSTN?",
+   "a": "Premises PSTN uses your Local Gateway and carrier. Cloud Connected PSTN is a cloud partner. A location uses one of them.",
+   "cites": [
+    {
+     "label": "Configure Webex Calling PSTN",
+     "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+    }
+   ]
+  },
+  {
+   "level": "Cloud",
+   "q": "Does Amazon Connect need a SIP trunk for ordinary PSTN calls?",
+   "a": "No. Connect provides the voice channel. External SIPREC into a connector is a different feature. Chime Voice Connector is not a supported shortcut into Connect without a specialist review.",
+   "cites": [
+    {
+     "label": "Amazon Connect telephony",
+     "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html"
+    }
+   ]
+  },
+  {
+   "level": "Cloud",
+   "q": "What is Twilio termination versus origination?",
+   "a": "Termination is your system calling the PSTN. Origination is the PSTN calling your system. The Request-URI on termination must reference the trunk’s termination URI.",
+   "cites": [
+    {
+     "label": "Twilio trunk troubleshooting",
+     "url": "https://www.twilio.com/docs/sip-trunking/troubleshooting"
+    }
+   ]
+  },
+  {
+   "level": "Design",
+   "q": "What do you agree before you turn up a carrier trunk?",
+   "a": "Transport and certificates, codecs including telephone-event, E.164 format, which side offers, SRTP keying, trusted addresses, and OPTIONS.",
+   "cites": [
+    {
+     "label": "RFC 3261",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261"
+    }
+   ]
+  },
+  {
+   "level": "Design",
+   "q": "What is the first question in a one-way-audio ticket?",
+   "a": "Did signaling complete, and which address and port does each SDP name?",
+   "cites": [
+    {
+     "label": "RFC 3550",
+     "url": "https://www.rfc-editor.org/rfc/rfc3550"
+    }
+   ]
+  }
+ ]
+}

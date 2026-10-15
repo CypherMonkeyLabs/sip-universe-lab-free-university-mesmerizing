@@ -1,0 +1,2125 @@
+{
+ "id": "cisco",
+ "title": "Cisco CUBE, CUCM, and Unity Connection",
+ "summary": "CUBE as an IOS XE B2BUA, the dial-peer and SIP profile tools, and the CUCM and Unity documents that use different objects with similar names.",
+ "level": "Advanced",
+ "order": 10,
+ "lessons": [
+  {
+   "id": "cube-role",
+   "title": "CUBE is an IOS XE B2BUA",
+   "minutes": 13,
+   "tags": [
+    "cube",
+    "b2bua"
+   ],
+   "summary": "Cisco Unified Border Element is a B2BUA on IOS XE. It shares the IOS voice stack with other voice features.",
+   "objectives": [
+    "Name CUBE as Cisco Unified Border Element",
+    "Place it in the B2BUA role",
+    "Treat IOS voice behavior as release-specific"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "CUBE on IOS XE",
+    "caption": "Basic SIP configuration and SIP profiles are separate chapters of the same product.",
+    "layers": [
+     {
+      "name": "IOS XE",
+      "detail": "The voice stack CUBE shares"
+     },
+     {
+      "name": "CUBE",
+      "detail": "Cisco Unified Border Element, a B2BUA"
+     },
+     {
+      "name": "Dial peers",
+      "detail": "Where the next hop is selected"
+     },
+     {
+      "name": "SIP profiles",
+      "detail": "Header changes on a message"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "The product and the role",
+     "paragraphs": [
+      "CUBE means Cisco Unified Border Element. On IOS XE it is a B2BUA: a UAS toward the caller and a UAC toward the next hop.",
+      "The basic SIP configuration guide and the SIP profiles guide are the two chapters this track cites for that behavior. RFC 7092 is the taxonomy for the role itself."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      },
+      {
+       "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+      },
+      {
+       "label": "RFC 7092",
+       "url": "https://www.rfc-editor.org/rfc/rfc7092"
+      }
+     ]
+    },
+    {
+     "h": "Same voice stack, confirm the release",
+     "paragraphs": [
+      "CUBE shares the IOS voice stack with other IOS voice features. A control documented for CME or SRST can exist on the same stack, and the reader must confirm behavior on their release.",
+      "Do not treat a blog’s version gate as newer than the guides. Inbound SIP profile support is discussed in the use-case technote. The 17.6 and later profile syntax lives in the SIP profiles guide."
+     ],
+     "cites": [
+      {
+       "label": "Cisco SIP profile use cases",
+       "url": "https://www.cisco.com/c/en/us/support/docs/unified-communications/unified-border-element/118825-technote-sip-00.html"
+      },
+      {
+       "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+      }
+     ]
+    },
+    {
+     "h": "Trusted sources on the shared stack",
+     "paragraphs": [
+      "Under voice service voip, ip address trusted list names sources the IOS voice stack is willing to accept. The CME toll-fraud chapter and the SRST guide both document that list.",
+      "CUBE shares this stack, so confirm the behavior on your release. The CME and SRST guides do not publish one shared maximum list size, and this course states no maximum. The list is a defensive control for peers you intend to accept, such as 198.51.100.30 and 192.0.2.40."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CME toll-fraud prevention",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+      },
+      {
+       "label": "Cisco SRST trusted IP authentication",
+       "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "CUBE between the phone and the carrier",
+    "parties": [
+     "Alice",
+     "SBC",
+     "Bob"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The phone invites CUBE at 203.0.113.20.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 216\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "CUBE answers 100 Trying as the UAS.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "CUBE creates the carrier INVITE as the UAC.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 216\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "The carrier sends 180 Ringing on its dialog.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "CUBE forwards alerting toward the phone.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The carrier sends 200 OK with SDP.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 199\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "CUBE sends 200 OK on the caller dialog.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@203.0.113.20>\nContent-Length: 199\n\nv=0\no=cube 10 10 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=ptime:20\na=sendrecv"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The phone ACK completes the caller leg.",
+      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "CUBE expands to",
+     "choices": [
+      "Cisco Unified Border Element",
+      "Cisco Universal Bypass Engine",
+      "Central User Billing Element",
+      "A pure SIP proxy defined by RFC 3261"
+     ],
+     "answer": 0,
+     "why": "It is the IOS XE border element.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "CUBE’s SIP role is",
+     "choices": [
+      "B2BUA",
+      "Stateless forwarder only",
+      "A DNS resolver",
+      "A registrar only"
+     ],
+     "answer": 0,
+     "why": "UAS on one side and UAC on the other.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    },
+    {
+     "q": "The 17.6 and later profile chapter cited here is",
+     "choices": [
+      "The CUBE SIP profiles guide",
+      "RFC 5853",
+      "The Unity Connection series page",
+      "The CME toll-fraud chapter"
+     ],
+     "answer": 0,
+     "why": "That guide is the cube-prof citation.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    },
+    {
+     "q": "CUBE shares",
+     "choices": [
+      "The IOS voice stack",
+      "A private SIP method with no RFC",
+      "The Teams SIP proxy",
+      "Only SCCP"
+     ],
+     "answer": 0,
+     "why": "Confirm stack behavior on the release you run.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "ip address trusted list is documented in",
+     "choices": [
+      "The CME toll-fraud chapter and the SRST guide, which differ on list size",
+      "One maximum shared by both guides",
+      "RFC 5853",
+      "A Unity mailbox page"
+     ],
+     "answer": 0,
+     "why": "Confirm CUBE behavior on your release. State no single maximum.",
+     "cite": {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+     }
+    },
+    {
+     "q": "Inbound profile history in the use-case technote starts",
+     "choices": [
+      "After Cisco IOS 15.4",
+      "At a version this lesson invents past 17.6",
+      "In RFC 7092",
+      "With Unity Connection"
+     ],
+     "answer": 0,
+     "why": "Do not invent a newer gate than the technote and the 17.6 guide.",
+     "cite": {
+      "label": "Cisco SIP profile use cases",
+      "url": "https://www.cisco.com/c/en/us/support/docs/unified-communications/unified-border-element/118825-technote-sip-00.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "CUBE",
+     "back": "Cisco Unified Border Element. An IOS XE B2BUA.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "front": "IOS XE",
+     "back": "The operating system whose voice stack CUBE uses.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "front": "SIP profiles",
+     "back": "Header modifications. Guide for 17.6 and later.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    },
+    {
+     "front": "B2BUA",
+     "back": "The role RFC 7092 taxonomizes.",
+     "cite": {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Walk a CUBE call",
+    "kind": "ladder",
+    "prompt": "Play the ladder and name the B2BUA hop.",
+    "steps": [
+     "Play the call.",
+     "Find 203.0.113.20.",
+     "Separate the caller dialog from the carrier dialog."
+    ],
+    "check": {
+     "q": "Which address is the CUBE in this synthetic?",
+     "choices": [
+      "203.0.113.20",
+      "203.0.113.10",
+      "192.0.2.40",
+      "198.51.100.30"
+     ],
+     "answer": 0,
+     "why": "The phone is .10, CUBE is .20, the carrier is 192.0.2.40.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "Reading CUBE as a proxy",
+    "symptom": "The carrier packet has a new Call-ID. The review calls the call broken because Alice’s Via is gone.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "choices": [
+     "CUBE built a new UAC request, which is B2BUA behavior",
+     "CUBE must copy every Via or the call violates RFC 3261",
+     "A new Call-ID is illegal on IOS XE",
+     "SDP c= must stay 203.0.113.10"
+    ],
+    "answer": 0,
+    "why": "Call-ID b2bua-legb-01@example.com belongs to the outbound dialog.",
+    "cause": "Proxy forwarding rules were applied to a B2BUA.",
+    "fix": "Use the CUBE basic configuration guide for the product and RFC 7092 for the role. Compare both legs instead of expecting one Via stack.",
+    "cites": [
+     {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     },
+     {
+      "label": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "dial-peers",
+   "title": "Dial peers select the SIP next hop",
+   "minutes": 13,
+   "tags": [
+    "dial-peer",
+    "cube"
+   ],
+   "summary": "dial-peer voice N voip, session protocol sipv2, and session target ipv4: name a SIP next hop.",
+   "objectives": [
+    "Read the three documented dial-peer lines",
+    "Point session target at the intended peer",
+    "Keep extra IOS commands out of this lesson"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Lines this lesson is allowed to teach",
+    "caption": "Matching keys beyond these lines are in the configuration guide for your release.",
+    "columns": [
+     "Line",
+     "What it does in this lab"
+    ],
+    "rows": [
+     [
+      "dial-peer voice 200 voip",
+      "Creates VoIP dial peer 200"
+     ],
+     [
+      "session protocol sipv2",
+      "Uses SIP"
+     ],
+     [
+      "session target ipv4:192.0.2.40",
+      "Sends that peer to the carrier"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Three lines",
+     "paragraphs": [
+      "A CUBE next hop is a dial peer. The form taught here is dial-peer voice N voip, then session protocol sipv2, then session target ipv4: followed by the peer address.",
+      "In the synthetic, dial peer 200 targets 192.0.2.40, the carrier. Dial peer 100 in a design toward CUCM would target 198.51.100.30. N is the tag you choose."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      }
+     ]
+    },
+    {
+     "h": "What this lesson leaves in the guide",
+     "paragraphs": [
+      "Inbound matching and outbound destination patterns are real IOS behavior. The basic configuration guide for your release is where those commands are printed.",
+      "This lesson does not add command lines beyond the three above. If a call hits the wrong peer, capture the outbound INVITE and compare the Request-URI host with session target ipv4:."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      },
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "session target becomes the Request-URI host",
+    "parties": [
+     "CUCM",
+     "CUBE",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "CUCM at 198.51.100.30 invites CUBE.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKcucm01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucmtag1\nTo: <sip:+15551212@example.com>\nCall-ID: cucm-trunk-1@example.com\nCSeq: 1 INVITE\nContact: <sip:cucm@198.51.100.30>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 205\n\nv=0\no=cucm 2890844526 2890844526 IN IP4 198.51.100.30\ns=-\nc=IN IP4 198.51.100.30\nt=0 0\nm=audio 18000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "CUBE accepts the inbound dialog.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKcucm01\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucmtag1\nTo: <sip:+15551212@example.com>\nCall-ID: cucm-trunk-1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The outbound Request-URI host is the session target.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "100",
+      "kind": "res",
+      "note": "The carrier answers the new transaction.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "session protocol sipv2 selects",
+     "choices": [
+      "SIP",
+      "MGCP only",
+      "H.323 only",
+      "DNS without SIP"
+     ],
+     "answer": 0,
+     "why": "The dial peer is a VoIP SIP peer.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "session target ipv4:192.0.2.40 sends the call to",
+     "choices": [
+      "192.0.2.40",
+      "203.0.113.10",
+      "The phone’s SDP port",
+      "The Call-ID host"
+     ],
+     "answer": 0,
+     "why": "The address after ipv4: is the next hop.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "dial-peer voice 200 voip creates",
+     "choices": [
+      "VoIP dial peer 200",
+      "A SIP profile",
+      "A CUCM trunk",
+      "A Unity mailbox"
+     ],
+     "answer": 0,
+     "why": "200 is the tag chosen in this example.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "The phone address in this lab is",
+     "choices": [
+      "203.0.113.10",
+      "The session target of dial peer 200",
+      "198.51.100.30",
+      "192.0.2.40"
+     ],
+     "answer": 0,
+     "why": "Pointing the carrier dial peer at the phone sends the call backward.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "CUCM’s lab address is",
+     "choices": [
+      "198.51.100.30",
+      "192.0.2.40",
+      "203.0.113.10",
+      "The Via branch"
+     ],
+     "answer": 0,
+     "why": "A dial peer toward CUCM targets that address.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "Extra matching commands belong",
+     "choices": [
+      "In the configuration guide for the release",
+      "In RFC 5853",
+      "In the SDP fmtp line",
+      "In this lesson as invented syntax"
+     ],
+     "answer": 0,
+     "why": "Stay with the three documented lines unless you have the guide open.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "dial-peer voice N voip",
+     "back": "Creates the VoIP dial peer numbered N.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "front": "session protocol sipv2",
+     "back": "This dial peer speaks SIP.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "front": "session target ipv4:",
+     "back": "The next-hop IPv4 address.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "front": "192.0.2.40",
+     "back": "Carrier address in this synthetic.",
+     "cite": {
+      "label": "RFC 5737",
+      "url": "https://www.rfc-editor.org/rfc/rfc5737"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read dial peer 200",
+    "kind": "config",
+    "prompt": "This is the carrier dial peer. Where will CUBE send the outbound INVITE?",
+    "config": "dial-peer voice 200 voip\n session protocol sipv2\n session target ipv4:192.0.2.40\n",
+    "steps": [
+     "Read session protocol.",
+     "Read session target.",
+     "Name the address."
+    ],
+    "check": {
+     "q": "session target sends the call to",
+     "choices": [
+      "192.0.2.40",
+      "203.0.113.10",
+      "203.0.113.20",
+      "198.51.100.30"
+     ],
+     "answer": 0,
+     "why": "The address is written after ipv4:.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "session target points at the phone",
+    "symptom": "Outbound INVITEs leave CUBE toward 203.0.113.10 and the carrier never sees the call.",
+    "log": "dial-peer voice 200 voip\n session protocol sipv2\n session target ipv4:203.0.113.10\nINVITE sip:+15551212@203.0.113.10 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\n",
+    "choices": [
+     "The session target is the phone address instead of the carrier",
+     "sipv2 disables IPv4 targets",
+     "Dial peer 200 cannot use SIP",
+     "The branch cookie selects the next hop"
+    ],
+    "answer": 0,
+    "why": "ipv4:203.0.113.10 is Alice, not 192.0.2.40.",
+    "cause": "The next hop was configured as the caller.",
+    "fix": "Set session target ipv4:192.0.2.40 on the carrier dial peer and capture the outbound Request-URI host.",
+    "cites": [
+     {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     },
+     {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "sip-profiles",
+   "title": "voice class sip-profiles",
+   "minutes": 15,
+   "tags": [
+    "sip-profiles",
+    "cube"
+   ],
+   "summary": "A voice class sip-profiles rule can add, modify, or remove a header on a named method. Inbound support arrived after Cisco IOS 15.4.",
+   "objectives": [
+    "Read request INVITE sip-header rules",
+    "Separate this object from a CUCM SIP profile",
+    "Test a rule before blaming the carrier"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Profile actions in the documented syntax",
+    "caption": "The lab removes Diversion. modify and add are the other two actions.",
+    "columns": [
+     "Action",
+     "Form"
+    ],
+    "rows": [
+     [
+      "remove",
+      "request INVITE sip-header Diversion remove"
+     ],
+     [
+      "modify",
+      "request INVITE sip-header NAME modify"
+     ],
+     [
+      "add",
+      "request INVITE sip-header NAME add"
+     ],
+     [
+      "Where syntax lives",
+      "SIP profiles guide, 17.6 and later"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "The rule this lab runs",
+     "paragraphs": [
+      "voice class sip-profiles 10 holds the rule request INVITE sip-header Diversion remove. The same grammar accepts modify or add in place of remove, with the header name in that position.",
+      "Applied to an INVITE, remove deletes the named header. The Collaboration Solutions Analyzer SIP Profile Tester is the documented place to try a rule against a message before you load it on a router."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+      },
+      {
+       "label": "Cisco Collaboration Solutions Analyzer",
+       "url": "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html"
+      }
+     ]
+    },
+    {
+     "h": "Inbound support and the version gate",
+     "paragraphs": [
+      "The SIP profile use-case technote says inbound profile support arrived after Cisco IOS 15.4. The 17.6 and later configuration guide is the profiles chapter cited here.",
+      "This lesson does not invent a newer version gate. Confirm on your release whether the profile is applied inbound or outbound, and do not confuse this IOS object with the SIP Profile object on CUCM."
+     ],
+     "cites": [
+      {
+       "label": "Cisco SIP profile use cases",
+       "url": "https://www.cisco.com/c/en/us/support/docs/unified-communications/unified-border-element/118825-technote-sip-00.html"
+      },
+      {
+       "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Diversion present, then removed on the copy you test",
+    "parties": [
+     "Alice",
+     "CUBE",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The inbound INVITE still carries Diversion.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nDiversion: <sip:+15551212@example.com>;reason=unconditional\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "CUBE has accepted the caller transaction.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Until the profile is applied, the outbound copy still shows Diversion.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nDiversion: <sip:+15551212@example.com>;reason=unconditional\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "100",
+      "kind": "res",
+      "note": "The carrier transaction is independent.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "request INVITE sip-header Diversion remove",
+     "choices": [
+      "Deletes Diversion on a matching INVITE",
+      "Adds a Diversion header",
+      "Changes the SDP codec",
+      "Blocks OPTIONS"
+     ],
+     "answer": 0,
+     "why": "remove is the documented action used in the lab.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    },
+    {
+     "q": "voice class sip-profiles is",
+     "choices": [
+      "An IOS XE CUBE object",
+      "The CUCM SIP Profile checkbox",
+      "A Unity mailbox map",
+      "An RTP payload"
+     ],
+     "answer": 0,
+     "why": "CUCM uses a different object with a similar English name.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    },
+    {
+     "q": "Inbound profile support, per the use-case technote, arrived",
+     "choices": [
+      "After Cisco IOS 15.4",
+      "In RFC 3261",
+      "Only on Unity Connection",
+      "At a version this course invents"
+     ],
+     "answer": 0,
+     "why": "Do not add a later gate than the technote states.",
+     "cite": {
+      "label": "Cisco SIP profile use cases",
+      "url": "https://www.cisco.com/c/en/us/support/docs/unified-communications/unified-border-element/118825-technote-sip-00.html"
+     }
+    },
+    {
+     "q": "The profiles guide cited for 17.6 and later is",
+     "choices": [
+      "The CUBE SIP profiles configuration guide",
+      "The CME toll-fraud chapter",
+      "RFC 7092",
+      "The Five9 BYO SIP page"
+     ],
+     "answer": 0,
+     "why": "Use that guide for current syntax.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    },
+    {
+     "q": "Collaboration Solutions Analyzer SIP Profile Tester is for",
+     "choices": [
+      "Trying a profile against a message",
+      "Replacing dial peers",
+      "Issuing certificates",
+      "Counting calls per second"
+     ],
+     "answer": 0,
+     "why": "It is the documented tester, cited as cube-csa.",
+     "cite": {
+      "label": "Cisco Collaboration Solutions Analyzer",
+      "url": "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html"
+     }
+    },
+    {
+     "q": "modify and add are",
+     "choices": [
+      "The other two actions in the same sip-header grammar",
+      "Illegal on INVITE",
+      "RTP directions",
+      "CUCM Lua functions"
+     ],
+     "answer": 0,
+     "why": "The form is modify or add or remove.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "sip-profiles",
+     "back": "voice class sip-profiles N holds the rules.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    },
+    {
+     "front": "remove",
+     "back": "request INVITE sip-header Diversion remove.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    },
+    {
+     "front": "After 15.4",
+     "back": "Inbound profile support, per the use-case technote.",
+     "cite": {
+      "label": "Cisco SIP profile use cases",
+      "url": "https://www.cisco.com/c/en/us/support/docs/unified-communications/unified-border-element/118825-technote-sip-00.html"
+     }
+    },
+    {
+     "front": "CSA tester",
+     "back": "Try the profile before loading it.",
+     "cite": {
+      "label": "Cisco Collaboration Solutions Analyzer",
+      "url": "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Remove Diversion",
+    "kind": "sandbox",
+    "dialect": "cube",
+    "prompt": "Run the CUBE subset rule against the inbound INVITE. Diversion should disappear.",
+    "rules": "voice class sip-profiles 10\n request INVITE sip-header Diversion remove\n",
+    "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nDiversion: <sip:+15551212@example.com>;reason=unconditional\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "steps": [
+     "Read the voice class rule.",
+     "Run it on the INVITE.",
+     "Confirm Diversion is gone."
+    ],
+    "check": {
+     "q": "After request INVITE sip-header Diversion remove, Diversion is",
+     "choices": [
+      "Removed",
+      "Copied into SDP",
+      "Renamed to Via",
+      "Required by RFC 3261"
+     ],
+     "answer": 0,
+     "why": "The teaching subset deletes that header on the INVITE.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "Diversion still on the outbound INVITE",
+    "symptom": "The carrier complains about Diversion. debug output still shows the header on the sent INVITE.",
+    "log": "Sent:\nINVITE sip:+15551212@192.0.2.40 SIP/2.0\nDiversion: <sip:+15551212@example.com>;reason=unconditional\nCSeq: 1 INVITE\n",
+    "choices": [
+     "The remove rule is not applied to the INVITE that is sent",
+     "RFC 5806 forbids removing Diversion on any B2BUA",
+     "session protocol sipv2 reinserts Diversion",
+     "A 100 Trying adds Diversion"
+    ],
+    "answer": 0,
+    "why": "The sent INVITE still contains the header the rule was supposed to delete.",
+    "cause": "The voice class rule is missing on the dial peer that sends this INVITE, or inbound application was assumed on a release that has not been checked.",
+    "fix": "Put request INVITE sip-header Diversion remove in the profile, apply it on the correct leg, and confirm inbound support against the use-case technote. Inbound support arrived after Cisco IOS 15.4. Test the text in the Collaboration Solutions Analyzer SIP Profile Tester.",
+    "cites": [
+     {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     },
+     {
+      "label": "Cisco SIP profile use cases",
+      "url": "https://www.cisco.com/c/en/us/support/docs/unified-communications/unified-border-element/118825-technote-sip-00.html"
+     },
+     {
+      "label": "Cisco Collaboration Solutions Analyzer",
+      "url": "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "early-delayed",
+   "title": "Early offer and delayed offer",
+   "minutes": 15,
+   "tags": [
+    "offer",
+    "early-offer"
+   ],
+   "summary": "Delayed offer means the INVITE has no SDP. voice-class sip early-offer forced makes the outbound dial peer send an offer in the INVITE.",
+   "objectives": [
+    "Define delayed offer",
+    "State where RFC 3264 allows an offer",
+    "Name the CUBE command that forces early offer"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Two legs, two timings",
+    "caption": "RFC 3264 allows the offer in the INVITE or in a reliable response.",
+    "nodes": [
+     "INVITE without SDP",
+     "early-offer forced",
+     "Outbound INVITE with SDP",
+     "Answer on that leg"
+    ]
+   },
+   "sections": [
+    {
+     "h": "Where the offer may sit",
+     "paragraphs": [
+      "Delayed offer means the INVITE has no SDP. The offer comes later. RFC 3264 allows the offer in the INVITE or in a reliable response.",
+      "If the offer arrives in a reliable 18x, PRACK carries the answer and 100rel applies. If the offer arrives in the 200 OK, the ACK carries the answer. The caller leg in this synthetic follows that second pattern."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      },
+      {
+       "label": "RFC 3262",
+       "url": "https://www.rfc-editor.org/rfc/rfc3262"
+      }
+     ]
+    },
+    {
+     "h": "Forcing early offer on CUBE",
+     "paragraphs": [
+      "voice-class sip early-offer forced is the documented way to force early offer on a dial peer. The outbound INVITE then contains SDP even though the inbound INVITE from 198.51.100.30 did not.",
+      "The two legs can therefore use different offer/answer timings. Capture both. Do not assume the SDP bytes match until you read them."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Delayed inbound, early outbound",
+    "parties": [
+     "CUCM",
+     "CUBE",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Inbound INVITE has no SDP. This is delayed offer.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:cucm@198.51.100.30>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "CUBE is not yet offering media to CUCM.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "early-offer forced puts SDP on the carrier INVITE.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The carrier’s 200 OK is the answer to that outbound offer.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>;tag=carrier77\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:bob@192.0.2.40>\nContent-Length: 202\n\nv=0\no=carrier 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 24000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Toward the delayed-offer caller, this 200 OK carries the offer.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:sbc@203.0.113.20>\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "The caller’s ACK carries the answer for that offer.",
+      "message": "ACK sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@198.51.100.30>\nContent-Type: application/sdp\nContent-Length: 149\n\nv=0\no=cucm 2890844526 2890844526 IN IP4 198.51.100.30\ns=-\nc=IN IP4 198.51.100.30\nt=0 0\nm=audio 18000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\na=sendrecv"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Delayed offer means",
+     "choices": [
+      "The INVITE has no SDP",
+      "The INVITE contains the only legal SDP",
+      "ACK is forbidden",
+      "OPTIONS replaced INVITE"
+     ],
+     "answer": 0,
+     "why": "The offer shows up in a later reliable response.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "RFC 3264 allows the offer in",
+     "choices": [
+      "The INVITE or a reliable response",
+      "ACK only",
+      "REGISTER only",
+      "A 100 Trying body"
+     ],
+     "answer": 0,
+     "why": "100 Trying is not a reliable place for the offer.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "voice-class sip early-offer forced",
+     "choices": [
+      "Forces early offer on that dial peer",
+      "Removes all SDP",
+      "Enables a CUCM Lua script",
+      "Sets the trusted IP list"
+     ],
+     "answer": 0,
+     "why": "It is the documented CUBE command for this job.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "On the carrier leg in this lesson, SDP first appears in",
+     "choices": [
+      "The outbound INVITE",
+      "The inbound INVITE",
+      "The 100 Trying",
+      "A REGISTER"
+     ],
+     "answer": 0,
+     "why": "That is the forced early offer.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "When the offer is in the 200 OK, the answer belongs in",
+     "choices": [
+      "The ACK",
+      "A second INVITE with no Call-ID",
+      "OPTIONS",
+      "The Via branch"
+     ],
+     "answer": 0,
+     "why": "That is the delayed-offer caller leg in this synthetic.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "q": "A reliable provisional offer depends on",
+     "choices": [
+      "100rel and PRACK",
+      "A datasheet CPS formula",
+      "SCCP",
+      "An empty Contact"
+     ],
+     "answer": 0,
+     "why": "RFC 3262 is the reliability mechanism.",
+     "cite": {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Delayed offer",
+     "back": "INVITE without SDP. Offer comes later.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "Early offer",
+     "back": "The INVITE already contains the offer.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    {
+     "front": "early-offer forced",
+     "back": "Dial-peer command that forces an outbound offer.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "front": "ACK answer",
+     "back": "Used when the offer arrived in the 200 OK.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the forced offer",
+    "kind": "sdp",
+    "prompt": "The outbound early offer is ANCHOR_SDP. The carrier answer is CARRIER_SDP.",
+    "offer": "v=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv\n",
+    "answer": "v=0\no=carrier 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 24000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv\n",
+    "check": {
+     "q": "The outbound offer’s c= address is",
+     "choices": [
+      "203.0.113.20",
+      "198.51.100.30",
+      "203.0.113.10",
+      "Absent because the INVITE had no SDP"
+     ],
+     "answer": 0,
+     "why": "CUBE offered its own address. The inbound INVITE was the one without SDP.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    }
+   },
+   "fault": {
+    "title": "Carrier required an offer",
+    "symptom": "The carrier rejects the call. The outbound INVITE matches the inbound one: no SDP.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nContent-Length: 0\n",
+    "choices": [
+     "The outbound dial peer forwarded delayed offer and early-offer forced is not set",
+     "RFC 3264 forbids SDP in any INVITE",
+     "A missing SDP is always early offer",
+     "100 Trying should have carried the offer"
+    ],
+    "answer": 0,
+    "why": "Content-Length 0 on that INVITE means no offer was sent.",
+    "cause": "The inbound delayed offer was forwarded to a peer that requires an offer in the INVITE.",
+    "fix": "Configure voice-class sip early-offer forced on the outbound dial peer and capture again. Confirm the outbound INVITE contains SDP.",
+    "cites": [
+     {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     },
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "cucm-trunk",
+   "title": "CUCM trunks, SIP profiles, and Lua",
+   "minutes": 14,
+   "tags": [
+    "cucm",
+    "trunk",
+    "lua"
+   ],
+   "summary": "A CUCM SIP trunk and a CUCM SIP profile are not the CUBE voice class. Lua normalization scripts exist. MTP required is version-specific.",
+   "objectives": [
+    "Separate CUCM objects from CUBE sip-profiles",
+    "Remember that Lua scripts exist",
+    "Confirm MTP required in the guide for that version"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Same words, different objects",
+    "caption": "Do not configure one product with the other product’s syntax.",
+    "columns": [
+     "Name you hear",
+     "What it is"
+    ],
+    "rows": [
+     [
+      "CUBE voice class sip-profiles",
+      "IOS XE header rules"
+     ],
+     [
+      "CUCM SIP profile",
+      "A CUCM trunk setting object"
+     ],
+     [
+      "Lua normalization script",
+      "A CUCM script on a trunk"
+     ],
+     [
+      "MTP required",
+      "A CUCM trunk setting in that version’s admin guide"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Trunks and two different profiles",
+     "paragraphs": [
+      "CUCM places calls to CUBE, to a carrier, or to another cluster on a SIP trunk. The lab trunk source is 198.51.100.30 and the CUBE address is 203.0.113.20.",
+      "A SIP profile on CUCM is the CUCM object. It is different from CUBE voice class sip-profiles. Lua normalization scripts exist on CUCM for message changes. This lesson does not invent a menu click-path or a script API."
+     ],
+     "cites": [
+      {
+       "label": "Cisco Unified Communications Manager",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+      },
+      {
+       "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+      }
+     ]
+    },
+    {
+     "h": "MTP required",
+     "paragraphs": [
+      "MTP required is a CUCM trunk setting documented in the admin guide for that version — confirm the guide before you check the box. Open the admin guide for the version you run before you enable it.",
+      "An MTP inserts a media resource and can change when SDP appears. The synthetic failure in this lesson shows CUCM offering c=198.51.100.30 after the phone offered from 203.0.113.10, which is a reason to read that guide rather than a reason to guess."
+     ],
+     "cites": [
+      {
+       "label": "Cisco Unified Communications Manager",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+      },
+      {
+       "label": "RFC 3264",
+       "url": "https://www.rfc-editor.org/rfc/rfc3264"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "CUCM trunk to CUBE",
+    "parties": [
+     "Phone",
+     "CUCM",
+     "CUBE"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The phone invites CUCM with its own SDP.",
+      "message": "INVITE sip:+15551212@198.51.100.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 228\n\nv=0\no=alice 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "CUCM is the UAS for the phone dialog.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The trunk INVITE is a new request toward CUBE.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKcucm01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucmtag1\nTo: <sip:+15551212@example.com>\nCall-ID: cucm-trunk-1@example.com\nCSeq: 1 INVITE\nContact: <sip:cucm@198.51.100.30>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 205\n\nv=0\no=cucm 2890844526 2890844526 IN IP4 198.51.100.30\ns=-\nc=IN IP4 198.51.100.30\nt=0 0\nm=audio 18000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "100",
+      "kind": "res",
+      "note": "CUBE accepts the trunk dialog.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKcucm01\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucmtag1\nTo: <sip:+15551212@example.com>\nCall-ID: cucm-trunk-1@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A CUCM SIP profile is",
+     "choices": [
+      "A CUCM object, different from voice class sip-profiles",
+      "The same CLI object as CUBE",
+      "An RTP codec",
+      "A DNS record"
+     ],
+     "answer": 0,
+     "why": "The English word profile is used by both products.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "q": "Lua normalization scripts",
+     "choices": [
+      "Exist on CUCM for SIP message changes",
+      "Are the CUBE profile grammar",
+      "Replace RFC 3261",
+      "Are configured under voice class sip-profiles"
+     ],
+     "answer": 0,
+     "why": "Cite the CUCM documentation. Do not invent a click-path.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "q": "MTP required",
+     "choices": [
+      "Is a CUCM trunk setting in the admin guide for that version",
+      "Is a CUBE command taught as voice-class sip early-offer forced",
+      "Is defined by RFC 5853",
+      "Disables SIP"
+     ],
+     "answer": 0,
+     "why": "Confirm the guide before you check the box.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "q": "In this lab CUCM’s address is",
+     "choices": [
+      "198.51.100.30",
+      "203.0.113.10",
+      "192.0.2.40",
+      "The Call-ID"
+     ],
+     "answer": 0,
+     "why": "CUBE is 203.0.113.20.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "q": "Checking MTP required without the version guide is",
+     "choices": [
+      "A guess this course tells you not to make",
+      "Required on every trunk",
+      "The same as early-offer forced",
+      "How you create a Lua script"
+     ],
+     "answer": 0,
+     "why": "The setting can change SDP timing.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "q": "The trunk INVITE toward CUBE is",
+     "choices": [
+      "A new SIP request generated by CUCM",
+      "A pure proxy copy with Alice’s Via stack guaranteed",
+      "An OPTIONS keepalive",
+      "A REGISTER"
+     ],
+     "answer": 0,
+     "why": "CUCM is a B2BUA-style call agent on a typical SIP trunk.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "SIP trunk",
+     "back": "CUCM’s adjacency to CUBE or another peer.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "front": "CUCM SIP profile",
+     "back": "Not voice class sip-profiles.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "front": "Lua",
+     "back": "Normalization scripts exist. Open the admin guide.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "front": "MTP required",
+     "back": "Confirm the guide for that version before checking it.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Dissect the trunk INVITE",
+    "kind": "dissect",
+    "prompt": "This INVITE leaves CUCM toward CUBE. Which host is in Contact?",
+    "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKcucm01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucmtag1\nTo: <sip:+15551212@example.com>\nCall-ID: cucm-trunk-1@example.com\nCSeq: 1 INVITE\nContact: <sip:cucm@198.51.100.30>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 205\n\nv=0\no=cucm 2890844526 2890844526 IN IP4 198.51.100.30\ns=-\nc=IN IP4 198.51.100.30\nt=0 0\nm=audio 18000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv",
+    "check": {
+     "q": "Contact host on the trunk INVITE is",
+     "choices": [
+      "198.51.100.30",
+      "203.0.113.10",
+      "192.0.2.40",
+      "example.com only"
+     ],
+     "answer": 0,
+     "why": "CUCM used its own Contact on the trunk dialog.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "MTP inserted without reading the guide",
+    "symptom": "The phone offered media from 203.0.113.10. The trunk INVITE offers c=198.51.100.30 and the call fails when that address is not a valid media path.",
+    "log": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nContact: <sip:cucm@198.51.100.30>\nContent-Type: application/sdp\nc=IN IP4 198.51.100.30\nm=audio 18000 RTP/AVP 0\n",
+    "choices": [
+     "MTP required may have inserted CUCM into the media path",
+     "RFC 3264 forbids c= lines",
+     "CUBE dial peers rewrite CUCM SDP by default in every release",
+     "The Via branch is the media address"
+    ],
+    "answer": 0,
+    "why": "The connection address became the CUCM address.",
+    "cause": "MTP required is enabled, or another media resource is inserted, without a check against this version’s admin guide.",
+    "fix": "MTP required is a CUCM trunk setting documented in the admin guide for that version — confirm the guide before you check the box.",
+    "cites": [
+     {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     },
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "unity",
+   "title": "Unity Connection SIP integration",
+   "minutes": 13,
+   "tags": [
+    "unity",
+    "diversion"
+   ],
+   "summary": "SIP integration with CUCM is the documented Unity Connection path. Open the guide for your version. This lesson does not make SCCP the default.",
+   "objectives": [
+    "State that SIP integration is the documented path",
+    "Use Diversion as a redirecting-number example",
+    "Open the version’s integration guide"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Forwarded call into voicemail",
+    "caption": "In this synthetic, 192.0.2.40 stands for the Unity Connection SIP peer.",
+    "layers": [
+     {
+      "name": "Phone",
+      "detail": "203.0.113.10"
+     },
+     {
+      "name": "CUCM",
+      "detail": "198.51.100.30 forwards the call"
+     },
+     {
+      "name": "Unity Connection",
+      "detail": "SIP integration, address from your guide"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "The documented path",
+     "paragraphs": [
+      "Unity Connection SIP integration with CUCM is documented. SIP integration is the documented path in Cisco’s Unity Connection SIP integration guides, and the reader should open the guide for their version.",
+      "This lesson does not invent SCCP as the current default. It also does not invent a port, a mailbox wizard, or a click-path. Those details are in the guide you open."
+     ],
+     "cites": [
+      {
+       "label": "Cisco Unity Connection",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+      },
+      {
+       "label": "Cisco Unified Communications Manager",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+      }
+     ]
+    },
+    {
+     "h": "How the mailbox is indicated in SIP",
+     "paragraphs": [
+      "A forwarded INVITE can carry Diversion with the original called number. Here that value is sip:+15551212@example.com and the reason is unconditional.",
+      "History-Info is the other standards-based redirecting header. Whether this version of Unity Connection wants Diversion, History-Info, or both is answered by the SIP integration guide, not by a guess."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5806",
+       "url": "https://www.rfc-editor.org/rfc/rfc5806"
+      },
+      {
+       "label": "RFC 7044",
+       "url": "https://www.rfc-editor.org/rfc/rfc7044"
+      },
+      {
+       "label": "Cisco Unity Connection",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "CUCM forwards to the Unity SIP peer",
+    "parties": [
+     "Phone",
+     "CUCM",
+     "Unity"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The caller reaches CUCM first.",
+      "message": "INVITE sip:+15551212@198.51.100.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "CUCM is processing the call.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The forwarded INVITE carries Diversion. 192.0.2.40 is the synthetic Unity peer.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKunity1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucmtag1\nTo: <sip:+15551212@example.com>\nCall-ID: unity-fwd-1@example.com\nCSeq: 1 INVITE\nContact: <sip:cucm@198.51.100.30>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nDiversion: <sip:+15551212@example.com>;reason=unconditional\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "Unity answers the forwarded dialog.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKunity1\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucmtag1\nTo: <sip:+15551212@example.com>;tag=unitytag1\nCall-ID: unity-fwd-1@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContact: <sip:unity@192.0.2.40>\nContent-Length: 202\n\nv=0\no=carrier 2890844526 2890844526 IN IP4 192.0.2.40\ns=-\nc=IN IP4 192.0.2.40\nt=0 0\nm=audio 24000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The documented Unity Connection integration path in Cisco’s SIP integration guides is",
+     "choices": [
+      "SIP integration with CUCM",
+      "SCCP as a course-defined current default",
+      "SMTP only",
+      "A CUBE voice class"
+     ],
+     "answer": 0,
+     "why": "Open the guide for the version you run.",
+     "cite": {
+      "label": "Cisco Unity Connection",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+     }
+    },
+    {
+     "q": "This lesson treats SCCP as",
+     "choices": [
+      "Not the current default it is willing to invent",
+      "The required protocol",
+      "A SIP header",
+      "An SDP proto"
+     ],
+     "answer": 0,
+     "why": "Do not invent SCCP as the default.",
+     "cite": {
+      "label": "Cisco Unity Connection",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+     }
+    },
+    {
+     "q": "Diversion in the synthetic names",
+     "choices": [
+      "sip:+15551212@example.com",
+      "The RTP port",
+      "The Via branch",
+      "A mailbox wizard click"
+     ],
+     "answer": 0,
+     "why": "That is the original called number in this lab.",
+     "cite": {
+      "label": "RFC 5806",
+      "url": "https://www.rfc-editor.org/rfc/rfc5806"
+     }
+    },
+    {
+     "q": "History-Info is specified by",
+     "choices": [
+      "RFC 7044",
+      "RFC 4733",
+      "The CUBE dial-peer command",
+      "RFC 3550"
+     ],
+     "answer": 0,
+     "why": "It is the other redirecting-header family.",
+     "cite": {
+      "label": "RFC 7044",
+      "url": "https://www.rfc-editor.org/rfc/rfc7044"
+     }
+    },
+    {
+     "q": "The Unity peer address on a real cluster comes from",
+     "choices": [
+      "The SIP integration guide for that version",
+      "A fixed address in RFC 3261",
+      "The Teams proxy FQDN",
+      "The SDP ptime"
+     ],
+     "answer": 0,
+     "why": "192.0.2.40 is only the synthetic stand-in.",
+     "cite": {
+      "label": "Cisco Unity Connection",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+     }
+    },
+    {
+     "q": "CUCM’s role on this call is",
+     "choices": [
+      "The integration partner that forwards the call",
+      "A DNS SRV record only",
+      "The RTP mixer defined by RFC 3550",
+      "An OPTIONS keepalive"
+     ],
+     "answer": 0,
+     "why": "The series documents cover CUCM and Unity Connection together.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "SIP integration",
+     "back": "The documented Unity Connection path. Open your version’s guide.",
+     "cite": {
+      "label": "Cisco Unity Connection",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+     }
+    },
+    {
+     "front": "Diversion",
+     "back": "RFC 5806 redirecting number. Reason unconditional in the lab.",
+     "cite": {
+      "label": "RFC 5806",
+      "url": "https://www.rfc-editor.org/rfc/rfc5806"
+     }
+    },
+    {
+     "front": "History-Info",
+     "back": "RFC 7044. Use it if the guide asks for it.",
+     "cite": {
+      "label": "RFC 7044",
+      "url": "https://www.rfc-editor.org/rfc/rfc7044"
+     }
+    },
+    {
+     "front": "Not SCCP-by-guess",
+     "back": "Do not invent SCCP as the current default.",
+     "cite": {
+      "label": "Cisco Unity Connection",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Find the called number",
+    "kind": "dissect",
+    "prompt": "Dissect the forwarded INVITE. Which header carries +15551212 as the redirecting target?",
+    "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKunity1\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucmtag1\nTo: <sip:+15551212@example.com>\nCall-ID: unity-fwd-1@example.com\nCSeq: 1 INVITE\nContact: <sip:cucm@198.51.100.30>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nDiversion: <sip:+15551212@example.com>;reason=unconditional\nContent-Length: 0\n",
+    "check": {
+     "q": "The redirecting header in this INVITE is",
+     "choices": [
+      "Diversion",
+      "Via",
+      "Max-Forwards",
+      "Allow"
+     ],
+     "answer": 0,
+     "why": "Diversion contains sip:+15551212@example.com.",
+     "cite": {
+      "label": "RFC 5806",
+      "url": "https://www.rfc-editor.org/rfc/rfc5806"
+     }
+    }
+   },
+   "fault": {
+    "title": "Forwarded INVITE without a redirecting number",
+    "symptom": "Unity Connection answers, then cannot select a mailbox. The INVITE has no Diversion and no History-Info.",
+    "log": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 198.51.100.30;branch=z9hG4bKunity1\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucmtag1\nTo: <sip:+15551212@example.com>\nCall-ID: unity-fwd-1@example.com\nCSeq: 1 INVITE\nContact: <sip:cucm@198.51.100.30>\nContent-Length: 0\n",
+    "choices": [
+     "The original called number was not conveyed to Unity Connection",
+     "SIP integration is unsupported",
+     "SCCP is required because Content-Length is 0",
+     "CSeq must be 0 OPTIONS"
+    ],
+    "answer": 0,
+    "why": "Neither Diversion nor History-Info is present.",
+    "cause": "The forward did not carry the redirecting identity this integration needs.",
+    "fix": "Open the Unity Connection SIP integration guide for your version and send the redirecting header that guide documents. SIP integration is the documented path.",
+    "cites": [
+     {
+      "label": "Cisco Unity Connection",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+     },
+     {
+      "label": "RFC 5806",
+      "url": "https://www.rfc-editor.org/rfc/rfc5806"
+     },
+     {
+      "label": "RFC 7044",
+      "url": "https://www.rfc-editor.org/rfc/rfc7044"
+     }
+    ]
+   },
+   "level": "Advanced"
+  },
+  {
+   "id": "debug-ccsip",
+   "title": "debug ccsip messages",
+   "minutes": 14,
+   "tags": [
+    "debug",
+    "capture",
+    "cube"
+   ],
+   "summary": "debug ccsip messages displays sent and received SIP. Profile decisions have a separate debug, and the analyzer can test a profile offline.",
+   "objectives": [
+    "Read Sent and Received in debug ccsip messages",
+    "Name the profile debug",
+    "Use the analyzer as a dry run"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Three troubleshooting tools",
+    "caption": "Only debug ccsip messages is turned into the capture lab.",
+    "columns": [
+     "Tool",
+     "What the guide says"
+    ],
+    "rows": [
+     [
+      "debug ccsip messages",
+      "Displays sent and received SIP"
+     ],
+     [
+      "debug ccsip feature sip-profiles",
+      "Profile troubleshooting"
+     ],
+     [
+      "SIP Profile Tester",
+      "Collaboration Solutions Analyzer"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Sent and Received",
+     "paragraphs": [
+      "debug ccsip messages displays the SIP CUBE sends and the SIP CUBE receives. The capture lab uses a synthetic of that output, with a timestamp prefix and Sent: and Received: lines.",
+      "Read the received INVITE and the sent INVITE as two messages. In this sample both still contain Diversion, which is the clue that the profile has not changed the outbound request."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CUBE basic SIP configuration",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+      }
+     ]
+    },
+    {
+     "h": "When the header did not change",
+     "paragraphs": [
+      "debug ccsip feature sip-profiles is documented for profile troubleshooting. Use it when debug ccsip messages shows that a header survived.",
+      "The Collaboration Solutions Analyzer SIP Profile Tester runs a profile against a pasted message. It does not replace a capture from the router you are actually running."
+     ],
+     "cites": [
+      {
+       "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+      },
+      {
+       "label": "Cisco Collaboration Solutions Analyzer",
+       "url": "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "The messages the debug is showing",
+    "parties": [
+     "Alice",
+     "CUBE",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "This is the Received INVITE in the capture.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nDiversion: <sip:+15551212@example.com>;reason=unconditional\nContent-Type: application/sdp\nContent-Length: 202\n\nv=0\no=lab 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Provisional responses also appear in a full debug.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "This is the Sent INVITE in the capture.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nSupported: 100rel,replaces,timer\nAllow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nDiversion: <sip:+15551212@example.com>;reason=unconditional\nContent-Type: application/sdp\nContent-Length: 203\n\nv=0\no=cube 2890844526 2890844526 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=fmtp:101 0-16\na=sendrecv"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "100",
+      "kind": "res",
+      "note": "The carrier’s Trying would be another Received block.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nTo: <sip:+15551212@example.com>\nCall-ID: b2bua-legb-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "debug ccsip messages displays",
+     "choices": [
+      "Sent and received SIP",
+      "Only RTP audio",
+      "Only dial-peer configuration",
+      "Certificate private keys"
+     ],
+     "answer": 0,
+     "why": "That is the basic configuration guide’s message debug.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "debug ccsip feature sip-profiles is for",
+     "choices": [
+      "Profile troubleshooting",
+      "Replacing show version",
+      "Unity mailbox selection",
+      "DNS enumeration"
+     ],
+     "answer": 0,
+     "why": "Use it when a profile does not do what the message debug shows.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    },
+    {
+     "q": "The Collaboration Solutions Analyzer tool cited here is",
+     "choices": [
+      "The SIP Profile Tester",
+      "A toll-fraud generator",
+      "An RTP mixer",
+      "A CUCM LDAP wizard"
+     ],
+     "answer": 0,
+     "why": "It tests profile text against a message.",
+     "cite": {
+      "label": "Cisco Collaboration Solutions Analyzer",
+      "url": "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html"
+     }
+    },
+    {
+     "q": "In the capture, Received is",
+     "choices": [
+      "Alice’s INVITE toward CUBE",
+      "An OPTIONS with CSeq INVITE",
+      "A 603 response",
+      "Empty"
+     ],
+     "answer": 0,
+     "why": "The timestamped Received block starts with INVITE.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "q": "A timestamp prefix on debug output is",
+     "choices": [
+      "Stripped by a careful reader before the SIP start line is judged",
+      "Part of the SIP method",
+      "A substitute for Call-ID",
+      "Illegal on IOS XE"
+     ],
+     "answer": 0,
+     "why": "The SIP message begins at the start line.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "If Sent still shows Diversion, the next useful check is",
+     "choices": [
+      "The profile debug and the analyzer",
+      "A new calls-per-second formula",
+      "Deleting Call-ID",
+      "Switching the call to SCCP by guess"
+     ],
+     "answer": 0,
+     "why": "The message debug already proved the header survived.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "debug ccsip messages",
+     "back": "Shows sent and received SIP.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    },
+    {
+     "front": "sip-profiles debug",
+     "back": "debug ccsip feature sip-profiles.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    },
+    {
+     "front": "CSA",
+     "back": "SIP Profile Tester in Collaboration Solutions Analyzer.",
+     "cite": {
+      "label": "Cisco Collaboration Solutions Analyzer",
+      "url": "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html"
+     }
+    },
+    {
+     "front": "Sent / Received",
+     "back": "Direction markers around each SIP message.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Parse a synthetic debug",
+    "kind": "capture",
+    "prompt": "This is synthetic debug ccsip messages output. Separate Received from Sent.",
+    "message": "Oct 14 12:00:01.100: //-1/000000000000/SIP/Msg/ccsipDisplayMsg:\nOct 14 12:00:01.100: Received:\nOct 14 12:00:01.100: INVITE sip:+15551212@203.0.113.20 SIP/2.0\nOct 14 12:00:01.100: Via: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nOct 14 12:00:01.100: Max-Forwards: 70\nOct 14 12:00:01.100: From: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nOct 14 12:00:01.100: To: <sip:+15551212@example.com>\nOct 14 12:00:01.100: Call-ID: a84b4c76e66710@example.com\nOct 14 12:00:01.100: CSeq: 1 INVITE\nOct 14 12:00:01.100: Contact: <sip:alice@203.0.113.10>\nOct 14 12:00:01.100: Supported: 100rel,replaces,timer\nOct 14 12:00:01.100: Allow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nOct 14 12:00:01.100: Diversion: <sip:+15551212@example.com>;reason=unconditional\nOct 14 12:00:01.100: Content-Type: application/sdp\nOct 14 12:00:01.100: Content-Length: 202\nOct 14 12:00:01.100: \nOct 14 12:00:01.100: v=0\nOct 14 12:00:01.100: o=lab 2890844526 2890844526 IN IP4 203.0.113.10\nOct 14 12:00:01.100: s=-\nOct 14 12:00:01.100: c=IN IP4 203.0.113.10\nOct 14 12:00:01.100: t=0 0\nOct 14 12:00:01.100: m=audio 49170 RTP/AVP 0 101\nOct 14 12:00:01.100: a=rtpmap:0 PCMU/8000\nOct 14 12:00:01.100: a=rtpmap:101 telephone-event/8000\nOct 14 12:00:01.100: a=fmtp:101 0-16\nOct 14 12:00:01.100: a=sendrecv\nOct 14 12:00:01.200: //-1/000000000000/SIP/Msg/ccsipDisplayMsg:\nOct 14 12:00:01.200: Sent:\nOct 14 12:00:01.200: INVITE sip:+15551212@192.0.2.40 SIP/2.0\nOct 14 12:00:01.200: Via: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nOct 14 12:00:01.200: Max-Forwards: 70\nOct 14 12:00:01.200: From: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nOct 14 12:00:01.200: To: <sip:+15551212@example.com>\nOct 14 12:00:01.200: Call-ID: b2bua-legb-01@example.com\nOct 14 12:00:01.200: CSeq: 1 INVITE\nOct 14 12:00:01.200: Contact: <sip:sbc@203.0.113.20>\nOct 14 12:00:01.200: Supported: 100rel,replaces,timer\nOct 14 12:00:01.200: Allow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nOct 14 12:00:01.200: Diversion: <sip:+15551212@example.com>;reason=unconditional\nOct 14 12:00:01.200: Content-Type: application/sdp\nOct 14 12:00:01.200: Content-Length: 203\nOct 14 12:00:01.200: \nOct 14 12:00:01.200: v=0\nOct 14 12:00:01.200: o=cube 2890844526 2890844526 IN IP4 203.0.113.20\nOct 14 12:00:01.200: s=-\nOct 14 12:00:01.200: c=IN IP4 203.0.113.20\nOct 14 12:00:01.200: t=0 0\nOct 14 12:00:01.200: m=audio 19642 RTP/AVP 0 101\nOct 14 12:00:01.200: a=rtpmap:0 PCMU/8000\nOct 14 12:00:01.200: a=rtpmap:101 telephone-event/8000\nOct 14 12:00:01.200: a=fmtp:101 0-16\nOct 14 12:00:01.200: a=sendrecv\n",
+    "steps": [
+     "Find the timestamp prefix.",
+     "Find Received: and Sent:.",
+     "Compare Diversion on the two INVITEs."
+    ],
+    "check": {
+     "q": "Both debug blocks in this capture are",
+     "choices": [
+      "INVITE requests, one received and one sent",
+      "OPTIONS with CSeq INVITE",
+      "200 OK only",
+      "REGISTER"
+     ],
+     "answer": 0,
+     "why": "Each start line is INVITE. Directions differ.",
+     "cite": {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     }
+    }
+   },
+   "fault": {
+    "title": "Profile did not touch the sent INVITE",
+    "symptom": "After a remove rule was saved, the sent INVITE in debug ccsip messages still contains Diversion.",
+    "log": "Oct 14 12:00:01.100: //-1/000000000000/SIP/Msg/ccsipDisplayMsg:\nOct 14 12:00:01.100: Received:\nOct 14 12:00:01.100: INVITE sip:+15551212@203.0.113.20 SIP/2.0\nOct 14 12:00:01.100: Via: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766as01\nOct 14 12:00:01.100: Max-Forwards: 70\nOct 14 12:00:01.100: From: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nOct 14 12:00:01.100: To: <sip:+15551212@example.com>\nOct 14 12:00:01.100: Call-ID: a84b4c76e66710@example.com\nOct 14 12:00:01.100: CSeq: 1 INVITE\nOct 14 12:00:01.100: Contact: <sip:alice@203.0.113.10>\nOct 14 12:00:01.100: Supported: 100rel,replaces,timer\nOct 14 12:00:01.100: Allow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nOct 14 12:00:01.100: Diversion: <sip:+15551212@example.com>;reason=unconditional\nOct 14 12:00:01.100: Content-Type: application/sdp\nOct 14 12:00:01.100: Content-Length: 202\nOct 14 12:00:01.100: \nOct 14 12:00:01.100: v=0\nOct 14 12:00:01.100: o=lab 2890844526 2890844526 IN IP4 203.0.113.10\nOct 14 12:00:01.100: s=-\nOct 14 12:00:01.100: c=IN IP4 203.0.113.10\nOct 14 12:00:01.100: t=0 0\nOct 14 12:00:01.100: m=audio 49170 RTP/AVP 0 101\nOct 14 12:00:01.100: a=rtpmap:0 PCMU/8000\nOct 14 12:00:01.100: a=rtpmap:101 telephone-event/8000\nOct 14 12:00:01.100: a=fmtp:101 0-16\nOct 14 12:00:01.100: a=sendrecv\nOct 14 12:00:01.200: //-1/000000000000/SIP/Msg/ccsipDisplayMsg:\nOct 14 12:00:01.200: Sent:\nOct 14 12:00:01.200: INVITE sip:+15551212@192.0.2.40 SIP/2.0\nOct 14 12:00:01.200: Via: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK7766as02\nOct 14 12:00:01.200: Max-Forwards: 70\nOct 14 12:00:01.200: From: \"Alice\" <sip:alice@example.com>;tag=cubeout01\nOct 14 12:00:01.200: To: <sip:+15551212@example.com>\nOct 14 12:00:01.200: Call-ID: b2bua-legb-01@example.com\nOct 14 12:00:01.200: CSeq: 1 INVITE\nOct 14 12:00:01.200: Contact: <sip:sbc@203.0.113.20>\nOct 14 12:00:01.200: Supported: 100rel,replaces,timer\nOct 14 12:00:01.200: Allow: INVITE,ACK,CANCEL,BYE,UPDATE,PRACK,OPTIONS,REFER\nOct 14 12:00:01.200: Diversion: <sip:+15551212@example.com>;reason=unconditional\nOct 14 12:00:01.200: Content-Type: application/sdp\nOct 14 12:00:01.200: Content-Length: 203\nOct 14 12:00:01.200: \nOct 14 12:00:01.200: v=0\nOct 14 12:00:01.200: o=cube 2890844526 2890844526 IN IP4 203.0.113.20\nOct 14 12:00:01.200: s=-\nOct 14 12:00:01.200: c=IN IP4 203.0.113.20\nOct 14 12:00:01.200: t=0 0\nOct 14 12:00:01.200: m=audio 19642 RTP/AVP 0 101\nOct 14 12:00:01.200: a=rtpmap:0 PCMU/8000\nOct 14 12:00:01.200: a=rtpmap:101 telephone-event/8000\nOct 14 12:00:01.200: a=fmtp:101 0-16\nOct 14 12:00:01.200: a=sendrecv\n",
+    "choices": [
+     "The profile did not modify the sent INVITE",
+     "debug ccsip messages cannot display SIP",
+     "Diversion is illegal and the debug invented it",
+     "The timestamp is a SIP header"
+    ],
+    "answer": 0,
+    "why": "Received and Sent both still include Diversion.",
+    "cause": "The rule is not on the leg that produced the sent INVITE, or it does not match this message.",
+    "fix": "Use debug ccsip feature sip-profiles for the profile decision, and retry the rule text in the Collaboration Solutions Analyzer SIP Profile Tester.",
+    "cites": [
+     {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+     },
+     {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     },
+     {
+      "label": "Cisco Collaboration Solutions Analyzer",
+      "url": "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html"
+     }
+    ]
+   },
+   "level": "Advanced"
+  }
+ ]
+}
