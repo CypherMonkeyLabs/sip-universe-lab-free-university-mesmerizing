@@ -262,6 +262,9 @@ export async function mountTopology(host) {
     const loop = () => {
       if (stop) return;
       frame = requestAnimationFrame(loop);
+      if (document.hidden) return;
+      const box = canvas.getBoundingClientRect();
+      if (box.bottom <= 0 || box.top >= window.innerHeight) return;
       if (!dragging) sph.theta += 0.0015;
       placeCamera();
       renderer.render(scene, camera);

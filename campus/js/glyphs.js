@@ -4,7 +4,15 @@ const ORDER = [
 ];
 
 function reduced() {
-  return document.documentElement.dataset.motion === "reduce";
+  const motion = document.documentElement.dataset.motion;
+  if (motion === "reduce") return true;
+  if (motion === "full") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function onScreen(el) {
+  const rect = el.getBoundingClientRect();
+  return rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
 }
 
 function loadThree() {
@@ -305,6 +313,7 @@ export function mountGlyphs(root) {
     if (dead) return;
     raf = requestAnimationFrame(loop);
     if (!renderer || document.hidden || reduced()) return;
+    if (!hosts.some((host) => host.isConnected && onScreen(host))) return;
     const batch = Math.min(4, hosts.length);
     for (let n = 0; n < batch; n += 1) {
       const host = hosts[cursor % hosts.length];

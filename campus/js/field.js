@@ -144,14 +144,12 @@ function bindOffline(catalog) {
 }
 
 function bindLang() {
-  const lang = document.querySelector("#lang");
-  if (lang) {
+  document.querySelectorAll("#lang, #menu-lang").forEach((lang) => {
     lang.value = getSettings().lang || "en";
     lang.addEventListener("change", () => {
       saveSettings({ lang: lang.value });
-      applyLang(lang.value);
     });
-  }
+  });
   const toggle = document.querySelector("#theme-toggle");
   const paintToggle = () => {
     if (!toggle) return;

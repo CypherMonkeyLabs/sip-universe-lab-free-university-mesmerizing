@@ -119,7 +119,8 @@ a:hover { text-decoration-thickness: 2px; }
 .search input { width: min(420px, 100%); min-height: 44px; padding: 0 14px; }
 .top-actions { display: flex; align-items: center; gap: 8px; }
 .progress-pill { color: var(--cc-muted); font-variant-numeric: tabular-nums; font-size: 0.85rem; }
-.layout { display: grid; grid-template-columns: 232px 1fr; }
+.layout { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-width: 0; }
+main, #view, .tool-grid, .tool-grid > * { min-width: 0; max-width: 100%; }
 .rail { padding: 16px 12px 32px; border-right: 1px solid var(--cc-line); }
 .rail h2 { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cc-muted); margin: 16px 8px 6px; }
 .rail a, .bottom a, .more-list a {
@@ -177,7 +178,7 @@ pre, .sip-view {
 html[data-theme="contrast"] .sip-view { background: #000; color: #fff; border: 1px solid #fff; }
 .sip-start { color: var(--cc-accent-3); }
 .sip-h { color: var(--cc-accent-1); }
-.ladder { width: 100%; min-width: 640px; height: auto; display: block; }
+.ladder { width: 100%; min-width: 0; max-width: 100%; height: auto; display: block; }
 .ladder-bg, .illus-bg { fill: color-mix(in srgb, var(--cc-bg) 70%, #000); }
 .party, .node-label, .state-label, .layer-name { fill: var(--cc-text); font-size: 14px; font-family: var(--sans); }
 .life { stroke: var(--cc-line); stroke-width: 2; }

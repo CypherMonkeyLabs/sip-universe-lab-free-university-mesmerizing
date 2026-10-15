@@ -83,6 +83,30 @@ export function burst() {
   confetti({ particleCount: 90, spread: 70, origin: { y: 0.65 }, disableForReducedMotion: true });
 }
 
+export function bindReveal(root) {
+  const nodes = [...root.querySelectorAll(".card, .atlas-fig, .chart-card, .architect, .panel")];
+  const motion = document.documentElement.dataset.motion;
+  const reduce = motion === "reduce" || (motion !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  if (reduce || typeof IntersectionObserver !== "function") {
+    nodes.forEach((node) => node.classList.add("is-in"));
+    return () => {};
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-in");
+      io.unobserve(entry.target);
+    });
+  }, { threshold: 0.12 });
+  nodes.forEach((node) => {
+    node.classList.add("reveal");
+    const rect = node.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) node.classList.add("is-in");
+    else io.observe(node);
+  });
+  return () => io.disconnect();
+}
+
 export function bindMenuKeys(root) {
   const nav = root.querySelector(".prime");
   if (!nav) return;
