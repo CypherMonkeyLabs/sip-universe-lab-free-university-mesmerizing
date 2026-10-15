@@ -169,12 +169,15 @@ body.is-home #view-title {
 }
 body.is-home .rail { display: none; }
 body.is-home .layout { display: block; }
-body.is-home main { max-width: none; padding-top: 0; }
+body.is-home main { max-width: none; padding-top: 0; padding-left: 0; padding-right: 0; }
+.home-after { padding-inline: 22px; }
 
 .hero-bleed {
   position: relative;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
   height: 100dvh;
   min-height: 640px;
   overflow: hidden;
@@ -384,7 +387,7 @@ html[dir="rtl"] .mascot-line { right: auto; left: 78px; }
 @media (min-width: 701px) {
   .site-head {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
     grid-template-areas: "top top" "prime links";
     align-items: center;
   }
@@ -399,9 +402,10 @@ html[dir="rtl"] .mascot-line { right: auto; left: 78px; }
     font-size: 0.78rem;
   }
   .search input { width: min(240px, 24vw); }
-  .prime { grid-area: prime; flex-wrap: nowrap; padding: 0 8px 2px; gap: 4px; }
+  .prime { grid-area: prime; flex-wrap: nowrap; min-width: 0; padding: 0 8px 2px; gap: 4px; scrollbar-width: none; }
+  .prime::-webkit-scrollbar, .linkbar::-webkit-scrollbar { height: 0; }
   .prime a { min-height: 26px; padding: 0 8px; font-size: 0.76rem; }
-  .linkbar { grid-area: links; flex-wrap: nowrap; padding: 0 8px 2px; gap: 4px; justify-content: flex-end; }
+  .linkbar { grid-area: links; flex-wrap: nowrap; min-width: 0; padding: 0 8px 2px; gap: 4px; justify-content: flex-end; overflow-x: auto; scrollbar-width: none; }
   .linkbar a, .swatches button { min-height: 24px; padding: 0 7px; font-size: 0.72rem; }
   h1, h2, section { scroll-margin-top: 96px; }
 }
@@ -537,11 +541,13 @@ html[data-motion="reduce"] .card:hover { transform: none; }
   h1, h2, section, #architect { scroll-margin-top: 72px; scroll-margin-bottom: 88px; }
   .hero-bleed { width: 100%; margin-left: 0; min-height: 100dvh; }
   .hero-glass {
+    position: fixed;
+    z-index: 5;
     inset-inline-start: 12px;
     inset-inline-end: 72px;
-    bottom: calc(72px + env(safe-area-inset-bottom));
+    bottom: calc(64px + env(safe-area-inset-bottom));
     max-width: none;
-    max-height: calc(100dvh - 64px - 84px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    max-height: calc(100dvh - 72px - 64px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     overflow: auto;
     padding: 12px;
   }
@@ -551,10 +557,12 @@ html[data-motion="reduce"] .card:hover { transform: none; }
   .stage-inline { grid-template-columns: 1fr; }
   .side-live { height: 210px; }
   dialog#phone-menu[open] {
+    position: fixed;
+    inset: 0;
     width: 100%;
-    max-width: 100%;
+    max-width: none;
     height: 100%;
-    max-height: 100%;
+    max-height: none;
     margin: 0;
     border: 0;
     border-radius: 0;

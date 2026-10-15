@@ -226,8 +226,15 @@ export function mountMind(host) {
     host.insertAdjacentHTML("beforeend", `<p class="fine">The mind map library did not load. The diagram atlas still has the ecosystem drawing.</p>`);
     return () => {};
   }
+  const wrap = host.querySelector(".markmap-wrap");
+  const width = Math.max(280, Math.round(wrap?.getBoundingClientRect().width || 640));
+  const height = 480;
+  svg.setAttribute("width", String(width));
+  svg.setAttribute("height", String(height));
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   try {
-    const mm = lib.Markmap.create(svg, { duration: 300 }, mindNode(MIND));
+    const reduced = document.documentElement.dataset.motion === "reduce";
+    const mm = lib.Markmap.create(svg, { duration: reduced ? 0 : 300 }, mindNode(MIND));
     return () => { if (mm && typeof mm.destroy === "function") mm.destroy(); };
   } catch (err) {
     host.insertAdjacentHTML("beforeend", `<p class="fine">${esc(err.message)}</p>`);

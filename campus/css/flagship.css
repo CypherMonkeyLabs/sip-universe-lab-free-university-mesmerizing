@@ -235,7 +235,7 @@ html:not([data-motion="reduce"]) .d-march { animation: march 1s linear infinite;
 .ex-node text { font-size: 14px; text-anchor: middle; }
 .ex-link { stroke: var(--cc-accent-1); stroke-width: 2; }
 .ex-link.is-soft { stroke-dasharray: 5 5; stroke: var(--cc-muted); }
-.explorer { width: 100%; min-width: 640px; background: var(--cc-bg); border-radius: 16px; }
+.explorer { width: 100%; min-width: 0; max-width: 100%; background: var(--cc-bg); border-radius: 16px; }
 
 .read-layout { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 16px; align-items: start; }
 .read-toc { position: sticky; top: 130px; display: flex; flex-direction: column; gap: 6px; }

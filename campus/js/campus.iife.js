@@ -1776,8 +1776,15 @@
       return () => {
       };
     }
+    const wrap = host.querySelector(".markmap-wrap");
+    const width = Math.max(280, Math.round(wrap?.getBoundingClientRect().width || 640));
+    const height = 480;
+    svg2.setAttribute("width", String(width));
+    svg2.setAttribute("height", String(height));
+    svg2.setAttribute("viewBox", `0 0 ${width} ${height}`);
     try {
-      const mm = lib.Markmap.create(svg2, { duration: 300 }, mindNode(MIND));
+      const reduced4 = document.documentElement.dataset.motion === "reduce";
+      const mm = lib.Markmap.create(svg2, { duration: reduced4 ? 0 : 300 }, mindNode(MIND));
       return () => {
         if (mm && typeof mm.destroy === "function") mm.destroy();
       };
