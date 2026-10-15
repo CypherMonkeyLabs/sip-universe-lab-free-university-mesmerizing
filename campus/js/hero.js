@@ -362,6 +362,134 @@ export async function mountHero(host) {
   }));
   scene.add(points, nearPoints, ribbon);
 
+  camera.aspect = Math.max(0.45, (window.innerWidth || 1440) / (window.innerHeight || 900));
+  camera.updateProjectionMatrix();
+  camera.lookAt(0, 0.15, 0);
+  camera.updateMatrixWorld();
+  const placeInView = (distance, sx, sy) => {
+    const forward = new THREE.Vector3();
+    camera.getWorldDirection(forward);
+    const right = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
+    if (right.lengthSq() < 1e-4) right.set(1, 0, 0);
+    const up = new THREE.Vector3().crossVectors(right, forward).normalize();
+    const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * distance;
+    const halfW = halfH * camera.aspect;
+    return new THREE.Vector3()
+      .copy(camera.position)
+      .addScaledVector(forward, distance)
+      .addScaledVector(right, sx * halfW)
+      .addScaledVector(up, sy * halfH);
+  };
+  const starCount = 2400;
+  const starPos = new Float32Array(starCount * 3);
+  let starN = 0;
+  const pushStar = (vec) => {
+    if (starN >= starCount) return;
+    starPos[starN * 3] = vec.x;
+    starPos[starN * 3 + 1] = vec.y;
+    starPos[starN * 3 + 2] = vec.z;
+    starN += 1;
+  };
+  for (let i = 0; i < 1600; i += 1) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const radius = 16 + Math.random() * 20;
+    pushStar(camera.position.clone().add(new THREE.Vector3(
+      Math.sin(phi) * Math.cos(theta) * radius,
+      Math.cos(phi) * radius,
+      Math.sin(phi) * Math.sin(theta) * radius,
+    )));
+  }
+  [[0.97, 0.92], [-0.97, 0.92], [0.97, -0.9], [-0.97, -0.9], [0.99, 0.15], [-0.99, 0.1], [0.2, 0.98], [-0.2, 0.98]].forEach(([sx, sy]) => {
+    for (let k = 0; k < 80 && starN < starCount; k += 1) {
+      pushStar(placeInView(15 + Math.random() * 12, sx * (0.7 + Math.random() * 0.32), sy * (0.7 + Math.random() * 0.32)));
+    }
+  });
+  const starGeo = new THREE.BufferGeometry();
+  starGeo.setAttribute("position", new THREE.BufferAttribute(starPos.subarray(0, starN * 3), 3));
+  const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({
+    color: 0xd7ecff,
+    size: 0.05,
+    transparent: true,
+    opacity: 0.9,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  }));
+  scene.add(stars);
+
+  const MID = [
+    ["Proxy", 0.9, 0.76],
+    ["Registrar", -0.9, 0.76],
+    ["Edge", 0.9, -0.68],
+    ["Location", -0.9, -0.68],
+    ["Outbound", 0.4, 0.9],
+    ["B2BUA", -0.4, -0.82],
+  ];
+  const midNodes = MID.map(([name, sx, sy], i) => {
+    const tone = [colors.a, colors.b, colors.c, colors.d, colors.a, colors.b][i];
+    const group = new THREE.Group();
+    const mat = new THREE.MeshBasicMaterial({ color: tone });
+    group.add(new THREE.Mesh(new THREE.OctahedronGeometry(0.16, 0), mat));
+    const tex = new THREE.CanvasTexture(paintLabel(name, "#f4fff4"));
+    const labelMat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+    const sprite = new THREE.Sprite(labelMat);
+    sprite.position.y = 0.38;
+    sprite.scale.set(1.2, 0.36, 1);
+    group.add(sprite);
+    scene.add(group);
+    return { group, mat, sx, sy };
+  });
+  const netPos = new Float32Array(MID.length * 6);
+  const netGeo = new THREE.BufferGeometry();
+  netGeo.setAttribute("position", new THREE.BufferAttribute(netPos, 3));
+  const net = new THREE.LineSegments(netGeo, new THREE.LineBasicMaterial({ color: colors.c, transparent: true, opacity: 0.7 }));
+  scene.add(net);
+  const packetSeeds = [[0.92, 0.84], [-0.92, 0.84], [0.92, -0.76], [-0.92, -0.76], [0.97, 0.02], [-0.97, 0.02]];
+  const packets = packetSeeds.map(([sx, sy], i) => {
+    const tone = [colors.a, colors.d, colors.b, colors.c, colors.a, colors.b][i];
+    const group = new THREE.Group();
+    const mat = new THREE.MeshBasicMaterial({ color: tone });
+    group.add(new THREE.Mesh(new THREE.SphereGeometry(0.075, 10, 10), mat));
+    const beads = [];
+    for (let k = 1; k <= 5; k += 1) {
+      const bead = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), new THREE.MeshBasicMaterial({
+        color: tone,
+        transparent: true,
+        opacity: 0.75 * (1 - k / 6),
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }));
+      bead.position.set(0, 0, 0.1 * k);
+      group.add(bead);
+      beads.push(bead);
+    }
+    scene.add(group);
+    return { group, mat, beads, sx, sy };
+  });
+  const placeDepth = (time) => {
+    camera.updateMatrixWorld();
+    midNodes.forEach((node, i) => {
+      const sway = Math.sin(time * 0.65 + i) * 0.035;
+      node.group.position.copy(placeInView(8.4, node.sx + sway, node.sy));
+    });
+    for (let i = 0; i < midNodes.length; i += 1) {
+      const a = midNodes[i].group.position;
+      const b = midNodes[(i + 1) % midNodes.length].group.position;
+      netPos[i * 6] = a.x;
+      netPos[i * 6 + 1] = a.y;
+      netPos[i * 6 + 2] = a.z;
+      netPos[i * 6 + 3] = b.x;
+      netPos[i * 6 + 4] = b.y;
+      netPos[i * 6 + 5] = b.z;
+    }
+    netGeo.attributes.position.needsUpdate = true;
+    packets.forEach((pkt, i) => {
+      const drift = Math.sin(time * 1.5 + i) * 0.045;
+      pkt.group.position.copy(placeInView(2.05, pkt.sx, pkt.sy + drift));
+    });
+  };
+  placeDepth(0);
+
   const orbit = new THREE.Group();
   const nodeMats = [];
   const shellMats = [];
@@ -527,6 +655,14 @@ export async function mountHero(host) {
     points.material.color.set(next.c);
     nearPoints.material.color.set(next.a);
     ribbon.material.color.set(next.b);
+    stars.material.color.set(0xd7ecff);
+    net.material.color.set(next.c);
+    midNodes.forEach((node, i) => node.mat.color.set([next.a, next.b, next.c, next.d, next.a, next.b][i]));
+    packets.forEach((pkt, i) => {
+      const tone = [next.a, next.d, next.b, next.c, next.a, next.b][i];
+      pkt.mat.color.set(tone);
+      pkt.beads.forEach((bead) => bead.material.color.set(tone));
+    });
     lineMat.color.set(next.a);
     span.material.color.set(next.d);
     const trailTones = [next.a, next.b, next.c, next.d];
@@ -618,6 +754,7 @@ export async function mountHero(host) {
       const dive = Math.sin(u * Math.PI);
       camera.position.set(dive * 2.2, -0.2 + u * 0.8, 6.2 - u * 5.4);
       camera.lookAt(0, 1.7, 0);
+      placeDepth(t);
       try { renderFrame(); } catch { bloomOn = false; }
       if (u >= 1) hardDispose();
       return;
@@ -628,6 +765,7 @@ export async function mountHero(host) {
     camera.position.y += (pose.y - camera.position.y) * 0.08;
     camera.position.z += (pose.z - camera.position.z) * 0.08;
     camera.lookAt(0, 0.15, 0);
+    placeDepth(t);
     try { renderFrame(); } catch { bloomOn = false; }
   };
   tick(performance.now());

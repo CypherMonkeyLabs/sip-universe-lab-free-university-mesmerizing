@@ -2286,12 +2286,12 @@
       view2.innerHTML = `<div class="stage-flow">
       <header class="stage-inline">
         <canvas class="glyph-view side-live" data-glyph="sip-core" width="320" height="320" aria-hidden="true"></canvas>
-        <div>
-          <p class="lede">${ATLAS.length} diagrams, ${animated} of them animated call, signal, or data flows. Reduced motion keeps the drawing and drops the traveling packet.</p>
+        <div class="stage-copy"><p class="lede">${ATLAS.length} diagrams, ${animated} of them animated call, signal, or data flows. Reduced motion keeps the drawing and drops the traveling packet.</p></div>
+        <aside class="stage-calls">
           <h2>Read these first</h2>
           <ol>${notes}</ol>
           <p class="fine">Enlarge a ladder to play, pause, and step the packet. The caption says why that hop matters.</p>
-        </div>
+        </aside>
       </header>
       <div class="atlas-grid">${ATLAS.map(figureHTML).join("")}</div>
     </div>`;
@@ -2305,11 +2305,11 @@
       view2.innerHTML = `<div class="stage-flow">
       <header class="stage-inline">
         <canvas class="glyph-view side-live" data-glyph="call-flows" width="320" height="320" aria-hidden="true"></canvas>
-        <div>
-          <p class="lede">${flows.length} animated flows: INVITE, REGISTER, transfer, hold, forking, early media, NAT, TLS, and SRTP among them.</p>
+        <div class="stage-copy"><p class="lede">${flows.length} animated flows: INVITE, REGISTER, transfer, hold, forking, early media, NAT, TLS, and SRTP among them.</p></div>
+        <aside class="stage-calls">
           <h2>Why these flows</h2>
           <ol>${notes}</ol>
-        </div>
+        </aside>
       </header>
       ${paradeHTML()}
       <div class="atlas-grid">${flows.map(figureHTML).join("")}</div>
@@ -2323,12 +2323,12 @@
       view2.innerHTML = `<div class="stage-flow">
       <header class="stage-inline">
         <canvas class="glyph-view side-live" data-glyph="operations" width="320" height="320" aria-hidden="true"></canvas>
-        <div>
-          <p class="lede">${CHARTS.length} charts from the catalog, the ports table, and lesson tags. The topic map uses markmap.</p>
+        <div class="stage-copy"><p class="lede">${CHARTS.length} charts from the catalog, the ports table, and lesson tags. The topic map uses markmap.</p></div>
+        <aside class="stage-calls">
           <h2>Where the numbers come from</h2>
           <ol>${notes}</ol>
           <p class="fine">Hover a bar for the value. The source line under each chart is the citation.</p>
-        </div>
+        </aside>
       </header>
       ${paradeHTML()}
       ${chartsHTML(ctx2.catalog, ports)}
@@ -3737,6 +3737,128 @@
       depthWrite: false
     }));
     scene2.add(points, nearPoints, ribbon);
+    camera2.aspect = Math.max(0.45, (window.innerWidth || 1440) / (window.innerHeight || 900));
+    camera2.updateProjectionMatrix();
+    camera2.lookAt(0, 0.15, 0);
+    camera2.updateMatrixWorld();
+    const placeInView = (distance, sx, sy) => {
+      const forward = new THREE2.Vector3();
+      camera2.getWorldDirection(forward);
+      const right = new THREE2.Vector3().crossVectors(forward, camera2.up).normalize();
+      if (right.lengthSq() < 1e-4) right.set(1, 0, 0);
+      const up = new THREE2.Vector3().crossVectors(right, forward).normalize();
+      const halfH = Math.tan(THREE2.MathUtils.degToRad(camera2.fov) / 2) * distance;
+      const halfW = halfH * camera2.aspect;
+      return new THREE2.Vector3().copy(camera2.position).addScaledVector(forward, distance).addScaledVector(right, sx * halfW).addScaledVector(up, sy * halfH);
+    };
+    const starCount = 2400;
+    const starPos = new Float32Array(starCount * 3);
+    let starN = 0;
+    const pushStar = (vec) => {
+      if (starN >= starCount) return;
+      starPos[starN * 3] = vec.x;
+      starPos[starN * 3 + 1] = vec.y;
+      starPos[starN * 3 + 2] = vec.z;
+      starN += 1;
+    };
+    for (let i = 0; i < 1600; i += 1) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const radius = 16 + Math.random() * 20;
+      pushStar(camera2.position.clone().add(new THREE2.Vector3(
+        Math.sin(phi) * Math.cos(theta) * radius,
+        Math.cos(phi) * radius,
+        Math.sin(phi) * Math.sin(theta) * radius
+      )));
+    }
+    [[0.97, 0.92], [-0.97, 0.92], [0.97, -0.9], [-0.97, -0.9], [0.99, 0.15], [-0.99, 0.1], [0.2, 0.98], [-0.2, 0.98]].forEach(([sx, sy]) => {
+      for (let k = 0; k < 80 && starN < starCount; k += 1) {
+        pushStar(placeInView(15 + Math.random() * 12, sx * (0.7 + Math.random() * 0.32), sy * (0.7 + Math.random() * 0.32)));
+      }
+    });
+    const starGeo = new THREE2.BufferGeometry();
+    starGeo.setAttribute("position", new THREE2.BufferAttribute(starPos.subarray(0, starN * 3), 3));
+    const stars = new THREE2.Points(starGeo, new THREE2.PointsMaterial({
+      color: 14150911,
+      size: 0.05,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE2.AdditiveBlending,
+      depthWrite: false
+    }));
+    scene2.add(stars);
+    const MID = [
+      ["Proxy", 0.9, 0.76],
+      ["Registrar", -0.9, 0.76],
+      ["Edge", 0.9, -0.68],
+      ["Location", -0.9, -0.68],
+      ["Outbound", 0.4, 0.9],
+      ["B2BUA", -0.4, -0.82]
+    ];
+    const midNodes = MID.map(([name, sx, sy], i) => {
+      const tone = [colors.a, colors.b, colors.c, colors.d, colors.a, colors.b][i];
+      const group = new THREE2.Group();
+      const mat = new THREE2.MeshBasicMaterial({ color: tone });
+      group.add(new THREE2.Mesh(new THREE2.OctahedronGeometry(0.16, 0), mat));
+      const tex = new THREE2.CanvasTexture(paintLabel(name, "#f4fff4"));
+      const labelMat = new THREE2.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+      const sprite = new THREE2.Sprite(labelMat);
+      sprite.position.y = 0.38;
+      sprite.scale.set(1.2, 0.36, 1);
+      group.add(sprite);
+      scene2.add(group);
+      return { group, mat, sx, sy };
+    });
+    const netPos = new Float32Array(MID.length * 6);
+    const netGeo = new THREE2.BufferGeometry();
+    netGeo.setAttribute("position", new THREE2.BufferAttribute(netPos, 3));
+    const net = new THREE2.LineSegments(netGeo, new THREE2.LineBasicMaterial({ color: colors.c, transparent: true, opacity: 0.7 }));
+    scene2.add(net);
+    const packetSeeds = [[0.92, 0.84], [-0.92, 0.84], [0.92, -0.76], [-0.92, -0.76], [0.97, 0.02], [-0.97, 0.02]];
+    const packets = packetSeeds.map(([sx, sy], i) => {
+      const tone = [colors.a, colors.d, colors.b, colors.c, colors.a, colors.b][i];
+      const group = new THREE2.Group();
+      const mat = new THREE2.MeshBasicMaterial({ color: tone });
+      group.add(new THREE2.Mesh(new THREE2.SphereGeometry(0.075, 10, 10), mat));
+      const beads = [];
+      for (let k = 1; k <= 5; k += 1) {
+        const bead = new THREE2.Mesh(new THREE2.SphereGeometry(0.04, 8, 8), new THREE2.MeshBasicMaterial({
+          color: tone,
+          transparent: true,
+          opacity: 0.75 * (1 - k / 6),
+          blending: THREE2.AdditiveBlending,
+          depthWrite: false
+        }));
+        bead.position.set(0, 0, 0.1 * k);
+        group.add(bead);
+        beads.push(bead);
+      }
+      scene2.add(group);
+      return { group, mat, beads, sx, sy };
+    });
+    const placeDepth = (time) => {
+      camera2.updateMatrixWorld();
+      midNodes.forEach((node, i) => {
+        const sway = Math.sin(time * 0.65 + i) * 0.035;
+        node.group.position.copy(placeInView(8.4, node.sx + sway, node.sy));
+      });
+      for (let i = 0; i < midNodes.length; i += 1) {
+        const a = midNodes[i].group.position;
+        const b = midNodes[(i + 1) % midNodes.length].group.position;
+        netPos[i * 6] = a.x;
+        netPos[i * 6 + 1] = a.y;
+        netPos[i * 6 + 2] = a.z;
+        netPos[i * 6 + 3] = b.x;
+        netPos[i * 6 + 4] = b.y;
+        netPos[i * 6 + 5] = b.z;
+      }
+      netGeo.attributes.position.needsUpdate = true;
+      packets.forEach((pkt, i) => {
+        const drift = Math.sin(time * 1.5 + i) * 0.045;
+        pkt.group.position.copy(placeInView(2.05, pkt.sx, pkt.sy + drift));
+      });
+    };
+    placeDepth(0);
     const orbit = new THREE2.Group();
     const nodeMats = [];
     const shellMats = [];
@@ -3894,6 +4016,14 @@
       points.material.color.set(next.c);
       nearPoints.material.color.set(next.a);
       ribbon.material.color.set(next.b);
+      stars.material.color.set(14150911);
+      net.material.color.set(next.c);
+      midNodes.forEach((node, i) => node.mat.color.set([next.a, next.b, next.c, next.d, next.a, next.b][i]));
+      packets.forEach((pkt, i) => {
+        const tone = [next.a, next.d, next.b, next.c, next.a, next.b][i];
+        pkt.mat.color.set(tone);
+        pkt.beads.forEach((bead) => bead.material.color.set(tone));
+      });
       lineMat.color.set(next.a);
       span.material.color.set(next.d);
       const trailTones = [next.a, next.b, next.c, next.d];
@@ -3990,6 +4120,7 @@
         const dive = Math.sin(u * Math.PI);
         camera2.position.set(dive * 2.2, -0.2 + u * 0.8, 6.2 - u * 5.4);
         camera2.lookAt(0, 1.7, 0);
+        placeDepth(t2);
         try {
           renderFrame();
         } catch {
@@ -4004,6 +4135,7 @@
       camera2.position.y += (pose.y - camera2.position.y) * 0.08;
       camera2.position.z += (pose.z - camera2.position.z) * 0.08;
       camera2.lookAt(0, 0.15, 0);
+      placeDepth(t2);
       try {
         renderFrame();
       } catch {

@@ -224,12 +224,12 @@ export async function tryFieldRoute(path, view, ctx) {
     view.innerHTML = `<div class="stage-flow">
       <header class="stage-inline">
         <canvas class="glyph-view side-live" data-glyph="sip-core" width="320" height="320" aria-hidden="true"></canvas>
-        <div>
-          <p class="lede">${ATLAS.length} diagrams, ${animated} of them animated call, signal, or data flows. Reduced motion keeps the drawing and drops the traveling packet.</p>
+        <div class="stage-copy"><p class="lede">${ATLAS.length} diagrams, ${animated} of them animated call, signal, or data flows. Reduced motion keeps the drawing and drops the traveling packet.</p></div>
+        <aside class="stage-calls">
           <h2>Read these first</h2>
           <ol>${notes}</ol>
           <p class="fine">Enlarge a ladder to play, pause, and step the packet. The caption says why that hop matters.</p>
-        </div>
+        </aside>
       </header>
       <div class="atlas-grid">${ATLAS.map(figureHTML).join("")}</div>
     </div>`;
@@ -242,11 +242,11 @@ export async function tryFieldRoute(path, view, ctx) {
     view.innerHTML = `<div class="stage-flow">
       <header class="stage-inline">
         <canvas class="glyph-view side-live" data-glyph="call-flows" width="320" height="320" aria-hidden="true"></canvas>
-        <div>
-          <p class="lede">${flows.length} animated flows: INVITE, REGISTER, transfer, hold, forking, early media, NAT, TLS, and SRTP among them.</p>
+        <div class="stage-copy"><p class="lede">${flows.length} animated flows: INVITE, REGISTER, transfer, hold, forking, early media, NAT, TLS, and SRTP among them.</p></div>
+        <aside class="stage-calls">
           <h2>Why these flows</h2>
           <ol>${notes}</ol>
-        </div>
+        </aside>
       </header>
       ${paradeHTML()}
       <div class="atlas-grid">${flows.map(figureHTML).join("")}</div>
@@ -260,12 +260,12 @@ export async function tryFieldRoute(path, view, ctx) {
     view.innerHTML = `<div class="stage-flow">
       <header class="stage-inline">
         <canvas class="glyph-view side-live" data-glyph="operations" width="320" height="320" aria-hidden="true"></canvas>
-        <div>
-          <p class="lede">${CHARTS.length} charts from the catalog, the ports table, and lesson tags. The topic map uses markmap.</p>
+        <div class="stage-copy"><p class="lede">${CHARTS.length} charts from the catalog, the ports table, and lesson tags. The topic map uses markmap.</p></div>
+        <aside class="stage-calls">
           <h2>Where the numbers come from</h2>
           <ol>${notes}</ol>
           <p class="fine">Hover a bar for the value. The source line under each chart is the citation.</p>
-        </div>
+        </aside>
       </header>
       ${paradeHTML()}
       ${chartsHTML(ctx.catalog, ports)}
