@@ -68,7 +68,8 @@ Example messages are synthetic. Addresses come from the documentation ranges in 
 
 ## Layout
 
-- `campus/` — the site. Hash routes (`#/track/sip-core`, `#/tools/sdp`, `#/topology`).
+- `campus/` — the site. Hash routes (`#/track/sip-core`, `#/tools/sdp`, `#/topology`, `#/atlas`, `#/ports`, `#/guide`, `#/play`, `#/downloads`).
+- `campus/downloads/` — one-page cheat sheets (HTML, PDF, PNG) and the printable flashcard deck.
 - `content/` — curriculum source. Tracks 2 and 3 are Python. Tracks 1 and 4 are frozen JSON because their generators were recovered from bytecode.
 - `scripts/build_content.py` — writes `campus/data/`.
 - `scripts/verify.mjs` — counts and parser checks.

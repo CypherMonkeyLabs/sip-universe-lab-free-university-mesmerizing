@@ -191,6 +191,8 @@ export async function mountTopology(host) {
     THREE = await loadThree();
     if (stop) return () => {};
     const canvas = host.querySelector("#topo-canvas");
+    const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
+    if (!gl) throw new Error("no webgl");
     canvas.hidden = false;
     scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x070b14, 16, 32);

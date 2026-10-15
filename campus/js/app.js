@@ -416,7 +416,9 @@ async function renderSearch(params) {
     const guide = await loadJSON("data/fieldguide.json");
     guideHits = searchField(guide, q);
   } catch { guideHits = []; }
-  view.innerHTML = `<p class="lede">${q ? `${hits.length} lessons and ${guideHits.length} guide sections match “${esc(q)}”.` : "Type a header, status code, product, or RFC number."}</p>
+  const lessonWord = hits.length === 1 ? "lesson" : "lessons";
+  const guideWord = guideHits.length === 1 ? "guide section" : "guide sections";
+  view.innerHTML = `<p class="lede">${q ? `${hits.length} ${lessonWord} and ${guideHits.length} ${guideWord} match “${esc(q)}”.` : "Type a header, status code, product, or RFC number."}</p>
     ${guideHits.length ? `<h2>Field guide</h2><ul>${guideHits.map((hit) => `<li><a href="${esc(hit.href)}">${esc(hit.title)}</a><br><span class="fine">${esc(hit.summary)}</span></li>`).join("")}</ul>` : ""}
     <h2>Lessons</h2>
     <ul>${hits.map(({ track, lesson }) => `<li><a href="#/lesson/${esc(track.id)}/${esc(lesson.id)}">${esc(lesson.title)}</a> <span class="fine">${esc(track.title)}</span><br><span class="fine">${esc(lesson.summary)}</span></li>`).join("")}</ul>`;
