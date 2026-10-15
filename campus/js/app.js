@@ -307,7 +307,7 @@ async function renderHome() {
         <audio id="architect-use" controls preload="none" src="audio/architect-use.mp3"></audio>
         <audio id="architect-share" controls preload="none" src="audio/architect-share.mp3"></audio>
         <p class="fine">Scripts: <a href="audio/scripts/architect-use.md">how to view</a> · <a href="audio/scripts/architect-share.md">how to practise and share</a>.</p>
-        <p><a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing">Rate, comment, or help on the repository</a> · <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Contact</a></p>
+        <p><a href="https://github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing">Rate, comment, or help on the repository</a> · <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Contact</a></p>
       </section>
       <h2>Signal, in motion</h2>
       <div id="home-atlas"></div>
