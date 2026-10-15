@@ -1,0 +1,496 @@
+{
+  "checked": "2026-10-15",
+  "summary": "The sixteen tracks teach the protocol. This guide is the operator layer around them: how a deployment is cut over, which neighbor systems hang off the dialog, and which claims were checked.",
+  "sections": [
+    {
+      "id": "fundamentals",
+      "title": "Fundamentals through advanced",
+      "kicker": "Path",
+      "summary": "Start at the wire, then the products that sit on it.",
+      "blocks": [
+        {
+          "h": "How the tracks are ordered",
+          "paragraphs": [
+            "Tracks 1 through 6 are the protocol: what SIP is for, transactions and dialogs, the call flows operators actually trace, DNS and registration, SDP offer/answer, and RTP. Tracks 7 through 9 add TLS and identity, NAT and ICE, and the session border controller as a B2BUA. Tracks 10 through 12 are product patterns: Cisco, other SBC vendors, and cloud PSTN. Tracks 13 through 16 are operations, the neighboring UC systems, and interview drills.",
+            "Advanced, in this campus, means you can explain a failure with a message, a timer, and a citation. It does not mean memorizing a vendor menu. When a track and an RFC disagree, the RFC wins for the protocol and the vendor document wins for that product’s implementation."
+          ],
+          "cites": [
+            { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261" },
+            { "label": "RFC 8866", "url": "https://www.rfc-editor.org/rfc/rfc8866" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture",
+      "kicker": "Maps",
+      "summary": "Signaling and media are different paths. Draw both.",
+      "blocks": [
+        {
+          "h": "Two paths, one call",
+          "paragraphs": [
+            "SIP creates, modifies, and ends the session. SDP describes the media. RTP carries it. A proxy can be on the signaling path and off the media path. A B2BUA is on the signaling path twice, because it has two dialogs, and it may or may not anchor RTP.",
+            "Read a design by naming the registrar, the outbound proxy or SBC, the carrier or cloud peer, and the media anchors. Then name what is not on the SIP path: the CRM, the workforce system, and the analytics store. Those systems consume events. They do not repair a broken route set."
+          ],
+          "cites": [
+            { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261" },
+            { "label": "RFC 7092", "url": "https://www.rfc-editor.org/rfc/rfc7092" },
+            { "label": "RFC 5853", "url": "https://www.rfc-editor.org/rfc/rfc5853" }
+          ]
+        },
+        {
+          "type": "note",
+          "tone": "plain",
+          "text": "The explorer and the 3D border map are teaching drawings. They are not a diagram of any one customer network."
+        }
+      ]
+    },
+    {
+      "id": "deployment",
+      "title": "Deployment",
+      "kicker": "Build",
+      "summary": "A trunk is a set of decisions you can write down before you touch a device.",
+      "blocks": [
+        {
+          "h": "Decisions that belong in the design",
+          "paragraphs": [
+            "Write the signaling transport, the peer identity (IP, or a domain that resolves with RFC 3263), the certificate names if you use TLS, the codec list, the DTMF method, the identity headers the carrier will accept, and the emergency route. Write the media anchor: SBC, phone, or a relay. Write who may send traffic to the trunk.",
+            "Registration and a static peer are different deployments. A registration refreshes a Contact binding at a registrar. A static trunk has no binding to refresh; reachability is DNS, routing, and OPTIONS or session timers if you configured them. Do not mix the failure modes."
+          ],
+          "cites": [
+            { "label": "RFC 3261 §10", "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10" },
+            { "label": "RFC 3263", "url": "https://www.rfc-editor.org/rfc/rfc3263" },
+            { "label": "RFC 4028", "url": "https://www.rfc-editor.org/rfc/rfc4028" }
+          ]
+        },
+        {
+          "type": "checklist",
+          "title": "Before the first production call",
+          "items": [
+            "Lab trunk uses documentation addresses or a lab range, not a copied production password in a screenshot.",
+            "Signaling port and transport match the peer and the firewall matrix.",
+            "Offer and answer negotiate one audio codec and a DTMF method both sides listed.",
+            "A test call from the public side and from the private side, both directions.",
+            "Hold, resume, transfer, and a mid-call codec or direction change if you sell those features.",
+            "Emergency test on the test number your provider gave you, not a guessed public-safety number.",
+            "Rollback is a route change you have already rehearsed."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "migration",
+      "title": "Migration and cutover",
+      "kicker": "Change",
+      "summary": "Move the signaling. Prove the media. Keep a way back.",
+      "blocks": [
+        {
+          "h": "From PRI, H.323, or another SIP trunk",
+          "paragraphs": [
+            "A PRI or CAS trunk speaks channel-associated or ISDN signaling to a gateway. The SIP side of that gateway is a new dialog, not a translation of every Q.931 information element into a header. Treat codec, calling name, and redirecting number as explicit mappings and test them. H.323 is a different protocol family. Interworking belongs on a gateway or call agent that documents the mapping. This campus does not invent that mapping.",
+            "A SIP-to-SIP move is easier to test and easier to get wrong quietly. Compare Call-ID behavior across the B2BUA, the From and PAI the carrier will see, Diversion or History-Info, and the SDP address family. Run the old and new trunks in parallel to a pilot range before the cutover window."
+          ],
+          "cites": [
+            { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261" },
+            { "label": "RFC 7044 History-Info", "url": "https://www.rfc-editor.org/rfc/rfc7044" },
+            { "label": "RFC 3325 PAI", "url": "https://www.rfc-editor.org/rfc/rfc3325" },
+            { "label": "ITU-T H.323", "url": "https://www.itu.int/rec/T-REC-H.323/en" }
+          ]
+        },
+        {
+          "type": "checklist",
+          "title": "Cutover plan",
+          "items": [
+            "Inventory: numbers, routes, codecs, DTMF, fax mode, recording targets, emergency locations, analog endpoints.",
+            "Build the new trunk beside the old one. Do not reuse the production peer IP as your only lab.",
+            "Pilot users for a full business day, including hold, transfer, voicemail, and a queue.",
+            "Compare one traced call on the old path and the new path. Save both ladders.",
+            "Freeze changes the day before the window.",
+            "Cut a route group or dial plan, not every device at once, when the platform allows it.",
+            "Success checks: inbound, outbound, emergency test number, recording tone or policy, a transfer.",
+            "Rollback trigger written in advance: error rate, one-way audio, or failed emergency test. Rollback is the old route, already tested.",
+            "Next business morning: read failures, not just the green test call from the war room."
+          ]
+        },
+        {
+          "type": "note",
+          "tone": "unverified",
+          "text": "No carrier’s 2026 migration playbook was copied here. Product cut sheets from Cisco, Microsoft, and the contact-center vendors are linked from the tracks. Follow the guide for the version you run."
+        }
+      ]
+    },
+    {
+      "id": "configuration",
+      "title": "Configuration walkthrough",
+      "kicker": "Decisions",
+      "summary": "The parameters, in the order they show up in a trace.",
+      "blocks": [
+        {
+          "h": "Walk the call before you walk the GUI",
+          "paragraphs": [
+            "Transport: UDP retransmits, TCP does not at the SIP layer the same way, TLS adds certificates. Pick the one the peer documents. Destination: an address, or a domain with NAPTR and SRV. Certificates: the name in the certificate has to match the name you dial, or the product’s own override. Codecs: the order in the offer is a preference, not a command. The answer chooses. DTMF: list telephone-event if you want RFC 4733. Do not assume SIP INFO means the same thing on every PBX.",
+            "Identity: some carriers want PAI, some want the From user to be an E.164 they assigned, some want both plus Privacy. Session timers: if one side sends Session-Expires and the other side ignores the refresh, the call ends on that timer. Registration: Expires is a request. The registrar’s 200 picks the actual interval."
+          ],
+          "cites": [
+            { "label": "RFC 3264", "url": "https://www.rfc-editor.org/rfc/rfc3264" },
+            { "label": "RFC 4733", "url": "https://www.rfc-editor.org/rfc/rfc4733" },
+            { "label": "RFC 6086 INFO", "url": "https://www.rfc-editor.org/rfc/rfc6086" },
+            { "label": "RFC 3323 Privacy", "url": "https://www.rfc-editor.org/rfc/rfc3323" }
+          ]
+        },
+        {
+          "type": "checklist",
+          "title": "Trunk worksheet",
+          "items": [
+            "Peer name and whether it is a domain or an IP.",
+            "Transport and port, including the return port.",
+            "TLS profile and the name in the certificate.",
+            "Outbound codec list and ptime.",
+            "DTMF: telephone-event, KPML, or a documented INFO mapping.",
+            "Calling identity headers and the number format.",
+            "Diversion or History-Info, if the carrier uses them.",
+            "Session-Expires and who sends the refresh.",
+            "Media: anchor, bypass, or ICE. RTP port range on the firewall.",
+            "Source addresses allowed to send INVITEs.",
+            "Emergency route and a test number.",
+            "Recording target, if SIPREC or a vendor fork is in scope."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "troubleshooting",
+      "title": "Troubleshooting playbooks",
+      "kicker": "Ladders",
+      "summary": "Stay with the message in front of you. Name the transaction, then the dialog, then the media.",
+      "blocks": [
+        {
+          "h": "A short order of work",
+          "paragraphs": [
+            "Save the signaling first. One call, both legs if a B2BUA split the dialog. Read the status code with RFC 3261 section 21, not with a blog’s nickname for it. Then read SDP: addresses, ports, direction, and whether a stream was rejected with port 0. Then the packet capture for RTP, if the signaling says the call is up and the ears disagree.",
+            "Toll fraud shows up as calls you did not intend to pay for. The defensive controls vendors document are source restrictions and narrow dial patterns. This playbook does not describe how to place those calls."
+          ],
+          "cites": [
+            { "label": "RFC 3261 §21", "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21" },
+            { "label": "RFC 3264", "url": "https://www.rfc-editor.org/rfc/rfc3264" }
+          ]
+        },
+        {
+          "type": "tree",
+          "title": "Signaling",
+          "nodes": [
+            { "when": "No response at all", "then": "The request is not reaching a SIP element, or the response is not routed back. Check the destination from RFC 3263, the firewall, and the Via sent-by. A missing 100 is not the same as a missing 180." },
+            { "when": "401 or 407 and then nothing", "then": "The challenge was not answered with a matching digest. Read RFC 3261 authentication. Check realm, username, and whether the SBC is supposed to answer for the phone." },
+            { "when": "488 or 606", "then": "Offer/answer failed. Compare codec, ptime, and transport in the two SDPs. 488 is a client error on this request. It is not a routing loop." },
+            { "when": "CANCEL sent, still ringing", "then": "A 200 for CANCEL does not end the INVITE. Look for 487 on the INVITE transaction." },
+            { "when": "Drops at a round interval", "then": "Look for Session-Expires and a refresh that never came. RFC 4028." }
+          ]
+        },
+        {
+          "type": "tree",
+          "title": "Media",
+          "nodes": [
+            { "when": "Up, both ways silent", "then": "SDP may be fine and the UDP is blocked both directions, or SRTP keys do not match. Confirm whether the profile is RTP/AVP or RTP/SAVP." },
+            { "when": "One direction only", "then": "Compare c= and the port with the address the packet actually uses. An ALG or a missed NAT binding does this. ICE (RFC 8445) and latching (RFC 7362) are different tools." },
+            { "when": "Audio with no DTMF", "then": "Look for telephone-event in both SDPs. In-band tones in a compressed codec are a different problem from a missing named event." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ports",
+      "title": "Ports and protocols",
+      "kicker": "Firewall",
+      "summary": "The mastery table, the matrix, and the game all use the same checked file.",
+      "blocks": [
+        {
+          "h": "How to read the table",
+          "paragraphs": [
+            "RFC defaults and cloud ranges are different kinds of fact. 5060 is a default from RFC 3261. A Webex Calling destination of 8934 is a vendor requirement read from Cisco’s port reference. Teams media ports were read from Microsoft’s Direct Routing plan. Both vendor pages can change. The Ports page records the date they were read.",
+            "RTP is the row people harden wrong. There is no single RTP port to open. Open the range your SBC actually uses, in both directions, and the RTCP port that belongs to it."
+          ],
+          "cites": [
+            { "label": "Ports and protocols", "url": "#/ports" },
+            { "label": "RFC 3550", "url": "https://www.rfc-editor.org/rfc/rfc3550" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trunking",
+      "title": "BYOC, SIP trunks, and PSTN options",
+      "kicker": "Carrier",
+      "summary": "The carrier edge is still SIP. The product name changes who owns the SBC.",
+      "blocks": [
+        {
+          "h": "Options you can actually tell apart",
+          "paragraphs": [
+            "A premises SIP trunk lands on your SBC. You own the certificate, the dial plan toward the carrier, and the media anchor unless the carrier’s design says otherwise. Bring-your-own-carrier on a cloud contact center means the cloud publishes a trunk target and you present calls to it. Genesys documents BYOC Cloud and BYOC Premises. Five9 documents BYO SIP. Twilio documents Elastic SIP Trunking. NICE publishes a port list and leaves carrier design account-specific. Read the page for the product you turned on.",
+            "Teams Phone has more than one PSTN door: Calling Plan, Operator Connect, Teams Phone Mobile, and Direct Routing through a certified SBC. Microsoft’s planning page says those can coexist in one tenant. Webex Calling separates a Local Gateway from Cloud Connected PSTN. They are different location settings. Amazon Connect’s own telephony is the supported PSTN door; bridging an arbitrary carrier with a Chime Voice Connector is not a pattern AWS documents as generally available."
+          ],
+          "cites": [
+            { "label": "Plan Direct Routing", "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan" },
+            { "label": "Webex Calling PSTN", "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization" },
+            { "label": "Genesys BYOC Cloud", "url": "https://help.genesys.cloud/articles/byoc-cloud-overview/" },
+            { "label": "Twilio Elastic SIP Trunking", "url": "https://www.twilio.com/docs/sip-trunking" },
+            { "label": "Amazon Connect telephony", "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html" }
+          ]
+        },
+        {
+          "type": "note",
+          "tone": "unverified",
+          "text": "Named customer deployments were not verified for this edition, so none are invented. The integrations above are the vendors’ own published patterns."
+        }
+      ]
+    },
+    {
+      "id": "wfm",
+      "title": "Workforce management",
+      "kicker": "Neighbor",
+      "summary": "Forecasts and schedules. Not a SIP proxy.",
+      "blocks": [
+        {
+          "h": "What WFM consumes",
+          "paragraphs": [
+            "Workforce management forecasts contact volume and builds agent schedules. The inputs are historical intervals from the contact center: offered, handled, handle time, shrinkage. Those intervals are platform events. They are not Via headers and they are not dialog IDs.",
+            "When the forecast is wrong, the SIP symptom is usually delay and then a failure the queue chooses: 480, 486, or a carrier 503. Fixing the schedule does not fix a codec mismatch, and rewriting a SIP profile does not fix an empty agent group. Say which layer failed."
+          ],
+          "cites": [
+            { "label": "RFC 3261 §21", "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21" }
+          ]
+        },
+        {
+          "type": "note",
+          "tone": "unverified",
+          "text": "Vendor forecast formulas and Erlang assumptions were not copied. Use the WFM product’s own data dictionary for interval definitions."
+        }
+      ]
+    },
+    {
+      "id": "recording",
+      "title": "Recording and quality management",
+      "kicker": "SIPREC",
+      "summary": "A second session, with its own offer and answer.",
+      "blocks": [
+        {
+          "h": "SRC and SRS",
+          "paragraphs": [
+            "RFC 7866 defines a session recording client and a session recording server. The communication session is the call. The recording session is SIP between SRC and SRS, with metadata in RFC 7865. Quality management scores the recording after the fact. It does not have to be on the signaling path of the customer call.",
+            "Pause and resume, announcement tones, and who is allowed to record are policy and product settings. This campus does not describe how to defeat a recorder. If a recording is silent, compare the recording session’s SDP with the communication session’s codecs and check that the SRC forked the media it actually anchored."
+          ],
+          "cites": [
+            { "label": "RFC 7866", "url": "https://www.rfc-editor.org/rfc/rfc7866" },
+            { "label": "RFC 7865", "url": "https://www.rfc-editor.org/rfc/rfc7865" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "e911",
+      "title": "E911 and emergency calling",
+      "kicker": "Location",
+      "summary": "Location has to ride with the call. This is not legal advice.",
+      "blocks": [
+        {
+          "h": "Protocol and the US obligations engineers are asked about",
+          "paragraphs": [
+            "RFC 6881 is the best current practice for emergency calling in SIP. A service URN identifies the emergency call. RFC 6442 carries location in the signaling. The location object itself is civic or geospatial data, not a guess from the caller’s extension.",
+            "In the United States, the FCC’s MLTS page describes Kari’s Law and RAY BAUM’s Act for multi-line systems: direct 911, notification, and a dispatchable location. Other countries write different rules. Confirm the obligation with the authority where the lines are, and with the provider that will deliver the call. A lab test uses the test number that provider gave you."
+          ],
+          "cites": [
+            { "label": "RFC 6881", "url": "https://www.rfc-editor.org/rfc/rfc6881" },
+            { "label": "RFC 6442", "url": "https://www.rfc-editor.org/rfc/rfc6442" },
+            { "label": "FCC MLTS 911 requirements", "url": "https://www.fcc.gov/mlts-911-requirements" }
+          ]
+        },
+        {
+          "type": "checklist",
+          "title": "Emergency checklist",
+          "items": [
+            "Emergency route is explicit. It does not depend on a least-cost route that can hairpin the wrong way.",
+            "Location is configured for the site, the network, or the device, matching the product you deployed.",
+            "Notification path for on-site staff is tested if the law that applies to you requires it.",
+            "A move, add, or remote worker has an owner for the new location.",
+            "The test call uses the provider’s test procedure."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "analytics",
+      "title": "Reporting and analytics",
+      "kicker": "Events",
+      "summary": "Counters come from the platform that saw the call, not from a second unofficial proxy.",
+      "blocks": [
+        {
+          "h": "What to ask a report",
+          "paragraphs": [
+            "A SIP response code explains one transaction. A contact-center report explains a contact: queue time, abandon, handle time. They meet at the call id the platform stored. If the report and the ladder disagree, find out which id each one used before you edit a dial plan.",
+            "Amazon Connect can attach conversational analytics to an external voice system with a SIPREC connector. That connector is an analytics path. It is not a second route for the customer’s media unless the design says so. CDR fields differ by product. Use the vendor’s CDR dictionary for the version you run."
+          ],
+          "cites": [
+            { "label": "Connect external voice", "url": "https://docs.aws.amazon.com/connect/latest/adminguide/configure-external-voice-system.html" },
+            { "label": "RFC 7866", "url": "https://www.rfc-editor.org/rfc/rfc7866" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "crm",
+      "title": "CRM and API integrations",
+      "kicker": "Screen pop",
+      "summary": "The CRM joins on a number or a case id. It does not parse Via for a living.",
+      "blocks": [
+        {
+          "h": "Where the data can come from",
+          "paragraphs": [
+            "Screen pop needs a key: ANI, a DNIS the queue dialed, or a case id an IVR collected. Those values may be in From, PAI, Diversion, or History-Info, or they may arrive in a CTI event after the dialog exists. RFC 3325 describes PAI in trusted networks. It does not describe your CRM schema.",
+            "APIs and webhooks are product contracts. A future hook this campus expects, and does not pretend is a SIP standard, is: dialog established, platform emits an event, CRM queries by ANI. Build that against the vendor’s API guide. Do not scrape a registrar database."
+          ],
+          "cites": [
+            { "label": "RFC 3325", "url": "https://www.rfc-editor.org/rfc/rfc3325" },
+            { "label": "RFC 7044", "url": "https://www.rfc-editor.org/rfc/rfc7044" }
+          ]
+        },
+        {
+          "type": "note",
+          "tone": "plain",
+          "text": "Future-integration hook: an event consumer can subscribe to answered, held, transferred, and cleared without becoming a SIP proxy. The hook is a design seat, not a protocol extension this campus invented."
+        }
+      ]
+    },
+    {
+      "id": "ai-agents",
+      "title": "AI agents and bots",
+      "kicker": "Still a session",
+      "summary": "A bot still needs an offer and an answer.",
+      "blocks": [
+        {
+          "h": "Keep the media honest",
+          "paragraphs": [
+            "A voice bot is a user agent or a resource behind the contact center. The audio is still RTP (RFC 3550) or WebRTC media (RFC 8825). The bot platform does not get a waiver on codecs, DTMF, or pause for recording.",
+            "On Amazon Connect, the platform owns the managed voice channel. AWS documents telephony and, separately, a review process before some carrier-bridge ideas. Do not draw a bot as a magical third path that skips the SBC. If the vendor has not published the SIP interface, say so and integrate through the published API."
+          ],
+          "cites": [
+            { "label": "RFC 8825", "url": "https://www.rfc-editor.org/rfc/rfc8825" },
+            { "label": "Amazon Connect telephony", "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html" },
+            { "label": "Voice Connector and Connect", "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/vc-connect-integrations.html" }
+          ]
+        },
+        {
+          "type": "note",
+          "tone": "unverified",
+          "text": "Specific bot SKUs and 2026 model names were not re-verified. Treat the vendor’s current agent document as the authority."
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "title": "Security and compliance",
+      "kicker": "Edges",
+      "summary": "Authenticate the edge. Encrypt the hop you promised. Do not invent a fraud recipe.",
+      "blocks": [
+        {
+          "h": "What the RFCs actually cover",
+          "paragraphs": [
+            "RFC 3261 defines digest authentication for SIP. TLS protects a hop, not a diagram. SRTP (RFC 3711) protects media; the keying can be SDES (RFC 4568) or DTLS-SRTP (RFC 5764). They do not interoperate by hope. STIR (RFC 8224) puts a PASSporT in Identity. SHAKEN is the ATIS profile North American carriers use. Attestation letters are policy. Confirm the current ATIS specification and the FCC call-authentication page before you treat a letter as a rule.",
+            "Toll fraud defense, as vendors document it, is a trusted source list and a dial plan that does not allow the world to place outbound calls through you. Recording consent and emergency policy are legal questions for the place you operate. This page is not that advice."
+          ],
+          "cites": [
+            { "label": "RFC 3711", "url": "https://www.rfc-editor.org/rfc/rfc3711" },
+            { "label": "RFC 5764", "url": "https://www.rfc-editor.org/rfc/rfc5764" },
+            { "label": "RFC 8224", "url": "https://www.rfc-editor.org/rfc/rfc8224" },
+            { "label": "FCC call authentication", "url": "https://www.fcc.gov/call-authentication" },
+            { "label": "RFC 8996 TLS deprecation", "url": "https://www.rfc-editor.org/rfc/rfc8996" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "licensing",
+      "title": "Licensing and certifications",
+      "kicker": "Paths",
+      "summary": "The certification page is a checked list, not a promise that an exam outline stayed still.",
+      "blocks": [
+        {
+          "h": "What was checked",
+          "paragraphs": [
+            "The certifications page records SSCA, CCNP Collaboration, CCIE Collaboration, and MS-721 from the vendor pages reviewed on 2026-10-14. Oracle, Ribbon, and AudioCodes did not have a public exam code confirmed for that edition. Direct Routing users need Teams and Teams Phone; Microsoft’s planning page says additional licensing depends on the deployment, and Islands mode is not supported for Direct Routing.",
+            "Passing a quiz on this campus is not those exams. Use the vendor’s study guide for the date you sit."
+          ],
+          "cites": [
+            { "label": "Certifications in this campus", "url": "#/certs" },
+            { "label": "CCNP Collaboration", "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html" },
+            { "label": "MS-721", "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/" },
+            { "label": "Plan Direct Routing", "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "roadmap",
+      "title": "Roadmap and what changed",
+      "kicker": "2026",
+      "summary": "Protocol dates are the RFC headers. Product notes are the pages read for this edition.",
+      "blocks": [
+        {
+          "h": "Checked for this edition",
+          "paragraphs": [
+            "The protocol core did not move in 2026: SIP is still RFC 3261, SDP is RFC 8866 (January 2021), ICE is RFC 8445 (July 2018), STUN is RFC 8489 (February 2020), TURN is RFC 8656. WebRTC’s overview is RFC 8825.",
+            "Read on 2026-10-15 from Cisco’s Webex Calling port reference: the change log dated 2026-09-07 expands the phone signaling source range from 5060-5080 to 5060-5280. Registration-based SIP-TLS destination remains 8934. Certificate-based trunk destination remains 5062. Read the same day from Microsoft’s Direct Routing plan: signaling destination TCP 5061, media UDP 3478-3481 and 49152-53247, FQDNs sip.pstnhub.microsoft.com, sip2, and sip3."
+          ],
+          "cites": [
+            { "label": "Webex Calling port reference", "url": "https://help.webex.com/en-us/article/b2exve" },
+            { "label": "Plan Direct Routing", "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan" },
+            { "label": "RFC 8866", "url": "https://www.rfc-editor.org/rfc/rfc8866" },
+            { "label": "RFC 8656", "url": "https://www.rfc-editor.org/rfc/rfc8656" }
+          ]
+        },
+        {
+          "type": "note",
+          "tone": "unverified",
+          "text": "Not re-verified in this pass: any SBC firmware bulletin, a specific carrier’s 2026 STIR/SHAKEN attestation policy, CCIE lab blueprint edits after 2026-10-14, and the Microsoft Learn sentence that an earlier notes pass dated as an October 29, 2026 skills update. Use the live study guide."
+        }
+      ]
+    },
+    {
+      "id": "integrations",
+      "title": "Integration map",
+      "kicker": "Bridges",
+      "summary": "Each bridge has a published document. The ecosystem page holds the longer list.",
+      "blocks": [
+        {
+          "h": "Where to go next",
+          "paragraphs": [
+            "CUCM is the enterprise registrar and the trunk peer toward an SBC. UCCX call control is through CUCM. CVP talks SIP to gateways and CUCM in the configuration guides for the version you run. Unity Connection’s SIP integration is documented as a trunk on CUCM. Webex Calling premises PSTN uses a Local Gateway. Teams Direct Routing uses a certified SBC. Contact-center BYOC targets are vendor-specific.",
+            "The ecosystem page is the maintained list with citations. This section is the index so a reader can find the bridge without guessing a header."
+          ],
+          "cites": [
+            { "label": "Ecosystem", "url": "#/ecosystem" },
+            { "label": "Get started with Local Gateway", "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "career",
+      "title": "Career paths",
+      "kicker": "Practice",
+      "summary": "Jobs are not exams. The work is still the trace.",
+      "blocks": [
+        {
+          "h": "Seats this campus prepares you to talk about",
+          "paragraphs": [
+            "A protocol-minded UC engineer can read a ladder, an SDP negotiation, and a firewall rule, and can say which document each fact came from. The adjacent seats are SBC and trunk operations, collaboration administration (the CCNP Collaboration path is Cisco’s own split of core plus a concentration), cloud voice (MS-721 is Microsoft’s published associate certification for this area), and contact-center routing. Interview drills on this campus are practice, not a dump of a vendor’s exam.",
+            "Nothing here is a salary, a hiring promise, or a claim that a certificate is required for a job. The work samples that travel are a redacted ladder, a cutover checklist, and a fault write-up with the cause and the fix."
+          ],
+          "cites": [
+            { "label": "Interview drills", "url": "#/interview" },
+            { "label": "CCNP Collaboration", "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html" }
+          ]
+        }
+      ]
+    }
+  ]
+}

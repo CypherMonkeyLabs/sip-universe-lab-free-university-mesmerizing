@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Call flows to recognize · SIP Universe</title>
+  <style>
+    @page { size: letter; margin: 0.45in; }
+    body { font: 13px/1.35 ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
+    main { max-width: 980px; margin: 0 auto; padding: 18px 18px 8px; background: white; }
+    h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.03em; }
+    .kicker { color: #0f6e73; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; }
+    th, td { text-align: left; vertical-align: top; border-bottom: 1px solid #d5deea; padding: 4px 6px; font-size: 12px; }
+    th { background: #e7f6f6; }
+    ul { margin: 6px 0 12px; padding-left: 18px; }
+    li { margin: 3px 0; }
+    a { color: #0f6e73; }
+    footer { border-top: 2px solid #0f6e73; margin-top: 12px; padding-top: 8px; font-size: 11px; color: #3c5168; }
+    .ladder { font-family: ui-monospace, monospace; background: #07111c; color: #d7f6ff; padding: 10px; border-radius: 8px; white-space: pre; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="kicker">Cheat sheet</p>
+  <h1>Call flows to recognize</h1>
+  <pre class="ladder">Alice        SBC          Bob
+  |  INVITE    |            |
+  |---------->|            |
+  |  100       |  INVITE    |
+  |<----------|---------->|
+  |            |  180      |
+  |  180       |<----------|
+  |<----------|            |
+  |            |  200 SDP  |
+  |  200 SDP   |<----------|
+  |<----------|            |
+  |  ACK       |            |
+  |---------->|            |</pre>
+  <ul>
+    <li>100 Trying stops the retransmit. It is not ringing. <a href="https://www.rfc-editor.org/rfc/rfc3261#section-21.1.1">RFC 3261</a></li>
+    <li>200 OK to INVITE is acknowledged with ACK. A 200 to BYE is not. <a href="https://www.rfc-editor.org/rfc/rfc3261">RFC 3261</a></li>
+    <li>183 with SDP can be early media. 180 is alerting. <a href="https://www.rfc-editor.org/rfc/rfc3960">RFC 3960</a></li>
+    <li>PRACK acknowledges a reliable 1xx. <a href="https://www.rfc-editor.org/rfc/rfc3262">RFC 3262</a></li>
+    <li>200 OK to CANCEL does not end the INVITE. Look for 487. <a href="https://www.rfc-editor.org/rfc/rfc3261#section-9">RFC 3261 §9</a></li>
+    <li>REFER asks the transferee to send a new INVITE. <a href="https://www.rfc-editor.org/rfc/rfc3515">RFC 3515</a></li>
+  </ul>
+  <p>Messages in the campus are synthetic. Addresses use <a href="https://www.rfc-editor.org/rfc/rfc5737">RFC 5737</a>.</p>
+  <footer>
+    <p><a href="https://cyphermonkeylabs.com">cyphermonkeylabs.com</a> · <a href="https://linktr.ee/cyphermonkey">linktr.ee/cyphermonkey</a> · <a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing">github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing</a></p>
+    <p>Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
+  </footer>
+</main>
+</body>
+</html>

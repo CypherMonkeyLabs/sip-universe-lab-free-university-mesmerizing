@@ -1,0 +1,104 @@
+{
+ "generated": "2026-10-15",
+ "items": [
+  {
+   "id": "ports-protocols",
+   "topic": "Ports",
+   "title": "Ports and protocols",
+   "blurb": "RFC defaults and the cloud ranges read on 2026-10-15.",
+   "html": "downloads/ports-protocols.html",
+   "pdf": "downloads/ports-protocols.pdf",
+   "png": "downloads/ports-protocols.png"
+  },
+  {
+   "id": "call-flows",
+   "topic": "Flows",
+   "title": "Call flows to recognize",
+   "blurb": "The ladders operators trace first, with the RFC for each.",
+   "html": "downloads/call-flows.html",
+   "pdf": "downloads/call-flows.pdf",
+   "png": "downloads/call-flows.png"
+  },
+  {
+   "id": "config-checklist",
+   "topic": "Config",
+   "title": "Trunk configuration checklist",
+   "blurb": "Decisions to write down before opening a vendor GUI.",
+   "html": "downloads/config-checklist.html",
+   "pdf": "downloads/config-checklist.pdf",
+   "png": "downloads/config-checklist.png"
+  },
+  {
+   "id": "troubleshooting",
+   "topic": "Troubleshooting",
+   "title": "Troubleshooting tree",
+   "blurb": "Status code, then SDP, then the packets.",
+   "html": "downloads/troubleshooting.html",
+   "pdf": "downloads/troubleshooting.pdf",
+   "png": "downloads/troubleshooting.png"
+  },
+  {
+   "id": "glossary",
+   "topic": "Glossary",
+   "title": "Core glossary",
+   "blurb": "Short definitions. The in-app glossary has the full set.",
+   "html": "downloads/glossary.html",
+   "pdf": "downloads/glossary.pdf",
+   "png": "downloads/glossary.png"
+  },
+  {
+   "id": "migration",
+   "topic": "Migration",
+   "title": "Cutover checklist",
+   "blurb": "Parallel trunk, traced pilot, written rollback.",
+   "html": "downloads/migration.html",
+   "pdf": "downloads/migration.pdf",
+   "png": "downloads/migration.png"
+  },
+  {
+   "id": "e911",
+   "topic": "E911",
+   "title": "Emergency calling checklist",
+   "blurb": "Protocol plus the FCC page. Not legal advice.",
+   "html": "downloads/e911.html",
+   "pdf": "downloads/e911.pdf",
+   "png": "downloads/e911.png"
+  },
+  {
+   "id": "trunking",
+   "topic": "Trunking",
+   "title": "PSTN and BYOC options",
+   "blurb": "Who owns the SBC, and which page to open.",
+   "html": "downloads/trunking.html",
+   "pdf": "downloads/trunking.pdf",
+   "png": "downloads/trunking.png"
+  },
+  {
+   "id": "security",
+   "topic": "Security",
+   "title": "Signaling security checklist",
+   "blurb": "Transport, identity, and what not to put on a public hop.",
+   "html": "downloads/security.html",
+   "pdf": "downloads/security.pdf",
+   "png": "downloads/security.png"
+  },
+  {
+   "id": "sdp-rtp",
+   "topic": "Media",
+   "title": "SDP and RTP reminders",
+   "blurb": "Offer/answer, port 0, and the G.722 clock exception.",
+   "html": "downloads/sdp-rtp.html",
+   "pdf": "downloads/sdp-rtp.pdf",
+   "png": "downloads/sdp-rtp.png"
+  },
+  {
+   "id": "flashcards",
+   "topic": "Flashcards",
+   "title": "Printable flashcard deck",
+   "blurb": "448 cards from the lessons, with the citation that was on the card.",
+   "html": "downloads/flashcards.html",
+   "pdf": "downloads/flashcards.pdf",
+   "json": "downloads/flashcards.json"
+  }
+ ]
+}

@@ -1,0 +1,250 @@
+{
+  "checked": "2026-10-15",
+  "summary": "Well-known SIP ports come from the RFCs and IANA. Cloud ranges below were read from the vendor page on the date in this file. If a vendor edits the page, the page wins.",
+  "rows": [
+    {
+      "name": "SIP",
+      "port": "5060",
+      "transport": "UDP, TCP",
+      "purpose": "Default port when a SIP URI has no port.",
+      "cite": { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261" },
+      "note": "DNS SRV can publish a different port. RFC 3263."
+    },
+    {
+      "name": "SIP over TLS",
+      "port": "5061",
+      "transport": "TCP",
+      "purpose": "Default port for a SIPS URI.",
+      "cite": { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261" },
+      "note": "A trunk can listen elsewhere if DNS or the peer is explicit."
+    },
+    {
+      "name": "STUN",
+      "port": "3478",
+      "transport": "UDP, TCP",
+      "purpose": "STUN binding and TURN allocation on the IANA stun port.",
+      "cite": { "label": "RFC 8489", "url": "https://www.rfc-editor.org/rfc/rfc8489" },
+      "note": "TURN is specified in RFC 8656 and uses this port unless configured otherwise."
+    },
+    {
+      "name": "STUN/TURN over TLS",
+      "port": "5349",
+      "transport": "TCP",
+      "purpose": "IANA stuns / turns port.",
+      "cite": { "label": "RFC 8656", "url": "https://www.rfc-editor.org/rfc/rfc8656" },
+      "note": "Also registered for STUN over TLS. See RFC 8489."
+    },
+    {
+      "name": "DNS",
+      "port": "53",
+      "transport": "UDP, TCP",
+      "purpose": "Name, NAPTR, and SRV lookups for SIP servers.",
+      "cite": { "label": "RFC 3263", "url": "https://www.rfc-editor.org/rfc/rfc3263" },
+      "note": "Large answers fall over to TCP. RFC 1035."
+    },
+    {
+      "name": "RTP",
+      "port": "negotiated",
+      "transport": "UDP",
+      "purpose": "Media port is in SDP. There is no single IANA RTP port.",
+      "cite": { "label": "RFC 3550", "url": "https://www.rfc-editor.org/rfc/rfc3550" },
+      "note": "The usual convention is an even port. The SDP m= line is the authority. RFC 8866."
+    },
+    {
+      "name": "RTCP",
+      "port": "RTP + 1, or mux",
+      "transport": "UDP",
+      "purpose": "Reports and feedback for the RTP stream.",
+      "cite": { "label": "RFC 5761", "url": "https://www.rfc-editor.org/rfc/rfc5761" },
+      "note": "Without mux or an a=rtcp line, RTCP is the next higher port. RFC 3550."
+    },
+    {
+      "name": "MSRP",
+      "port": "2855",
+      "transport": "TCP",
+      "purpose": "IANA default for Message Session Relay Protocol.",
+      "cite": { "label": "RFC 4975", "url": "https://www.rfc-editor.org/rfc/rfc4975" },
+      "note": "Session setup is still SDP. The MSRP URI can carry another port."
+    },
+    {
+      "name": "SIP over WebSocket",
+      "port": "80 or 443",
+      "transport": "TCP",
+      "purpose": "WebSocket is a transport for SIP, usually on HTTP(S) ports.",
+      "cite": { "label": "RFC 7118", "url": "https://www.rfc-editor.org/rfc/rfc7118" },
+      "note": "There is no dedicated IANA SIP-WebSocket port."
+    },
+    {
+      "name": "NTP",
+      "port": "123",
+      "transport": "UDP",
+      "purpose": "Clock sync. TLS certificates and some phones depend on it.",
+      "cite": { "label": "RFC 5905", "url": "https://www.rfc-editor.org/rfc/rfc5905" },
+      "note": "Webex Calling also lists UDP 123 for devices. See the port reference."
+    },
+    {
+      "name": "Teams Direct Routing signaling",
+      "port": "5061",
+      "transport": "TCP (TLS)",
+      "purpose": "SIP/TLS from the certified SBC to the Teams SIP proxy.",
+      "cite": { "label": "Plan Direct Routing", "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan" },
+      "note": "Read 2026-10-15. FQDNs: sip.pstnhub.microsoft.com, sip2, sip3. Return traffic uses the port configured on the SBC. Microsoft can change this page."
+    },
+    {
+      "name": "Teams Direct Routing media",
+      "port": "3478-3481, 49152-53247",
+      "transport": "UDP (SRTP)",
+      "purpose": "Media between the SBC and Teams media processors.",
+      "cite": { "label": "Plan Direct Routing", "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan" },
+      "note": "Read 2026-10-15. Allow the published IP ranges, not only the addresses a single DNS answer returned."
+    },
+    {
+      "name": "Webex Calling signaling (registration trunk and devices)",
+      "port": "8934",
+      "transport": "TCP (TLS)",
+      "purpose": "Outbound SIP-TLS to Webex Calling for registration-based trunks and devices.",
+      "cite": { "label": "Webex Calling port reference", "url": "https://help.webex.com/en-us/article/b2exve" },
+      "note": "Page change log dated 2026-09-07 expands phone source ports to 5060-5280. Local Gateway source is listed as 8000-65535. The help page wins if Cisco edits it."
+    },
+    {
+      "name": "Webex Calling signaling (certificate trunk)",
+      "port": "5062",
+      "transport": "TCP (TLS)",
+      "purpose": "Outbound SIP-TLS for a certificate-based Local Gateway trunk.",
+      "cite": { "label": "Webex Calling port reference", "url": "https://help.webex.com/en-us/article/b2exve" },
+      "note": "Inbound from Webex to a certificate-based gateway uses a customer-chosen destination port. Registration-based gateways reuse the outbound connection."
+    },
+    {
+      "name": "Webex Calling media",
+      "port": "5004, 9000, 8500-8699, 19560-65535",
+      "transport": "UDP (SRTP)",
+      "purpose": "Destination ports the port reference lists for SRTP toward Webex Calling.",
+      "cite": { "label": "Webex Calling port reference", "url": "https://help.webex.com/en-us/article/b2exve" },
+      "note": "Local Gateway source range on that page is UDP 8000-48199. Device source media is a narrower range (19560-19661 for many devices). Do not collapse those into one rule."
+    }
+  ],
+  "matrix": [
+    {
+      "flow": "SIP default",
+      "from": "UA or SBC",
+      "to": "Peer",
+      "transport": "UDP or TCP",
+      "ports": "5060 unless the URI or SRV says otherwise",
+      "source": "RFC 3261, RFC 3263"
+    },
+    {
+      "flow": "SIP TLS default",
+      "from": "UA or SBC",
+      "to": "Peer",
+      "transport": "TCP",
+      "ports": "5061 unless overridden",
+      "source": "RFC 3261"
+    },
+    {
+      "flow": "RTP and RTCP",
+      "from": "Either media endpoint",
+      "to": "The address in SDP",
+      "transport": "UDP",
+      "ports": "The m= port, plus RTCP on the next port unless mux or a=rtcp",
+      "source": "RFC 3550, RFC 5761, RFC 8866"
+    },
+    {
+      "flow": "STUN and TURN",
+      "from": "ICE agent",
+      "to": "STUN/TURN server",
+      "transport": "UDP or TCP, TLS on 5349",
+      "ports": "3478 and 5349 unless the server URI differs",
+      "source": "RFC 8489, RFC 8656, RFC 8445"
+    },
+    {
+      "flow": "Teams Direct Routing signaling",
+      "from": "Certified SBC",
+      "to": "sip.pstnhub.microsoft.com and the sip2/sip3 failover names",
+      "transport": "TLS",
+      "ports": "Destination 5061. Allow return traffic to the SBC signaling port.",
+      "source": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+    },
+    {
+      "flow": "Teams Direct Routing media",
+      "from": "SBC and Teams media processors",
+      "to": "The other side",
+      "transport": "UDP SRTP",
+      "ports": "3478-3481 and 49152-53247, both directions, plus the published IP ranges",
+      "source": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+    },
+    {
+      "flow": "Webex Calling registration signaling",
+      "from": "Local Gateway or device",
+      "to": "Webex Calling",
+      "transport": "TCP TLS",
+      "ports": "Destination 8934. Device source 5060-5280 as of the 2026-09-07 note.",
+      "source": "https://help.webex.com/en-us/article/b2exve"
+    },
+    {
+      "flow": "Webex Calling certificate trunk",
+      "from": "Local Gateway",
+      "to": "Webex Calling",
+      "transport": "TCP TLS",
+      "ports": "Destination 5062. Inbound to the gateway uses the customer port.",
+      "source": "https://help.webex.com/en-us/article/b2exve"
+    }
+  ],
+  "quiz": [
+    {
+      "q": "A SIP URI has no port. UDP is the transport. Which destination port do you try first?",
+      "choices": ["5060", "5061", "443", "3478"],
+      "answer": "5060",
+      "why": "5060 is the default SIP port. 5061 is the SIPS default. DNS SRV can still override either one.",
+      "cite": { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261" }
+    },
+    {
+      "q": "Which port is the default for a SIPS URI?",
+      "choices": ["5060", "5061", "5349", "8934"],
+      "answer": "5061",
+      "why": "SIPS means TLS, and the default port is 5061.",
+      "cite": { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261" }
+    },
+    {
+      "q": "Where does RTP learn its UDP port?",
+      "choices": ["Always 5004", "The SDP m= line", "Always 5060", "The Via header"],
+      "answer": "The SDP m= line",
+      "why": "RTP has no single well-known port. The offer and the answer each name a port.",
+      "cite": { "label": "RFC 8866", "url": "https://www.rfc-editor.org/rfc/rfc8866" }
+    },
+    {
+      "q": "RTCP is not multiplexed and there is no a=rtcp line. RTP is on UDP 40000. Where is RTCP?",
+      "choices": ["40000", "40001", "5061", "3478"],
+      "answer": "40001",
+      "why": "The classic rule is the next higher port. RFC 5761 mux puts both on the RTP port when negotiated.",
+      "cite": { "label": "RFC 3550", "url": "https://www.rfc-editor.org/rfc/rfc3550" }
+    },
+    {
+      "q": "Which IANA port do STUN binding requests use unless the server says otherwise?",
+      "choices": ["3478", "5349", "5060", "123"],
+      "answer": "3478",
+      "why": "3478 is stun. 5349 is the TLS port.",
+      "cite": { "label": "RFC 8489", "url": "https://www.rfc-editor.org/rfc/rfc8489" }
+    },
+    {
+      "q": "Teams Direct Routing signaling from a certified SBC uses which destination port?",
+      "choices": ["5061", "8934", "5062", "443"],
+      "answer": "5061",
+      "why": "Microsoft’s Direct Routing plan says SIP/TLS to the Teams proxy on 5061. Re-check that page before you build a firewall.",
+      "cite": { "label": "Plan Direct Routing", "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan" }
+    },
+    {
+      "q": "A Webex Calling registration-based trunk sends SIP-TLS to which destination port on the port reference?",
+      "choices": ["8934", "5061", "3478", "2855"],
+      "answer": "8934",
+      "why": "The Webex Calling port reference lists 8934 for registration-based trunks and 5062 for certificate-based trunks.",
+      "cite": { "label": "Webex Calling port reference", "url": "https://help.webex.com/en-us/article/b2exve" }
+    },
+    {
+      "q": "Which document tells a SIP element how to turn a domain into a host and port?",
+      "choices": ["RFC 3263", "RFC 3550", "RFC 4733", "RFC 7866"],
+      "answer": "RFC 3263",
+      "why": "RFC 3263 is the locating-SIP-servers document: NAPTR, SRV, then A or AAAA.",
+      "cite": { "label": "RFC 3263", "url": "https://www.rfc-editor.org/rfc/rfc3263" }
+    }
+  ]
+}

@@ -2,6 +2,8 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dissect, negotiate, applyCube, applyAcme, extractMessages } from "../campus/js/parse.js";
+import { ATLAS } from "../campus/js/diagrams.js";
+import { CHARTS } from "../campus/js/charts.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const data = join(root, "campus", "data");
@@ -89,6 +91,69 @@ if (!samples.messages.invite || !samples.sdp.offer || !samples.sandbox.rules || 
 }
 if (!catalog.preview || !catalog.preview.steps) problems.push("preview");
 
+const ports = load("ports.json");
+const guide = load("fieldguide.json");
+const daily = load("daily.json");
+if (ports.rows.length < 12) problems.push("ports rows");
+if (!ports.matrix.length || !ports.quiz.length) problems.push("ports matrix");
+const requiredGuide = ["fundamentals", "architecture", "deployment", "migration", "configuration", "troubleshooting", "ports", "trunking", "wfm", "recording", "e911", "analytics", "crm", "ai-agents", "security", "licensing", "roadmap", "integrations", "career"];
+for (const id of requiredGuide) {
+  if (!guide.sections.some((section) => section.id === id)) problems.push(`guide ${id}`);
+}
+if (daily.items.length < 8) problems.push("daily");
+const manifest = JSON.parse(readFileSync(join(root, "campus", "downloads", "manifest.json"), "utf8"));
+if (manifest.items.length < 8) problems.push("downloads");
+for (const item of manifest.items) {
+  for (const key of ["html", "pdf", "png", "json"]) {
+    if (item[key] && !statSync(join(root, "campus", item[key]), { throwIfNoEntry: false })) problems.push(`missing ${item[key]}`);
+  }
+}
+const indexHtml = readFileSync(join(root, "campus", "index.html"), "utf8").toLowerCase();
+if (indexHtml.includes("linkedin") || indexHtml.includes("mailto:")) problems.push("chrome contact policy");
+const menuWords = ["diagrams", "flows", "charts", "cheat codes", "play", "ecosystem", "downloads", "careers"];
+for (const word of menuWords) {
+  if (!indexHtml.includes(word)) problems.push(`menu ${word}`);
+}
+if (indexHtml.includes("type=\"module\"")) problems.push("module entry");
+if (!indexHtml.includes("campus.iife.js") || !indexHtml.includes("embedded-data.js")) problems.push("disk boot");
+const animated = ATLAS.filter((item) => item.animated).length;
+if (ATLAS.length < 25) problems.push(`atlas ${ATLAS.length}`);
+if (animated < 12) problems.push(`animated ${animated}`);
+if (CHARTS.length < 6) problems.push(`charts ${CHARTS.length}`);
+const fullSheets = manifest.items.filter((item) => item.html && item.pdf && item.png);
+if (fullSheets.length < 10) problems.push(`sheets ${fullSheets.length}`);
+for (const file of ["vendor/d3.min.js", "vendor/anime.umd.min.js", "vendor/rough.js", "vendor/confetti.browser.js", "vendor/markmap-view.js", "js/campus.iife.js", "js/embedded-data.js"]) {
+  if (!statSync(join(root, "campus", file), { throwIfNoEntry: false })) problems.push(`missing ${file}`);
+}
+const embedPath = join(root, "campus", "js", "embedded-data.js");
+if (statSync(embedPath, { throwIfNoEntry: false })) {
+  const raw = readFileSync(embedPath, "utf8").replace(/^\/\*[\s\S]*?\*\/\n/, "").replace(/^window\.SIP_DATA=/, "").replace(/;\s*$/, "");
+  const embedded = JSON.parse(raw);
+  if (!embedded["data/catalog.json"] || embedded["data/catalog.json"].stats.lessons !== catalog.stats.lessons) problems.push("embed stale");
+  if (!embedded["downloads/manifest.json"]) problems.push("embed manifest");
+}
+const iifePath = join(root, "campus", "js", "campus.iife.js");
+if (statSync(iifePath, { throwIfNoEntry: false })) {
+  const iife = readFileSync(iifePath, "utf8");
+  if (!iife.includes("data-count")) problems.push("bundle stale");
+  if (!iife.includes("hero-canvas")) problems.push("hero missing");
+  if (iife.includes("import.meta")) problems.push("import.meta in bundle");
+}
+for (const word of ["holographic", "cyberpunk", "sunset", "visual.css", "id=\"lang\"", "lightbox"]) {
+  if (!indexHtml.includes(word)) problems.push(`visual ${word}`);
+}
+for (const rel of ["audio/architect-use.mp3", "audio/architect-share.mp3", "css/visual.css"]) {
+  if (!statSync(join(root, "campus", rel), { throwIfNoEntry: false })) problems.push(`missing ${rel}`);
+}
+for (const page of [
+  "https://cipher0x9.github.io/uc-lab-free-university-mesmerizing/",
+  "https://cipher0x9.github.io/ai-lab-free-university-mesmerizing/",
+  "https://cipher0x9.github.io/webex-lab-free-university-mesmerizing/",
+  "https://cipher0x9.github.io/sip-universe-lab-free-university-mesmerizing/",
+]) {
+  if (!indexHtml.includes(page)) problems.push(`sibling ${page}`);
+}
+
 const shell = ["index.html", "css/app.css", "js/app.js", "js/draw.js", "js/audio.js", "js/flow.js", "data/catalog.json"]
   .map((rel) => statSync(join(root, "campus", rel)).size);
 const shellBytes = shell.reduce((sum, n) => sum + n, 0);
@@ -173,6 +238,10 @@ const report = {
   illustrations,
   featuredLabs: labsPage.labs.length,
   shellBytes,
+  atlas: ATLAS.length,
+  animated,
+  charts: CHARTS.length,
+  sheets: manifest.items.filter((item) => item.html && item.pdf && item.png).length,
   problems,
 };
 console.log(JSON.stringify(report, null, 2));

@@ -1,0 +1,4485 @@
+{
+ "count": 448,
+ "cards": [
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "What SIP is for",
+   "front": "SIP",
+   "back": "Application signaling for sessions. The base specification is RFC 3261.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "What SIP is for",
+   "front": "SDP",
+   "back": "Describes media. Offer/answer is RFC 3264.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "What SIP is for",
+   "front": "RTP",
+   "back": "Carries the media packets after the answer names the port.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "What SIP is for",
+   "front": "100 Trying",
+   "back": "Hop-by-hop provisional. A stateful proxy generates it and does not relay one.",
+   "cite": {
+    "label": "RFC 3261 §16",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "Ports, transports, and where a request can go",
+   "front": "5060",
+   "back": "Default port for SIP over UDP and SIP over TCP.",
+   "cite": {
+    "label": "RFC 3261 §18",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "Ports, transports, and where a request can go",
+   "front": "5061",
+   "back": "Default port for SIP over TLS.",
+   "cite": {
+    "label": "RFC 3261 §18",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "Ports, transports, and where a request can go",
+   "front": "Content-Length",
+   "back": "On a stream transport, this is how the parser finds the end of the message.",
+   "cite": {
+    "label": "RFC 3261 §7",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-7"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "Ports, transports, and where a request can go",
+   "front": "WS / WSS",
+   "back": "WebSocket transport tokens from RFC 7118. The SIP methods do not change.",
+   "cite": {
+    "label": "RFC 7118",
+    "url": "https://www.rfc-editor.org/rfc/rfc7118"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "E.164, sip URIs, and tel URIs",
+   "front": "tel:+15551212",
+   "back": "A global telephone URI. The scheme is RFC 3966.",
+   "cite": {
+    "label": "RFC 3966",
+    "url": "https://www.rfc-editor.org/rfc/rfc3966"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "E.164, sip URIs, and tel URIs",
+   "front": "user=phone",
+   "back": "The sip user part should be read as a phone number.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "E.164, sip URIs, and tel URIs",
+   "front": "E.164",
+   "back": "The ITU-T numbering plan. The URI citation in this course is RFC 3966.",
+   "cite": {
+    "label": "RFC 3966",
+    "url": "https://www.rfc-editor.org/rfc/rfc3966"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "E.164, sip URIs, and tel URIs",
+   "front": "Request-URI",
+   "back": "Where this hop sends the request. Retargeting changes it and leaves To in place.",
+   "cite": {
+    "label": "RFC 3261 §8",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "How to read an RFC",
+   "front": "Standards Track",
+   "back": "The status of RFC 3261. It is the base specification.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "How to read an RFC",
+   "front": "Section 20",
+   "back": "Header field catalog, including the compact names defined there.",
+   "cite": {
+    "label": "RFC 3261 §20",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "How to read an RFC",
+   "front": "Section 21",
+   "back": "Response code catalog.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "How to read an RFC",
+   "front": "Section 25",
+   "back": "ABNF. Use it when a message looks almost right.",
+   "cite": {
+    "label": "RFC 3261 §25",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-25"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "The hitchhiker guide is a map",
+   "front": "RFC 5411",
+   "back": "Informational hitchhiker's guide. A map, not the base spec.",
+   "cite": {
+    "label": "RFC 5411",
+    "url": "https://www.rfc-editor.org/rfc/rfc5411"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "The hitchhiker guide is a map",
+   "front": "RFC 3262",
+   "back": "PRACK and reliable provisional responses.",
+   "cite": {
+    "label": "RFC 3262",
+    "url": "https://www.rfc-editor.org/rfc/rfc3262"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "The hitchhiker guide is a map",
+   "front": "RFC 4028",
+   "back": "Session timers. Not a substitute chapter inside 5411.",
+   "cite": {
+    "label": "RFC 4028",
+    "url": "https://www.rfc-editor.org/rfc/rfc4028"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "The hitchhiker guide is a map",
+   "front": "RFC 6026",
+   "back": "Corrects INVITE 2xx transaction handling after 3261.",
+   "cite": {
+    "label": "RFC 6026",
+    "url": "https://www.rfc-editor.org/rfc/rfc6026"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "Licenses, codecs, and what you may copy",
+   "front": "IETF Trust",
+   "back": "Legal provisions for IETF documents. Read them before copying protocol text.",
+   "cite": {
+    "label": "IETF Trust Legal Provisions",
+    "url": "https://trustee.ietf.org/trust-legal-provisions.html"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "Licenses, codecs, and what you may copy",
+   "front": "Opus",
+   "back": "RFC 6716, plus the Opus license page and the IETF IPR disclosures.",
+   "cite": {
+    "label": "RFC 6716",
+    "url": "https://www.rfc-editor.org/rfc/rfc6716"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "Licenses, codecs, and what you may copy",
+   "front": "G.711",
+   "back": "ITU-T recommendation for PCMU and PCMA. Not an IETF RFC.",
+   "cite": {
+    "label": "ITU-T G.711",
+    "url": "https://www.itu.int/rec/T-REC-G.711"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "Licenses, codecs, and what you may copy",
+   "front": "G.729",
+   "back": "ITU-T recommendation. Verify patent status. Do not state an expiry date.",
+   "cite": {
+    "label": "ITU-T G.729",
+    "url": "https://www.itu.int/rec/T-REC-G.729"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "Reading the first INVITE",
+   "front": "z9hG4bK",
+   "back": "Magic cookie at the start of a branch parameter.",
+   "cite": {
+    "label": "RFC 3261 §8.1.1.7",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "Reading the first INVITE",
+   "front": "Max-Forwards: 70",
+   "back": "The value a UAC SHOULD put on a request it originates.",
+   "cite": {
+    "label": "RFC 3261 §8.1.1.6",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.6"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "Reading the first INVITE",
+   "front": "No To tag",
+   "back": "An initial request is outside a dialog, so To has no tag.",
+   "cite": {
+    "label": "RFC 3261 §12",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+   }
+  },
+  {
+   "track": "Foundations and how to read a call",
+   "lesson": "Reading the first INVITE",
+   "front": "RFC 5737",
+   "back": "Documentation IPv4 ranges used for the examples in this course.",
+   "cite": {
+    "label": "RFC 5737",
+    "url": "https://www.rfc-editor.org/rfc/rfc5737"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Roles a trace is actually showing",
+   "front": "UAC",
+   "back": "Creates a request. Defined with the rest of the user-agent rules.",
+   "cite": {
+    "label": "RFC 3261 §8",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Roles a trace is actually showing",
+   "front": "Stateful proxy",
+   "back": "Transaction state, own Via branch, own 100 Trying.",
+   "cite": {
+    "label": "RFC 3261 §16",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Roles a trace is actually showing",
+   "front": "Redirect",
+   "back": "3xx and a Contact, then it is out of the call.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Roles a trace is actually showing",
+   "front": "B2BUA",
+   "back": "UAS plus UAC. Expect a second dialog. See RFC 7092.",
+   "cite": {
+    "label": "RFC 7092",
+    "url": "https://www.rfc-editor.org/rfc/rfc7092"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Methods and status codes",
+   "front": "INVITE / ACK / BYE",
+   "back": "Set up, complete the handshake, and end a confirmed dialog.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Methods and status codes",
+   "front": "CANCEL",
+   "back": "Abandon an unanswered INVITE. It is not BYE.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Methods and status codes",
+   "front": "401 vs 407",
+   "back": "UAS or registrar challenge versus proxy challenge.",
+   "cite": {
+    "label": "RFC 3261 §22",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Methods and status codes",
+   "front": "1xx",
+   "back": "Provisional. The transaction is still waiting for a final response.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Headers and compact forms",
+   "front": "v / f / t / i",
+   "back": "Via, From, To, Call-ID.",
+   "cite": {
+    "label": "RFC 3261 §20",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Headers and compact forms",
+   "front": "m / l / c / k",
+   "back": "Contact, Content-Length, Content-Type, Supported.",
+   "cite": {
+    "label": "RFC 3261 §20",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-20"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Headers and compact forms",
+   "front": "o and u",
+   "back": "Event and Allow-Events. RFC 6665.",
+   "cite": {
+    "label": "RFC 6665",
+    "url": "https://www.rfc-editor.org/rfc/rfc6665"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Headers and compact forms",
+   "front": "r and b",
+   "back": "Refer-To and Referred-By. RFC 3515.",
+   "cite": {
+    "label": "RFC 3515",
+    "url": "https://www.rfc-editor.org/rfc/rfc3515"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Transactions and the branch cookie",
+   "front": "Branch",
+   "back": "Transaction identifier. Cookie z9hG4bK plus a unique token.",
+   "cite": {
+    "label": "RFC 3261 §8.1.1.7",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.7"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Transactions and the branch cookie",
+   "front": "Retransmission",
+   "back": "Same message, same branch, sent again by the transaction timer.",
+   "cite": {
+    "label": "RFC 3261 §17",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Transactions and the branch cookie",
+   "front": "2xx ACK",
+   "back": "New transaction, new branch, end to end. CSeq number matches the INVITE.",
+   "cite": {
+    "label": "RFC 6026",
+    "url": "https://www.rfc-editor.org/rfc/rfc6026"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Transactions and the branch cookie",
+   "front": "Timer B",
+   "back": "INVITE transaction timeout, 64 times T1. No ACK is generated.",
+   "cite": {
+    "label": "RFC 3261 §17",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Dialog identity",
+   "front": "Call-ID + tags",
+   "back": "The dialog id. Both tags are required once the dialog exists.",
+   "cite": {
+    "label": "RFC 3261 §12",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Dialog identity",
+   "front": "Early",
+   "back": "Provisional response with a To tag. Not confirmed yet.",
+   "cite": {
+    "label": "RFC 3261 §12",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Dialog identity",
+   "front": "Confirmed",
+   "back": "A 2xx to INVITE. BYE is now the teardown.",
+   "cite": {
+    "label": "RFC 3261 §13",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "Dialog identity",
+   "front": "CSeq",
+   "back": "Increments for new in-dialog requests. ACK and CANCEL keep the INVITE number.",
+   "cite": {
+    "label": "RFC 3261 §8",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "T1, the transaction timeout, and Timer C",
+   "front": "T1 = 500 ms",
+   "back": "Default RTT estimate. Timer A starts here on UDP.",
+   "cite": {
+    "label": "RFC 3261 §17",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "T1, the transaction timeout, and Timer C",
+   "front": "64*T1",
+   "back": "Timer B for INVITE and Timer F for non-INVITE.",
+   "cite": {
+    "label": "RFC 3261 §17",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "T1, the transaction timeout, and Timer C",
+   "front": "T2 = 4 s, T4 = 5 s",
+   "back": "Retransmit cap, and how long a message may remain in the network.",
+   "cite": {
+    "label": "RFC 3261 §17",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "T1, the transaction timeout, and Timer C",
+   "front": "Timer C",
+   "back": "Proxy timer for an unanswered INVITE. More than 3 minutes.",
+   "cite": {
+    "label": "RFC 3261 §16",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "UDP, TCP, TLS, and WebSocket",
+   "front": "Via transport",
+   "back": "UDP, TCP, TLS, WS, or WSS for this hop.",
+   "cite": {
+    "label": "RFC 3261 §18",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "UDP, TCP, TLS, and WebSocket",
+   "front": "received / rport",
+   "back": "Response address and, with RFC 3581, the source port.",
+   "cite": {
+    "label": "RFC 3581",
+    "url": "https://www.rfc-editor.org/rfc/rfc3581"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "UDP, TCP, TLS, and WebSocket",
+   "front": "session protocol sipv2",
+   "back": "Dial-peer command that selects SIP for that peer.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "SIP core: messages, transactions, dialogs",
+   "lesson": "UDP, TCP, TLS, and WebSocket",
+   "front": "ip address trusted list",
+   "back": "Sources allowed to present SIP. See the toll-fraud guidance.",
+   "cite": {
+    "label": "Cisco CME toll-fraud prevention",
+    "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "Two different ACK rules",
+   "front": "Non-2xx ACK",
+   "back": "Same branch as that hop's INVITE. Generated by the client transaction.",
+   "cite": {
+    "label": "RFC 3261 §17",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "Two different ACK rules",
+   "front": "2xx ACK",
+   "back": "New branch, dialog route set, end to end.",
+   "cite": {
+    "label": "RFC 6026",
+    "url": "https://www.rfc-editor.org/rfc/rfc6026"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "Two different ACK rules",
+   "front": "CSeq: 1 ACK",
+   "back": "Same number as the INVITE. The method token changes to ACK.",
+   "cite": {
+    "label": "RFC 3261 §8",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "Two different ACK rules",
+   "front": "603 then ACK",
+   "back": "Forward the 603. ACK it on this hop. Do not relay the ACK.",
+   "cite": {
+    "label": "RFC 3261 §16",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "Record-Route and the route set",
+   "front": "Record-Route",
+   "back": "Inserted by a proxy that must see later requests in the dialog.",
+   "cite": {
+    "label": "RFC 3261 §16",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "Record-Route and the route set",
+   "front": "lr",
+   "back": "Required on that URI. It selects loose routing.",
+   "cite": {
+    "label": "RFC 3261 §16",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "Record-Route and the route set",
+   "front": "UAC reverses",
+   "back": "Response Record-Route, reversed, becomes the caller's route set.",
+   "cite": {
+    "label": "RFC 3261 §12",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "Record-Route and the route set",
+   "front": "Contact",
+   "back": "The remote target. It becomes the mid-dialog Request-URI.",
+   "cite": {
+    "label": "RFC 3261 §12",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "PRACK and reliable provisionals",
+   "front": "Supported: 100rel",
+   "back": "The UAC can do reliable provisionals.",
+   "cite": {
+    "label": "RFC 3262",
+    "url": "https://www.rfc-editor.org/rfc/rfc3262"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "PRACK and reliable provisionals",
+   "front": "RSeq",
+   "back": "Identifies the reliable provisional.",
+   "cite": {
+    "label": "RFC 3262",
+    "url": "https://www.rfc-editor.org/rfc/rfc3262"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "PRACK and reliable provisionals",
+   "front": "RAck",
+   "back": "RSeq, then the CSeq number and method being acknowledged.",
+   "cite": {
+    "label": "RFC 3262",
+    "url": "https://www.rfc-editor.org/rfc/rfc3262"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "PRACK and reliable provisionals",
+   "front": "PRACK",
+   "back": "A new transaction. Its success response is 200 OK, not ACK.",
+   "cite": {
+    "label": "RFC 3262",
+    "url": "https://www.rfc-editor.org/rfc/rfc3262"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "UPDATE before the INVITE completes",
+   "front": "UPDATE",
+   "back": "Session refresh or change. Own transaction. RFC 3311.",
+   "cite": {
+    "label": "RFC 3311",
+    "url": "https://www.rfc-editor.org/rfc/rfc3311"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "UPDATE before the INVITE completes",
+   "front": "No ACK",
+   "back": "200 OK finishes UPDATE. ACK is reserved for INVITE.",
+   "cite": {
+    "label": "RFC 3311",
+    "url": "https://www.rfc-editor.org/rfc/rfc3311"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "UPDATE before the INVITE completes",
+   "front": "Early dialog",
+   "back": "UPDATE can run before the first INVITE completes.",
+   "cite": {
+    "label": "RFC 3311",
+    "url": "https://www.rfc-editor.org/rfc/rfc3311"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "UPDATE before the INVITE completes",
+   "front": "RFC 6141",
+   "back": "Read this before changing the remote target.",
+   "cite": {
+    "label": "RFC 6141",
+    "url": "https://www.rfc-editor.org/rfc/rfc6141"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "Session-Expires and 422",
+   "front": "Session-Expires",
+   "back": "Seconds until the session must be refreshed, plus an optional refresher.",
+   "cite": {
+    "label": "RFC 4028",
+    "url": "https://www.rfc-editor.org/rfc/rfc4028"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "Session-Expires and 422",
+   "front": "Min-SE",
+   "back": "Minimum interval. Never below 90 seconds.",
+   "cite": {
+    "label": "RFC 4028",
+    "url": "https://www.rfc-editor.org/rfc/rfc4028"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "Session-Expires and 422",
+   "front": "422",
+   "back": "Session Interval Too Small. Retry with the Min-SE from the response.",
+   "cite": {
+    "label": "RFC 4028",
+    "url": "https://www.rfc-editor.org/rfc/rfc4028"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "Session-Expires and 422",
+   "front": "refresher",
+   "back": "uac or uas. That side sends re-INVITE or UPDATE.",
+   "cite": {
+    "label": "RFC 4028",
+    "url": "https://www.rfc-editor.org/rfc/rfc4028"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "CANCEL, BYE, and re-INVITE",
+   "front": "CANCEL",
+   "back": "Same branch as the unanswered INVITE. CSeq number unchanged.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "CANCEL, BYE, and re-INVITE",
+   "front": "487",
+   "back": "Final response to the INVITE that was cancelled. Then ACK.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "CANCEL, BYE, and re-INVITE",
+   "front": "BYE",
+   "back": "Ends a confirmed dialog. Higher CSeq. Both tags.",
+   "cite": {
+    "label": "RFC 3261 §12",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "CANCEL, BYE, and re-INVITE",
+   "front": "re-INVITE",
+   "back": "Mid-dialog INVITE. See RFC 6141 if Contact changes the target.",
+   "cite": {
+    "label": "RFC 6141",
+    "url": "https://www.rfc-editor.org/rfc/rfc6141"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "REFER and Replaces",
+   "front": "Refer-To",
+   "back": "The request the recipient should send. Compact form r.",
+   "cite": {
+    "label": "RFC 3515",
+    "url": "https://www.rfc-editor.org/rfc/rfc3515"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "REFER and Replaces",
+   "front": "202 Accepted",
+   "back": "REFER was accepted. Watch NOTIFY for the real result.",
+   "cite": {
+    "label": "RFC 3515",
+    "url": "https://www.rfc-editor.org/rfc/rfc3515"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "REFER and Replaces",
+   "front": "Replaces",
+   "back": "call-id, to-tag, from-tag of the dialog to take over.",
+   "cite": {
+    "label": "RFC 3891",
+    "url": "https://www.rfc-editor.org/rfc/rfc3891"
+   }
+  },
+  {
+   "track": "Call flows that operators actually trace",
+   "lesson": "REFER and Replaces",
+   "front": "sipfrag",
+   "back": "A status line in the NOTIFY body, such as SIP/2.0 200 OK.",
+   "cite": {
+    "label": "RFC 3515",
+    "url": "https://www.rfc-editor.org/rfc/rfc3515"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "REGISTER and bindings",
+   "front": "To on REGISTER",
+   "back": "The address-of-record being bound.",
+   "cite": {
+    "label": "RFC 3261 §10",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "REGISTER and bindings",
+   "front": "Contact",
+   "back": "The binding: where requests for that address-of-record can go.",
+   "cite": {
+    "label": "RFC 3261 §10",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "REGISTER and bindings",
+   "front": "423",
+   "back": "Interval Too Brief. Read Min-Expires and retry.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "REGISTER and bindings",
+   "front": "Contact: *",
+   "back": "With Expires: 0, removes all bindings for the address-of-record.",
+   "cite": {
+    "label": "RFC 3261 §10",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Locating a server with RFC 3263",
+   "front": "NAPTR",
+   "back": "Selects the SIP service, such as SIP+D2U or SIP+D2T.",
+   "cite": {
+    "label": "RFC 3263",
+    "url": "https://www.rfc-editor.org/rfc/rfc3263"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Locating a server with RFC 3263",
+   "front": "SRV",
+   "back": "Host and port for the selected service.",
+   "cite": {
+    "label": "RFC 3263",
+    "url": "https://www.rfc-editor.org/rfc/rfc3263"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Locating a server with RFC 3263",
+   "front": "A / AAAA",
+   "back": "Addresses for the SRV target.",
+   "cite": {
+    "label": "RFC 3263",
+    "url": "https://www.rfc-editor.org/rfc/rfc3263"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Locating a server with RFC 3263",
+   "front": "Numeric IP",
+   "back": "No domain lookup. Send to that address.",
+   "cite": {
+    "label": "RFC 3263",
+    "url": "https://www.rfc-editor.org/rfc/rfc3263"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Loose routing and Max-Forwards",
+   "front": "lr",
+   "back": "Loose routing. Pop Route, keep the Request-URI.",
+   "cite": {
+    "label": "RFC 3261 §16",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Loose routing and Max-Forwards",
+   "front": "Max-Forwards",
+   "back": "Starts at 70. Decremented by each proxy.",
+   "cite": {
+    "label": "RFC 3261 §8.1.1.6",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8.1.1.6"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Loose routing and Max-Forwards",
+   "front": "483",
+   "back": "Too Many Hops. The request arrived with Max-Forwards 0.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Loose routing and Max-Forwards",
+   "front": "482",
+   "back": "Loop Detected from a Via loop, not from the hop budget.",
+   "cite": {
+    "label": "RFC 3261 §16",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Outbound, reg-id, and keepalives",
+   "front": "reg-id",
+   "back": "Identifies one flow. A new value is a new flow.",
+   "cite": {
+    "label": "RFC 5626",
+    "url": "https://www.rfc-editor.org/rfc/rfc5626"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Outbound, reg-id, and keepalives",
+   "front": "+sip.instance",
+   "back": "URN for the UA instance, stable across flows.",
+   "cite": {
+    "label": "RFC 5626",
+    "url": "https://www.rfc-editor.org/rfc/rfc5626"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Outbound, reg-id, and keepalives",
+   "front": "CRLF keepalive",
+   "back": "Double CRLF on connection-oriented transports. Single CRLF answers.",
+   "cite": {
+    "label": "RFC 5626",
+    "url": "https://www.rfc-editor.org/rfc/rfc5626"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Outbound, reg-id, and keepalives",
+   "front": "STUN keepalive",
+   "back": "The UDP keepalive in the outbound specification.",
+   "cite": {
+    "label": "RFC 5626",
+    "url": "https://www.rfc-editor.org/rfc/rfc5626"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Path and Service-Route",
+   "front": "Path",
+   "back": "Inbound vector stored with the binding. RFC 3327.",
+   "cite": {
+    "label": "RFC 3327",
+    "url": "https://www.rfc-editor.org/rfc/rfc3327"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Path and Service-Route",
+   "front": "Service-Route",
+   "back": "Outbound preloaded route from the registrar. RFC 3608.",
+   "cite": {
+    "label": "RFC 3608",
+    "url": "https://www.rfc-editor.org/rfc/rfc3608"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Path and Service-Route",
+   "front": "lr on Path",
+   "back": "The edge URI is loose-routed, same as Record-Route.",
+   "cite": {
+    "label": "RFC 3327",
+    "url": "https://www.rfc-editor.org/rfc/rfc3327"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Path and Service-Route",
+   "front": "Preloaded Route",
+   "back": "The UA puts Service-Route into Route on a new INVITE.",
+   "cite": {
+    "label": "RFC 3608",
+    "url": "https://www.rfc-editor.org/rfc/rfc3608"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "GRUU and a single instance",
+   "front": "pub-gruu",
+   "back": "Stable URI for one UA instance.",
+   "cite": {
+    "label": "RFC 5627",
+    "url": "https://www.rfc-editor.org/rfc/rfc5627"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "GRUU and a single instance",
+   "front": "temp-gruu",
+   "back": "Instance URI that hides the address-of-record.",
+   "cite": {
+    "label": "RFC 5627",
+    "url": "https://www.rfc-editor.org/rfc/rfc5627"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "GRUU and a single instance",
+   "front": "+sip.instance",
+   "back": "The URN the registrar binds to those GRUUs.",
+   "cite": {
+    "label": "RFC 5627",
+    "url": "https://www.rfc-editor.org/rfc/rfc5627"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "GRUU and a single instance",
+   "front": "gr",
+   "back": "URI parameter that marks a GRUU.",
+   "cite": {
+    "label": "RFC 5627",
+    "url": "https://www.rfc-editor.org/rfc/rfc5627"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Forking and early dialogs",
+   "front": "Fork",
+   "back": "One incoming INVITE, one client transaction per target.",
+   "cite": {
+    "label": "RFC 3261 §16",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Forking and early dialogs",
+   "front": "Early dialog",
+   "back": "A To tag on a provisional response. One per branch.",
+   "cite": {
+    "label": "RFC 3261 §12",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Forking and early dialogs",
+   "front": "Multiple 200 OK",
+   "back": "Forward each. The UAC ACKs each and may BYE the extras.",
+   "cite": {
+    "label": "RFC 3261 §13",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-13"
+   }
+  },
+  {
+   "track": "Registration, DNS, and routing",
+   "lesson": "Forking and early dialogs",
+   "front": "6xx",
+   "back": "Cancel the other pending branches. Do not start new ones.",
+   "cite": {
+    "label": "RFC 3261 §16",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "The lines in an SDP body",
+   "front": "RFC 8866",
+   "back": "Current SDP. It obsoletes RFC 4566. Trust the RFC Editor status banner.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "The lines in an SDP body",
+   "front": "c=",
+   "back": "Connection address where media should be sent.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "The lines in an SDP body",
+   "front": "m=",
+   "back": "One media stream: type, port, protocol, and payload types.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "The lines in an SDP body",
+   "front": "a=",
+   "back": "An attribute. After m=, it belongs to that stream.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Same m-lines, same order",
+   "front": "Same count",
+   "back": "The answer has exactly as many m-lines as the offer.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Same m-lines, same order",
+   "front": "Same order",
+   "back": "Line n in the answer answers line n in the offer.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Same m-lines, same order",
+   "front": "Port 0",
+   "back": "Rejects that stream and keeps its position.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Same m-lines, same order",
+   "front": "RFC 6337",
+   "back": "Usage examples and the pitfalls of rebuilding SDP.",
+   "cite": {
+    "label": "RFC 6337",
+    "url": "https://www.rfc-editor.org/rfc/rfc6337"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "rtpmap names and fmtp parameters",
+   "front": "Encoding name",
+   "back": "Match opus to opus even when the payload type numbers differ.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "rtpmap names and fmtp parameters",
+   "front": "0 / 8 / 9 / 18",
+   "back": "PCMU/8000, PCMA/8000, G722/8000, G729/8000.",
+   "cite": {
+    "label": "RFC 3551",
+    "url": "https://www.rfc-editor.org/rfc/rfc3551"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "rtpmap names and fmtp parameters",
+   "front": "G722/8000",
+   "back": "RTP clock is 8000. Audio sample rate is 16 kHz.",
+   "cite": {
+    "label": "RFC 3551",
+    "url": "https://www.rfc-editor.org/rfc/rfc3551"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "rtpmap names and fmtp parameters",
+   "front": "fmtp",
+   "back": "Parameters for one payload type. Do not guess unknown ones.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Direction attributes and hold",
+   "front": "sendrecv",
+   "back": "Send and receive. The usual active call.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Direction attributes and hold",
+   "front": "sendonly",
+   "back": "Send, and do not receive. A common hold.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Direction attributes and hold",
+   "front": "recvonly",
+   "back": "Receive only. The usual answer to sendonly.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Direction attributes and hold",
+   "front": "inactive",
+   "back": "Neither direction. Also a common hold.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Port 0 rejects a stream",
+   "front": "m=audio 0",
+   "back": "Rejects that audio stream. Keep proto and a format.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Port 0 rejects a stream",
+   "front": "Same index",
+   "back": "A rejected line is still answered in its original position.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Port 0 rejects a stream",
+   "front": "No common codec",
+   "back": "Port 0 on that m-line, not a deleted body.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Port 0 rejects a stream",
+   "front": "Offer port 0",
+   "back": "The answer port is also 0.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Early media and 183",
+   "front": "183 + SDP",
+   "back": "Usual early-media pattern. Not true of every 183.",
+   "cite": {
+    "label": "RFC 3960",
+    "url": "https://www.rfc-editor.org/rfc/rfc3960"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Early media and 183",
+   "front": "180",
+   "back": "Ringing. Local ringback when this message has no SDP.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Early media and 183",
+   "front": "100rel",
+   "back": "Makes a provisional response reliable. PRACK it.",
+   "cite": {
+    "label": "RFC 3262",
+    "url": "https://www.rfc-editor.org/rfc/rfc3262"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Early media and 183",
+   "front": "Two bodies",
+   "back": "Compare 183 SDP with the 200 OK SDP before you lock the port.",
+   "cite": {
+    "label": "RFC 6337",
+    "url": "https://www.rfc-editor.org/rfc/rfc6337"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Offer/answer pitfalls in RFC 6337",
+   "front": "RFC 6337",
+   "back": "Offer/answer usage and the mistakes to stop repeating.",
+   "cite": {
+    "label": "RFC 6337",
+    "url": "https://www.rfc-editor.org/rfc/rfc6337"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Offer/answer pitfalls in RFC 6337",
+   "front": "sess-version",
+   "back": "Increase it when the SDP changes.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Offer/answer pitfalls in RFC 6337",
+   "front": "Delayed offer",
+   "back": "No SDP in the INVITE. Offer in the reliable response. Answer in the ACK.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "SDP and offer/answer",
+   "lesson": "Offer/answer pitfalls in RFC 6337",
+   "front": "Do not rebuild",
+   "back": "Edit m-lines in place. Do not drop, swap, or renumber them.",
+   "cite": {
+    "label": "RFC 6337",
+    "url": "https://www.rfc-editor.org/rfc/rfc6337"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "The RTP header",
+   "front": "V=2",
+   "back": "RTP version is 2.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "The RTP header",
+   "front": "Sequence",
+   "back": "Plus one for every packet from that source.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "The RTP header",
+   "front": "Timestamp",
+   "back": "Media clock. 20 ms of G.711 or G.722 steps by 160.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "The RTP header",
+   "front": "SSRC",
+   "back": "32-bit source id chosen by the sender.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "Static and dynamic payload types",
+   "front": "PT 0",
+   "back": "PCMU/8000, static.",
+   "cite": {
+    "label": "RFC 3551",
+    "url": "https://www.rfc-editor.org/rfc/rfc3551"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "Static and dynamic payload types",
+   "front": "PT 8",
+   "back": "PCMA/8000, static. Not the same as PCMU.",
+   "cite": {
+    "label": "RFC 3551",
+    "url": "https://www.rfc-editor.org/rfc/rfc3551"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "Static and dynamic payload types",
+   "front": "PT 9",
+   "back": "G722/8000. Sample rate is still 16 kHz.",
+   "cite": {
+    "label": "RFC 3551",
+    "url": "https://www.rfc-editor.org/rfc/rfc3551"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "Static and dynamic payload types",
+   "front": "PT 18",
+   "back": "G729/8000, static.",
+   "cite": {
+    "label": "RFC 3551",
+    "url": "https://www.rfc-editor.org/rfc/rfc3551"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "G.711, G.729, and Opus",
+   "front": "G.711",
+   "back": "PCMU/8000 and PCMA/8000. Read ITU-T G.711. They are not interchangeable.",
+   "cite": {
+    "label": "ITU-T G.711",
+    "url": "https://www.itu.int/rec/T-REC-G.711"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "G.711, G.729, and Opus",
+   "front": "G.729",
+   "back": "rtpmap G729/8000, static PT 18. Read ITU-T G.729. This course states no licensing result.",
+   "cite": {
+    "label": "ITU-T G.729",
+    "url": "https://www.itu.int/rec/T-REC-G.729"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "G.711, G.729, and Opus",
+   "front": "Opus",
+   "back": "RFC 6716. Read the RFC and the license.",
+   "cite": {
+    "label": "RFC 6716",
+    "url": "https://www.rfc-editor.org/rfc/rfc6716"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "G.711, G.729, and Opus",
+   "front": "IPR",
+   "back": "Check IETF IPR disclosures. This course states no legal result.",
+   "cite": {
+    "label": "IETF IPR disclosures",
+    "url": "https://datatracker.ietf.org/ipr/"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "RTCP sender and receiver reports",
+   "front": "SR",
+   "back": "Sender report. Used when this participant has sent RTP.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "RTCP sender and receiver reports",
+   "front": "RR",
+   "back": "Receiver report. Fraction lost, cumulative loss, jitter.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "RTCP sender and receiver reports",
+   "front": "Port pair",
+   "back": "RTP on an even port, RTCP on the next higher port, by default.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "RTCP sender and receiver reports",
+   "front": "Not SIP",
+   "back": "200 OK does not carry fraction lost.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "telephone-event and other digit paths",
+   "front": "RFC 4733",
+   "back": "telephone-event. Obsoletes RFC 2833. Trust the status banner.",
+   "cite": {
+    "label": "RFC 4733",
+    "url": "https://www.rfc-editor.org/rfc/rfc4733"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "telephone-event and other digit paths",
+   "front": "Events 0-15",
+   "back": "DTMF. Event 16 is flash.",
+   "cite": {
+    "label": "RFC 4733",
+    "url": "https://www.rfc-editor.org/rfc/rfc4733"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "telephone-event and other digit paths",
+   "front": "Dynamic PT",
+   "back": "Match the name telephone-event in SDP.",
+   "cite": {
+    "label": "RFC 4733",
+    "url": "https://www.rfc-editor.org/rfc/rfc4733"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "telephone-event and other digit paths",
+   "front": "Not INFO",
+   "back": "RFC 6086 is a method. application/dtmf-relay is a vendor body.",
+   "cite": {
+    "label": "RFC 6086",
+    "url": "https://www.rfc-editor.org/rfc/rfc6086"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "ptime, packet rate, and EF",
+   "front": "a=ptime:20",
+   "back": "20 ms of media per packet. SDP, not RTP.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "ptime, packet rate, and EF",
+   "front": "50 and 160",
+   "back": "G.711 at 20 ms: 50 packets/s, 160 payload bytes, plus headers.",
+   "cite": {
+    "label": "RFC 3551",
+    "url": "https://www.rfc-editor.org/rfc/rfc3551"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "ptime, packet rate, and EF",
+   "front": "EF",
+   "back": "Voice service class in RFC 4594.",
+   "cite": {
+    "label": "RFC 4594",
+    "url": "https://www.rfc-editor.org/rfc/rfc4594"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "ptime, packet rate, and EF",
+   "front": "RFC 3246",
+   "back": "Defines the EF per-hop behavior. No router config in this lesson.",
+   "cite": {
+    "label": "RFC 3246",
+    "url": "https://www.rfc-editor.org/rfc/rfc3246"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "One-way audio",
+   "front": "200 OK",
+   "back": "Offer/answer finished. It does not prove both RTP directions.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "One-way audio",
+   "front": "sendonly answer",
+   "back": "Answerer sends, does not receive. One-way by negotiation.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "One-way audio",
+   "front": "c= and port",
+   "back": "The destination you must capture.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "RTP, codecs, and DTMF",
+   "lesson": "One-way audio",
+   "front": "SR from one side",
+   "back": "The other side is not sending, according to RTCP.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "401, 407, and digest",
+   "front": "401",
+   "back": "From the UAS. Challenge is WWW-Authenticate. Retry with Authorization.",
+   "cite": {
+    "label": "RFC 3261 §22",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "401, 407, and digest",
+   "front": "407",
+   "back": "From the proxy. Challenge is Proxy-Authenticate. Retry with Proxy-Authorization.",
+   "cite": {
+    "label": "RFC 3261 §22",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "401, 407, and digest",
+   "front": "RFC 7616",
+   "back": "HTTP digest algorithms. Read the algorithm parameter.",
+   "cite": {
+    "label": "RFC 7616",
+    "url": "https://www.rfc-editor.org/rfc/rfc7616"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "401, 407, and digest",
+   "front": "Stop here",
+   "back": "Identify the header. Do not compute a digest in this lesson.",
+   "cite": {
+    "label": "RFC 3261 §22",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "TLS and domain certificates",
+   "front": "RFC 3261 §18",
+   "back": "SIP over TLS. Same methods. Via transport TLS.",
+   "cite": {
+    "label": "RFC 3261 §18",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "TLS and domain certificates",
+   "front": "5061",
+   "back": "Usual TLS port in RFC 3261.",
+   "cite": {
+    "label": "RFC 3261 §18",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "TLS and domain certificates",
+   "front": "RFC 5922",
+   "back": "The certificate must identify the SIP domain.",
+   "cite": {
+    "label": "RFC 5922",
+    "url": "https://www.rfc-editor.org/rfc/rfc5922"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "TLS and domain certificates",
+   "front": "Not SRTP",
+   "back": "TLS on SIP does not select the media keying method.",
+   "cite": {
+    "label": "RFC 3261 §18",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "SRTP and two keying methods",
+   "front": "RFC 3711",
+   "back": "SRTP. Protects RTP. Profile RTP/SAVP.",
+   "cite": {
+    "label": "RFC 3711",
+    "url": "https://www.rfc-editor.org/rfc/rfc3711"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "SRTP and two keying methods",
+   "front": "RFC 4568",
+   "back": "SDES. a=crypto in SDP. Protect the signaling.",
+   "cite": {
+    "label": "RFC 4568",
+    "url": "https://www.rfc-editor.org/rfc/rfc4568"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "SRTP and two keying methods",
+   "front": "RFC 5764",
+   "back": "DTLS-SRTP. Keys from DTLS. Fingerprint in SDP.",
+   "cite": {
+    "label": "RFC 5764",
+    "url": "https://www.rfc-editor.org/rfc/rfc5764"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "SRTP and two keying methods",
+   "front": "Per leg",
+   "back": "Do not assume two peers share one keying method.",
+   "cite": {
+    "label": "RFC 5764",
+    "url": "https://www.rfc-editor.org/rfc/rfc5764"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "Privacy and asserted identity",
+   "front": "RFC 3323",
+   "back": "Privacy header. id withholds a network-asserted identity.",
+   "cite": {
+    "label": "RFC 3323",
+    "url": "https://www.rfc-editor.org/rfc/rfc3323"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "Privacy and asserted identity",
+   "front": "PPI",
+   "back": "P-Preferred-Identity. A hint from the UA inside the trust domain.",
+   "cite": {
+    "label": "RFC 3325",
+    "url": "https://www.rfc-editor.org/rfc/rfc3325"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "Privacy and asserted identity",
+   "front": "PAI",
+   "back": "P-Asserted-Identity. Trusted networks only. Not a signature.",
+   "cite": {
+    "label": "RFC 3325",
+    "url": "https://www.rfc-editor.org/rfc/rfc3325"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "Privacy and asserted identity",
+   "front": "Strip",
+   "back": "Remove PAI and PPI when the request leaves the trust domain.",
+   "cite": {
+    "label": "RFC 3325",
+    "url": "https://www.rfc-editor.org/rfc/rfc3325"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "STIR, PASSporT, and SHAKEN",
+   "front": "RFC 8224",
+   "back": "STIR. Identity header in SIP.",
+   "cite": {
+    "label": "RFC 8224",
+    "url": "https://www.rfc-editor.org/rfc/rfc8224"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "STIR, PASSporT, and SHAKEN",
+   "front": "RFC 8225",
+   "back": "PASSporT.",
+   "cite": {
+    "label": "RFC 8225",
+    "url": "https://www.rfc-editor.org/rfc/rfc8225"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "STIR, PASSporT, and SHAKEN",
+   "front": "RFC 8226",
+   "back": "Certificates for STIR.",
+   "cite": {
+    "label": "RFC 8226",
+    "url": "https://www.rfc-editor.org/rfc/rfc8226"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "STIR, PASSporT, and SHAKEN",
+   "front": "Levels A/B/C",
+   "back": "ATIS SHAKEN. Confirm the current ATIS document. See also the FCC page.",
+   "cite": {
+    "label": "FCC call authentication",
+    "url": "https://www.fcc.gov/call-authentication"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "Scanning, hijack, and toll fraud",
+   "front": "Scanning",
+   "back": "Unsolicited SIP from addresses you did not provision. Close the exposure.",
+   "cite": {
+    "label": "RFC 3261 §22",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "Scanning, hijack, and toll fraud",
+   "front": "Hijack",
+   "back": "Unexpected Contact on an address-of-record. Authenticate REGISTER.",
+   "cite": {
+    "label": "RFC 3261 §10",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-10"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "Scanning, hijack, and toll fraud",
+   "front": "Toll fraud",
+   "back": "Unauthorized calls that run up charges. Authorize the source.",
+   "cite": {
+    "label": "Cisco CME toll-fraud prevention",
+    "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "Scanning, hijack, and toll fraud",
+   "front": "FCC page",
+   "back": "Call authentication is not a substitute for outbound authorization.",
+   "cite": {
+    "label": "FCC call authentication",
+    "url": "https://www.fcc.gov/call-authentication"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "Hardening a SIP edge",
+   "front": "Allow list",
+   "back": "Named peers only. See the CME toll-fraud guide for trusted sources.",
+   "cite": {
+    "label": "Cisco CME toll-fraud prevention",
+    "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "Hardening a SIP edge",
+   "front": "Digest",
+   "back": "401 uses Authorization. 407 uses Proxy-Authorization.",
+   "cite": {
+    "label": "RFC 3261 §22",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "Hardening a SIP edge",
+   "front": "RFC 5922",
+   "back": "Certificate name equals the SIP domain.",
+   "cite": {
+    "label": "RFC 5922",
+    "url": "https://www.rfc-editor.org/rfc/rfc5922"
+   }
+  },
+  {
+   "track": "TLS, SRTP, identity, and abuse",
+   "lesson": "Hardening a SIP edge",
+   "front": "Per-leg SRTP",
+   "back": "Do not copy keying from one peer to another.",
+   "cite": {
+    "label": "RFC 3711",
+    "url": "https://www.rfc-editor.org/rfc/rfc3711"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "Embedded addresses and NAT",
+   "front": "Embedded",
+   "back": "Via, Contact, and SDP c= carry addresses NAT does not rewrite.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "Embedded addresses and NAT",
+   "front": "c=",
+   "back": "Media destination. A private value is non-routable on the public Internet.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "Embedded addresses and NAT",
+   "front": "200 OK",
+   "back": "Signaling can succeed while RTP still cannot go where c= points.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "Embedded addresses and NAT",
+   "front": "RFC 5737",
+   "back": "203.0.113.10 and the other lab addresses are documentation ranges.",
+   "cite": {
+    "label": "RFC 5737",
+    "url": "https://www.rfc-editor.org/rfc/rfc5737"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "rport and symmetric responses",
+   "front": "RFC 3581",
+   "back": "rport. Symmetric SIP response routing.",
+   "cite": {
+    "label": "RFC 3581",
+    "url": "https://www.rfc-editor.org/rfc/rfc3581"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "rport and symmetric responses",
+   "front": "received",
+   "back": "Source address the server saw.",
+   "cite": {
+    "label": "RFC 3581",
+    "url": "https://www.rfc-editor.org/rfc/rfc3581"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "rport and symmetric responses",
+   "front": "rport value",
+   "back": "Source port the server saw.",
+   "cite": {
+    "label": "RFC 3581",
+    "url": "https://www.rfc-editor.org/rfc/rfc3581"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "rport and symmetric responses",
+   "front": "Not SDP",
+   "back": "rport does not rewrite c=.",
+   "cite": {
+    "label": "RFC 3581",
+    "url": "https://www.rfc-editor.org/rfc/rfc3581"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "STUN server-reflexive addresses",
+   "front": "RFC 8489",
+   "back": "Current STUN. Obsoletes RFC 5389. Trust the status banner.",
+   "cite": {
+    "label": "RFC 8489",
+    "url": "https://www.rfc-editor.org/rfc/rfc8489"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "STUN server-reflexive addresses",
+   "front": "Binding",
+   "back": "Request that asks what address the server sees.",
+   "cite": {
+    "label": "RFC 8489",
+    "url": "https://www.rfc-editor.org/rfc/rfc8489"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "STUN server-reflexive addresses",
+   "front": "XOR-MAPPED-ADDRESS",
+   "back": "The reflexive address in the success response.",
+   "cite": {
+    "label": "RFC 8489",
+    "url": "https://www.rfc-editor.org/rfc/rfc8489"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "STUN server-reflexive addresses",
+   "front": "Not SIP",
+   "back": "A STUN server does not store a SIP Contact.",
+   "cite": {
+    "label": "RFC 8489",
+    "url": "https://www.rfc-editor.org/rfc/rfc8489"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "TURN relays",
+   "front": "RFC 8656",
+   "back": "Current TURN. Obsoletes RFC 5766. Trust the status banner.",
+   "cite": {
+    "label": "RFC 8656",
+    "url": "https://www.rfc-editor.org/rfc/rfc8656"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "TURN relays",
+   "front": "Allocate",
+   "back": "Reserves a relayed transport address.",
+   "cite": {
+    "label": "RFC 8656",
+    "url": "https://www.rfc-editor.org/rfc/rfc8656"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "TURN relays",
+   "front": "Relay",
+   "back": "Peers send media to the relay. TURN forwards it.",
+   "cite": {
+    "label": "RFC 8656",
+    "url": "https://www.rfc-editor.org/rfc/rfc8656"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "TURN relays",
+   "front": "Not SIP",
+   "back": "Allocate is not REGISTER and not an SDP rewrite.",
+   "cite": {
+    "label": "RFC 8656",
+    "url": "https://www.rfc-editor.org/rfc/rfc8656"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "ICE candidate types",
+   "front": "RFC 8445",
+   "back": "Current ICE. Obsoletes RFC 5245. Trust the status banner.",
+   "cite": {
+    "label": "RFC 8445",
+    "url": "https://www.rfc-editor.org/rfc/rfc8445"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "ICE candidate types",
+   "front": "host",
+   "back": "Local interface.",
+   "cite": {
+    "label": "RFC 8445",
+    "url": "https://www.rfc-editor.org/rfc/rfc8445"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "ICE candidate types",
+   "front": "srflx / relay",
+   "back": "STUN reflexive address, and TURN relay.",
+   "cite": {
+    "label": "RFC 8489",
+    "url": "https://www.rfc-editor.org/rfc/rfc8489"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "ICE candidate types",
+   "front": "prflx",
+   "back": "Discovered during a connectivity check.",
+   "cite": {
+    "label": "RFC 8445",
+    "url": "https://www.rfc-editor.org/rfc/rfc8445"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "The SIP ALG problem",
+   "front": "ALG",
+   "back": "In-path SIP and SDP rewrite. Often corrupts the call.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "The SIP ALG problem",
+   "front": "Length",
+   "back": "If Content-Length does not match the body, the edit is corrupt.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "The SIP ALG problem",
+   "front": "TLS",
+   "back": "The ALG cannot rewrite what it cannot see.",
+   "cite": {
+    "label": "RFC 3261 §18",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "The SIP ALG problem",
+   "front": "Disable it",
+   "back": "Turn the ALG off. Do not stack a second hidden editor.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "Media latching on an SBC",
+   "front": "Latch",
+   "back": "Learn the remote RTP address from the first packet instead of trusting c=.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "Media latching on an SBC",
+   "front": "RFC 5853",
+   "back": "SBC requirements. Not an IETF algorithm for latching.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "Media latching on an SBC",
+   "front": "Authenticated",
+   "back": "Latch only after signaling is accepted, and only toward the expected side.",
+   "cite": {
+    "label": "RFC 3261 §22",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+   }
+  },
+  {
+   "track": "NAT, ICE, and the ALG problem",
+   "lesson": "Media latching on an SBC",
+   "front": "ICE",
+   "back": "RFC 8445 is the specified candidate check when both ends use it.",
+   "cite": {
+    "label": "RFC 8445",
+    "url": "https://www.rfc-editor.org/rfc/rfc8445"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "RFC 5853 is requirements, not a protocol",
+   "front": "RFC 5853",
+   "back": "Informational requirements from SBC deployments. Not an SBC protocol.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "RFC 5853 is requirements, not a protocol",
+   "front": "No SBC method",
+   "back": "INVITE and OPTIONS stay as RFC 3261 defined them.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "RFC 5853 is requirements, not a protocol",
+   "front": "Datasheet",
+   "back": "Session and transcode limits are platform-specific.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "RFC 5853 is requirements, not a protocol",
+   "front": "B2BUA",
+   "back": "The usual SIP role behind an SBC. Taxonomy is RFC 7092.",
+   "cite": {
+    "label": "RFC 7092",
+    "url": "https://www.rfc-editor.org/rfc/rfc7092"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "An SBC is commonly a B2BUA",
+   "front": "B2BUA",
+   "back": "UAS plus UAC. Two dialogs for one call.",
+   "cite": {
+    "label": "RFC 7092",
+    "url": "https://www.rfc-editor.org/rfc/rfc7092"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "An SBC is commonly a B2BUA",
+   "front": "Pure proxy",
+   "back": "Forwards the request and adds Via.",
+   "cite": {
+    "label": "RFC 3261 §16",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-16"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "An SBC is commonly a B2BUA",
+   "front": "Call-ID",
+   "back": "Often different on the two legs of an SBC.",
+   "cite": {
+    "label": "RFC 7092",
+    "url": "https://www.rfc-editor.org/rfc/rfc7092"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "An SBC is commonly a B2BUA",
+   "front": "RFC 3261",
+   "back": "Defines the B2BUA as UAS concatenated with UAC.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Topology hiding rewrites the addresses you leak",
+   "front": "Via",
+   "back": "Identifies the previous SIP hop. Hide the internal one.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Topology hiding rewrites the addresses you leak",
+   "front": "Contact",
+   "back": "Dialog target. An SBC usually substitutes its own.",
+   "cite": {
+    "label": "RFC 7092",
+    "url": "https://www.rfc-editor.org/rfc/rfc7092"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Topology hiding rewrites the addresses you leak",
+   "front": "c=",
+   "back": "SDP connection address. Anchoring rewrites it.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Topology hiding rewrites the addresses you leak",
+   "front": "User-Agent",
+   "back": "A common topology leak. Stripping it is a product rule.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Anchor, bypass, transcode, and DTMF",
+   "front": "Anchor",
+   "back": "RTP terminates on the SBC. SDP c= names the SBC.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Anchor, bypass, transcode, and DTMF",
+   "front": "Bypass",
+   "back": "SIP through the SBC. Media between endpoints.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Anchor, bypass, transcode, and DTMF",
+   "front": "Transcode",
+   "back": "Decode and encode. Capacity is on the datasheet.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Anchor, bypass, transcode, and DTMF",
+   "front": "telephone-event",
+   "back": "RFC 4733 DTMF in RTP.",
+   "cite": {
+    "label": "RFC 4733",
+    "url": "https://www.rfc-editor.org/rfc/rfc4733"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "OPTIONS keepalives",
+   "front": "OPTIONS",
+   "back": "Capability and liveness request. RFC 3261.",
+   "cite": {
+    "label": "RFC 3261 §11",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "OPTIONS keepalives",
+   "front": "CSeq method",
+   "back": "Must match the start line. OPTIONS stays OPTIONS.",
+   "cite": {
+    "label": "RFC 3261 §8",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "OPTIONS keepalives",
+   "front": "200 OK",
+   "back": "The peer answered. The call is a later transaction.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "OPTIONS keepalives",
+   "front": "Interval",
+   "back": "Configured on the product. Not an RFC constant.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Call admission stays on the datasheet",
+   "front": "Admission",
+   "back": "Refuse new work when the configured budget is exhausted.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Call admission stays on the datasheet",
+   "front": "503",
+   "back": "Service Unavailable. Confirm the product’s actual code.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Call admission stays on the datasheet",
+   "front": "Datasheet",
+   "back": "The only source for this platform’s session limit.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Call admission stays on the datasheet",
+   "front": "No CPS formula",
+   "back": "Do not invent calls-per-second math.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Active and standby, without a made-up timer",
+   "front": "Active",
+   "back": "The unit currently processing the dialogs.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Active and standby, without a made-up timer",
+   "front": "Standby",
+   "back": "Ready to take the role. Not a SIP method.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Active and standby, without a made-up timer",
+   "front": "No timer here",
+   "back": "Do not invent a failover interval.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "Session border controllers",
+   "lesson": "Active and standby, without a made-up timer",
+   "front": "Dialog state",
+   "back": "A B2BUA holds it. Survival is a product question.",
+   "cite": {
+    "label": "RFC 7092",
+    "url": "https://www.rfc-editor.org/rfc/rfc7092"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "CUBE is an IOS XE B2BUA",
+   "front": "CUBE",
+   "back": "Cisco Unified Border Element. An IOS XE B2BUA.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "CUBE is an IOS XE B2BUA",
+   "front": "IOS XE",
+   "back": "The operating system whose voice stack CUBE uses.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "CUBE is an IOS XE B2BUA",
+   "front": "SIP profiles",
+   "back": "Header modifications. Guide for 17.6 and later.",
+   "cite": {
+    "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "CUBE is an IOS XE B2BUA",
+   "front": "B2BUA",
+   "back": "The role RFC 7092 taxonomizes.",
+   "cite": {
+    "label": "RFC 7092",
+    "url": "https://www.rfc-editor.org/rfc/rfc7092"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "Dial peers select the SIP next hop",
+   "front": "dial-peer voice N voip",
+   "back": "Creates the VoIP dial peer numbered N.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "Dial peers select the SIP next hop",
+   "front": "session protocol sipv2",
+   "back": "This dial peer speaks SIP.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "Dial peers select the SIP next hop",
+   "front": "session target ipv4:",
+   "back": "The next-hop IPv4 address.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "Dial peers select the SIP next hop",
+   "front": "192.0.2.40",
+   "back": "Carrier address in this synthetic.",
+   "cite": {
+    "label": "RFC 5737",
+    "url": "https://www.rfc-editor.org/rfc/rfc5737"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "voice class sip-profiles",
+   "front": "sip-profiles",
+   "back": "voice class sip-profiles N holds the rules.",
+   "cite": {
+    "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "voice class sip-profiles",
+   "front": "remove",
+   "back": "request INVITE sip-header Diversion remove.",
+   "cite": {
+    "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "voice class sip-profiles",
+   "front": "After 15.4",
+   "back": "Inbound profile support, per the use-case technote.",
+   "cite": {
+    "label": "Cisco SIP profile use cases",
+    "url": "https://www.cisco.com/c/en/us/support/docs/unified-communications/unified-border-element/118825-technote-sip-00.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "voice class sip-profiles",
+   "front": "CSA tester",
+   "back": "Try the profile before loading it.",
+   "cite": {
+    "label": "Cisco Collaboration Solutions Analyzer",
+    "url": "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "Early offer and delayed offer",
+   "front": "Delayed offer",
+   "back": "INVITE without SDP. Offer comes later.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "Early offer and delayed offer",
+   "front": "Early offer",
+   "back": "The INVITE already contains the offer.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "Early offer and delayed offer",
+   "front": "early-offer forced",
+   "back": "Dial-peer command that forces an outbound offer.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "Early offer and delayed offer",
+   "front": "ACK answer",
+   "back": "Used when the offer arrived in the 200 OK.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "CUCM trunks, SIP profiles, and Lua",
+   "front": "SIP trunk",
+   "back": "CUCM’s adjacency to CUBE or another peer.",
+   "cite": {
+    "label": "Cisco Unified Communications Manager",
+    "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "CUCM trunks, SIP profiles, and Lua",
+   "front": "CUCM SIP profile",
+   "back": "Not voice class sip-profiles.",
+   "cite": {
+    "label": "Cisco Unified Communications Manager",
+    "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "CUCM trunks, SIP profiles, and Lua",
+   "front": "Lua",
+   "back": "Normalization scripts exist. Open the admin guide.",
+   "cite": {
+    "label": "Cisco Unified Communications Manager",
+    "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "CUCM trunks, SIP profiles, and Lua",
+   "front": "MTP required",
+   "back": "Confirm the guide for that version before checking it.",
+   "cite": {
+    "label": "Cisco Unified Communications Manager",
+    "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "Unity Connection SIP integration",
+   "front": "SIP integration",
+   "back": "The documented Unity Connection path. Open your version’s guide.",
+   "cite": {
+    "label": "Cisco Unity Connection",
+    "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "Unity Connection SIP integration",
+   "front": "Diversion",
+   "back": "RFC 5806 redirecting number. Reason unconditional in the lab.",
+   "cite": {
+    "label": "RFC 5806",
+    "url": "https://www.rfc-editor.org/rfc/rfc5806"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "Unity Connection SIP integration",
+   "front": "History-Info",
+   "back": "RFC 7044. Use it if the guide asks for it.",
+   "cite": {
+    "label": "RFC 7044",
+    "url": "https://www.rfc-editor.org/rfc/rfc7044"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "Unity Connection SIP integration",
+   "front": "Not SCCP-by-guess",
+   "back": "Do not invent SCCP as the current default.",
+   "cite": {
+    "label": "Cisco Unity Connection",
+    "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "debug ccsip messages",
+   "front": "debug ccsip messages",
+   "back": "Shows sent and received SIP.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "debug ccsip messages",
+   "front": "sip-profiles debug",
+   "back": "debug ccsip feature sip-profiles.",
+   "cite": {
+    "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "debug ccsip messages",
+   "front": "CSA",
+   "back": "SIP Profile Tester in Collaboration Solutions Analyzer.",
+   "cite": {
+    "label": "Cisco Collaboration Solutions Analyzer",
+    "url": "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html"
+   }
+  },
+  {
+   "track": "Cisco CUBE, CUCM, and Unity Connection",
+   "lesson": "debug ccsip messages",
+   "front": "Sent / Received",
+   "back": "Direction markers around each SIP message.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Oracle SBC objects",
+   "front": "realm",
+   "back": "Routing and policy context on the Oracle SBC.",
+   "cite": {
+    "label": "Oracle Communications SBC documentation",
+    "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Oracle SBC objects",
+   "front": "session-agent",
+   "back": "Named next hop.",
+   "cite": {
+    "label": "Oracle Communications SBC documentation",
+    "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Oracle SBC objects",
+   "front": "in-manipulationid",
+   "back": "Which sip-manipulation runs on arrival.",
+   "cite": {
+    "label": "Oracle SBC HMR configuration (10.1)",
+    "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Oracle SBC objects",
+   "front": "out-manipulationid",
+   "back": "Which sip-manipulation runs on the way out.",
+   "cite": {
+    "label": "Oracle SBC HMR configuration (10.1)",
+    "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Header rules run in order",
+   "front": "header-rule",
+   "back": "One rule inside a sip-manipulation.",
+   "cite": {
+    "label": "Oracle SBC HMR configuration (10.1)",
+    "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Header rules run in order",
+   "front": "delete",
+   "back": "Removes the named header. Lab rule strip-server.",
+   "cite": {
+    "label": "Oracle SBC HMR fundamentals (10.1)",
+    "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Header rules run in order",
+   "front": "store",
+   "back": "Keeps a value for a later rule. Run it first.",
+   "cite": {
+    "label": "Oracle SBC HMR fundamentals (10.1)",
+    "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Header rules run in order",
+   "front": "reject",
+   "back": "An HMR action. Read the release guide for the status.",
+   "cite": {
+    "label": "Oracle SBC HMR fundamentals (10.1)",
+    "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Ribbon Edge, Core, and public validation lists",
+   "front": "SWe Edge",
+   "back": "Edge product. Family includes SBC 1000 and SBC 2000.",
+   "cite": {
+    "label": "Ribbon SBC SWe Edge",
+    "url": "https://ribboncommunications.com/products/enterprise-products/session-border-controllers/sbc-software-edition-edge-sbc-swe-edge"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Ribbon Edge, Core, and public validation lists",
+   "front": "SBC Core",
+   "back": "A separate family.",
+   "cite": {
+    "label": "Ribbon SBC SWe Edge",
+    "url": "https://ribboncommunications.com/products/enterprise-products/session-border-controllers/sbc-software-edition-edge-sbc-swe-edge"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Ribbon Edge, Core, and public validation lists",
+   "front": "ACS snapshot",
+   "back": "5110, 5210, 5400, 7000, and SWe for that validation.",
+   "cite": {
+    "label": "Ribbon documentation portal",
+    "url": "https://ribboncommunications.com/services/support-services/documentation"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Ribbon Edge, Core, and public validation lists",
+   "front": "No invented CLI",
+   "back": "Admin guides live on the documentation portal.",
+   "cite": {
+    "label": "Ribbon documentation portal",
+    "url": "https://ribboncommunications.com/services/support-services/documentation"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "AudioCodes manipulation in software 7.6",
+   "front": "Action Subject",
+   "back": "Which header or element the rule touches.",
+   "cite": {
+    "label": "AudioCodes SIP message manipulation (7.6)",
+    "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "AudioCodes manipulation in software 7.6",
+   "front": "Action Type",
+   "back": "Add, Remove, Modify, prefix, suffix, or Normalize.",
+   "cite": {
+    "label": "AudioCodes manipulation syntax 7.6",
+    "url": "https://www.audiocodes.com/media/aomncwrs/sip-message-manipulation-syntax-reference-guide-ver-76.pdf"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "AudioCodes manipulation in software 7.6",
+   "front": "IP group",
+   "back": "Inbound or outbound assignment of the set.",
+   "cite": {
+    "label": "AudioCodes SIP message manipulation (7.6)",
+    "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "AudioCodes manipulation in software 7.6",
+   "front": "Release menu",
+   "back": "The clicks change. Use the 7.6 manual you are running.",
+   "cite": {
+    "label": "AudioCodes SIP message manipulation (7.6)",
+    "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Three manipulation grammars",
+   "front": "CUBE line",
+   "back": "request INVITE sip-header NAME remove.",
+   "cite": {
+    "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Three manipulation grammars",
+   "front": "Oracle block",
+   "back": "header-rule, header-name, action delete.",
+   "cite": {
+    "label": "Oracle SBC HMR fundamentals (10.1)",
+    "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Three manipulation grammars",
+   "front": "AudioCodes row",
+   "back": "Action Type Remove on an IP group.",
+   "cite": {
+    "label": "AudioCodes SIP message manipulation (7.6)",
+    "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Three manipulation grammars",
+   "front": "Do not paste across",
+   "back": "Each grammar is parsed by its own product.",
+   "cite": {
+    "label": "Oracle SBC HMR configuration (10.1)",
+    "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Identity at a trust boundary",
+   "front": "PAI",
+   "back": "P-Asserted-Identity, RFC 3325.",
+   "cite": {
+    "label": "RFC 3325",
+    "url": "https://www.rfc-editor.org/rfc/rfc3325"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Identity at a trust boundary",
+   "front": "Privacy",
+   "back": "RFC 3323. id asks the network to withhold identity.",
+   "cite": {
+    "label": "RFC 3323",
+    "url": "https://www.rfc-editor.org/rfc/rfc3323"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Identity at a trust boundary",
+   "front": "Diversion",
+   "back": "RFC 5806 redirecting header.",
+   "cite": {
+    "label": "RFC 5806",
+    "url": "https://www.rfc-editor.org/rfc/rfc5806"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Identity at a trust boundary",
+   "front": "History-Info",
+   "back": "RFC 7044. Map it only as the interop guide says.",
+   "cite": {
+    "label": "RFC 7044",
+    "url": "https://www.rfc-editor.org/rfc/rfc7044"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Certificate names and Contact",
+   "front": "RFC 5922",
+   "back": "SIP domain certificates.",
+   "cite": {
+    "label": "RFC 5922",
+    "url": "https://www.rfc-editor.org/rfc/rfc5922"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Certificate names and Contact",
+   "front": "Teams Contact",
+   "back": "FQDN. An IP draws 403.",
+   "cite": {
+    "label": "Direct Routing SIP protocol",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Certificate names and Contact",
+   "front": "Teams wildcard",
+   "back": "CN or SAN wildcards are supported for Direct Routing.",
+   "cite": {
+    "label": "Plan Direct Routing",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+   }
+  },
+  {
+   "track": "Oracle, Ribbon, and AudioCodes",
+   "lesson": "Certificate names and Contact",
+   "front": "Webex LGW wildcard",
+   "back": "Not supported for Local Gateway.",
+   "cite": {
+    "label": "Get started with Local Gateway",
+    "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Teams Direct Routing signaling",
+   "front": "pstnhub",
+   "back": "sip, sip2, and sip3.pstnhub.microsoft.com.",
+   "cite": {
+    "label": "Direct Routing SIP protocol",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Teams Direct Routing signaling",
+   "front": "5061",
+   "back": "Direct Routing signaling port.",
+   "cite": {
+    "label": "Direct Routing SIP protocol",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Teams Direct Routing signaling",
+   "front": "Verified domain",
+   "back": "Not a name ending in onmicrosoft.com.",
+   "cite": {
+    "label": "Plan Direct Routing",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Teams Direct Routing signaling",
+   "front": "No RFC 5923",
+   "back": "The SIP proxy does not support connection aliasing.",
+   "cite": {
+    "label": "Direct Routing definitions and RFCs",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "OPTIONS health and SRTP media",
+   "front": "OPTIONS 200",
+   "back": "Marks the Direct Routing SBC healthy.",
+   "cite": {
+    "label": "Direct Routing OPTIONS and TLS",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "OPTIONS health and SRTP media",
+   "front": "CSeq",
+   "back": "Method token matches the request. OPTIONS, not INVITE.",
+   "cite": {
+    "label": "RFC 3261 §8",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "OPTIONS health and SRTP media",
+   "front": "Table cell",
+   "back": "Checked 2026-10-14: CSeq: 1 INVITE. Do not copy it.",
+   "cite": {
+    "label": "Direct Routing SIP protocol",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "OPTIONS health and SRTP media",
+   "front": "SRTP",
+   "back": "Media processors use SRTP. RFC 3711.",
+   "cite": {
+    "label": "RFC 3711",
+    "url": "https://www.rfc-editor.org/rfc/rfc3711"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Webex Calling Local Gateway",
+   "front": "SIP TLS",
+   "back": "Signaling from an IOS XE Local Gateway to Webex.",
+   "cite": {
+    "label": "Local Gateway on IOS XE",
+    "url": "https://help.webex.com/en-us/article/jr1i3r/Configure-local-gateway-on-IOS-XE-for-Webex-Calling"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Webex Calling Local Gateway",
+   "front": "SRTP",
+   "back": "Media for that IOS XE Local Gateway.",
+   "cite": {
+    "label": "Local Gateway on IOS XE",
+    "url": "https://help.webex.com/en-us/article/jr1i3r/Configure-local-gateway-on-IOS-XE-for-Webex-Calling"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Webex Calling Local Gateway",
+   "front": "Certificate trunk",
+   "back": "How a third-party SBC is supported.",
+   "cite": {
+    "label": "Webex Calling trunks and dial plans",
+    "url": "https://help.webex.com/article/n0xb944"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Webex Calling Local Gateway",
+   "front": "ByoPSTN",
+   "back": "Bring your own PSTN. Not Cloud Connected PSTN.",
+   "cite": {
+    "label": "Get started with Local Gateway",
+    "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Three PSTN choices, one per location",
+   "front": "Cisco Calling Plan",
+   "back": "One of the three organization-article choices.",
+   "cite": {
+    "label": "Configure Webex Calling PSTN",
+    "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Three PSTN choices, one per location",
+   "front": "Cloud Connected PSTN",
+   "back": "A cloud partner through Webex. Not the Local Gateway.",
+   "cite": {
+    "label": "Configure Webex Calling PSTN",
+    "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Three PSTN choices, one per location",
+   "front": "Local Gateway",
+   "back": "Premises-based PSTN. One connection on the location.",
+   "cite": {
+    "label": "Get started with Local Gateway",
+    "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Three PSTN choices, one per location",
+   "front": "ByoPSTN",
+   "back": "Bring your own PSTN.",
+   "cite": {
+    "label": "Get started with Local Gateway",
+    "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Amazon Connect voice boundaries",
+   "front": "Managed PSTN",
+   "back": "Ordinary Connect calls. No customer SIP trunk required.",
+   "cite": {
+    "label": "Amazon Connect telephony",
+    "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Amazon Connect voice boundaries",
+   "front": "SIPREC",
+   "back": "External voice into the analytics connector.",
+   "cite": {
+    "label": "Connect conversational analytics connector",
+    "url": "https://docs.aws.amazon.com/connect/latest/adminguide/create-contact-lens-connector.html"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Amazon Connect voice boundaries",
+   "front": "Voice Connector",
+   "back": "Chime SDK SIP trunking service.",
+   "cite": {
+    "label": "Amazon Chime SDK Voice Connector",
+    "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/voice-connectors.html"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Amazon Connect voice boundaries",
+   "front": "Not a bridge",
+   "back": "Carrier through Voice Connector into Connect needs specialist approval.",
+   "cite": {
+    "label": "Voice Connector and Connect",
+    "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/vc-connect-integrations.html"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Five9 BYO SIP and Twilio trunks",
+   "front": "BYO SIP",
+   "back": "Your ITSP or gateway connects to Five9 SBCs.",
+   "cite": {
+    "label": "Five9 BYO SIP trunking",
+    "url": "https://documentation.five9.com/bundle/byot-sip-trunk-integration/page/byo-sip-trunking/landing-byo-sip-trunking.htm"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Five9 BYO SIP and Twilio trunks",
+   "front": "Entitled groups",
+   "back": "Self-service exists for entitled BYO SIP trunk groups.",
+   "cite": {
+    "label": "Five9 BYO SIP trunking",
+    "url": "https://documentation.five9.com/bundle/byot-sip-trunk-integration/page/byo-sip-trunking/landing-byo-sip-trunking.htm"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Five9 BYO SIP and Twilio trunks",
+   "front": "Termination URI",
+   "back": "Must appear in the Request-URI or Twilio drops the request.",
+   "cite": {
+    "label": "Twilio trunk troubleshooting",
+    "url": "https://www.twilio.com/docs/sip-trunking/troubleshooting"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Five9 BYO SIP and Twilio trunks",
+   "front": "sip not sips",
+   "back": "Origination URLs use sip. sips is not supported.",
+   "cite": {
+    "label": "Twilio Elastic SIP Trunking API",
+    "url": "https://www.twilio.com/docs/sip-trunking/api"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Genesys BYOC and NICE CXone SIP",
+   "front": "BYOC Cloud",
+   "back": "Public internet SIP. RTP crosses the internet.",
+   "cite": {
+    "label": "Genesys BYOC Cloud overview",
+    "url": "https://help.genesys.cloud/articles/byoc-cloud-overview/"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Genesys BYOC and NICE CXone SIP",
+   "front": "BYOC Premises",
+   "back": "Customer-managed Edge. Hybrid media is allowed.",
+   "cite": {
+    "label": "BYOC Cloud with BYOC Premises",
+    "url": "https://help.genesys.cloud/faqs/can-i-use-byoc-cloud-with-byoc-premises/"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Genesys BYOC and NICE CXone SIP",
+   "front": "December 1, 2026",
+   "back": "Genesys Hardware Solution only.",
+   "cite": {
+    "label": "About BYOC Premises",
+    "url": "https://help.genesys.cloud/articles/about-byoc-premises/"
+   }
+  },
+  {
+   "track": "Cloud voice and CCaaS SIP",
+   "lesson": "Genesys BYOC and NICE CXone SIP",
+   "front": "CXone ports",
+   "back": "5060 and 5061, plus dynamic RTP/SRTP.",
+   "cite": {
+    "label": "NiCE CXone ports",
+    "url": "https://help.nicecxone.com/content/platformrequirements/ports.htm"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Match a ladder before you change anything",
+   "front": "Call-ID",
+   "back": "Same value for the dialog. A B2BUA may use a new one on the other leg.",
+   "cite": {
+    "label": "RFC 3261 §8",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Match a ladder before you change anything",
+   "front": "CSeq",
+   "back": "Integer plus method. The ACK for an INVITE keeps the INVITE's number.",
+   "cite": {
+    "label": "RFC 3261 §8",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-8"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Match a ladder before you change anything",
+   "front": "Via branch",
+   "back": "Transaction hop id. Look for the z9hG4bK cookie.",
+   "cite": {
+    "label": "RFC 3261 §17",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Match a ladder before you change anything",
+   "front": "2xx ACK",
+   "back": "End to end. New branch. RFC 6026 corrects the transaction rules around it.",
+   "cite": {
+    "label": "RFC 6026",
+    "url": "https://www.rfc-editor.org/rfc/rfc6026"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Status codes you will actually see",
+   "front": "180",
+   "back": "Ringing. Provisional alerting.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Status codes you will actually see",
+   "front": "183",
+   "back": "Session Progress. Provisional, often where early media shows up.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Status codes you will actually see",
+   "front": "487",
+   "back": "Request Terminated. The INVITE's answer after CANCEL.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Status codes you will actually see",
+   "front": "606",
+   "back": "Not Acceptable. Global. 488 is only this UA.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Display filters for SIP and RTP",
+   "front": "sip",
+   "back": "Display filter for SIP packets. Field names live on the SIP reference page.",
+   "cite": {
+    "label": "Wireshark SIP display filter reference",
+    "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Display filters for SIP and RTP",
+   "front": "rtp",
+   "back": "Display filter for RTP packets. Field names live on the RTP reference page.",
+   "cite": {
+    "label": "Wireshark RTP display filter reference",
+    "url": "https://www.wireshark.org/docs/dfref/r/rtp.html"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Display filters for SIP and RTP",
+   "front": "sip.Method",
+   "back": "Safe display field for the SIP method.",
+   "cite": {
+    "label": "Wireshark SIP display filter reference",
+    "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Display filters for SIP and RTP",
+   "front": "Confirm CSeq",
+   "back": "sip.CSeq.method is common. Confirm it on the SIP display-filter reference.",
+   "cite": {
+    "label": "Wireshark SIP display filter reference",
+    "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "IOS ccsip and ccapi debug",
+   "front": "ccsip messages",
+   "back": "IOS voice debug that prints SIP send and receive.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "IOS ccsip and ccapi debug",
+   "front": "ccapi inout",
+   "back": "IOS voice debug of the call-control API. Not a SIP RFC.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "IOS ccsip and ccapi debug",
+   "front": "Sent / Received",
+   "back": "Direction on the debug. The SIP start line comes after it.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "IOS ccsip and ccapi debug",
+   "front": "Synthetic",
+   "back": "Lab output in this track is synthetic. Customer logs stay out.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "488 codecs and 422 session timers",
+   "front": "488",
+   "back": "Not Acceptable Here. This UA. Often codec or SDP.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "488 codecs and 422 session timers",
+   "front": "422",
+   "back": "Session Interval Too Small. RFC 4028. Read Min-SE.",
+   "cite": {
+    "label": "RFC 4028",
+    "url": "https://www.rfc-editor.org/rfc/rfc4028"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "488 codecs and 422 session timers",
+   "front": "telephone-event",
+   "back": "RFC 4733. Offer it on purpose if you need DTMF.",
+   "cite": {
+    "label": "RFC 4733",
+    "url": "https://www.rfc-editor.org/rfc/rfc4733"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "488 codecs and 422 session timers",
+   "front": "Offer/answer",
+   "back": "The answer is a subset. No shared audio codec tends to 488.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "TLS names, trust anchors, and version",
+   "front": "Name mismatch",
+   "back": "Handshake fails. No SIP status from the peer.",
+   "cite": {
+    "label": "Direct Routing OPTIONS and TLS",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "TLS names, trust anchors, and version",
+   "front": "Untrusted CA",
+   "back": "Handshake fails. Fix the trust anchor.",
+   "cite": {
+    "label": "Direct Routing OPTIONS and TLS",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "TLS names, trust anchors, and version",
+   "front": "TLS 1.2+",
+   "back": "Teams Direct Routing floor in the OPTIONS troubleshooting page.",
+   "cite": {
+    "label": "Direct Routing OPTIONS and TLS",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "TLS names, trust anchors, and version",
+   "front": "FQDN Contact",
+   "back": "Required toward Teams. An address literal draws 403.",
+   "cite": {
+    "label": "Direct Routing SIP protocol",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Read an RFC header before you cite it",
+   "front": "Category",
+   "back": "Read it on the header. 3261 is Standards Track. 6881 is BCP.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Read an RFC header before you cite it",
+   "front": "Obsoletes",
+   "back": "The new RFC names the one it replaces. 8866 and 4566 are the SDP pair here.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Read an RFC header before you cite it",
+   "front": "Updates",
+   "back": "A correction that leaves the base in force. Check 6026's header.",
+   "cite": {
+    "label": "RFC 6026",
+    "url": "https://www.rfc-editor.org/rfc/rfc6026"
+   }
+  },
+  {
+   "track": "Troubleshooting ladders, captures, and debug",
+   "lesson": "Read an RFC header before you cite it",
+   "front": "rfc-editor.org",
+   "back": "The header you cite. Months in this lesson are not invented.",
+   "cite": {
+    "label": "RFC 5411",
+    "url": "https://www.rfc-editor.org/rfc/rfc5411"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "The toll-fraud class, stated defensively",
+   "front": "Trusted list",
+   "back": "Who may present VoIP signaling. CME and SRST each have a page.",
+   "cite": {
+    "label": "Cisco CME toll-fraud prevention",
+    "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "The toll-fraud class, stated defensively",
+   "front": "401 / 407",
+   "back": "UAS and proxy digest challenges. Secrets stay unprinted.",
+   "cite": {
+    "label": "RFC 3261 §22",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-22"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "The toll-fraud class, stated defensively",
+   "front": "Numbering plan",
+   "back": "Dial-peers match the plan, including whether international destinations are in it.",
+   "cite": {
+    "label": "Cisco CME toll-fraud prevention",
+    "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "The toll-fraud class, stated defensively",
+   "front": "STIR context",
+   "back": "FCC call authentication and RFC 8224. A different question from the source list.",
+   "cite": {
+    "label": "FCC call authentication",
+    "url": "https://www.fcc.gov/call-authentication"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Trusted addresses and source restrictions",
+   "front": "trusted list",
+   "back": "Addresses allowed to present inbound VoIP. CME page or SRST page.",
+   "cite": {
+    "label": "Cisco CME toll-fraud prevention",
+    "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Trusted addresses and source restrictions",
+   "front": "authenticate",
+   "back": "The check that uses the list.",
+   "cite": {
+    "label": "Cisco CME toll-fraud prevention",
+    "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Trusted addresses and source restrictions",
+   "front": "Two pages",
+   "back": "CME and SRST differ. Quote no shared list size.",
+   "cite": {
+    "label": "Cisco SRST trusted IP authentication",
+    "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Trusted addresses and source restrictions",
+   "front": "Border pair",
+   "back": "198.51.100.30 and 192.0.2.40 in the teaching snippet.",
+   "cite": {
+    "label": "Cisco CME toll-fraud prevention",
+    "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Emergency calling, location, and the FCC page",
+   "front": "urn:service:sos",
+   "back": "RFC 5031 service URN for emergency calling.",
+   "cite": {
+    "label": "RFC 5031",
+    "url": "https://www.rfc-editor.org/rfc/rfc5031"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Emergency calling, location, and the FCC page",
+   "front": "RFC 6881",
+   "back": "BCP for emergency calling services.",
+   "cite": {
+    "label": "RFC 6881",
+    "url": "https://www.rfc-editor.org/rfc/rfc6881"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Emergency calling, location, and the FCC page",
+   "front": "Geolocation",
+   "back": "RFC 6442 location conveyance.",
+   "cite": {
+    "label": "RFC 6442",
+    "url": "https://www.rfc-editor.org/rfc/rfc6442"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Emergency calling, location, and the FCC page",
+   "front": "fcc-mlts",
+   "back": "Kari's Law and RAY BAUM's Act. The page wins over a retelling.",
+   "cite": {
+    "label": "FCC MLTS 911 requirements",
+    "url": "https://www.fcc.gov/mlts-911-requirements"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Disclosed recording with SIPREC",
+   "front": "7866",
+   "back": "Session recording protocol. SRC forks to an SRS.",
+   "cite": {
+    "label": "RFC 7866",
+    "url": "https://www.rfc-editor.org/rfc/rfc7866"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Disclosed recording with SIPREC",
+   "front": "7865",
+   "back": "Recording metadata. Read it for fields.",
+   "cite": {
+    "label": "RFC 7865",
+    "url": "https://www.rfc-editor.org/rfc/rfc7865"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Disclosed recording with SIPREC",
+   "front": "Disclosed",
+   "back": "Quality monitoring and compliance, with the parties on notice.",
+   "cite": {
+    "label": "RFC 7866",
+    "url": "https://www.rfc-editor.org/rfc/rfc7866"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Disclosed recording with SIPREC",
+   "front": "Retention",
+   "back": "A legal question. Outside the RFC.",
+   "cite": {
+    "label": "RFC 7865",
+    "url": "https://www.rfc-editor.org/rfc/rfc7865"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Voice, EF, and what the PHB does not design",
+   "front": "EF",
+   "back": "Expedited Forwarding per-hop behavior. RFC 3246.",
+   "cite": {
+    "label": "RFC 3246",
+    "url": "https://www.rfc-editor.org/rfc/rfc3246"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Voice, EF, and what the PHB does not design",
+   "front": "Telephony",
+   "back": "The service class RFC 4594 maps to EF.",
+   "cite": {
+    "label": "RFC 4594",
+    "url": "https://www.rfc-editor.org/rfc/rfc4594"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Voice, EF, and what the PHB does not design",
+   "front": "Codepoint",
+   "back": "Use the value RFC 3246 recommends. Do not invent a second one.",
+   "cite": {
+    "label": "RFC 3246",
+    "url": "https://www.rfc-editor.org/rfc/rfc3246"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Voice, EF, and what the PHB does not design",
+   "front": "Not a LAN",
+   "back": "Queues and campus policy stay in the approved design.",
+   "cite": {
+    "label": "RFC 4594",
+    "url": "https://www.rfc-editor.org/rfc/rfc4594"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Alarms that match the failure",
+   "front": "OPTIONS",
+   "back": "Liveness. Alarm when the trunk stops answering.",
+   "cite": {
+    "label": "RFC 3261 §11",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Alarms that match the failure",
+   "front": "503",
+   "back": "Service Unavailable. Page the server-side class.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Alarms that match the failure",
+   "front": "TLS floor",
+   "back": "Toward Teams, 1.2 or newer, or the handshake never yields SIP.",
+   "cite": {
+    "label": "Direct Routing OPTIONS and TLS",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "Alarms that match the failure",
+   "front": "SRS down",
+   "back": "Recording-session alarm. RFC 7866. Retention stays outside the RFC.",
+   "cite": {
+    "label": "RFC 7866",
+    "url": "https://www.rfc-editor.org/rfc/rfc7866"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "One change in the window",
+   "front": "Baseline",
+   "back": "The last good OPTIONS or the current snippet, written down.",
+   "cite": {
+    "label": "RFC 3261 §11",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-11"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "One change in the window",
+   "front": "One variable",
+   "back": "A single address, codec, or TLS setting.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "One change in the window",
+   "front": "Verify",
+   "back": "One signal. A 200, or the test call to +15551212.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Toll fraud, E911, recording, and QoS",
+   "lesson": "One change in the window",
+   "front": "Rollback",
+   "back": "The previous value of that same variable.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "A glossary tied to a document",
+   "front": "Role",
+   "back": "What the box does on the ladder: UA, proxy, registrar, B2BUA.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "A glossary tied to a document",
+   "front": "B2BUA",
+   "back": "UAS plus UAC. RFC 7092. Typical SBC.",
+   "cite": {
+    "label": "RFC 7092",
+    "url": "https://www.rfc-editor.org/rfc/rfc7092"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "A glossary tied to a document",
+   "front": "Document",
+   "back": "The cite you can open. A logo is not a document.",
+   "cite": {
+    "label": "RFC 5411",
+    "url": "https://www.rfc-editor.org/rfc/rfc5411"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "A glossary tied to a document",
+   "front": "SDP row",
+   "back": "RFC 8866 now. RFC 4566 is the one it moved from.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Neighbors that are not SIP elements",
+   "front": "WFM / QM",
+   "back": "Operations systems. No SIP RFC in this library.",
+   "cite": {
+    "label": "RFC 7866",
+    "url": "https://www.rfc-editor.org/rfc/rfc7866"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Neighbors that are not SIP elements",
+   "front": "SIPREC",
+   "back": "The recording neighbor that is SIP. RFC 7866 and RFC 7865.",
+   "cite": {
+    "label": "RFC 7865",
+    "url": "https://www.rfc-editor.org/rfc/rfc7865"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Neighbors that are not SIP elements",
+   "front": "CRM",
+   "back": "Not a SIP element. No invented vendor features.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Neighbors that are not SIP elements",
+   "front": "Above the media",
+   "back": "Analytics and agents. SIP and RTP still carry the session.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Workforce tools and agents above the media",
+   "front": "Above RTP",
+   "back": "Analytics and agents. The packets remain RTP.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Workforce tools and agents above the media",
+   "front": "Dialog",
+   "back": "Still Call-ID, CSeq, To tag. RFC 3261.",
+   "cite": {
+    "label": "RFC 3261 §12",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Workforce tools and agents above the media",
+   "front": "Disclosed fork",
+   "back": "SIPREC when the SBC records. RFC 7866.",
+   "cite": {
+    "label": "RFC 7866",
+    "url": "https://www.rfc-editor.org/rfc/rfc7866"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Workforce tools and agents above the media",
+   "front": "No invented features",
+   "back": "Vendor guides or an honest gap. Not a fake RFC.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Certifications this edition will name",
+   "front": "SSCA",
+   "back": "SIP School Certified Associate. 20 CEC credits toward BICSI, per the SSCA page.",
+   "cite": {
+    "label": "SSCA Elite",
+    "url": "https://www.thesipschool.com/ssca.html"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Certifications this edition will name",
+   "front": "CLCOR",
+   "back": "350-801. Core for CCNP Collaboration and the Collaboration Core specialist.",
+   "cite": {
+    "label": "350-801 CLCOR",
+    "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/clcor.html"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Certifications this edition will name",
+   "front": "Concentrations",
+   "back": "300-815 CLACC, 300-820 CLHCT, or 300-830 CLCCE. One of them, plus the core.",
+   "cite": {
+    "label": "CCNP Collaboration",
+    "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Certifications this edition will name",
+   "front": "MS-721",
+   "back": "Collaboration Communications Systems Engineer Associate. Certifications change. Use the link.",
+   "cite": {
+    "label": "MS-721 certification",
+    "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "When the page and the memory disagree",
+   "front": "Banner",
+   "back": "RFC Editor header beats a blog.",
+   "cite": {
+    "label": "RFC 5411",
+    "url": "https://www.rfc-editor.org/rfc/rfc5411"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "When the page and the memory disagree",
+   "front": "Cisco page",
+   "back": "Exam topics change. The Cisco page wins.",
+   "cite": {
+    "label": "Cisco exams list",
+    "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/list.html"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "When the page and the memory disagree",
+   "front": "MS-721 link",
+   "back": "Certifications change. Use the certification page.",
+   "cite": {
+    "label": "MS-721 certification",
+    "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "When the page and the memory disagree",
+   "front": "Checked dates",
+   "back": "February 3, 2026. April 28, 2026. October 29, 2026. Source check 2026-10-14.",
+   "cite": {
+    "label": "Cisco certification updates",
+    "url": "https://learningnetwork.cisco.com/s/a-new-era-for-cisco-certifications"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "CUCM, UCCX, and CVP without a fake script",
+   "front": "CUCM",
+   "back": "Registrar and trunk call-control point.",
+   "cite": {
+    "label": "Cisco Unified Communications Manager",
+    "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "CUCM, UCCX, and CVP without a fake script",
+   "front": "UCCX",
+   "back": "Call control through CUCM. Not the carrier trunk.",
+   "cite": {
+    "label": "Cisco Unified Contact Center Express",
+    "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-contact-center-express/series.html"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "CUCM, UCCX, and CVP without a fake script",
+   "front": "CUBE or CUCM",
+   "back": "Where PSTN SIP lands.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "CUCM, UCCX, and CVP without a fake script",
+   "front": "CVP",
+   "back": "SIP among CVP, gateways, and CUCM, in that version's guide.",
+   "cite": {
+    "label": "Cisco Unified Customer Voice Portal",
+    "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-customer-voice-portal/series.html"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Webex Calling local gateway, and a separate contact center",
+   "front": "Local Gateway",
+   "back": "Premises PSTN pattern for Webex Calling.",
+   "cite": {
+    "label": "Get started with Local Gateway",
+    "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Webex Calling local gateway, and a separate contact center",
+   "front": "Organization PSTN",
+   "back": "Configured on the Webex Calling PSTN page.",
+   "cite": {
+    "label": "Configure Webex Calling PSTN",
+    "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Webex Calling local gateway, and a separate contact center",
+   "front": "Placeholder host",
+   "back": "example.com stands in so the lesson does not invent the edge FQDN.",
+   "cite": {
+    "label": "Get started with Local Gateway",
+    "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+   }
+  },
+  {
+   "track": "Ecosystem, certifications, and the UC bridge",
+   "lesson": "Webex Calling local gateway, and a separate contact center",
+   "front": "Separate product",
+   "back": "Webex Contact Center. Check its current design guide.",
+   "cite": {
+    "label": "Configure Webex Calling PSTN",
+    "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "Signaling drill with the cited answer",
+   "front": "Call-ID + To tag",
+   "back": "Dialog match. No To tag on a brand-new INVITE.",
+   "cite": {
+    "label": "RFC 3261 §12",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "Signaling drill with the cited answer",
+   "front": "Branch",
+   "back": "Transaction hop. z9hG4bK.",
+   "cite": {
+    "label": "RFC 3261 §17",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "Signaling drill with the cited answer",
+   "front": "2xx ACK",
+   "back": "End to end. RFC 6026.",
+   "cite": {
+    "label": "RFC 6026",
+    "url": "https://www.rfc-editor.org/rfc/rfc6026"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "Signaling drill with the cited answer",
+   "front": "487",
+   "back": "INVITE's final response after CANCEL. ACK is hop by hop.",
+   "cite": {
+    "label": "RFC 3261 §21",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "Media drill with the cited answer",
+   "front": "488",
+   "back": "This UA. Session description. RFC 3261 and RFC 3264.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "Media drill with the cited answer",
+   "front": "422",
+   "back": "RFC 4028. Raise the session interval to Min-SE.",
+   "cite": {
+    "label": "RFC 4028",
+    "url": "https://www.rfc-editor.org/rfc/rfc4028"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "Media drill with the cited answer",
+   "front": "telephone-event",
+   "back": "RFC 4733. DTMF in the offer you mean.",
+   "cite": {
+    "label": "RFC 4733",
+    "url": "https://www.rfc-editor.org/rfc/rfc4733"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "Media drill with the cited answer",
+   "front": "Keying",
+   "back": "RFC 3711 plus either RFC 4568 or RFC 5764. Record which.",
+   "cite": {
+    "label": "RFC 4568",
+    "url": "https://www.rfc-editor.org/rfc/rfc4568"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "SBC drill with the cited answer",
+   "front": "RFC 7092",
+   "back": "B2BUA taxonomy. New Call-ID on the other leg is normal.",
+   "cite": {
+    "label": "RFC 7092",
+    "url": "https://www.rfc-editor.org/rfc/rfc7092"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "SBC drill with the cited answer",
+   "front": "RFC 5853",
+   "back": "SBC deployment requirements.",
+   "cite": {
+    "label": "RFC 5853",
+    "url": "https://www.rfc-editor.org/rfc/rfc5853"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "SBC drill with the cited answer",
+   "front": "Trunk landing",
+   "back": "CUBE or CUCM. Not UCCX.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "SBC drill with the cited answer",
+   "front": "Teams pair",
+   "back": "TLS 1.2+ and an FQDN in Contact.",
+   "cite": {
+    "label": "Direct Routing SIP protocol",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "Symptom, ladder, one packet, one variable",
+   "front": "Symptom",
+   "back": "Silence after connect, Alice at 203.0.113.10. Written first.",
+   "cite": {
+    "label": "RFC 3261",
+    "url": "https://www.rfc-editor.org/rfc/rfc3261"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "Symptom, ladder, one packet, one variable",
+   "front": "Ladder",
+   "back": "INVITE, 100, 180, 200, end-to-end ACK. One Call-ID.",
+   "cite": {
+    "label": "RFC 6026",
+    "url": "https://www.rfc-editor.org/rfc/rfc6026"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "Symptom, ladder, one packet, one variable",
+   "front": "One packet",
+   "back": "200 OK SDP. 203.0.113.20, UDP 19642, PCMU.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "Symptom, ladder, one packet, one variable",
+   "front": "One variable",
+   "back": "Capture that port. Config edits wait, and then they are single.",
+   "cite": {
+    "label": "RFC 3550",
+    "url": "https://www.rfc-editor.org/rfc/rfc3550"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "An interconnect checklist, not a config dump",
+   "front": "Six rows",
+   "back": "TLS, codecs, numbering, trusted addresses, OPTIONS, SRTP keying.",
+   "cite": {
+    "label": "RFC 3264",
+    "url": "https://www.rfc-editor.org/rfc/rfc3264"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "An interconnect checklist, not a config dump",
+   "front": "telephone-event",
+   "back": "On the codec row on purpose. RFC 4733.",
+   "cite": {
+    "label": "RFC 4733",
+    "url": "https://www.rfc-editor.org/rfc/rfc4733"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "An interconnect checklist, not a config dump",
+   "front": "E.164",
+   "back": "Number form. tel URI is RFC 3966.",
+   "cite": {
+    "label": "RFC 3966",
+    "url": "https://www.rfc-editor.org/rfc/rfc3966"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "An interconnect checklist, not a config dump",
+   "front": "Not a dump",
+   "back": "Decisions only. No private key, no full dial-peer list.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "CUCM, a certified SBC, and Teams Direct Routing",
+   "front": "Path",
+   "back": "CUCM, then a certified SBC, then Teams. No invented SKU.",
+   "cite": {
+    "label": "Plan Direct Routing",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "CUCM, a certified SBC, and Teams Direct Routing",
+   "front": "CUBE guide",
+   "back": "Basic SIP configuration for the CUBE case.",
+   "cite": {
+    "label": "Cisco CUBE basic SIP configuration",
+    "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "CUCM, a certified SBC, and Teams Direct Routing",
+   "front": "TLS 1.2+",
+   "back": "Teams floor. Handshake failures are not SIP codes.",
+   "cite": {
+    "label": "Direct Routing OPTIONS and TLS",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "CUCM, a certified SBC, and Teams Direct Routing",
+   "front": "FQDN Contact",
+   "back": "sbc.example.com in the lab. An address literal draws 403.",
+   "cite": {
+    "label": "Direct Routing SIP protocol",
+    "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "When the RFC number moves",
+   "front": "SDP",
+   "back": "RFC 4566 moved to RFC 8866.",
+   "cite": {
+    "label": "RFC 8866",
+    "url": "https://www.rfc-editor.org/rfc/rfc8866"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "When the RFC number moves",
+   "front": "ICE",
+   "back": "RFC 5245 moved to RFC 8445. Confirm the banner.",
+   "cite": {
+    "label": "RFC 8445",
+    "url": "https://www.rfc-editor.org/rfc/rfc8445"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "When the RFC number moves",
+   "front": "STUN / TURN",
+   "back": "RFC 8489 and RFC 8656 in this library. Predecessors 5389 and 5766.",
+   "cite": {
+    "label": "RFC 8489",
+    "url": "https://www.rfc-editor.org/rfc/rfc8489"
+   }
+  },
+  {
+   "track": "Interviews, incidents, and design drills",
+   "lesson": "When the RFC number moves",
+   "front": "Banner",
+   "back": "A newer obsoleting RFC that this edition does not cite still wins.",
+   "cite": {
+    "label": "RFC 5411",
+    "url": "https://www.rfc-editor.org/rfc/rfc5411"
+   }
+  }
+ ]
+}

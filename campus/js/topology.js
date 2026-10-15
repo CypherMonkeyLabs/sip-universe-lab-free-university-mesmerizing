@@ -101,7 +101,7 @@ function loadThree() {
   if (window.THREE) return Promise.resolve(window.THREE);
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = new URL("../vendor/three.min.js", import.meta.url).href;
+    script.src = "vendor/three.min.js";
     script.onload = () => resolve(window.THREE);
     script.onerror = () => reject(new Error("Three.js did not load"));
     document.head.appendChild(script);
@@ -191,6 +191,8 @@ export async function mountTopology(host) {
     THREE = await loadThree();
     if (stop) return () => {};
     const canvas = host.querySelector("#topo-canvas");
+    const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
+    if (!gl) throw new Error("no webgl");
     canvas.hidden = false;
     scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x070b14, 16, 32);

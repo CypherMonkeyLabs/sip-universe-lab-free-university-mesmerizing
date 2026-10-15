@@ -39,7 +39,7 @@ node scripts/verify.mjs
 
 Every lesson has an illustration, a Play / Pause / Step / Inspect ladder, a quiz, flashcards, a lab, and a fault. Settings (observatory, daylight, high contrast, phosphor, sound, narration with a voice picker, speed, reduced motion, type size) persist in `localStorage`. Sound and narration start off. The voice picker waits for `voiceschanged` and will not auto-select a classic Microsoft David, Zira, or Mark voice.
 
-First load is the shell plus `data/catalog.json`: 106,341 bytes (about 104 KB), measured as `index.html`, `css/app.css`, `js/app.js`, `js/draw.js`, `js/audio.js`, `js/flow.js`, and `data/catalog.json`. Track JSON, the tools, and Three.js r159 (`campus/vendor/three.min.js`, no CDN) load when you open them. A service worker caches the shell after the first visit and then fills tracks in the background.
+First load is the shell plus `data/catalog.json`: 121,453 bytes, measured as `index.html`, `css/app.css`, `js/app.js`, `js/draw.js`, `js/audio.js`, `js/flow.js`, and `data/catalog.json`. The home screen paints a vendored Three.js r159 scene (`campus/vendor/three.min.js`, no CDN) immediately. The default theme is dark neon. Track JSON and the tools load when you open them. A service worker caches the shell after the first visit and then fills tracks in the background.
 
 Lighthouse mobile against `http://127.0.0.1:8741/campus/` (Lighthouse 12.8.2, 2026-10-15): performance 99, accessibility 100. The local Python server does not gzip or set long cache headers; GitHub Pages does the compression part.
 
@@ -68,20 +68,28 @@ Example messages are synthetic. Addresses come from the documentation ranges in 
 
 ## Layout
 
-- `campus/` — the site. Hash routes (`#/track/sip-core`, `#/tools/sdp`, `#/topology`).
+- `campus/` — the site. Hash routes (`#/track/sip-core`, `#/tools/sdp`, `#/topology`, `#/atlas`, `#/flows`, `#/charts`, `#/ports`, `#/guide`, `#/play`, `#/downloads`). Opening `campus/index.html` from disk loads `js/embedded-data.js` so the catalog does not depend on `fetch`.
+- `campus/downloads/` — one-page cheat sheets (HTML, PDF, PNG) and the printable flashcard deck.
 - `content/` — curriculum source. Tracks 2 and 3 are Python. Tracks 1 and 4 are frozen JSON because their generators were recovered from bytecode.
 - `scripts/build_content.py` — writes `campus/data/`.
 - `scripts/verify.mjs` — counts and parser checks.
 
 ## License
 
-Code is MIT. Curriculum prose is CC BY 4.0. Three.js is MIT. See `LICENSE`.
+Code is MIT. Curriculum prose is CC BY-NC-SA 4.0. Vendored libraries are MIT or ISC. See `LICENSE`.
+
+Cheat sheets, the flashcard deck, and `downloads/manifest.json` are rebuilt with:
+
+```bash
+node scripts/build_downloads.mjs
+node scripts/build_client.mjs
+```
 
 ## Screenshots
 
 Home, with the compressed ladder and the track index:
 
-![Home](docs/screenshots/home.png)
+![Home](docs/screenshots/r6c-home-desk.png)
 
 A lesson: illustration, ladder, and quiz.
 

@@ -24,8 +24,12 @@ SOFTWARE.
 
 Curriculum content (lesson prose, quiz items, flashcards, fault write-ups,
 glossary definitions, and diagram captions) is licensed under the
-Creative Commons Attribution 4.0 International License (CC BY 4.0):
-https://creativecommons.org/licenses/by/4.0/
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+License (CC BY-NC-SA 4.0):
+https://creativecommons.org/licenses/by-nc-sa/4.0/
 
-Third-party code: Three.js r159 is vendored in campus/vendor/ under the MIT
-license. See campus/vendor/THREE-LICENSE.txt and campus/vendor/VERSION.txt.
+Third-party code in campus/vendor/ stays under its own license: Three.js r159
+(MIT), anime.js 4.5.0 (MIT), rough.js 4.6.6 (MIT), D3 7.9.0 (ISC),
+canvas-confetti 1.9.3 (ISC), and markmap-view 0.18.12 (MIT). See the
+LICENSE files next to VERSION.txt. Mermaid 11.12.0 (MIT) is a build-time
+tool only and is not shipped in the page.
