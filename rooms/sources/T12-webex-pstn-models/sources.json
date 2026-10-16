@@ -1,0 +1,24 @@
+{
+  "id": "T12-webex-pstn-models",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Webex Calling trunks and dial plans",
+      "url": "https://help.webex.com/article/n0xb944",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

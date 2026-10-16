@@ -1,0 +1,76 @@
+{
+  "id": "T15-certifications",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "SSCA Elite",
+      "status": "confirm",
+      "note": "confirm"
+    },
+    {
+      "label": "The SIP School courses",
+      "status": "confirm",
+      "note": "confirm"
+    },
+    {
+      "label": "CCNP Collaboration",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "350-801 CLCOR",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/clcor.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco exams list",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/list.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco certification updates",
+      "url": "https://learningnetwork.cisco.com/s/a-new-era-for-cisco-certifications",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "MS-721 certification",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "MS-721 study guide",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ms-721",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Oracle Communications SBC documentation",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Ribbon documentation portal",
+      "url": "https://ribboncommunications.com/services/support-services/documentation",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

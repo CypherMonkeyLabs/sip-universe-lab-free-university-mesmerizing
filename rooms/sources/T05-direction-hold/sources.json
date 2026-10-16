@@ -1,0 +1,30 @@
+{
+  "id": "T05-direction-hold",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3264 §6",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264#section-6",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

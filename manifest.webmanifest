@@ -1,0 +1,14 @@
+{
+  "name": "SIP Universe Free University",
+  "short_name": "SIP Universe",
+  "description": "An independent, free, learning-only student project for SIP, SDP, RTP, and session borders.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fdf4ff",
+  "theme_color": "#7c3aed",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

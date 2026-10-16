@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Emergency call path, protocol level">
+<rect width="640" height="360" rx="20" fill="#0b1020"/>
+<text x="24" y="36" fill="#fde68a" font-size="20" font-family="system-ui,sans-serif">Emergency call path, protocol level</text>
+<text x="36" y="80" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">The call is a SIP request with a service URN or an emergency number.</text><text x="36" y="120" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">Location conveyance is a separate document from the invite itself.</text><text x="36" y="200" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">RFC 6881 is a best current practice, not legal advice.</text><text x="36" y="240" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">Test with the provider&#39;s test number. Confirm local rules.</text>
+<line x1="80" y1="150" x2="520" y2="150" stroke="#67e8f9" stroke-width="3"/>
+
+<text x="24" y="340" fill="#94a3b8" font-size="12" font-family="system-ui,sans-serif">Study drawing · not a vendor poster · cyphermonkeylabs.com</text>
+</svg>

@@ -1,0 +1,30 @@
+{
+  "id": "T10-unity",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Cisco Unity Connection",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 5806",
+      "url": "https://www.rfc-editor.org/rfc/rfc5806",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 7044",
+      "url": "https://www.rfc-editor.org/rfc/rfc7044",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

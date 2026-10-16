@@ -1,0 +1,29 @@
+{
+  "id": "T14-e911",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 5031",
+      "url": "https://www.rfc-editor.org/rfc/rfc5031",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6442",
+      "url": "https://www.rfc-editor.org/rfc/rfc6442",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "FCC MLTS 911 requirements",
+      "status": "confirm",
+      "note": "confirm"
+    }
+  ]
+}

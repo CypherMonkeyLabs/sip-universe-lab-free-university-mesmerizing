@@ -1,0 +1,30 @@
+{
+  "id": "T11-certificate-fqdn",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Plan Direct Routing",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

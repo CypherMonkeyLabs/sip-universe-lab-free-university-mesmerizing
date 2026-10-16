@@ -1,0 +1,69 @@
+/* SIP university layout on top of the shared kit. */
+.world-hero { position: relative; overflow: hidden; border-radius: 28px; margin: 8px auto 18px; max-width: 1180px; background: radial-gradient(circle at 20% 20%, #fde68a 0, transparent 32%), radial-gradient(circle at 80% 0, #67e8f9 0, transparent 36%), linear-gradient(160deg, #fff7ed, #fae8ff 45%, #ecfeff); }
+.world-gl { position: absolute; inset: 0; width: 100%; height: 100%; }
+.world-ui { position: relative; z-index: 1; padding: 16px 18px 18px 96px; }
+.world-kicker { margin: 0 0 4px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.world-title { margin: 0 0 8px; font-size: clamp(2rem, 5vw, 4.4rem); line-height: .95; }
+.world-lede { margin: 0 0 10px; max-width: 62ch; }
+.uni-menu, .theme-switch, .fold-counts, .mascot-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.uni-menu a, .theme-switch button { border-radius: 999px; padding: 8px 12px; text-decoration: none; font-weight: 800; background: #fff; color: #1b1340; border: 2px solid #c4b5fd; }
+.fold-counts b { font-size: 1.4rem; }
+.mascot-card { width: 84px; text-align: center; font-size: .75rem; font-weight: 800; }
+.mascot-card svg { width: 72px; height: 78px; display: block; margin: 0 auto; filter: drop-shadow(0 8px 12px rgba(124, 58, 237, .35)); }
+.crumbs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; font-size: .92rem; }
+.crumbs a { font-weight: 800; }
+.room-grid, .sheet-grid, .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.track-card, .dl-card, .room-row { border: 2px solid #c4b5fd; border-radius: 18px; padding: 12px; background: color-mix(in srgb, #fff 88%, transparent); }
+.ladder { width: 100%; height: auto; background: #0b1020; border-radius: 16px; }
+.quiz fieldset { border: 2px solid #ddd6fe; border-radius: 16px; margin: 0 0 12px; }
+.why[hidden] { display: none; }
+.para { max-width: 72ch; }
+table.ports { width: 100%; border-collapse: collapse; }
+table.ports th, table.ports td { text-align: left; vertical-align: top; border-bottom: 1px solid #ddd6fe; padding: 6px; }
+.go-deeper { margin-top: 22px; padding-top: 8px; }
+.symbol-row { display: flex; gap: 14px; perspective: 600px; margin: 8px 0 14px; }
+.symbol-row i { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-style: normal; font-weight: 800; color: #1b1340; background: linear-gradient(135deg, #fde047, #67e8f9); transform: rotateY(18deg) rotateX(8deg); box-shadow: 8px 10px 0 #c4b5fd; }
+.chart-svg { width: 100%; height: auto; background: #fff; border-radius: 16px; }
+body.v4 main#main,
+body.v4 .site-footer.lab-footer {
+  width: min(1100px, calc(100% - 28px));
+  margin-left: auto;
+  margin-right: auto;
+}
+body.home-world main#main {
+  width: auto;
+  max-width: none;
+  margin: 0;
+}
+.canon-banner { min-height: 78px; box-sizing: border-box; }
+body.v4 {
+  background:
+    radial-gradient(circle at 8% 0, rgba(253, 230, 138, .7), transparent 26%),
+    radial-gradient(circle at 92% 8%, rgba(103, 232, 249, .45), transparent 30%),
+    linear-gradient(180deg, #fff7ed, #f5f3ff 42%, #ecfeff);
+}
+body.home-world .world-ui {
+  width: min(100%, 72rem);
+  margin-inline: 0;
+  padding: 18px 20px 12px;
+}
+html[data-hero="flat"] .world-hero .world-ui {
+  width: min(100%, 72rem);
+}
+.cg-root { bottom: 88px; }
+@media (min-width: 721px) {
+  .cg-root { bottom: 16px; }
+}
+@media (max-width: 720px) {
+  .world-ui,
+  body.home-world .world-ui,
+  body.home-world .hud { padding: 10px 12px 14px; }
+  .world-title { font-size: 2.15rem; line-height: 1.05; }
+  .mascot-card { width: 68px; }
+  .mascot-card svg { width: 58px; height: 64px; }
+  body { padding-bottom: 92px; }
+  main { padding-left: 12px; padding-right: 12px; }
+}
+@media (min-width: 900px) {
+  .world-hero { min-height: 520px; }
+}

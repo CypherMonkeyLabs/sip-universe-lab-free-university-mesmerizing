@@ -1,0 +1,66 @@
+{
+  "id": "T13-build-a-timeline",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 5411",
+      "url": "https://www.rfc-editor.org/rfc/rfc5411",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 4566",
+      "url": "https://www.rfc-editor.org/rfc/rfc4566",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

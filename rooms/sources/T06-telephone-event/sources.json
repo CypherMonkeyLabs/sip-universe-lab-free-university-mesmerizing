@@ -1,0 +1,36 @@
+{
+  "id": "T06-telephone-event",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6086",
+      "url": "https://www.rfc-editor.org/rfc/rfc6086",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 4730",
+      "url": "https://www.rfc-editor.org/rfc/rfc4730",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

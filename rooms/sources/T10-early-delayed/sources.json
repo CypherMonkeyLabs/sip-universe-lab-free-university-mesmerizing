@@ -1,0 +1,24 @@
+{
+  "id": "T10-early-delayed",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

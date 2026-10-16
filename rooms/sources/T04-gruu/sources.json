@@ -1,0 +1,24 @@
+{
+  "id": "T04-gruu",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3327",
+      "url": "https://www.rfc-editor.org/rfc/rfc3327",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

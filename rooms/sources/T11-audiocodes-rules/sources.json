@@ -1,0 +1,18 @@
+{
+  "id": "T11-audiocodes-rules",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "AudioCodes manipulation syntax 7.6",
+      "url": "https://www.audiocodes.com/media/aomncwrs/sip-message-manipulation-syntax-reference-guide-ver-76.pdf",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

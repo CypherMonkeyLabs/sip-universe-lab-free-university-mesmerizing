@@ -1,0 +1,30 @@
+{
+  "id": "T09-media-modes",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

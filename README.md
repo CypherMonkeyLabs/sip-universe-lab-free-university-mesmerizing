@@ -1,10 +1,18 @@
-# SIP Universe
+# SIP Universe Free University
 
-A static field guide to SIP, SDP, RTP/SRTP, and session border controllers. Lucky is a lifelong student and an AI enthusiast. The path into this campus ran through systems, networking, voice, and the contact center, and it is growing into AI omni-channel agents. It is wider than a UC engineer title. Lessons cite the RFCs and the vendor documents they depend on. The benches are interactive: ladders, a message dissector, an offer/answer negotiator, a header-manipulation sandbox, a `debug ccsip` capture reader, and a 3D border map.
+An independent, free, learning-only study of SIP, SDP, RTP/SRTP, NAT, ICE, SBCs, trunking, and interop. The root of this repository is the university (GitHub Pages serves that root). `campus/` keeps the hands-on benches: a message dissector, an offer/answer negotiator, a header sandbox, and a border map.
 
 © 2026 CypherMonkeyLabs 🐒
 
-Open the lab at `campus/`. The root `index.html` redirects there so the same tree works on GitHub Pages.
+Rebuild the rooms from `campus/data`:
+
+```bash
+node scripts/build-university.mjs
+node scripts/verify-university.mjs
+node scripts/verify.mjs
+```
+
+A source link is written only when that build opened the URL. Anything else is the word confirm, with no link. The open log is `data/source-check-log.json`.
 
 ## Run it
 
@@ -89,9 +97,11 @@ node scripts/build_client.mjs
 
 ## Screenshots
 
+The university home, a room, downloads, the menu, and the phone guide are in `docs/screenshots/pass3-*.png`. Mobile Lighthouse against `http://127.0.0.1:8742/` on 2026-10-16 (gzip server): performance 98, accessibility 100, CLS 0.007.
+
 Home, with the compressed ladder and the track index:
 
-![Home](docs/screenshots/r6c-home-desk.png)
+![Home](docs/screenshots/pass3-desktop-home.png)
 
 A lesson: illustration, ladder, and quiz.
 

@@ -1,0 +1,30 @@
+{
+  "id": "T14-qos",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 3246",
+      "url": "https://www.rfc-editor.org/rfc/rfc3246",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 4594",
+      "url": "https://www.rfc-editor.org/rfc/rfc4594",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

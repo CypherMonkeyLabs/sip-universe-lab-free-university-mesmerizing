@@ -1,0 +1,18 @@
+{
+  "id": "T14-trusted-list",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco SRST trusted IP authentication",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

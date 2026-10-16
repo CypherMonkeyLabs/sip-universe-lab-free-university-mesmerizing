@@ -1,0 +1,42 @@
+{
+  "id": "T12-genesys-cxone",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Genesys BYOC Cloud overview",
+      "url": "https://help.genesys.cloud/articles/byoc-cloud-overview/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "About BYOC Cloud",
+      "url": "https://help.genesys.cloud/articles/about-byoc-cloud/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "About BYOC Premises",
+      "url": "https://help.genesys.cloud/articles/about-byoc-premises/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "BYOC Cloud with BYOC Premises",
+      "url": "https://help.genesys.cloud/faqs/can-i-use-byoc-cloud-with-byoc-premises/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "NiCE CXone connectivity",
+      "url": "https://help.nicecxone.com/content/globalfeatures/connectivity/connectivityincxone.htm",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "NiCE CXone ports",
+      "url": "https://help.nicecxone.com/content/platformrequirements/ports.htm",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

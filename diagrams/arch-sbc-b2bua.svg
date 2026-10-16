@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="SBC as a back-to-back user agent">
+<rect width="640" height="360" rx="20" fill="#0b1020"/>
+<text x="24" y="36" fill="#fde68a" font-size="20" font-family="system-ui,sans-serif">SBC as a back-to-back user agent</text>
+<text x="36" y="80" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">A pure proxy keeps the Call-ID.</text><text x="36" y="120" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">A B2BUA usually starts a second dialog.</text><text x="36" y="200" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">The border can rewrite Contact and the media address.</text><text x="36" y="240" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">RFC 5853 describes SBC requirements. RFC 7092 classifies B2BUAs.</text>
+<line x1="80" y1="150" x2="520" y2="150" stroke="#67e8f9" stroke-width="3"/>
+<circle r="7" fill="#fde047"><animateMotion dur="5s" repeatCount="indefinite" path="M80 150 H520"/></circle>
+<text x="24" y="340" fill="#94a3b8" font-size="12" font-family="system-ui,sans-serif">Study drawing · not a vendor poster · cyphermonkeylabs.com</text>
+</svg>

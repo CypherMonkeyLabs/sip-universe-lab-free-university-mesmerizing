@@ -1,0 +1,36 @@
+{
+  "id": "T11-compare-manipulation",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Ribbon documentation portal",
+      "url": "https://ribboncommunications.com/services/support-services/documentation",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}
