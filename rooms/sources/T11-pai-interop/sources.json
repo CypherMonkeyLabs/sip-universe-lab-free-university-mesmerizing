@@ -1,0 +1,36 @@
+{
+  "id": "T11-pai-interop",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3323",
+      "url": "https://www.rfc-editor.org/rfc/rfc3323",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 5806",
+      "url": "https://www.rfc-editor.org/rfc/rfc5806",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 7044",
+      "url": "https://www.rfc-editor.org/rfc/rfc7044",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Ribbon SBC interoperability guides",
+      "url": "https://ribboncommunications.com/partners/interoperability-guides",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

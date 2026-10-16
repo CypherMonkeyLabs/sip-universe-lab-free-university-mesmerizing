@@ -1,0 +1,41 @@
+{
+  "id": "T07-stir-shaken",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8225",
+      "url": "https://www.rfc-editor.org/rfc/rfc8225",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8226",
+      "url": "https://www.rfc-editor.org/rfc/rfc8226",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8588",
+      "url": "https://www.rfc-editor.org/rfc/rfc8588",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "FCC call authentication",
+      "status": "confirm",
+      "note": "confirm"
+    },
+    {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

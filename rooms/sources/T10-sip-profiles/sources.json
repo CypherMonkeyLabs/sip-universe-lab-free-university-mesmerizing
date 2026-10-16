@@ -1,0 +1,24 @@
+{
+  "id": "T10-sip-profiles",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco Collaboration Solutions Analyzer",
+      "url": "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco SIP profile use cases",
+      "url": "https://www.cisco.com/c/en/us/support/docs/unified-communications/unified-border-element/118825-technote-sip-00.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

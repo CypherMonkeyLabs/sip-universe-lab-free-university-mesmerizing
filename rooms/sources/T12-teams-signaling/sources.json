@@ -1,0 +1,30 @@
+{
+  "id": "T12-teams-signaling",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Plan Direct Routing",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Direct Routing definitions and RFCs",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 5923",
+      "url": "https://www.rfc-editor.org/rfc/rfc5923",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "id": "T15-neighbors",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 7865",
+      "url": "https://www.rfc-editor.org/rfc/rfc7865",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6442",
+      "url": "https://www.rfc-editor.org/rfc/rfc6442",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "FCC MLTS 911 requirements",
+      "status": "confirm",
+      "note": "confirm"
+    },
+    {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco Unity Connection",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco CUBE basic SIP configuration",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

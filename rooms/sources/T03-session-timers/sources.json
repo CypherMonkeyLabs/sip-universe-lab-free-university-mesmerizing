@@ -1,0 +1,24 @@
+{
+  "id": "T03-session-timers",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3261 §17",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-17",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3311",
+      "url": "https://www.rfc-editor.org/rfc/rfc3311",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

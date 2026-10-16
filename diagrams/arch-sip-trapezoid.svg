@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="User agent, proxy, registrar">
+<rect width="640" height="360" rx="20" fill="#0b1020"/>
+<text x="24" y="36" fill="#fde68a" font-size="20" font-family="system-ui,sans-serif">User agent, proxy, registrar</text>
+<text x="36" y="80" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">UAC builds the request. UAS builds the response.</text><text x="36" y="120" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">A proxy adds Via and decrements Max-Forwards.</text><text x="36" y="200" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">A registrar writes Contact bindings. It is not a method.</text><text x="36" y="240" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">A redirect server returns 3xx and leaves.</text>
+<line x1="80" y1="150" x2="520" y2="150" stroke="#67e8f9" stroke-width="3"/>
+<circle r="7" fill="#fde047"><animateMotion dur="5s" repeatCount="indefinite" path="M80 150 H520"/></circle>
+<text x="24" y="340" fill="#94a3b8" font-size="12" font-family="system-ui,sans-serif">Study drawing · not a vendor poster · cyphermonkeylabs.com</text>
+</svg>

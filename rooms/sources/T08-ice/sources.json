@@ -1,0 +1,36 @@
+{
+  "id": "T08-ice",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

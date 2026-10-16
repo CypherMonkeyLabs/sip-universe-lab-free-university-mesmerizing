@@ -1,0 +1,162 @@
+{
+  "intents": [
+    {
+      "id": "identity",
+      "phrases": [
+        "who are you",
+        "what are you",
+        "your name",
+        "are you a bot",
+        "are you human"
+      ]
+    },
+    {
+      "id": "help",
+      "phrases": [
+        "how do i use this",
+        "how do i use",
+        "how to use this",
+        "help me use this",
+        "what do i do here",
+        "how does this page work",
+        "how does this room work"
+      ]
+    },
+    {
+      "id": "tour",
+      "phrases": [
+        "tour",
+        "show me around",
+        "guide me",
+        "2-minute tour",
+        "two minute tour",
+        "walk me around"
+      ]
+    },
+    {
+      "id": "quiz",
+      "phrases": [
+        "quiz me",
+        "test me",
+        "practice questions",
+        "ask me a question"
+      ]
+    },
+    {
+      "id": "daily",
+      "phrases": [
+        "daily challenge",
+        "daily quiz",
+        "today's question",
+        "todays question"
+      ]
+    },
+    {
+      "id": "cards",
+      "phrases": [
+        "flashcards",
+        "flash cards",
+        "flashcard",
+        "drill cards",
+        "know or again"
+      ]
+    },
+    {
+      "id": "lesson",
+      "phrases": [
+        "teach me",
+        "lesson on",
+        "walk me through",
+        "step by step"
+      ]
+    },
+    {
+      "id": "more",
+      "phrases": [
+        "tell me more",
+        "more detail",
+        "go on",
+        "keep going",
+        "what else",
+        "and then"
+      ]
+    },
+    {
+      "id": "progress",
+      "phrases": [
+        "my progress",
+        "what have we covered",
+        "my score",
+        "suggested next",
+        "what next",
+        "what's next",
+        "whats next",
+        "badges",
+        "my streak",
+        "streak"
+      ]
+    },
+    {
+      "id": "game",
+      "phrases": [
+        "mini-game",
+        "mini game",
+        "play a game",
+        "port game",
+        "room game"
+      ]
+    },
+    {
+      "id": "easy",
+      "phrases": [
+        "easy mode",
+        "easier",
+        "beginner"
+      ]
+    },
+    {
+      "id": "medium",
+      "phrases": [
+        "medium mode",
+        "normal mode"
+      ]
+    },
+    {
+      "id": "hard",
+      "phrases": [
+        "hard mode",
+        "harder",
+        "advanced"
+      ]
+    },
+    {
+      "id": "start",
+      "phrases": [
+        "where do i start",
+        "where to start",
+        "getting started",
+        "start here",
+        "first room"
+      ]
+    },
+    {
+      "id": "voice-on",
+      "phrases": [
+        "read aloud",
+        "voice on",
+        "speak answers",
+        "turn voice on"
+      ]
+    },
+    {
+      "id": "voice-off",
+      "phrases": [
+        "stop reading",
+        "voice off",
+        "mute the voice",
+        "turn voice off"
+      ]
+    }
+  ],
+  "synonyms": {}
+}

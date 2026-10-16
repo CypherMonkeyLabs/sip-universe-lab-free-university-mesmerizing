@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 306" role="img" aria-label="Compact request, long response">
+<rect width="680" height="306" fill="#0b1020"/>
+<text x="16" y="296" fill="#94a3b8" font-size="12" font-family="system-ui,sans-serif">Compact request, long response · study drawing · cyphermonkeylabs.com</text>
+<text x="70" y="34" text-anchor="middle" fill="#f8fafc" font-size="14" font-family="system-ui,sans-serif">UA</text><line x1="70" y1="48" x2="70" y2="290" stroke="#334155" stroke-width="2"/><text x="220" y="34" text-anchor="middle" fill="#f8fafc" font-size="14" font-family="system-ui,sans-serif">Peer</text><line x1="220" y1="48" x2="220" y2="290" stroke="#334155" stroke-width="2"/><path id="p0" d="M70 78 L220 78" fill="none" stroke="#f9a8d4" stroke-width="2.4"/>
+<text x="145" y="70" text-anchor="middle" fill="#fde68a" font-size="13" font-family="system-ui,sans-serif">INVITE</text>
+<circle r="5" fill="#fde047"><animateMotion dur="2.2s" begin="0.00s" repeatCount="indefinite"><mpath href="#p0"/></animateMotion></circle><path id="p1" d="M220 126 L70 126" fill="none" stroke="#67e8f9" stroke-width="2.4"/>
+<text x="145" y="118" text-anchor="middle" fill="#fde68a" font-size="13" font-family="system-ui,sans-serif">100</text>
+<circle r="5" fill="#fde047"><animateMotion dur="2.2s" begin="0.28s" repeatCount="indefinite"><mpath href="#p1"/></animateMotion></circle><path id="p2" d="M220 174 L70 174" fill="none" stroke="#67e8f9" stroke-width="2.4"/>
+<text x="145" y="166" text-anchor="middle" fill="#fde68a" font-size="13" font-family="system-ui,sans-serif">200</text>
+<circle r="5" fill="#fde047"><animateMotion dur="2.2s" begin="0.56s" repeatCount="indefinite"><mpath href="#p2"/></animateMotion></circle><path id="p3" d="M70 222 L220 222" fill="none" stroke="#f9a8d4" stroke-width="2.4"/>
+<text x="145" y="214" text-anchor="middle" fill="#fde68a" font-size="13" font-family="system-ui,sans-serif">ACK</text>
+<circle r="5" fill="#fde047"><animateMotion dur="2.2s" begin="0.84s" repeatCount="indefinite"><mpath href="#p3"/></animateMotion></circle></svg>

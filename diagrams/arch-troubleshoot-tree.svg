@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Troubleshooting tree">
+<rect width="640" height="360" rx="20" fill="#0b1020"/>
+<text x="24" y="36" fill="#fde68a" font-size="20" font-family="system-ui,sans-serif">Troubleshooting tree</text>
+<text x="36" y="80" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">1. Does the request leave the phone?</text><text x="36" y="120" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">2. Does a response come back on the same transaction?</text><text x="36" y="200" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">3. Does SDP agree, and is c= reachable?</text><text x="36" y="240" fill="#f8fafc" font-size="16" font-family="system-ui,sans-serif">4. Only then open the vendor debug.</text>
+<line x1="80" y1="150" x2="520" y2="150" stroke="#67e8f9" stroke-width="3"/>
+
+<text x="24" y="340" fill="#94a3b8" font-size="12" font-family="system-ui,sans-serif">Study drawing · not a vendor poster · cyphermonkeylabs.com</text>
+</svg>

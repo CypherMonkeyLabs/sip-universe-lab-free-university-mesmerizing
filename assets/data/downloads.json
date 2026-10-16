@@ -1,0 +1,279 @@
+{
+  "groups": [
+    {
+      "id": "sheets",
+      "title": "Cheat sheets",
+      "items": [
+        {
+          "label": "SIP methods and responses",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/sip-methods.html",
+              "bytes": 9016
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/sip-methods.pdf",
+              "bytes": 94662
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/sip-methods.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "Transactions and dialogs",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/transactions.html",
+              "bytes": 8629
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/transactions.pdf",
+              "bytes": 89431
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/transactions.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "Call-flow ladders",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/call-flows.html",
+              "bytes": 9061
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/call-flows.pdf",
+              "bytes": 92539
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/call-flows.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "SDP offer and answer",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/sdp.html",
+              "bytes": 8549
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/sdp.pdf",
+              "bytes": 89193
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/sdp.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "RTP, SRTP, and codecs",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/rtp.html",
+              "bytes": 8417
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/rtp.pdf",
+              "bytes": 87909
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/rtp.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "NAT, STUN, TURN, and ICE",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/nat-ice.html",
+              "bytes": 8790
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/nat-ice.pdf",
+              "bytes": 91269
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/nat-ice.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "TLS and identity",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/security.html",
+              "bytes": 8713
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/security.pdf",
+              "bytes": 91225
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/security.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "SBCs and trunking",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/sbc.html",
+              "bytes": 8199
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/sbc.pdf",
+              "bytes": 88985
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/sbc.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "Wireshark and sngrep",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/troubleshoot.html",
+              "bytes": 9197
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/troubleshoot.pdf",
+              "bytes": 92893
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/troubleshoot.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "Emergency calling basics",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/e911.html",
+              "bytes": 8648
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/e911.pdf",
+              "bytes": 90383
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/e911.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "Interop seams",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/interop.html",
+              "bytes": 8576
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/interop.pdf",
+              "bytes": 90129
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/interop.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "Ports and transports",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/ports.html",
+              "bytes": 8610
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/ports.pdf",
+              "bytes": 90997
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/ports.png",
+              "bytes": 19299
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle",
+      "title": "Offline zip",
+      "items": [
+        {
+          "label": "Download everything",
+          "blurb": "The generated site, without screenshot history.",
+          "files": [
+            {
+              "kind": "ZIP",
+              "href": "downloads/sip-university-offline.zip",
+              "bytes": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,624 @@
+{
+  "checked": "2026-10",
+  "opened": 119,
+  "total": 123,
+  "results": {
+    "https://www.rfc-editor.org/rfc/rfc6026": {
+      "status": 200,
+      "ok": true,
+      "ms": 261
+    },
+    "https://www.rfc-editor.org/rfc/rfc3261": {
+      "status": 200,
+      "ok": true,
+      "ms": 438
+    },
+    "https://www.rfc-editor.org/rfc/rfc5764": {
+      "status": 200,
+      "ok": true,
+      "ms": 425
+    },
+    "https://www.rfc-editor.org/rfc/rfc3264": {
+      "status": 200,
+      "ok": true,
+      "ms": 471
+    },
+    "https://www.rfc-editor.org/rfc/rfc3262": {
+      "status": 200,
+      "ok": true,
+      "ms": 484
+    },
+    "https://www.rfc-editor.org/rfc/rfc7118": {
+      "status": 200,
+      "ok": true,
+      "ms": 567
+    },
+    "https://www.rfc-editor.org/rfc/rfc3966": {
+      "status": 200,
+      "ok": true,
+      "ms": 593
+    },
+    "https://datatracker.ietf.org/ipr/": {
+      "status": 200,
+      "ok": true,
+      "ms": 95
+    },
+    "https://www.rfc-editor.org/rfc/rfc7092": {
+      "status": 200,
+      "ok": true,
+      "ms": 667
+    },
+    "https://www.rfc-editor.org/rfc/rfc3311": {
+      "status": 200,
+      "ok": true,
+      "ms": 669
+    },
+    "https://www.rfc-editor.org/rfc/rfc3550": {
+      "status": 200,
+      "ok": true,
+      "ms": 723
+    },
+    "https://www.opus-codec.org/license/": {
+      "status": 200,
+      "ok": true,
+      "ms": 306
+    },
+    "https://www.rfc-editor.org/rfc/rfc5853": {
+      "status": 200,
+      "ok": true,
+      "ms": 825
+    },
+    "https://www.rfc-editor.org/rfc/rfc6665": {
+      "status": 200,
+      "ok": true,
+      "ms": 557
+    },
+    "https://www.rfc-editor.org/rfc/rfc5411": {
+      "status": 200,
+      "ok": true,
+      "ms": 956
+    },
+    "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 136
+    },
+    "https://www.rfc-editor.org/rfc/rfc4028": {
+      "status": 200,
+      "ok": true,
+      "ms": 625
+    },
+    "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-basic-config.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 216
+    },
+    "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 323
+    },
+    "https://www.itu.int/rec/T-REC-G.711": {
+      "status": 200,
+      "ok": true,
+      "ms": 608
+    },
+    "https://www.itu.int/rec/T-REC-G.729": {
+      "status": 200,
+      "ok": true,
+      "ms": 619
+    },
+    "https://www.rfc-editor.org/rfc/rfc6716": {
+      "status": 200,
+      "ok": true,
+      "ms": 817
+    },
+    "https://trustee.ietf.org/trust-legal-provisions.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 860
+    },
+    "https://www.rfc-editor.org/rfc/rfc5737": {
+      "status": 200,
+      "ok": true,
+      "ms": 652
+    },
+    "https://www.rfc-editor.org/rfc/rfc3515": {
+      "status": 200,
+      "ok": true,
+      "ms": 707
+    },
+    "https://www.rfc-editor.org/rfc/rfc3891": {
+      "status": 200,
+      "ok": true,
+      "ms": 429
+    },
+    "https://www.rfc-editor.org/rfc/rfc8866": {
+      "status": 200,
+      "ok": true,
+      "ms": 107
+    },
+    "https://www.rfc-editor.org/rfc/rfc3581": {
+      "status": 200,
+      "ok": true,
+      "ms": 609
+    },
+    "https://www.rfc-editor.org/rfc/rfc6141": {
+      "status": 200,
+      "ok": true,
+      "ms": 475
+    },
+    "https://www.rfc-editor.org/rfc/rfc3263": {
+      "status": 200,
+      "ok": true,
+      "ms": 467
+    },
+    "https://www.rfc-editor.org/rfc/rfc3327": {
+      "status": 200,
+      "ok": true,
+      "ms": 460
+    },
+    "https://www.rfc-editor.org/rfc/rfc3608": {
+      "status": 200,
+      "ok": true,
+      "ms": 301
+    },
+    "https://www.wireshark.org/docs/dfref/r/rtp.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 170
+    },
+    "https://www.rfc-editor.org/rfc/rfc5626": {
+      "status": 200,
+      "ok": true,
+      "ms": 530
+    },
+    "https://www.wireshark.org/docs/dfref/s/sip.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 72
+    },
+    "https://www.rfc-editor.org/rfc/rfc6337": {
+      "status": 200,
+      "ok": true,
+      "ms": 361
+    },
+    "https://www.rfc-editor.org/rfc/rfc3960": {
+      "status": 200,
+      "ok": true,
+      "ms": 380
+    },
+    "https://www.rfc-editor.org/rfc/rfc4566": {
+      "status": 200,
+      "ok": true,
+      "ms": 578
+    },
+    "https://www.rfc-editor.org/rfc/rfc4730": {
+      "status": 200,
+      "ok": true,
+      "ms": 453
+    },
+    "https://www.rfc-editor.org/rfc/rfc3246": {
+      "status": 200,
+      "ok": true,
+      "ms": 437
+    },
+    "https://www.rfc-editor.org/rfc/rfc5627": {
+      "status": 200,
+      "ok": true,
+      "ms": 726
+    },
+    "https://www.rfc-editor.org/rfc/rfc4733": {
+      "status": 200,
+      "ok": true,
+      "ms": 650
+    },
+    "https://www.rfc-editor.org/rfc/rfc6086": {
+      "status": 200,
+      "ok": true,
+      "ms": 644
+    },
+    "https://www.rfc-editor.org/rfc/rfc7616": {
+      "status": 200,
+      "ok": true,
+      "ms": 546
+    },
+    "https://www.fcc.gov/call-authentication": {
+      "status": 403,
+      "ok": false,
+      "ms": 53
+    },
+    "https://www.rfc-editor.org/rfc/rfc3551": {
+      "status": 200,
+      "ok": true,
+      "ms": 826
+    },
+    "https://www.rfc-editor.org/rfc/rfc8489": {
+      "status": 200,
+      "ok": true,
+      "ms": 53
+    },
+    "https://www.rfc-editor.org/rfc/rfc8445": {
+      "status": 200,
+      "ok": true,
+      "ms": 59
+    },
+    "https://www.rfc-editor.org/rfc/rfc4594": {
+      "status": 200,
+      "ok": true,
+      "ms": 769
+    },
+    "https://www.rfc-editor.org/rfc/rfc5922": {
+      "status": 200,
+      "ok": true,
+      "ms": 642
+    },
+    "https://www.rfc-editor.org/rfc/rfc8656": {
+      "status": 200,
+      "ok": true,
+      "ms": 65
+    },
+    "https://www.rfc-editor.org/rfc/rfc3325": {
+      "status": 200,
+      "ok": true,
+      "ms": 417
+    },
+    "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 69
+    },
+    "https://www.rfc-editor.org/rfc/rfc3323": {
+      "status": 200,
+      "ok": true,
+      "ms": 516
+    },
+    "https://www.rfc-editor.org/rfc/rfc4568": {
+      "status": 200,
+      "ok": true,
+      "ms": 616
+    },
+    "https://www.rfc-editor.org/rfc/rfc8588": {
+      "status": 200,
+      "ok": true,
+      "ms": 343
+    },
+    "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 128
+    },
+    "https://www.rfc-editor.org/rfc/rfc8224": {
+      "status": 200,
+      "ok": true,
+      "ms": 559
+    },
+    "https://www.rfc-editor.org/rfc/rfc3711": {
+      "status": 200,
+      "ok": true,
+      "ms": 826
+    },
+    "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 254
+    },
+    "https://www.rfc-editor.org/rfc/rfc8226": {
+      "status": 200,
+      "ok": true,
+      "ms": 523
+    },
+    "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 138
+    },
+    "https://ribboncommunications.com/services/support-services/documentation": {
+      "status": 200,
+      "ok": true,
+      "ms": 102
+    },
+    "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 222
+    },
+    "https://ribboncommunications.com/products/enterprise-products/session-border-controllers/sbc-software-edition-edge-sbc-swe-edge": {
+      "status": 200,
+      "ok": true,
+      "ms": 121
+    },
+    "https://ribboncommunications.com/partners/interoperability-guides": {
+      "status": 200,
+      "ok": true,
+      "ms": 116
+    },
+    "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 241
+    },
+    "https://www.rfc-editor.org/rfc/rfc5806": {
+      "status": 200,
+      "ok": true,
+      "ms": 327
+    },
+    "https://www.rfc-editor.org/rfc/rfc8225": {
+      "status": 200,
+      "ok": true,
+      "ms": 693
+    },
+    "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan": {
+      "status": 200,
+      "ok": true,
+      "ms": 111
+    },
+    "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 447
+    },
+    "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols": {
+      "status": 200,
+      "ok": true,
+      "ms": 98
+    },
+    "https://www.cisco.com/c/en/us/support/docs/unified-communications/unified-border-element/118825-technote-sip-00.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 481
+    },
+    "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 58
+    },
+    "https://docs.aws.amazon.com/connect/latest/adminguide/configure-external-voice-system.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 101
+    },
+    "https://www.rfc-editor.org/rfc/rfc7044": {
+      "status": 200,
+      "ok": true,
+      "ms": 483
+    },
+    "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues": {
+      "status": 200,
+      "ok": true,
+      "ms": 212
+    },
+    "https://docs.aws.amazon.com/connect/latest/adminguide/create-contact-lens-connector.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 107
+    },
+    "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm": {
+      "status": 200,
+      "ok": true,
+      "ms": 399
+    },
+    "https://docs.aws.amazon.com/chime-sdk/latest/ag/voice-connectors.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 148
+    },
+    "https://docs.aws.amazon.com/chime-sdk/latest/ag/vc-connect-integrations.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 138
+    },
+    "https://www.twilio.com/docs/sip-trunking": {
+      "status": 200,
+      "ok": true,
+      "ms": 34
+    },
+    "https://documentation.five9.com/bundle/byot-sip-trunk-integration/page/byo-sip-trunking/landing-byo-sip-trunking.htm": {
+      "status": 200,
+      "ok": true,
+      "ms": 136
+    },
+    "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip": {
+      "status": 200,
+      "ok": true,
+      "ms": 453
+    },
+    "https://www.audiocodes.com/media/aomncwrs/sip-message-manipulation-syntax-reference-guide-ver-76.pdf": {
+      "status": 200,
+      "ok": true,
+      "ms": 459
+    },
+    "https://www.rfc-editor.org/rfc/rfc5923": {
+      "status": 200,
+      "ok": true,
+      "ms": 405
+    },
+    "https://www.twilio.com/docs/sip-trunking/troubleshooting": {
+      "status": 200,
+      "ok": true,
+      "ms": 84
+    },
+    "https://www.twilio.com/docs/sip-trunking/api": {
+      "status": 200,
+      "ok": true,
+      "ms": 88
+    },
+    "https://help.genesys.cloud/articles/byoc-cloud-overview/": {
+      "status": 200,
+      "ok": true,
+      "ms": 130
+    },
+    "https://help.genesys.cloud/articles/about-byoc-cloud/": {
+      "status": 200,
+      "ok": true,
+      "ms": 155
+    },
+    "https://www.rfc-editor.org/rfc/rfc7866": {
+      "status": 200,
+      "ok": true,
+      "ms": 309
+    },
+    "https://help.genesys.cloud/faqs/can-i-use-byoc-cloud-with-byoc-premises/": {
+      "status": 200,
+      "ok": true,
+      "ms": 193
+    },
+    "https://www.fcc.gov/mlts-911-requirements": {
+      "status": 403,
+      "ok": false,
+      "ms": 48
+    },
+    "https://help.genesys.cloud/articles/about-byoc-premises/": {
+      "status": 200,
+      "ok": true,
+      "ms": 277
+    },
+    "https://www.rfc-editor.org/rfc/rfc3665": {
+      "status": 200,
+      "ok": true,
+      "ms": 257
+    },
+    "https://www.rfc-editor.org/rfc/rfc6881": {
+      "status": 200,
+      "ok": true,
+      "ms": 294
+    },
+    "https://help.nicecxone.com/content/globalfeatures/connectivity/connectivityincxone.htm": {
+      "status": 200,
+      "ok": true,
+      "ms": 375
+    },
+    "https://www.rfc-editor.org/rfc/rfc5031": {
+      "status": 200,
+      "ok": true,
+      "ms": 253
+    },
+    "https://www.cisco.com/site/us/en/learn/training-certifications/exams/list.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 48
+    },
+    "https://www.rfc-editor.org/rfc/rfc6442": {
+      "status": 200,
+      "ok": true,
+      "ms": 311
+    },
+    "https://help.nicecxone.com/content/platformrequirements/ports.htm": {
+      "status": 200,
+      "ok": true,
+      "ms": 437
+    },
+    "https://help.webex.com/en-us/article/jr1i3r/Configure-local-gateway-on-IOS-XE-for-Webex-Calling": {
+      "status": 200,
+      "ok": true,
+      "ms": 848
+    },
+    "https://www.thesipschool.com/ssca.html": {
+      "status": 0,
+      "ok": false,
+      "ms": 226,
+      "error": "TypeError"
+    },
+    "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-contact-center-express/series.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 18
+    },
+    "https://www.thesipschool.com/courses/view": {
+      "status": 0,
+      "ok": false,
+      "ms": 233,
+      "error": "TypeError"
+    },
+    "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/": {
+      "status": 200,
+      "ok": true,
+      "ms": 75
+    },
+    "https://www.rfc-editor.org/rfc/rfc7865": {
+      "status": 200,
+      "ok": true,
+      "ms": 303
+    },
+    "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ms-721": {
+      "status": 200,
+      "ok": true,
+      "ms": 194
+    },
+    "https://www.rfc-editor.org/rfc/rfc5905": {
+      "status": 200,
+      "ok": true,
+      "ms": 51
+    },
+    "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization": {
+      "status": 200,
+      "ok": true,
+      "ms": 1052
+    },
+    "https://www.rfc-editor.org/rfc/rfc3326": {
+      "status": 200,
+      "ok": true,
+      "ms": 252
+    },
+    "https://learningnetwork.cisco.com/s/a-new-era-for-cisco-certifications": {
+      "status": 200,
+      "ok": true,
+      "ms": 347
+    },
+    "https://www.cisco.com/site/us/en/learn/training-certifications/exams/clcor.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 405
+    },
+    "https://www.rfc-editor.org/rfc/rfc5761": {
+      "status": 200,
+      "ok": true,
+      "ms": 279
+    },
+    "https://opensource.org/license/mit": {
+      "status": 200,
+      "ok": true,
+      "ms": 98
+    },
+    "https://creativecommons.org/licenses/by-nc-sa/4.0/": {
+      "status": 200,
+      "ok": true,
+      "ms": 47
+    },
+    "https://www.rfc-editor.org/rfc/rfc4975": {
+      "status": 200,
+      "ok": true,
+      "ms": 299
+    },
+    "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 603
+    },
+    "https://help.webex.com/en-us/article/b2exve": {
+      "status": 200,
+      "ok": true,
+      "ms": 339
+    },
+    "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-customer-voice-portal/series.html": {
+      "status": 200,
+      "ok": true,
+      "ms": 584
+    },
+    "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway": {
+      "status": 200,
+      "ok": true,
+      "ms": 1583
+    },
+    "https://www.rfc-editor.org/rfc/rfc2543": {
+      "status": 200,
+      "ok": true,
+      "ms": 655
+    },
+    "https://help.webex.com/article/n0xb944": {
+      "status": 200,
+      "ok": true,
+      "ms": 1985
+    }
+  }
+}

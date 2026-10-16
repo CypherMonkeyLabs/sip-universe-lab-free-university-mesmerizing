@@ -1,0 +1,24 @@
+{
+  "id": "T11-oracle-objects",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Oracle Communications SBC documentation",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Oracle SBC HMR configuration (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-configuration.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

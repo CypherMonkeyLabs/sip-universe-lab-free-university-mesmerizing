@@ -1,0 +1,30 @@
+{
+  "id": "T12-five9-twilio",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Five9 BYO SIP trunking",
+      "url": "https://documentation.five9.com/bundle/byot-sip-trunk-integration/page/byo-sip-trunking/landing-byo-sip-trunking.htm",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Twilio Elastic SIP Trunking",
+      "url": "https://www.twilio.com/docs/sip-trunking",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Twilio trunk troubleshooting",
+      "url": "https://www.twilio.com/docs/sip-trunking/troubleshooting",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Twilio Elastic SIP Trunking API",
+      "url": "https://www.twilio.com/docs/sip-trunking/api",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

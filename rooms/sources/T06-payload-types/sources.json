@@ -1,0 +1,24 @@
+{
+  "id": "T06-payload-types",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "ITU-T G.711",
+      "url": "https://www.itu.int/rec/T-REC-G.711",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

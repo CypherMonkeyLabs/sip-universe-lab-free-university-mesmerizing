@@ -1,0 +1,18 @@
+{
+  "id": "T06-rtcp",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Wireshark RTP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/r/rtp.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

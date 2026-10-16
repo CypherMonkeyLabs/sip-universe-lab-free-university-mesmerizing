@@ -1,0 +1,59 @@
+{
+  "id": "T15-reading-the-index",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 5411",
+      "url": "https://www.rfc-editor.org/rfc/rfc5411",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "CCNP Collaboration",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "350-801 CLCOR",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/clcor.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco exams list",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/list.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco certification updates",
+      "url": "https://learningnetwork.cisco.com/s/a-new-era-for-cisco-certifications",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "MS-721 certification",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "MS-721 study guide",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ms-721",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "The SIP School courses",
+      "status": "confirm",
+      "note": "confirm"
+    }
+  ]
+}

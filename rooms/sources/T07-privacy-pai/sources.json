@@ -1,0 +1,18 @@
+{
+  "id": "T07-privacy-pai",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 3323",
+      "url": "https://www.rfc-editor.org/rfc/rfc3323",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

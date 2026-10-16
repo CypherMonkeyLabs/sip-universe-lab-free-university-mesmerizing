@@ -1,0 +1,18 @@
+{
+  "id": "T14-siprec",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 7865",
+      "url": "https://www.rfc-editor.org/rfc/rfc7865",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

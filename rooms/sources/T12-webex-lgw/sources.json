@@ -1,0 +1,36 @@
+{
+  "id": "T12-webex-lgw",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Local Gateway on IOS XE",
+      "url": "https://help.webex.com/en-us/article/jr1i3r/Configure-local-gateway-on-IOS-XE-for-Webex-Calling",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Webex Calling trunks and dial plans",
+      "url": "https://help.webex.com/article/n0xb944",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

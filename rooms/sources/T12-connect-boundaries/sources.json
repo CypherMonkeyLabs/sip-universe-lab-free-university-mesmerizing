@@ -1,0 +1,42 @@
+{
+  "id": "T12-connect-boundaries",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Amazon Connect telephony",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Connect external voice system",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/configure-external-voice-system.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Connect conversational analytics connector",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/create-contact-lens-connector.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Amazon Chime SDK Voice Connector",
+      "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/voice-connectors.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Voice Connector and Connect",
+      "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/vc-connect-integrations.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}
