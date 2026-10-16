@@ -14,13 +14,19 @@ const glossary = load("glossary.json");
 const guide = load("fieldguide.json");
 
 const FOOT = `Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.`;
+const CHECKED = "2026-10";
 const LINKS = [
-  ["Visit my GitHub", "https://github.com/cipher0x9"],
-  ["Visit the Labs org", "https://github.com/CypherMonkeyLabs"],
-  ["Visit Cypher Monkey Labs", "https://cyphermonkeylabs.com"],
-  ["X", "https://x.com/Cypher0x9"],
-  ["Hugging Face", "https://huggingface.co/Cypher0x9"],
+  ["CypherMonkey Labs", "https://cyphermonkeylabs.com"],
+  ["CypherMonkeyLabs on GitHub", "https://github.com/CypherMonkeyLabs"],
+  ["CypherMonkey on Linktree", "https://linktr.ee/cyphermonkey"],
 ];
+const sourceLog = (() => {
+  try {
+    return JSON.parse(readFileSync(join(root, "data/source-check-log.json"), "utf8")).results || {};
+  } catch {
+    return {};
+  }
+})();
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -55,6 +61,9 @@ function page({ title, kicker, body }) {
     ul { margin: 6px 0 12px; padding-left: 18px; }
     li { margin: 3px 0; }
     a { color: #0f6e73; }
+    .go-deeper { margin: 16px 0 8px; padding: 12px 14px; border: 2px solid #134e4a; border-radius: 12px; background: #f0fdfa; color: #042f2e; }
+    .go-deeper h2 { margin: 0 0 8px; font-size: 16px; color: #042f2e; }
+    .go-deeper a { color: #134e4a; }
     footer { border-top: 2px solid #0f6e73; margin-top: 12px; padding-top: 8px; font-size: 11px; color: #3c5168; }
     .ladder { font-family: ui-monospace, monospace; background: #07111c; color: #d7f6ff; padding: 10px; border-radius: 8px; white-space: pre; }
   </style>
@@ -72,6 +81,45 @@ function page({ title, kicker, body }) {
 </main>
 </body>
 </html>`;
+}
+
+function decode(value) {
+  return String(value).replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+}
+
+function citesFromHtml(html) {
+  const cites = [];
+  const re = /<a href="([^"]+)">([^<]+)<\/a>/g;
+  let match = re.exec(html);
+  while (match) {
+    cites.push({ url: decode(match[1]), label: decode(match[2]) });
+    match = re.exec(html);
+  }
+  return cites;
+}
+
+function sourcesBlock(cites) {
+  const items = [];
+  const seen = new Set();
+  for (const cite of cites || []) {
+    if (!cite || !cite.label) continue;
+    const key = `${cite.label}|${cite.url || ""}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const base = cite.url ? cite.url.split("#")[0] : "";
+    const row = base ? sourceLog[base] : null;
+    if (cite.url && row && row.ok) {
+      items.push(`<li><a href="${esc(cite.url)}">${esc(cite.label)}</a> — last checked ${CHECKED}</li>`);
+    } else {
+      items.push(`<li>${esc(cite.label)} — confirm</li>`);
+    }
+  }
+  if (!items.length) items.push("<li>confirm</li>");
+  return `<section id="go-deeper" class="go-deeper"><h2>Sources and go deeper</h2><ul>${items.join("")}</ul></section>`;
+}
+
+function withSources(body, extra = []) {
+  return `${body}${sourcesBlock([...extra, ...citesFromHtml(body)])}`;
 }
 
 function sectionBlocks(id) {
@@ -97,7 +145,7 @@ const sheets = [];
 
 function addSheet(item) {
   const htmlName = `${item.id}.html`;
-  writeFileSync(join(out, htmlName), page(item));
+  writeFileSync(join(out, htmlName), page({ ...item, body: withSources(item.body, item.cites || []) }));
   sheets.push({ ...item, html: `downloads/${htmlName}` });
 }
 
@@ -162,17 +210,16 @@ addSheet({
 });
 
 const coreTerms = ["SIP", "SDP", "Offer/answer", "RTP", "SRTP", "Dialog", "Transaction", "B2BUA", "ICE", "STUN", "TURN", "PRACK", "REFER", "telephone-event", "SIPREC", "PAI", "E911", "Direct Routing"];
+const glossaryRows = coreTerms.map((name) => glossary.terms.find((item) => item.term === name)).filter(Boolean);
 addSheet({
   id: "glossary",
   topic: "Glossary",
   title: "Core glossary",
   kicker: "Cheat sheet",
   blurb: "Short definitions. The in-app glossary has the full set.",
+  cites: glossaryRows.flatMap((term) => term.cites || []),
   body: `<table><thead><tr><th>Term</th><th>In one breath</th></tr></thead><tbody>
-    ${coreTerms.map((name) => {
-      const term = glossary.terms.find((item) => item.term === name);
-      return term ? `<tr><td>${esc(term.term)}</td><td>${esc(term.def)}</td></tr>` : "";
-    }).join("")}
+    ${glossaryRows.map((term) => `<tr><td>${esc(term.term)}</td><td>${esc(term.def)}</td></tr>`).join("")}
   </tbody></table>`,
 });
 
@@ -253,7 +300,7 @@ const deckBody = cards.map((card, i) => `<article class="card"><p class="kicker"
 writeFileSync(join(out, "flashcards.html"), page({
   title: "Flashcard deck",
   kicker: `${cards.length} cards`,
-  body: `<style>.card{break-inside:avoid;border:1px solid #d5deea;border-radius:10px;padding:8px 10px;margin:0 0 8px} h2{font-size:15px;margin:0 0 4px}</style>${deckBody}`,
+  body: withSources(`<style>.card{break-inside:avoid;border:1px solid #d5deea;border-radius:10px;padding:8px 10px;margin:0 0 8px} h2{font-size:15px;margin:0 0 4px}</style>${deckBody}`, cards.map((card) => card.cite).filter(Boolean)),
 }));
 
 const items = sheets.map((sheet) => ({

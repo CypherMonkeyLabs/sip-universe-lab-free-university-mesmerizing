@@ -98,12 +98,52 @@
     return found.slice(0, 3);
   }
 
+  function headingBottom() {
+    var heading = document.querySelector("h1");
+    if (!heading) return 72;
+    var rect = heading.getBoundingClientRect();
+    if (rect.height < 8 || rect.bottom < 0 || rect.top > window.innerHeight) return 72;
+    return rect.bottom;
+  }
+
+  function dockTop() {
+    var bar = document.querySelector(".phone-dock");
+    if (!bar) return window.innerHeight;
+    var style = getComputedStyle(bar);
+    if (style.display === "none" || style.visibility === "hidden") return window.innerHeight;
+    var rect = bar.getBoundingClientRect();
+    if (rect.height < 20 || rect.top >= window.innerHeight) return window.innerHeight;
+    return rect.top;
+  }
+
+  function placeCard() {
+    var card = layer.querySelector(".ob-card");
+    var margin = 8;
+    var dockGap = 12;
+    var limit = dockTop();
+    var below = headingBottom() + margin;
+    var maxW = Math.min(420, window.innerWidth - margin * 2);
+    card.style.boxSizing = "border-box";
+    card.style.width = maxW + "px";
+    card.style.maxWidth = (window.innerWidth - margin * 2) + "px";
+    card.style.left = Math.max(margin, Math.round((window.innerWidth - maxW) / 2)) + "px";
+    card.style.right = "auto";
+    card.style.transform = "none";
+    var room = Math.max(96, limit - dockGap - below);
+    card.style.maxHeight = room + "px";
+    card.style.overflow = "auto";
+    var cardH = Math.min(card.scrollHeight || 160, room);
+    var top = limit - dockGap - cardH;
+    if (top < below) top = below;
+    if (top + cardH > limit - dockGap) top = Math.max(margin, limit - dockGap - cardH);
+    card.style.top = Math.round(top) + "px";
+    card.style.bottom = "auto";
+  }
+
   function paintSpots(nodes) {
     layer.querySelectorAll(".ob-spot").forEach(function (spot) { spot.remove(); });
-    var low = false;
     nodes.forEach(function (el) {
       var rect = el.getBoundingClientRect();
-      if (rect.top > window.innerHeight * 0.55) low = true;
       var spot = document.createElement("div");
       spot.className = "ob-spot";
       spot.style.top = Math.max(4, rect.top - 6) + "px";
@@ -112,11 +152,7 @@
       spot.style.height = rect.height + 12 + "px";
       layer.appendChild(spot);
     });
-    var card = layer.querySelector(".ob-card");
-    var homeStep = step === 0 && window.innerWidth >= 900;
-    card.classList.toggle("is-high", low && !homeStep);
-    card.classList.toggle("is-low", !low && !homeStep);
-    card.classList.toggle("is-home-step", homeStep);
+    placeCard();
   }
 
   function paint() {
@@ -149,8 +185,7 @@
     document.body.classList.add("onboard-open");
     layer = document.createElement("div");
     layer.className = "ob-layer" + (reduce ? " is-still" : "");
-    layer.setAttribute("role", "dialog");
-    layer.setAttribute("aria-modal", "true");
+    layer.setAttribute("role", "region");
     layer.setAttribute("aria-labelledby", "ob-title");
     layer.innerHTML =
       '<div class="ob-card"><p class="ob-count"><span class="ob-num" data-ob-num>1</span> <span data-ob-count></span></p><h2 id="ob-title"></h2><p class="ob-body"></p>' +
@@ -162,7 +197,7 @@
     document.body.appendChild(layer);
     step = 0;
     paint();
-    layer.querySelector("[data-ob-next]").focus();
+    placeCard();
     layer.addEventListener("click", function (event) {
       if (event.target.closest("[data-ob-sound]")) {
         soundOn = !soundOn;
@@ -194,6 +229,12 @@
     });
   }
 
+  function shouldShow() {
+    var params = new URLSearchParams(location.search);
+    if (params.get("tour") === "1") return true;
+    return !ls(KEY);
+  }
+
   document.addEventListener("click", function (event) {
     if (!event.target.closest("[data-replay-onboard]")) return;
     event.preventDefault();
@@ -201,5 +242,5 @@
     open();
   });
 
-  if (!ls(KEY)) window.setTimeout(open, 1400);
+  if (shouldShow()) window.setTimeout(open, 400);
 })();

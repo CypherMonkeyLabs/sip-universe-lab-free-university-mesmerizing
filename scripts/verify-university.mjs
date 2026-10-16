@@ -3,6 +3,7 @@
  * or ships a brand link outside the three allowed hosts.
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { brandLinkProblems } from "./check-brand-links.mjs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -26,7 +27,11 @@ const htmlFiles = walk(root).filter((file) => {
   return true;
 });
 const forbidden = /https?:\/\/(?:(?:www\.)?x\.com|linkedin\.com|huggingface\.co|github\.com\/cipher0x9)|mailto:/i;
-const needsSources = (file) => /\/(rooms|diagrams\/pages|downloads\/sheets|downloads\/templates)\//.test(file) || file.endsWith("/downloads/flashcards.html");
+const needsSources = (file) => {
+  const rel = file.slice(root.length + 1);
+  if (rel.startsWith("rooms/") || rel.startsWith("tracks/") || rel.startsWith("diagrams/pages/") || rel.startsWith("downloads/")) return true;
+  return !rel.includes("/");
+};
 for (const file of htmlFiles) {
   const text = readFileSync(file, "utf8");
   const rel = file.replace(root + "/", "");
@@ -34,6 +39,7 @@ for (const file of htmlFiles) {
   if (!text.includes("independent, free, learning-only")) problems.push(`disclaimer ${rel}`);
   if (needsSources(file) && !text.includes("Sources and go deeper")) problems.push(`sources heading ${rel}`);
 }
+for (const hit of brandLinkProblems(root)) problems.push(hit);
 
 const index = existsSync(join(root, "index.html")) ? readFileSync(join(root, "index.html"), "utf8") : "";
 for (const word of ["diagrams.html", "flows.html", "charts.html", "Cheat Codes", "play.html", "ecosystem.html", "downloads.html", "careers.html"]) {
