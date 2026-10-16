@@ -145,18 +145,8 @@
       var target = Number(node.getAttribute("data-count-up"));
       if (!target || node.dataset.rose === "1") return;
       node.dataset.rose = "1";
-      if (!fineMotion()) {
-        node.textContent = String(target);
-        return;
-      }
-      var start = performance.now();
-      function tick(now) {
-        var p = Math.min(1, (now - start) / 900);
-        var eased = 1 - Math.pow(1 - p, 3);
-        node.textContent = String(Math.round(target * eased));
-        if (p < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
+      node.textContent = String(target);
+      if (fineMotion()) node.classList.add("count-pop");
     });
   }
   function chipHtml() {
@@ -628,6 +618,7 @@
 
   ensureMount();
   mountBanner();
+  riseCounts(document);
   mountA11y();
   mountEdge();
   mountFooter();

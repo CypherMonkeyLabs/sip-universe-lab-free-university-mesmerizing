@@ -292,6 +292,16 @@ a.glow-ico .menu-ico,
 }
 .ob-card.is-low { bottom: 24px; }
 .ob-card.is-high { top: 76px; }
+@media (min-width: 900px) {
+  .ob-card.is-home-step {
+    top: 128px;
+    right: 24px;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    width: min(340px, 28vw);
+  }
+}
 .ob-num { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #7c3aed; color: #fff; font-weight: 800; }
 .ob-card h2 { margin: 6px 0; font-size: 1.25rem; }
 .ob-card p { margin: 0 0 10px; line-height: 1.45; }

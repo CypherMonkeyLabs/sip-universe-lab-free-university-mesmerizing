@@ -113,8 +113,10 @@
       layer.appendChild(spot);
     });
     var card = layer.querySelector(".ob-card");
-    card.classList.toggle("is-high", low);
-    card.classList.toggle("is-low", !low);
+    var homeStep = step === 0 && window.innerWidth >= 900;
+    card.classList.toggle("is-high", low && !homeStep);
+    card.classList.toggle("is-low", !low && !homeStep);
+    card.classList.toggle("is-home-step", homeStep);
   }
 
   function paint() {
