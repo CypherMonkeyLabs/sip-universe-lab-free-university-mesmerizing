@@ -162,6 +162,27 @@
       ]
     },
     {
+      "id": "webrtc-ws",
+      "prompts": ["webrtc", "websocket", "rfc 7118", "sip over websocket", "dtls-srtp", "browser softphone"],
+      "text": "RFC 7118 carries SIP on a WebSocket after the subprotocol sip is selected. ICE gathers candidates. DTLS-SRTP keys the media on the media path. Opus rtpmap uses clock 48000 and 2 channels.",
+      "href": "#/track/webrtc",
+      "cite": { "label": "RFC 7118", "url": "https://www.rfc-editor.org/rfc/rfc7118" }
+    },
+    {
+      "id": "open-core",
+      "prompts": ["asterisk", "freeswitch", "kamailio", "rtpengine", "open source pbx"],
+      "text": "Kamailio is the open source SIP server. Asterisk and FreeSWITCH hold the dialplan. rtpengine proxies RTP and is meant to be used with Kamailio.",
+      "href": "#/track/opensource",
+      "cite": { "label": "Kamailio SIP server", "url": "https://www.kamailio.org/w/" }
+    },
+    {
+      "id": "compliance-study",
+      "prompts": ["stir", "shaken", "kari", "ray baum", "10dlc", "e911", "not legal advice"],
+      "text": "STIR is RFC 8224 and PASSporT is RFC 8225. Kari's Law is Public Law 115-127. Section 506 of RAY BAUM'S Act is the dispatchable-location proceeding. 10DLC on The Campaign Registry site is A2P messaging, not a SIP method. This campus is not legal advice.",
+      "href": "#/track/compliance",
+      "cite": { "label": "RFC 8224", "url": "https://www.rfc-editor.org/rfc/rfc8224" }
+    },
+    {
       "id": "ecosystem-tour",
       "title": "Ecosystem tour",
       "prompts": ["ecosystem tour", "tour the neighbors", "border tour"],

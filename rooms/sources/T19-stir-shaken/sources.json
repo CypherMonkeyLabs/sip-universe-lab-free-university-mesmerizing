@@ -1,0 +1,24 @@
+{
+  "id": "T19-stir-shaken",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8225",
+      "url": "https://www.rfc-editor.org/rfc/rfc8225",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Secure Telephone Identity Governance Authority",
+      "url": "https://www.atis.org/sti-ga/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

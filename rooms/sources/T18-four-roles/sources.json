@@ -1,0 +1,36 @@
+{
+  "id": "T18-four-roles",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "A brief history of the Asterisk project",
+      "url": "https://docs.asterisk.org/About-the-Project/A-Brief-History-of-the-Asterisk-Project/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

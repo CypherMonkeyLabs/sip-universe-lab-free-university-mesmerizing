@@ -1,6 +1,6 @@
 {
   "checked": "2026-10-15",
-  "summary": "The sixteen tracks teach the protocol. This guide is the operator layer around them: how a deployment is cut over, which neighbor systems hang off the dialog, and which claims were checked.",
+  "summary": "The twenty tracks teach the protocol and the gaps around it. This guide is the operator layer: how a deployment is cut over, which neighbor systems hang off the dialog, and which claims were checked.",
   "sections": [
     {
       "id": "fundamentals",
@@ -11,7 +11,7 @@
         {
           "h": "How the tracks are ordered",
           "paragraphs": [
-            "Tracks 1 through 6 are the protocol: what SIP is for, transactions and dialogs, the call flows operators actually trace, DNS and registration, SDP offer/answer, and RTP. Tracks 7 through 9 add TLS and identity, NAT and ICE, and the session border controller as a B2BUA. Tracks 10 through 12 are product patterns: Cisco, other SBC vendors, and cloud PSTN. Tracks 13 through 16 are operations, the neighboring UC systems, and interview drills.",
+            "Tracks 1 through 6 are the protocol: what SIP is for, transactions and dialogs, the call flows operators actually trace, DNS and registration, SDP offer/answer, and RTP. Tracks 7 through 9 add TLS and identity, NAT and ICE, and the session border controller as a B2BUA. Tracks 10 through 12 are product patterns: Cisco, other SBC vendors, and cloud PSTN. Tracks 13 through 16 are operations, the neighboring UC systems, and interview drills. Tracks 17 through 20 are the ecosystem gaps: SIP over WebSocket and WebRTC media, the open-source core, call authentication and the statutes this lab opened, and the glossary, sister systems, and integration hooks.",
             "Advanced, in this campus, means you can explain a failure with a message, a timer, and a citation. It does not mean memorizing a vendor menu. When a track and an RFC disagree, the RFC wins for the protocol and the vendor document wins for that product’s implementation."
           ],
           "cites": [

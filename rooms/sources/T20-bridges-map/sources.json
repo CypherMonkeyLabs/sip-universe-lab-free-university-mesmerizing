@@ -1,0 +1,60 @@
+{
+  "id": "T20-bridges-map",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Cisco Unified Contact Center Express",
+      "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-contact-center-express/series.html",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Plan Direct Routing",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

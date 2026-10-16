@@ -1,0 +1,1567 @@
+{
+ "id": "webrtc",
+ "title": "WebRTC and SIP over WebSocket",
+ "summary": "How a browser reaches SIP: RFC 7118 on the signaling socket, ICE for candidates, and DTLS-SRTP for the media.",
+ "level": "Foundation",
+ "order": 17,
+ "lessons": [
+  {
+   "id": "signaling-planes",
+   "title": "Signaling, JSEP, and the media plane",
+   "minutes": 14,
+   "level": "Foundation",
+   "tags": [
+    "webrtc",
+    "jsep",
+    "7118"
+   ],
+   "summary": "WebRTC names a browser protocol suite. JSEP leaves the signaling protocol to the application. SIP over WebSocket is one such protocol.",
+   "objectives": [
+    "Separate the browser media stack from the signaling protocol",
+    "Say what RFC 8825 and RFC 8829 each are",
+    "Name RFC 7118 as SIP on a WebSocket, not a new SIP method"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Three jobs, three documents",
+    "caption": "The application chooses signaling. The browser still has to carry media the WebRTC suite names.",
+    "layers": [
+     {
+      "name": "Application signaling",
+      "detail": "SIP over WebSocket is RFC 7118. JSEP also allows something custom."
+     },
+     {
+      "name": "Session description",
+      "detail": "JSEP passes local and remote descriptions through the browser API."
+     },
+     {
+      "name": "Media",
+      "detail": "RTP in the WebRTC context is RFC 8834. ICE is a separate traversal protocol."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "WebRTC is a suite, not a SIP method",
+     "paragraphs": [
+      "RFC 8825 is an applicability statement for real-time communication in browsers. It does not itself specify a protocol. It points at the other specifications an implementation follows to be compliant with WebRTC.",
+      "RFC 8829, the JavaScript Session Establishment Protocol, says the browser API should control the signaling state while the JavaScript chooses the signaling protocol. The document names the existing SIP call signaling protocol as one option, and a custom protocol as another. The object that has to move is the session description."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8825",
+       "url": "https://www.rfc-editor.org/rfc/rfc8825"
+      },
+      {
+       "label": "RFC 8829",
+       "url": "https://www.rfc-editor.org/rfc/rfc8829"
+      }
+     ]
+    },
+    {
+     "h": "SIP over WebSocket is still SIP",
+     "paragraphs": [
+      "RFC 7118 specifies a WebSocket subprotocol so SIP requests and responses can cross a WebSocket connection. It is a transport document. It does not replace INVITE, REGISTER, or the status codes.",
+      "RFC 6455 is the WebSocket protocol under that subprotocol: an opening handshake, then message framing over TCP. A browser softphone that uses SIP is combining that transport with ordinary SIP methods, then a media stack that is specified elsewhere."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7118",
+       "url": "https://www.rfc-editor.org/rfc/rfc7118"
+      },
+      {
+       "label": "RFC 6455",
+       "url": "https://www.rfc-editor.org/rfc/rfc6455"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "The application picks SIP. The socket is only the transport.",
+    "parties": [
+     "Page",
+     "WSS server"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "GET",
+      "kind": "req",
+      "note": "The handshake asks for the WebSocket subprotocol named sip. This hop is HTTP, not a SIP method.",
+      "message": "GET /sip HTTP/1.1\nHost: proxy.example.com\nUpgrade: websocket\nConnection: Upgrade\nSec-WebSocket-Protocol: sip\nSec-WebSocket-Version: 13\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "101",
+      "kind": "res",
+      "note": "The 101 reply has to carry sip in Sec-WebSocket-Protocol or this subprotocol was not selected.",
+      "message": "HTTP/1.1 101 Switching Protocols\nUpgrade: websocket\nConnection: Upgrade\nSec-WebSocket-Protocol: sip\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "REGISTER",
+      "kind": "req",
+      "note": "After the socket is open, SIP messages are frames on that connection. REGISTER is still REGISTER.",
+      "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws01\nMax-Forwards: 70\nFrom: <sip:alice@example.com>;tag=labws1\nTo: <sip:alice@example.com>\nCall-ID: lab-ws-reg@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@labua.invalid;transport=ws>;reg-id=1;+sip.instance=\"<urn:uuid:11111111-2222-3333-4444-555555555555>\"\nSupported: outbound\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The registrar answer is a SIP response on the same WebSocket.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws01\nFrom: <sip:alice@example.com>;tag=labws1\nTo: <sip:alice@example.com>;tag=regok1\nCall-ID: lab-ws-reg@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@labua.invalid;transport=ws>;expires=3600\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "RFC 8825 is",
+     "choices": [
+      "An applicability statement for browser real-time protocols",
+      "The SIP over WebSocket transport",
+      "A codec license",
+      "A replacement for INVITE"
+     ],
+     "answer": 0,
+     "why": "The abstract says it does not itself specify a protocol.",
+     "cite": {
+      "label": "RFC 8825",
+      "url": "https://www.rfc-editor.org/rfc/rfc8825"
+     }
+    },
+    {
+     "q": "JSEP leaves the signaling protocol to",
+     "choices": [
+      "The JavaScript application",
+      "A single mandated SIP profile",
+      "The RTP sequence number",
+      "The STUN binding request"
+     ],
+     "answer": 0,
+     "why": "RFC 8829 names SIP as one possible signaling protocol and allows a custom one.",
+     "cite": {
+      "label": "RFC 8829",
+      "url": "https://www.rfc-editor.org/rfc/rfc8829"
+     }
+    },
+    {
+     "q": "RFC 7118 defines",
+     "choices": [
+      "A WebSocket subprotocol for carrying SIP",
+      "A new SIP method named WEBSOCK",
+      "The Opus payload format",
+      "Kari's Law"
+     ],
+     "answer": 0,
+     "why": "The subprotocol identifier registered in the RFC is sip.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "q": "RFC 6455 is",
+     "choices": [
+      "The WebSocket protocol",
+      "The SIP transaction layer",
+      "ICE",
+      "STIR"
+     ],
+     "answer": 0,
+     "why": "WebSocket is the handshake and framing. SIP rides on the subprotocol.",
+     "cite": {
+      "label": "RFC 6455",
+      "url": "https://www.rfc-editor.org/rfc/rfc6455"
+     }
+    },
+    {
+     "q": "A browser softphone that sends INVITE over WebSocket has changed",
+     "choices": [
+      "The transport, not the meaning of INVITE",
+      "INVITE into a media packet",
+      "Call-ID into a STUN username",
+      "RTP into a SIP method"
+     ],
+     "answer": 0,
+     "why": "7118 is a transport. The method set stays the SIP method set.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "q": "The session description is what JSEP expects the application to exchange because",
+     "choices": [
+      "That description carries the transport and media configuration",
+      "It replaces the TLS certificate",
+      "It is the only legal SIP header",
+      "It is defined as a 911 location object"
+     ],
+     "answer": 0,
+     "why": "RFC 8829 says the key information to exchange is the multimedia session description.",
+     "cite": {
+      "label": "RFC 8829",
+      "url": "https://www.rfc-editor.org/rfc/rfc8829"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "RFC 8825",
+     "back": "Applicability statement for WebRTC. It does not define SIP.",
+     "cite": {
+      "label": "RFC 8825",
+      "url": "https://www.rfc-editor.org/rfc/rfc8825"
+     }
+    },
+    {
+     "front": "JSEP",
+     "back": "JavaScript controls signaling. SIP is one allowed choice.",
+     "cite": {
+      "label": "RFC 8829",
+      "url": "https://www.rfc-editor.org/rfc/rfc8829"
+     }
+    },
+    {
+     "front": "RFC 7118",
+     "back": "WebSocket subprotocol sip for SIP messages.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "front": "RFC 6455",
+     "back": "WebSocket handshake and framing over TCP.",
+     "cite": {
+      "label": "RFC 6455",
+      "url": "https://www.rfc-editor.org/rfc/rfc6455"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Name the document",
+    "kind": "ladder",
+    "prompt": "Step the ladder. The first hop is an HTTP handshake. The third hop is SIP.",
+    "steps": [
+     "Press Step until the handshake is selected.",
+     "Read the subprotocol token.",
+     "Step to REGISTER and name the method."
+    ],
+    "check": {
+     "q": "Which document makes REGISTER legal on this socket?",
+     "choices": [
+      "RFC 7118, after the subprotocol sip is selected",
+      "RFC 8825 alone",
+      "RFC 3550",
+      "Public Law 115-127"
+     ],
+     "answer": 0,
+     "why": "8825 does not specify the signaling. 7118 is the SIP transport on WebSocket.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    }
+   },
+   "fault": {
+    "title": "The page treated the handshake as a SIP transaction",
+    "symptom": "A trace shows HTTP 101 and then no Via header. The debugger is waiting for a SIP 100 Trying on the GET.",
+    "log": "GET /sip HTTP/1.1\nSec-WebSocket-Protocol: sip\nHTTP/1.1 101 Switching Protocols\n",
+    "choices": [
+     "The 101 completes the WebSocket handshake. SIP starts in the next frames.",
+     "101 Trying is the SIP provisional for GET",
+     "The GET is a SIP REGISTER",
+     "101 means the codec failed"
+    ],
+    "answer": 0,
+    "why": "RFC 6455 is the handshake. RFC 7118 carries SIP after the subprotocol is selected.",
+    "cause": "The reader looked for a SIP status line on an HTTP upgrade.",
+    "fix": "Mark the 101 as the socket opening. Look for a SIP request in a later WebSocket message.",
+    "cites": [
+     {
+      "label": "RFC 6455",
+      "url": "https://www.rfc-editor.org/rfc/rfc6455"
+     },
+     {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sip-websocket",
+   "title": "RFC 7118: the sip subprotocol",
+   "minutes": 16,
+   "level": "Intermediate",
+   "tags": [
+    "7118",
+    "websocket",
+    "wss"
+   ],
+   "summary": "The handshake must offer sip. Via uses WS or WSS. The URI transport parameter added by the RFC is ws.",
+   "objectives": [
+    "Read Sec-WebSocket-Protocol: sip",
+    "Tell Via WSS from a Contact transport=ws",
+    "Say why a browser example uses a .invalid host"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Tokens from RFC 7118",
+    "caption": "These are the names the RFC adds. They are not new SIP methods.",
+    "columns": [
+     "Place",
+     "Token",
+     "What the RFC says"
+    ],
+    "rows": [
+     [
+      "Handshake",
+      "sip",
+      "Client and 101 reply both carry this subprotocol"
+     ],
+     [
+      "Via transport",
+      "WS",
+      "Plain WebSocket"
+     ],
+     [
+      "Via transport",
+      "WSS",
+      "WebSocket opened with TLS"
+     ],
+     [
+      "SIP URI",
+      "transport=ws",
+      "The transport parameter the RFC adds"
+     ],
+     [
+      "NAPTR",
+      "SIP+D2W",
+      "Service value for a SIP WebSocket server"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "The handshake selects sip",
+     "paragraphs": [
+      "During the WebSocket opening handshake, the client must include the value sip in Sec-WebSocket-Protocol. The 101 response must include sip as well. IANA registered that subprotocol identifier as sip, with the common name WebSocket Transport for SIP.",
+      "Section 5.4 of RFC 7118 quotes the RFC 3261 rule that SIP elements must implement UDP and TCP, then states the exception this transport exists for: a SIP element acting as a SIP WebSocket client is not mandated to implement UDP and TCP. A browser stack can be SIP without opening port 5060."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7118",
+       "url": "https://www.rfc-editor.org/rfc/rfc7118"
+      },
+      {
+       "label": "RFC 3261 §18",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-18"
+      },
+      {
+       "label": "RFC 6455",
+       "url": "https://www.rfc-editor.org/rfc/rfc6455"
+      }
+     ]
+    },
+    {
+     "h": "Via, Contact, and the certificate check",
+     "paragraphs": [
+      "Via uses WS on a plain WebSocket and WSS when the WebSocket connection was opened with TLS. The URI transport parameter the RFC adds is transport=ws. The registration example in section 8 uses transport=ws on Contact even while Via says WSS, and it uses a random .invalid host because that example's browser stack cannot learn the local address of the connection.",
+      "Section 9 recommends a secure WebSocket. The client must authenticate the server using the WebSocket validation procedure in RFC 6455. The RFC says that procedure differs from the SIP domain certificate procedure in RFC 5922. If a sips path includes a WebSocket hop, that hop must be a secure WebSocket. Keepalives may be WebSocket Ping frames. The RFC notes that the browser WebSocket API does not give the page a control for those Pings, and that the CRLF keepalives in RFC 5626 and RFC 6223 can still be used."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7118",
+       "url": "https://www.rfc-editor.org/rfc/rfc7118"
+      },
+      {
+       "label": "RFC 5922",
+       "url": "https://www.rfc-editor.org/rfc/rfc5922"
+      },
+      {
+       "label": "RFC 5626",
+       "url": "https://www.rfc-editor.org/rfc/rfc5626"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Register on WSS, with the example's .invalid host",
+    "parties": [
+     "Browser",
+     "Registrar"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "GET",
+      "kind": "req",
+      "note": "Offer the subprotocol sip. Without it, this is not the SIP WebSocket subprotocol.",
+      "message": "GET /sip HTTP/1.1\nHost: proxy.example.com\nUpgrade: websocket\nConnection: Upgrade\nSec-WebSocket-Protocol: sip\nSec-WebSocket-Version: 13\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "101",
+      "kind": "res",
+      "note": "The server echoes sip. The socket is up.",
+      "message": "HTTP/1.1 101 Switching Protocols\nUpgrade: websocket\nConnection: Upgrade\nSec-WebSocket-Protocol: sip\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "REGISTER",
+      "kind": "req",
+      "note": "Via says WSS. Contact says transport=ws. The host is .invalid because this browser example cannot see its local address.",
+      "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws01\nMax-Forwards: 70\nFrom: <sip:alice@example.com>;tag=labws1\nTo: <sip:alice@example.com>\nCall-ID: lab-ws-reg@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@labua.invalid;transport=ws>;reg-id=1;+sip.instance=\"<urn:uuid:11111111-2222-3333-4444-555555555555>\"\nSupported: outbound\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The binding answer comes back on the same connection.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws01\nFrom: <sip:alice@example.com>;tag=labws1\nTo: <sip:alice@example.com>;tag=regok1\nCall-ID: lab-ws-reg@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@labua.invalid;transport=ws>;expires=3600\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Sec-WebSocket-Protocol must include",
+     "choices": [
+      "sip",
+      "sip.webrtc",
+      "webrtc",
+      "stun"
+     ],
+     "answer": 0,
+     "why": "RFC 7118 section 4.1 and the IANA registration both use sip.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "q": "Via over a TLS WebSocket uses",
+     "choices": [
+      "WSS",
+      "WS only",
+      "TLS as the Via transport token",
+      "UDP"
+     ],
+     "answer": 0,
+     "why": "WS is the plain connection. WSS is the TLS one.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "q": "The URI transport parameter RFC 7118 adds is",
+     "choices": [
+      "transport=ws",
+      "transport=wss only",
+      "transport=webrtc",
+      "transport=savpf"
+     ],
+     "answer": 0,
+     "why": "The augmented BNF in section 5.2 adds transport=ws.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "q": "A SIP WebSocket client must implement UDP and TCP",
+     "choices": [
+      "No. The RFC exempts that client from the UDP and TCP mandate.",
+      "Yes. Section 18 still forces both.",
+      "Only on port 5061",
+      "Only when Opus is offered"
+     ],
+     "answer": 0,
+     "why": "Section 5.4 states the exemption for a SIP WebSocket client.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "q": "The section 8 registration example uses .invalid because",
+     "choices": [
+      "That browser stack cannot learn the local address of the WebSocket",
+      "RFC 3261 forbids IP addresses in Contact",
+      "STUN failed",
+      ".invalid is the NAPTR replacement"
+     ],
+     "answer": 0,
+     "why": "The RFC describes that example. It is not a new SIP method.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "q": "A sips path that includes WebSocket",
+     "choices": [
+      "Must use a secure WebSocket on that hop",
+      "May use cleartext WS",
+      "Drops the sips requirement",
+      "Switches the method to REGISTER"
+     ],
+     "answer": 0,
+     "why": "Section 9.2 says the WebSocket connection in a sips path must be secure.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "sip",
+     "back": "WebSocket subprotocol identifier for this transport.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "front": "WSS",
+     "back": "Via transport when the WebSocket used TLS.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "front": "transport=ws",
+     "back": "URI transport parameter added by RFC 7118.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "front": "SIP+D2W",
+     "back": "NAPTR service value for a SIP WebSocket server.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the REGISTER",
+    "kind": "dissect",
+    "prompt": "This synthetic REGISTER uses a .invalid host, Via WSS, and transport=ws. It is a study message, not a copy of the RFC example.",
+    "steps": [
+     "Open the dissector.",
+     "Find the Via transport.",
+     "Find the Contact transport parameter."
+    ],
+    "check": {
+     "q": "Which pair matches RFC 7118's registration example?",
+     "choices": [
+      "Via WSS and Contact transport=ws",
+      "Via UDP and Contact transport=tcp",
+      "Via WSS and Contact transport=udp",
+      "No Via at all"
+     ],
+     "answer": 0,
+     "why": "The RFC example uses WSS on Via and transport=ws on the Contact URI.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws01\nMax-Forwards: 70\nFrom: <sip:alice@example.com>;tag=labws1\nTo: <sip:alice@example.com>\nCall-ID: lab-ws-reg@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@labua.invalid;transport=ws>;reg-id=1;+sip.instance=\"<urn:uuid:11111111-2222-3333-4444-555555555555>\"\nSupported: outbound\nContent-Length: 0\n"
+   },
+   "fault": {
+    "title": "Cleartext WS on a sips route",
+    "symptom": "The Request-URI is sips. The browser opened ws:// on port 80. The registrar accepts the socket.",
+    "log": "Request-URI: sips:alice@example.com\nSocket: ws://proxy.example.com/sip\n",
+    "choices": [
+     "A sips path that includes WebSocket must be a secure WebSocket",
+     "sips means any transport including cleartext WS",
+     "Port 80 is the RFC 7118 default for WSS",
+     "Drop Contact to repair sips"
+    ],
+    "answer": 0,
+    "why": "Section 9.2 requires a secure WebSocket when the sips path uses one.",
+    "cause": "The client treated sips as a name and still opened a cleartext WebSocket.",
+    "fix": "Open wss and authenticate the server with the WebSocket certificate check in RFC 6455. Do not assume a SIP domain certificate from RFC 5922 satisfies that check.",
+    "cites": [
+     {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     },
+     {
+      "label": "RFC 6455",
+      "url": "https://www.rfc-editor.org/rfc/rfc6455"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ice-stun-turn",
+   "title": "ICE, STUN, and TURN",
+   "minutes": 15,
+   "level": "Intermediate",
+   "tags": [
+    "ice",
+    "stun",
+    "turn"
+   ],
+   "summary": "ICE gathers host, server-reflexive, and relayed candidates. STUN and TURN are the tools. The default STUN port is 3478.",
+   "objectives": [
+    "Name the three candidate kinds in RFC 8445",
+    "Give the default STUN ports from RFC 8489",
+    "Say what a TURN relay adds"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Numbers and roles",
+    "caption": "Ports are the defaults in RFC 8489. Candidate names are from RFC 8445.",
+    "columns": [
+     "Item",
+     "Value",
+     "Document"
+    ],
+    "rows": [
+     [
+      "STUN UDP and TCP",
+      "3478",
+      "RFC 8489"
+     ],
+     [
+      "STUN over TLS and DTLS",
+      "5349",
+      "RFC 8489"
+     ],
+     [
+      "Host candidate",
+      "Local interface",
+      "RFC 8445"
+     ],
+     [
+      "Server-reflexive",
+      "Address on the public side of a NAT",
+      "RFC 8445"
+     ],
+     [
+      "Relayed",
+      "Address on a TURN server",
+      "RFC 8445"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "ICE tries pairs until one works",
+     "paragraphs": [
+      "RFC 8445 describes ICE for UDP NAT traversal. It uses STUN and TURN. It obsoletes RFC 5245. A host candidate is taken from a local interface. STUN or TURN then adds server-reflexive candidates, the translated address on the public side of a NAT, and relayed candidates, the address on a TURN server.",
+      "If the agent uses only a STUN server, it gets server-reflexive candidates. Relayed candidates come from a TURN server. RFC 8839 specifies the SDP offer/answer procedures for carrying out ICE between the agents. The signaling protocol that carries that SDP can be SIP. ICE itself is not a SIP method."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8445",
+       "url": "https://www.rfc-editor.org/rfc/rfc8445"
+      },
+      {
+       "label": "RFC 8839",
+       "url": "https://www.rfc-editor.org/rfc/rfc8839"
+      },
+      {
+       "label": "RFC 7118",
+       "url": "https://www.rfc-editor.org/rfc/rfc7118"
+      }
+     ]
+    },
+    {
+     "h": "STUN discovers. TURN relays.",
+     "paragraphs": [
+      "RFC 8489 says the default port for STUN requests is 3478, for both TCP and UDP. The default port for STUN over TLS and STUN over DTLS is 5349. STUN lets an endpoint learn the mapped address allocated by a NAT. It is a tool other protocols use.",
+      "RFC 8656 defines TURN, a relay extension of STUN. The client controls the relay and exchanges packets with peers through it. One relay address can serve multiple peers. TURN was designed for use with ICE and can also be used without ICE. A relay is the path when a direct candidate pair does not work. It is not a substitute for the SIP dialog."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8489",
+       "url": "https://www.rfc-editor.org/rfc/rfc8489"
+      },
+      {
+       "label": "RFC 8656",
+       "url": "https://www.rfc-editor.org/rfc/rfc8656"
+      },
+      {
+       "label": "RFC 8445",
+       "url": "https://www.rfc-editor.org/rfc/rfc8445"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Gather, then signal the result in SDP",
+    "parties": [
+     "Browser",
+     "STUN/TURN",
+     "SIP server"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "STUN",
+      "kind": "req",
+      "note": "A binding request asks for the mapped address. Default port 3478 on UDP or TCP.",
+      "message": "STUN binding request\nserver 203.0.113.50 port 3478\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "MAP",
+      "kind": "res",
+      "note": "The mapped address becomes a server-reflexive candidate. A TURN allocation would add a relayed candidate.",
+      "message": "STUN binding response\nmapped 198.51.100.10:50000\n"
+     },
+     {
+      "from": 0,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "SIP carries the session description. ICE candidate checks are not SIP responses.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@labua.invalid;transport=ws>\nContent-Type: application/sdp\nContent-Length: 187\n\nv=0\no=browser 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 UDP/TLS/RTP/SAVPF 111 0 8\na=rtpmap:111 opus/48000/2\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\n"
+     },
+     {
+      "from": 2,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer SDP is the other agent's description. Nomination is an ICE action, not a SIP status code.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws02\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>;tag=gw180\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContact: <sip:gw@203.0.113.20>\nContent-Type: application/sdp\nContent-Length: 139\n\nv=0\no=gateway 2 1 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 UDP/TLS/RTP/SAVPF 111\na=rtpmap:111 opus/48000/2\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A host candidate comes from",
+     "choices": [
+      "A local interface",
+      "Only a TURN allocation",
+      "The SIP From header",
+      "Port 5060"
+     ],
+     "answer": 0,
+     "why": "RFC 8445 defines the host candidate as the one from a local interface.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    {
+     "q": "A server-reflexive candidate is",
+     "choices": [
+      "The translated address on the public side of a NAT",
+      "The private address written in Via",
+      "A SIP registrar binding",
+      "An RTP payload type"
+     ],
+     "answer": 0,
+     "why": "STUN learns that mapped address. TURN is the relay.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    {
+     "q": "The default STUN port for UDP and TCP is",
+     "choices": [
+      "3478",
+      "5349",
+      "5060",
+      "443"
+     ],
+     "answer": 0,
+     "why": "5349 is the default for STUN over TLS and STUN over DTLS.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "q": "5349 is",
+     "choices": [
+      "The default for STUN over TLS and STUN over DTLS",
+      "The SIP WebSocket port required by RFC 7118",
+      "The RTP media port",
+      "The Kari's Law dial prefix"
+     ],
+     "answer": 0,
+     "why": "RFC 8489 states both defaults.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "q": "TURN is",
+     "choices": [
+      "A relay the client controls",
+      "A SIP proxy",
+      "A codec",
+      "A certificate authority"
+     ],
+     "answer": 0,
+     "why": "RFC 8656 lets one relay address serve multiple peers.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    },
+    {
+     "q": "RFC 8839 covers",
+     "choices": [
+      "SDP offer/answer procedures for ICE",
+      "The WebSocket handshake",
+      "STIR Identity",
+      "10DLC registration"
+     ],
+     "answer": 0,
+     "why": "ICE in SDP is 8839. The traversal protocol is 8445.",
+     "cite": {
+      "label": "RFC 8839",
+      "url": "https://www.rfc-editor.org/rfc/rfc8839"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "3478",
+     "back": "Default STUN port for UDP and TCP.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "front": "5349",
+     "back": "Default port for STUN over TLS and DTLS.",
+     "cite": {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     }
+    },
+    {
+     "front": "Host / srflx / relay",
+     "back": "Local interface, NAT mapping, TURN address.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    {
+     "front": "TURN",
+     "back": "A controlled relay. One address, multiple peers.",
+     "cite": {
+      "label": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Sort the candidates",
+    "kind": "config",
+    "prompt": "Three lines from a study checklist. Match each one to the RFC 8445 name.",
+    "steps": [
+     "Read the local address.",
+     "Read the mapped address.",
+     "Read the relay address."
+    ],
+    "check": {
+     "q": "203.0.113.10 is on the browser. 198.51.100.10 is the NAT mapping. 192.0.2.40 is allocated by TURN. The TURN address is",
+     "choices": [
+      "A relayed candidate",
+      "A host candidate",
+      "A SIP Via sent-by",
+      "A codec clock"
+     ],
+     "answer": 0,
+     "why": "The address on the TURN server is the relayed candidate.",
+     "cite": {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+     }
+    },
+    "config": "host 203.0.113.10\nsrflx 198.51.100.10\nrelay 192.0.2.40\n"
+   },
+   "fault": {
+    "title": "STUN port used as the SIP port",
+    "symptom": "The browser sends REGISTER to port 3478 and waits for 200 OK. The packet that comes back is not SIP.",
+    "log": "REGISTER sip:example.com SIP/2.0\nUDP destination port 3478\n",
+    "choices": [
+     "3478 is the default STUN port, not a SIP listening port from RFC 7118",
+     "3478 is the required WSS port",
+     "3478 means the subprotocol sip was rejected",
+     "Change the method to STUN"
+    ],
+    "answer": 0,
+    "why": "RFC 8489 assigns 3478 to STUN. RFC 7118 does not assign that port to SIP.",
+    "cause": "The client aimed the SIP request at the STUN default.",
+    "fix": "Send SIP on the WebSocket that completed the sip subprotocol handshake. Send STUN to the STUN server.",
+    "cites": [
+     {
+      "label": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+     },
+     {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    ]
+   }
+  },
+  {
+   "id": "dtls-srtp-codecs",
+   "title": "DTLS-SRTP and the required audio codecs",
+   "minutes": 16,
+   "level": "Advanced",
+   "tags": [
+    "dtls",
+    "srtp",
+    "opus"
+   ],
+   "summary": "WebRTC media is SRTP. The profile is RTP/SAVPF. Opus, PCMA, and PCMU are required audio codecs.",
+   "objectives": [
+    "Say where DTLS-SRTP keys are made",
+    "Write the UDP proto token from RFC 5764",
+    "List the required WebRTC audio codecs"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Keys on the media path",
+    "caption": "DTLS-SRTP does not put the SRTP key in the SIP message. The codec list is a separate requirement.",
+    "layers": [
+     {
+      "name": "SIP",
+      "detail": "Agrees the session and can carry SDP"
+     },
+     {
+      "name": "DTLS",
+      "detail": "Handshake on the media path. use_srtp is the extension."
+     },
+     {
+      "name": "SRTP",
+      "detail": "Protects RTP and RTCP. Profile RTP/SAVPF for WebRTC."
+     },
+     {
+      "name": "Codecs",
+      "detail": "Opus, PCMA, and PCMU are required. Opus rtpmap clock is 48000, channels 2."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "DTLS keys the media, not the SIP hop",
+     "paragraphs": [
+      "RFC 5764 describes a DTLS extension to establish keys for SRTP and SRTCP. The abstract says DTLS keying happens on the media path, independent of any out-of-band signaling channel. The extension type named in the RFC is use_srtp (14), and it must be used with DTLS, not with TLS.",
+      "When RTP/SAVPF is transported over DTLS with UDP, RFC 5764 says the SDP proto token shall be UDP/TLS/RTP/SAVPF. RFC 8834 requires WebRTC endpoints to implement RTP/SAVPF, the combination of RTP/AVP, RTP/AVPF, and RTP/SAVP. Those endpoints must not send with the basic RTP/AVP or RTP/AVPF profile. They must use SRTP and SRTCP. RFC 8834 says the RTP/SAVPF profile must be configured with the cipher suites, DTLS-SRTP protection profiles, and keying mechanisms described in RFC 8827. RFC 8827 treats a WebRTC peer authenticated via DTLS-SRTP as one of the authenticated-entity classes."
+     ],
+     "cites": [
+      {
+       "label": "RFC 5764",
+       "url": "https://www.rfc-editor.org/rfc/rfc5764"
+      },
+      {
+       "label": "RFC 8834",
+       "url": "https://www.rfc-editor.org/rfc/rfc8834"
+      },
+      {
+       "label": "RFC 8827",
+       "url": "https://www.rfc-editor.org/rfc/rfc8827"
+      }
+     ]
+    },
+    {
+     "h": "Opus, PCMA, and PCMU",
+     "paragraphs": [
+      "RFC 7874 requires WebRTC endpoints to implement Opus, with the payload format in RFC 7587, and PCMA and PCMU as specified in G.711 with the payload format in RFC 3551. It also requires comfort noise from RFC 3389 for G.711 or any other supported codec that does not provide its own comfort noise. Opus provides its own comfort noise, and RFC 7874 says using RFC 3389 comfort noise with Opus is not recommended.",
+      "RFC 7587 says the media subtype opus goes in a=rtpmap, the RTP clock rate must be 48000, and the number of channels must be 2. An example in that RFC is a=rtpmap:101 opus/48000/2. The payload type number can change. The encoding name, clock, and channel count are the match. Offering other codecs is recommended by RFC 7874 when they are available, so the session can avoid transcoding."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7874",
+       "url": "https://www.rfc-editor.org/rfc/rfc7874"
+      },
+      {
+       "label": "RFC 7587",
+       "url": "https://www.rfc-editor.org/rfc/rfc7587"
+      },
+      {
+       "label": "RFC 3551",
+       "url": "https://www.rfc-editor.org/rfc/rfc3551"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "SIP offers the description. DTLS keys the packets.",
+    "parties": [
+     "Browser",
+     "Gateway"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The offer proto is UDP/TLS/RTP/SAVPF. Opus is rtpmap 111 with clock 48000 and 2 channels. PCMU and PCMA are also offered.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@labua.invalid;transport=ws>\nContent-Type: application/sdp\nContent-Length: 187\n\nv=0\no=browser 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 UDP/TLS/RTP/SAVPF 111 0 8\na=rtpmap:111 opus/48000/2\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying does not select a codec and does not finish the DTLS handshake.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws02\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The answer keeps Opus. SRTP still needs the DTLS handshake on the media path.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws02\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>;tag=gw180\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContact: <sip:gw@203.0.113.20>\nContent-Type: application/sdp\nContent-Length: 139\n\nv=0\no=gateway 2 1 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 UDP/TLS/RTP/SAVPF 111\na=rtpmap:111 opus/48000/2\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "DTLS",
+      "kind": "req",
+      "note": "use_srtp runs on the media path. It is not a SIP method and it does not reuse the WebSocket.",
+      "message": "DTLS ClientHello\nextension use_srtp (14)\nmedia 203.0.113.20:19642\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "DTLS-SRTP keys are established",
+     "choices": [
+      "On the media path, independent of the signaling channel",
+      "Inside the SIP Authorization header",
+      "By the WebSocket Ping",
+      "By rewriting Via"
+     ],
+     "answer": 0,
+     "why": "That is the RFC 5764 abstract.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    },
+    {
+     "q": "The SDP proto token for RTP/SAVPF over DTLS with UDP is",
+     "choices": [
+      "UDP/TLS/RTP/SAVPF",
+      "RTP/AVP",
+      "SIP/2.0/WSS",
+      "TCP/TLS"
+     ],
+     "answer": 0,
+     "why": "RFC 5764 section 8 and the IANA table name that token.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    },
+    {
+     "q": "WebRTC endpoints must send media with",
+     "choices": [
+      "RTP/SAVPF, using SRTP and SRTCP",
+      "RTP/AVP only",
+      "Unencrypted RTP and a SIP TLS hop",
+      "STUN only"
+     ],
+     "answer": 0,
+     "why": "RFC 8834 forbids sending with RTP/AVP or RTP/AVPF.",
+     "cite": {
+      "label": "RFC 8834",
+      "url": "https://www.rfc-editor.org/rfc/rfc8834"
+     }
+    },
+    {
+     "q": "Required WebRTC audio codecs include",
+     "choices": [
+      "Opus, PCMA, and PCMU",
+      "G.729 only",
+      "telephone-event only",
+      "No audio codec"
+     ],
+     "answer": 0,
+     "why": "RFC 7874 lists Opus, PCMA, and PCMU.",
+     "cite": {
+      "label": "RFC 7874",
+      "url": "https://www.rfc-editor.org/rfc/rfc7874"
+     }
+    },
+    {
+     "q": "The Opus rtpmap clock and channel count must be",
+     "choices": [
+      "48000 and 2",
+      "8000 and 1",
+      "16000 and 1",
+      "90000 and 0"
+     ],
+     "answer": 0,
+     "why": "RFC 7587 requires clock 48000 and 2 channels.",
+     "cite": {
+      "label": "RFC 7587",
+      "url": "https://www.rfc-editor.org/rfc/rfc7587"
+     }
+    },
+    {
+     "q": "RFC 3389 comfort noise with Opus is",
+     "choices": [
+      "Not recommended, because Opus has its own comfort noise",
+      "Required on every Opus packet",
+      "A SIP header",
+      "The TURN allocation"
+     ],
+     "answer": 0,
+     "why": "RFC 7874 says that combination is not recommended.",
+     "cite": {
+      "label": "RFC 7874",
+      "url": "https://www.rfc-editor.org/rfc/rfc7874"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "UDP/TLS/RTP/SAVPF",
+     "back": "Proto token for SAVPF over DTLS with UDP.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    },
+    {
+     "front": "use_srtp",
+     "back": "DTLS extension type 14 for SRTP keying.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    },
+    {
+     "front": "Opus clock",
+     "back": "a=rtpmap clock 48000 and 2 channels.",
+     "cite": {
+      "label": "RFC 7587",
+      "url": "https://www.rfc-editor.org/rfc/rfc7587"
+     }
+    },
+    {
+     "front": "PCMU and PCMA",
+     "back": "Required G.711 codecs for WebRTC audio.",
+     "cite": {
+      "label": "RFC 7874",
+      "url": "https://www.rfc-editor.org/rfc/rfc7874"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the offer proto and the Opus line",
+    "kind": "sdp",
+    "prompt": "The offer uses UDP/TLS/RTP/SAVPF and names opus/48000/2. The answer keeps Opus.",
+    "steps": [
+     "Press Negotiate.",
+     "Read the proto token.",
+     "Read the Opus clock and channel count."
+    ],
+    "check": {
+     "q": "Which rtpmap matches RFC 7587?",
+     "choices": [
+      "opus/48000/2",
+      "opus/8000/1",
+      "PCMU/48000/2",
+      "G722/16000"
+     ],
+     "answer": 0,
+     "why": "The clock must be 48000 and the channel count must be 2.",
+     "cite": {
+      "label": "RFC 7587",
+      "url": "https://www.rfc-editor.org/rfc/rfc7587"
+     }
+    },
+    "offer": "v=0\no=browser 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 UDP/TLS/RTP/SAVPF 111 0 8\na=rtpmap:111 opus/48000/2\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\n",
+    "answer": "v=0\no=gateway 2 1 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 UDP/TLS/RTP/SAVPF 111\na=rtpmap:111 opus/48000/2\n"
+   },
+   "fault": {
+    "title": "AVP offered to a WebRTC endpoint",
+    "symptom": "The gateway answers with m=audio 19642 RTP/AVP 0. The browser never sends audio.",
+    "log": "offer m=audio 49170 UDP/TLS/RTP/SAVPF 111\nanswer m=audio 19642 RTP/AVP 0\n",
+    "choices": [
+     "WebRTC endpoints must use SRTP under RTP/SAVPF, not bare RTP/AVP",
+     "RTP/AVP is mandatory for every WebRTC answer",
+     "Port 19642 is the STUN port",
+     "Opus requires clock 8000"
+    ],
+    "answer": 0,
+    "why": "RFC 8834 says WebRTC endpoints must not send RTP/AVP.",
+    "cause": "The answer dropped DTLS-SRTP and selected a clear RTP profile.",
+    "fix": "Answer with UDP/TLS/RTP/SAVPF and complete DTLS-SRTP on the media path. Keep a shared codec such as Opus or PCMU.",
+    "cites": [
+     {
+      "label": "RFC 8834",
+      "url": "https://www.rfc-editor.org/rfc/rfc8834"
+     },
+     {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    ]
+   }
+  },
+  {
+   "id": "browser-softphone",
+   "title": "Browser softphone call flow",
+   "minutes": 16,
+   "level": "Advanced",
+   "tags": [
+    "interactive-flow",
+    "softphone",
+    "7118"
+   ],
+   "summary": "A study ladder: WebSocket handshake, SIP INVITE, answer, then DTLS on the media path. Step the hops.",
+   "objectives": [
+    "Order the handshake before the INVITE",
+    "Keep DTLS off the SIP transaction",
+    "Use the step control to read one hop at a time"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Order that matches the documents",
+    "caption": "Select a hop in the interactive flow. Each caption is a study note, not a packet captured from a vendor.",
+    "states": [
+     {
+      "name": "1. Handshake",
+      "detail": "HTTP upgrade, subprotocol sip"
+     },
+     {
+      "name": "2. INVITE",
+      "detail": "SIP on that socket, SDP in the body"
+     },
+     {
+      "name": "3. Answer",
+      "detail": "18x and 200 OK are SIP"
+     },
+     {
+      "name": "4. DTLS",
+      "detail": "Media path, after the description is known"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Read the ladder in order",
+     "paragraphs": [
+      "The interactive flow on this page is a synthetic call. Addresses are from the documentation ranges in RFC 5737. The phone number uses 555. Nothing here was captured from a carrier.",
+      "The first hop is the WebSocket handshake from RFC 6455 with the sip subprotocol from RFC 7118. INVITE, 100, 180, 200, and ACK are SIP on that connection. The DTLS hop is last because RFC 5764 keys SRTP on the media path after the peers know where to send media. Stepping backward and treating DTLS as a SIP response will not match either document."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7118",
+       "url": "https://www.rfc-editor.org/rfc/rfc7118"
+      },
+      {
+       "label": "RFC 5764",
+       "url": "https://www.rfc-editor.org/rfc/rfc5764"
+      },
+      {
+       "label": "RFC 5737",
+       "url": "https://www.rfc-editor.org/rfc/rfc5737"
+      }
+     ]
+    },
+    {
+     "h": "What this ladder does not prove",
+     "paragraphs": [
+      "RFC 8829 allows SIP or a custom signaling protocol. This ladder shows the SIP choice. A page that uses a custom protocol would still exchange a session description and would still run ICE and DTLS-SRTP if it is a WebRTC endpoint.",
+      "A gateway toward a trunk that is not a WebRTC endpoint is an application problem, not a status code in RFC 7118. This lab does not invent that gateway's configuration. If the far side cannot do DTLS-SRTP, the failure belongs in the media description and the DTLS handshake, which you can see by stepping to those hops."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8829",
+       "url": "https://www.rfc-editor.org/rfc/rfc8829"
+      },
+      {
+       "label": "RFC 8834",
+       "url": "https://www.rfc-editor.org/rfc/rfc8834"
+      },
+      {
+       "label": "RFC 7118",
+       "url": "https://www.rfc-editor.org/rfc/rfc7118"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Browser softphone, study sequence",
+    "parties": [
+     "Browser",
+     "SIP server"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "GET",
+      "kind": "req",
+      "note": "Handshake. Ask for subprotocol sip.",
+      "message": "GET /sip HTTP/1.1\nHost: proxy.example.com\nUpgrade: websocket\nConnection: Upgrade\nSec-WebSocket-Protocol: sip\nSec-WebSocket-Version: 13\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "101",
+      "kind": "res",
+      "note": "Server accepts sip. The WebSocket is open.",
+      "message": "HTTP/1.1 101 Switching Protocols\nUpgrade: websocket\nConnection: Upgrade\nSec-WebSocket-Protocol: sip\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "SIP INVITE on the socket. SDP offers UDP/TLS/RTP/SAVPF and Opus, PCMU, and PCMA.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@labua.invalid;transport=ws>\nContent-Type: application/sdp\nContent-Length: 187\n\nv=0\no=browser 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 UDP/TLS/RTP/SAVPF 111 0 8\na=rtpmap:111 opus/48000/2\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Hop-by-hop Trying. Not the media handshake.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws02\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Alerting. Still no DTLS.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws02\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>;tag=gw180\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContact: <sip:gw@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Answer SDP. The dialog can be confirmed. Media protection is still DTLS-SRTP.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws02\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>;tag=gw180\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContact: <sip:gw@203.0.113.20>\nContent-Type: application/sdp\nContent-Length: 139\n\nv=0\no=gateway 2 1 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 19642 UDP/TLS/RTP/SAVPF 111\na=rtpmap:111 opus/48000/2\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "ACK",
+      "kind": "req",
+      "note": "ACK confirms the 200. It does not carry the SRTP key.",
+      "message": "ACK sip:gw@203.0.113.20 SIP/2.0\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws03\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>;tag=gw180\nCall-ID: lab-ws-call@example.com\nCSeq: 1 ACK\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "DTLS",
+      "kind": "req",
+      "note": "use_srtp on the media address from the answer. Independent of the WebSocket.",
+      "message": "DTLS ClientHello\nuse_srtp\npeer 203.0.113.20:19642\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The first hop in this study flow is",
+     "choices": [
+      "The WebSocket handshake",
+      "DTLS ClientHello",
+      "ACK",
+      "A TURN Allocate"
+     ],
+     "answer": 0,
+     "why": "SIP frames follow the 101.",
+     "cite": {
+      "label": "RFC 6455",
+      "url": "https://www.rfc-editor.org/rfc/rfc6455"
+     }
+    },
+    {
+     "q": "INVITE on this flow is carried",
+     "choices": [
+      "As SIP on the WebSocket",
+      "Inside a STUN attribute",
+      "As an RTP header extension",
+      "As a 10DLC campaign"
+     ],
+     "answer": 0,
+     "why": "RFC 7118 is the transport for the SIP message.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "q": "DTLS belongs",
+     "choices": [
+      "On the media path",
+      "In the Via transport token",
+      "In Sec-WebSocket-Protocol",
+      "In the SIP status code"
+     ],
+     "answer": 0,
+     "why": "RFC 5764 keys SRTP on the media path.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    },
+    {
+     "q": "100 Trying means",
+     "choices": [
+      "The next hop is processing the INVITE",
+      "DTLS finished",
+      "The codec is Opus",
+      "The socket failed"
+     ],
+     "answer": 0,
+     "why": "Trying is SIP. It is not the DTLS handshake.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "The Opus line in the offer uses",
+     "choices": [
+      "opus/48000/2",
+      "opus/8000",
+      "PCMU/48000/2",
+      "No rtpmap"
+     ],
+     "answer": 0,
+     "why": "RFC 7587 requires that clock and channel count.",
+     "cite": {
+      "label": "RFC 7587",
+      "url": "https://www.rfc-editor.org/rfc/rfc7587"
+     }
+    },
+    {
+     "q": "This ladder's addresses are",
+     "choices": [
+      "Documentation addresses from RFC 5737",
+      "A carrier's production addresses",
+      "Link-local only",
+      "The STUN default port"
+     ],
+     "answer": 0,
+     "why": "203.0.113.0/24 is reserved for examples.",
+     "cite": {
+      "label": "RFC 5737",
+      "url": "https://www.rfc-editor.org/rfc/rfc5737"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Step",
+     "back": "Use the hop buttons. One caption at a time.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "front": "101 then INVITE",
+     "back": "Open the socket before the SIP request.",
+     "cite": {
+      "label": "RFC 6455",
+      "url": "https://www.rfc-editor.org/rfc/rfc6455"
+     }
+    },
+    {
+     "front": "ACK is not the key",
+     "back": "SRTP keys come from DTLS, not from ACK.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    },
+    {
+     "front": "5737",
+     "back": "Example addresses in this ladder are documentation ranges.",
+     "cite": {
+      "label": "RFC 5737",
+      "url": "https://www.rfc-editor.org/rfc/rfc5737"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Step the softphone ladder",
+    "kind": "ladder",
+    "prompt": "Play or step. Stop on DTLS and say which path it uses.",
+    "steps": [
+     "Step through the handshake.",
+     "Step to INVITE and read the proto token.",
+     "Step to DTLS and name the path."
+    ],
+    "check": {
+     "q": "The DTLS hop runs on",
+     "choices": [
+      "The media path named in SDP",
+      "The WebSocket as a SIP method",
+      "Port 3478 as SIP",
+      "The Campaign Registry"
+     ],
+     "answer": 0,
+     "why": "RFC 5764 is independent of the signaling channel.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    }
+   },
+   "fault": {
+    "title": "ACK expected to start SRTP",
+    "symptom": "The ACK is present and RTP arrives in the clear. The debugger says the dialog is finished so encryption should be on.",
+    "log": "ACK sip:gw@203.0.113.20 SIP/2.0\nCSeq: 1 ACK\nno DTLS on 203.0.113.20:19642\n",
+    "choices": [
+     "SRTP keys come from DTLS on the media path, not from ACK",
+     "ACK carries the SRTP master key",
+     "A missing ACK is what RFC 5764 uses as the key",
+     "Clear RTP is required after 200 OK"
+    ],
+    "answer": 0,
+    "why": "RFC 5764 establishes SRTP keys with DTLS, independent of signaling.",
+    "cause": "The trace stopped at ACK and never looked at the media handshake.",
+    "fix": "Capture the media port from the answer and look for the DTLS handshake and use_srtp before you call the audio secure.",
+    "cites": [
+     {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     },
+     {
+      "label": "RFC 8834",
+      "url": "https://www.rfc-editor.org/rfc/rfc8834"
+     }
+    ]
+   }
+  }
+ ]
+}

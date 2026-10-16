@@ -46,7 +46,10 @@
     link: '<path d="M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"/><path d="M14 11a5 5 0 0 0-7.1-.1l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1"/>',
     github: '<path d="M9 19c-4 1.5-4-2.5-6-3m12 5v-3.2a2.8 2.8 0 0 0-.8-2.2c2.7-.3 5.5-1.3 5.5-6A4.6 4.6 0 0 0 18 6.3 4.3 4.3 0 0 0 17.9 3S16.7 2.7 14 4.5a12 12 0 0 0-6 0C5.3 2.7 4.1 3 4.1 3A4.3 4.3 0 0 0 4 6.3a4.6 4.6 0 0 0-1.3 3.2c0 4.6 2.8 5.6 5.5 6A2.8 2.8 0 0 0 9 18.8V21"/>',
     edit: '<path d="M4 20h4l10-10-4-4L4 16z"/><path d="M13 7l4 4"/>',
-    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>'
+    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+    server: '<rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M7 7h.01M7 17h.01"/>',
+    phone: '<rect x="8" y="3" width="8" height="18" rx="2"/><path d="M11 18h2"/>',
+    node: '<circle cx="6" cy="12" r="2.2"/><circle cx="18" cy="7" r="2.2"/><circle cx="18" cy="17" r="2.2"/><path d="M8 11.2 16 8M8 12.8l8 3.2"/>'
   };
   function svg(name) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (ICONS[name] || ICONS.spark) + "</svg>";
@@ -87,7 +90,7 @@
   }
 
   var SECTIONS = [
-    { key: "home", label: "Home", href: "index.html", icon: "home", desc: "Sixteen SIP tracks. Read offline. Claims stay cited." },
+    { key: "home", label: "Home", href: "index.html", icon: "home", desc: "Twenty SIP tracks. Read offline. Claims stay cited." },
     { key: "start", label: "Start Here", href: "start.html", icon: "rocket", desc: "Read a ladder before a vendor menu." },
     { key: "resources", label: "Resources", href: "resources.html", icon: "link", desc: "RFCs and vendor pages that opened, last checked 2026-10." },
     { key: "rooms", label: "All Rooms", href: "index.html#rooms", icon: "rooms", desc: "Every written room, from fundamentals to interop." },
@@ -97,6 +100,10 @@
     { key: "cheat", label: "Cheat Codes", href: "downloads.html", icon: "cards", desc: "One-page sheets, a card deck, and a zip of this site." },
     { key: "play", label: "Play", href: "play.html", icon: "spark", desc: "A port game and a quiz. Scores stay in this browser." },
     { key: "ecosystem", label: "Ecosystem", href: "ecosystem.html", icon: "globe", desc: "Neighbors that hang off a SIP session." },
+    { key: "webrtc", label: "WebRTC and SIP over WebSocket", href: "tracks/T17-webrtc.html", icon: "phone", desc: "RFC 7118 signaling, ICE, and DTLS-SRTP for a browser softphone." },
+    { key: "opensource", label: "Open-source telephony core", href: "tracks/T18-opensource.html", icon: "server", desc: "Asterisk, FreeSWITCH, Kamailio, and rtpengine, and when to use each." },
+    { key: "compliance", label: "Call authentication and compliance", href: "tracks/T19-compliance.html", icon: "check", desc: "STIR/SHAKEN, E911 statutes, and 10DLC. Educational, not legal advice." },
+    { key: "gaps", label: "Ecosystem gaps", href: "tracks/T20-gaps.html", icon: "node", desc: "Glossary, mind map, sister systems, bridges, and named integration hooks." },
     { key: "atlas", label: "Atlas", href: "diagrams.html", icon: "globe", desc: "The same diagram atlas, opened as a map." },
     { key: "downloads", label: "Downloads", href: "downloads.html#downloads-bonus", icon: "download", desc: "SVG, PNG, HTML, PDF, cards, and the offline zip." },
     { key: "careers", label: "Careers", href: "careers.html", icon: "mic", desc: "Study labels. Not a hiring promise and not a salary." },

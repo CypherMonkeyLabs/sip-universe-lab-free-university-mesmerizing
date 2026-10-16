@@ -1,0 +1,1563 @@
+{
+ "id": "gaps",
+ "title": "Ecosystem, maps, and integration hooks",
+ "summary": "Glossary, sister systems, configuration, bridges from enterprise UC to the open projects, and the hooks those projects actually name.",
+ "level": "Foundation",
+ "order": 20,
+ "lessons": [
+  {
+   "id": "glossary-map",
+   "title": "Glossary and the mind map",
+   "minutes": 12,
+   "level": "Foundation",
+   "tags": [
+    "glossary",
+    "mindmap"
+   ],
+   "summary": "The glossary is a short definition plus a citation. The mind map is a topic picture, not a network diagram.",
+   "objectives": [
+    "Read a glossary row as a pointer",
+    "Use the mind map to find a track",
+    "Refuse a definition that has no citation"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Mind map of this edition",
+    "caption": "Open the ecosystem page for the drawing. This stack is the same outline.",
+    "layers": [
+     {
+      "name": "Signaling",
+      "detail": "SIP methods, WebSocket transport, transactions"
+     },
+     {
+      "name": "Media",
+      "detail": "SDP, RTP, SRTP, ICE"
+     },
+     {
+      "name": "Open core",
+      "detail": "Asterisk, FreeSWITCH, Kamailio, rtpengine"
+     },
+     {
+      "name": "Duties",
+      "detail": "STIR/SHAKEN, emergency location, 10DLC messaging"
+     },
+     {
+      "name": "Neighbors",
+      "detail": "WFM, recording, CRM, analytics, programmable APIs"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "A glossary row is not the spec",
+     "paragraphs": [
+      "Each glossary term in this lab is a short sentence and a citation. The citation is the authority. If you need the normative text, open the RFC or the vendor page named on the row. Quoting the glossary back as if it were the RFC is how a wrong timer gets into a design.",
+      "New rows for this edition point at RFC 7118, the open-source project pages, RFC 8224, the public laws, and The Campaign Registry. A row that says confirm has a label and no URL, because that link was not opened."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7118",
+       "url": "https://www.rfc-editor.org/rfc/rfc7118"
+      },
+      {
+       "label": "RFC 8224",
+       "url": "https://www.rfc-editor.org/rfc/rfc8224"
+      },
+      {
+       "label": "Kamailio SIP server",
+       "url": "https://www.kamailio.org/w/"
+      }
+     ]
+    },
+    {
+     "h": "The mind map is a table of contents",
+     "paragraphs": [
+      "The ecosystem page draws a mind map with the markmap library already in this lab. The nodes are topics: signaling, media, the open core, compliance documents, and neighboring systems. A line in that drawing is not a trunk, not a VLAN, and not a failure domain.",
+      "Use it to choose the next track. WebRTC and SIP over WebSocket is the browser path. The open-source track is the four projects. The compliance track is the statutes and the identity RFCs, with the educational disclaimer. The rest of this track is how those pieces sit next to contact-center neighbors."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 8825",
+       "url": "https://www.rfc-editor.org/rfc/rfc8825"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "From a word to a document",
+    "parties": [
+     "Reader",
+     "Glossary",
+     "RFC"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "term",
+      "kind": "req",
+      "note": "You meet a word such as PASSporT or transport=ws.",
+      "message": "term: PASSporT\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "row",
+      "kind": "res",
+      "note": "The glossary gives one sentence and a citation.",
+      "message": "PASSporT: token in RFC 8225\n"
+     },
+     {
+      "from": 0,
+      "to": 2,
+      "label": "open",
+      "kind": "req",
+      "note": "The citation is the page to read. The glossary does not add rules.",
+      "message": "open RFC 8225\n"
+     },
+     {
+      "from": 2,
+      "to": 0,
+      "label": "text",
+      "kind": "res",
+      "note": "The RFC text wins over the sentence in the glossary.",
+      "message": "abstract: signed token for the originator\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A glossary definition is",
+     "choices": [
+      "A short pointer. The citation is the authority.",
+      "The normative replacement for the RFC",
+      "A configuration file",
+      "Legal advice"
+     ],
+     "answer": 0,
+     "why": "Open the linked document for the rule.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "The mind map shows",
+     "choices": [
+      "Topics in this lab",
+      "A live network",
+      "Packet loss",
+      "A dialplan"
+     ],
+     "answer": 0,
+     "why": "It is a map of subjects.",
+     "cite": {
+      "label": "RFC 8825",
+      "url": "https://www.rfc-editor.org/rfc/rfc8825"
+     }
+    },
+    {
+     "q": "A row marked confirm",
+     "choices": [
+      "Has no URL, because the link was not opened",
+      "Is more reliable than an RFC",
+      "Must be configured",
+      "Is a SIP method"
+     ],
+     "answer": 0,
+     "why": "Do not invent the address.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "PASSporT's glossary job is to point you at",
+     "choices": [
+      "RFC 8225",
+      "The rtpengine kernel module",
+      "Kari's Law",
+      "pjsip.conf"
+     ],
+     "answer": 0,
+     "why": "The token format is the RFC.",
+     "cite": {
+      "label": "RFC 8225",
+      "url": "https://www.rfc-editor.org/rfc/rfc8225"
+     }
+    },
+    {
+     "q": "transport=ws belongs with",
+     "choices": [
+      "RFC 7118",
+      "RFC 3550",
+      "10DLC",
+      "GPL version 2"
+     ],
+     "answer": 0,
+     "why": "It is the URI transport parameter that RFC adds.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "q": "After the glossary, you",
+     "choices": [
+      "Open the cited document",
+      "Reconfigure production from the one sentence",
+      "Skip the RFC",
+      "Treat the mind map as a trunk group"
+     ],
+     "answer": 0,
+     "why": "The sentence is not the spec.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Citation",
+     "back": "The glossary row's authority.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "Mind map",
+     "back": "Topics. Not a network.",
+     "cite": {
+      "label": "RFC 8825",
+      "url": "https://www.rfc-editor.org/rfc/rfc8825"
+     }
+    },
+    {
+     "front": "Confirm",
+     "back": "No link when the URL was not opened.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "Next track",
+     "back": "Use the map to pick WebRTC, the open core, or compliance.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Pick the citation",
+    "kind": "config",
+    "prompt": "Three terms. One citation each. Do not add a fourth from memory.",
+    "steps": [
+     "Read the term.",
+     "Read the document name.",
+     "Stop."
+    ],
+    "check": {
+     "q": "Which document is the SIP WebSocket transport?",
+     "choices": [
+      "RFC 7118",
+      "RFC 8225",
+      "Public Law 115-127",
+      "The Campaign Registry"
+     ],
+     "answer": 0,
+     "why": "8225 is PASSporT. 7118 is the transport.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    "config": "transport=ws: RFC 7118\nPASSporT: RFC 8225\n10DLC: Campaign Registry\n"
+   },
+   "fault": {
+    "title": "Glossary sentence pasted into a dialplan comment as the spec",
+    "symptom": "A comment says the Opus clock is 8000 because a glossary card was misread. Calls fail against a browser.",
+    "log": "comment: opus clock 8000 from memory\npeer rtpmap: opus/48000/2\n",
+    "choices": [
+     "RFC 7587 requires clock 48000 and 2 channels. The comment is wrong.",
+     "8000 is required for Opus",
+     "The glossary outranks the RFC",
+     "Delete rtpmap"
+    ],
+    "answer": 0,
+    "why": "The RFC states the clock. A wrong memory does not.",
+    "cause": "A short card was treated as permission to change the clock.",
+    "fix": "Restore opus/48000/2 and cite RFC 7587 in the change note.",
+    "cites": [
+     {
+      "label": "RFC 7587",
+      "url": "https://www.rfc-editor.org/rfc/rfc7587"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sister-systems",
+   "title": "Sister technologies around the session",
+   "minutes": 14,
+   "level": "Intermediate",
+   "tags": [
+    "wfm",
+    "crm",
+    "cpaas"
+   ],
+   "summary": "WFM, recording, emergency policy, analytics, CRM, AI agents, and programmable APIs hang off the session. They are not SIP proxies.",
+   "objectives": [
+    "Name the neighbor and the document that mentions it",
+    "Keep CRM and WFM out of the Via path",
+    "Describe programmable APIs only as far as the Twilio docs page goes"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Neighbors",
+    "caption": "The session is the seam. The neighbor consumes an event or a recording, or it places a call through a product API.",
+    "layers": [
+     {
+      "name": "WFM",
+      "detail": "Schedules and volume. Not a SIP parser."
+     },
+     {
+      "name": "Recording / QM",
+      "detail": "SIPREC is the standardized fork. RFC 7866."
+     },
+     {
+      "name": "E911",
+      "detail": "Location and the statutes. Not a codec."
+     },
+     {
+      "name": "CRM and analytics",
+      "detail": "ANI and events. Not a second proxy."
+     },
+     {
+      "name": "AI agents and APIs",
+      "detail": "Still need a session. Twilio's docs home is product reference."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "What already has a protocol hook",
+     "paragraphs": [
+      "Workforce management forecasts and schedules. A queue delay can surface as a SIP 480 or as carrier congestion, which is a SIP response, not a WFM object. Quality management scores calls. The standardized way to fork a session to a recorder is SIPREC, specified in RFC 7866 using SIP, SDP, and RTP.",
+      "Emergency calling is the neighbor with statutes, covered in the compliance track, plus RFC 6881 and RFC 6442. Analytics and CRM use data the contact center already has, such as the calling number. Amazon Connect's documentation, already used in this lab, describes attaching conversational analytics to an external voice system with a SIPREC connector. The CRM is not a SIP element."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7866",
+       "url": "https://www.rfc-editor.org/rfc/rfc7866"
+      },
+      {
+       "label": "RFC 6881",
+       "url": "https://www.rfc-editor.org/rfc/rfc6881"
+      },
+      {
+       "label": "RFC 3261 §21",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+      }
+     ]
+    },
+    {
+     "h": "AI agents and programmable communications",
+     "paragraphs": [
+      "The FreeSWITCH manual page says SignalWire's hosted platform includes AI agents behind REST APIs and SWML. That is a hosted product from the FreeSWITCH team, not a header in RFC 3261. A voice agent still needs a session, which on that page is the hosted engine.",
+      "Twilio's documentation home, opened for this edition, is titled as API reference, tutorials, and integration for Twilio products. This lab already uses Twilio's Elastic SIP Trunking documents for the SIP-shaped product. People call this class of product CPaaS. That word is not defined by an RFC this lab opened, so this page does not invent a protocol meaning for it. Read the vendor's current product page before you copy an architecture diagram that uses the word."
+     ],
+     "cites": [
+      {
+       "label": "FreeSWITCH users manual",
+       "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+      },
+      {
+       "label": "Twilio docs",
+       "url": "https://www.twilio.com/docs"
+      },
+      {
+       "label": "Twilio Elastic SIP Trunking",
+       "url": "https://www.twilio.com/docs/sip-trunking"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "The session completes. A neighbor hears an event.",
+    "parties": [
+     "Caller",
+     "SBC",
+     "Recorder"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The customer call is ordinary SIP.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKsis01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=sis1\nTo: <sip:+15551212@example.com>\nCall-ID: sister@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "SIPREC can fork media and metadata to a recording server. That is a second SIP session, specified in RFC 7866.",
+      "message": "INVITE sip:srs@203.0.113.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKsrs01\nMax-Forwards: 70\nFrom: \"SBC\" <sip:sbc@example.com>;tag=srs1\nTo: <sip:srs@example.com>\nCall-ID: siprec-study@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The recorder accepts its session. The customer call is a different dialog.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKsrs01\nFrom: \"SBC\" <sip:sbc@example.com>;tag=srs1\nTo: <sip:srs@example.com>;tag=srs200\nCall-ID: siprec-study@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The caller is answered on the original dialog. CRM screen-pop is an event after this, not a third INVITE this lab defines.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKsis01\nFrom: \"Alice\" <sip:alice@example.com>;tag=sis1\nTo: <sip:+15551212@example.com>;tag=sis200\nCall-ID: sister@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "SIPREC is specified in",
+     "choices": [
+      "RFC 7866",
+      "RFC 7118",
+      "Public Law 115-127",
+      "The Campaign Registry"
+     ],
+     "answer": 0,
+     "why": "It uses SIP, SDP, and RTP toward a recording device.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "q": "WFM is",
+     "choices": [
+      "Scheduling and forecasting. Not a SIP parser.",
+      "A Via transport",
+      "An RTP profile",
+      "A STIR token"
+     ],
+     "answer": 0,
+     "why": "A 480 may be the SIP symptom of a full queue. The forecast is not a header.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "q": "The CRM is",
+     "choices": [
+      "Not a SIP element. It can use ANI the contact center already has.",
+      "Required to Record-Route",
+      "The TURN relay",
+      "The dialplan"
+     ],
+     "answer": 0,
+     "why": "Screen pop is an application event.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "SignalWire's hosted AI agents are described on",
+     "choices": [
+      "The FreeSWITCH manual page this lab opened",
+      "RFC 3261",
+      "The rtpengine README",
+      "Kari's Law"
+     ],
+     "answer": 0,
+     "why": "REST and SWML are named there.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "q": "This lab's meaning for the word CPaaS is",
+     "choices": [
+      "Not an RFC definition. Read the vendor page. Twilio's docs home is product reference.",
+      "A SIP method",
+      "A codec",
+      "A statute"
+     ],
+     "answer": 0,
+     "why": "Elastic SIP Trunking remains the SIP product already cited.",
+     "cite": {
+      "label": "Twilio docs",
+      "url": "https://www.twilio.com/docs"
+     }
+    },
+    {
+     "q": "A recording INVITE and the customer INVITE",
+     "choices": [
+      "Are different dialogs when SIPREC forks the session",
+      "Must share one Call-ID always",
+      "Are the same STUN request",
+      "Are 10DLC campaigns"
+     ],
+     "answer": 0,
+     "why": "The study ladder uses two Call-IDs on purpose.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "SIPREC",
+     "back": "Fork a session to a recorder. RFC 7866.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "front": "WFM",
+     "back": "Schedules. SIP only shows the symptom, such as 480.",
+     "cite": {
+      "label": "RFC 3261 §21",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21"
+     }
+    },
+    {
+     "front": "CRM",
+     "back": "Events and numbers. Not a proxy.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "Twilio docs",
+     "back": "API reference and tutorials. Confirm product names there.",
+     "cite": {
+      "label": "Twilio docs",
+      "url": "https://www.twilio.com/docs"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Name the neighbor",
+    "kind": "config",
+    "prompt": "The symptom is a recording that never starts. SIP to the phone works.",
+    "steps": [
+     "Separate the customer call from the recorder.",
+     "Name the RFC.",
+     "Do not blame WFM first."
+    ],
+    "check": {
+     "q": "Which document specifies the recording session?",
+     "choices": [
+      "RFC 7866",
+      "RFC 7587",
+      "The Campaign Registry",
+      "RFC 8489"
+     ],
+     "answer": 0,
+     "why": "Opus and STUN are the wrong shelf.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    "config": "customer call: 200 OK\nrecorder: no INVITE\n"
+   },
+   "fault": {
+    "title": "CRM outage blamed for one-way audio",
+    "symptom": "The screen pop fails. RTP is one way. The ticket says to reboot the CRM.",
+    "log": "CRM: timeout\nc=IN IP4 10.1.2.3\n",
+    "choices": [
+     "The private address in c= is the media fault. The CRM is a separate event.",
+     "CRM reboot rewrites SDP",
+     "Screen pop is DTLS",
+     "10.1.2.3 is a STIR certificate"
+    ],
+    "answer": 0,
+    "why": "Neighbors consume events. They do not replace c=.",
+    "cause": "Two failures were folded into one box.",
+    "fix": "Fix the reachable media address. Fix the CRM integration on its own event path.",
+    "cites": [
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     },
+     {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    ]
+   }
+  },
+  {
+   "id": "config-troubleshoot",
+   "title": "Configuration and troubleshooting seams",
+   "minutes": 14,
+   "level": "Intermediate",
+   "tags": [
+    "config",
+    "troubleshoot"
+   ],
+   "summary": "Configure the file the project names. Troubleshoot the plane that failed. Do not copy a sample this lab did not print.",
+   "objectives": [
+    "Point Asterisk SIP config at pjsip.conf and the dialplan at extensions.conf",
+    "Point a media-proxy problem at rtpengine's README",
+    "Separate a WebSocket handshake failure from a codec failure"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Where to look",
+    "caption": "Each row is a page this edition opened. Parameter names that are not on that page are not filled in.",
+    "columns": [
+     "Symptom",
+     "Open"
+    ],
+    "rows": [
+     [
+      "Asterisk endpoint will not register",
+      "res_pjsip overview and the examples for your version"
+     ],
+     [
+      "Extension does not run",
+      "extensions.conf, not pjsip.conf"
+     ],
+     [
+      "FreeSWITCH profile or dialplan",
+      "The users manual, which says it checked the source"
+     ],
+     [
+      "SIP routing in front of the PBX",
+      "Kamailio home page, then the current module docs"
+     ],
+     [
+      "SDP address rewritten or not",
+      "rtpengine README"
+     ],
+     [
+      "Browser socket never opens",
+      "RFC 7118 handshake, subprotocol sip"
+     ],
+     [
+      "Browser socket opens, no audio",
+      "ICE, then DTLS-SRTP"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Configuration follows the project page",
+     "paragraphs": [
+      "Asterisk's PJSIP overview says the channel driver is chan_pjsip, configuration is pjsip.conf, and the dialplan is extensions.conf. The FreeSWITCH manual says SIP profiles and the dialplan, and it says its parameter tables were checked against the source. Kamailio's home page describes the SIP server role and tells you the project exists. Module parameters belong to the documentation set linked from that project, which this lesson does not copy.",
+      "rtpengine's README is the configuration authority for the media proxy: Linux, the Kamailio module, SDP rewriting, ICE, and SRTP bridges. A flag that is not in the README you opened is not in this lab. Synthetic sketches in the quizzes are labels, not files to install."
+     ],
+     "cites": [
+      {
+       "label": "Asterisk res_pjsip configuration",
+       "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+      },
+      {
+       "label": "FreeSWITCH users manual",
+       "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+      },
+      {
+       "label": "rtpengine README",
+       "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+      }
+     ]
+    },
+    {
+     "h": "Troubleshooting order",
+     "paragraphs": [
+      "If the browser never sends SIP, stop at the WebSocket handshake and the sip subprotocol. If SIP completes and audio does not, stop at SDP, ICE candidates, and DTLS. If SIP completes, audio works, and the caller ID is the complaint, stop at the Identity header. If users cannot dial 911 without a prefix, stop at the statute and the FCC page, and do not place a live 911 call.",
+      "Write the observation beside the document. That is the whole method. A packet capture that you cannot tie to one of those documents is not yet a conclusion."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7118",
+       "url": "https://www.rfc-editor.org/rfc/rfc7118"
+      },
+      {
+       "label": "RFC 5764",
+       "url": "https://www.rfc-editor.org/rfc/rfc5764"
+      },
+      {
+       "label": "RFC 8224",
+       "url": "https://www.rfc-editor.org/rfc/rfc8224"
+      },
+      {
+       "label": "Kari's Law Act of 2017, Public Law 115-127",
+       "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Decide the plane, then the page",
+    "parties": [
+     "Symptom",
+     "Plane"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "no SIP",
+      "kind": "req",
+      "note": "No SIP request on the wire. Look at the socket first.",
+      "message": "WebSocket handshake missing\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "7118",
+      "kind": "res",
+      "note": "RFC 7118 and RFC 6455. Not the dialplan.",
+      "message": "subprotocol sip?\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "no audio",
+      "kind": "req",
+      "note": "SIP 200 OK is present. Look at media.",
+      "message": "200 OK\nc= private or no DTLS\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "media",
+      "kind": "res",
+      "note": "ICE, DTLS-SRTP, or the RTP proxy. Not SHAKEN.",
+      "message": "RFC 8445, RFC 5764, rtpengine\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "An Asterisk phone that registers but never hits an extension",
+     "choices": [
+      "Check extensions.conf. Registration is pjsip.conf.",
+      "Rewrite Opus to 8000",
+      "Open The Campaign Registry",
+      "Rotate a STIR key first"
+     ],
+     "answer": 0,
+     "why": "The overview splits those files.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    {
+     "q": "A missing WebSocket 101 means",
+     "choices": [
+      "The SIP socket is not open yet",
+      "DTLS succeeded",
+      "10DLC is approved",
+      "The dialplan ran"
+     ],
+     "answer": 0,
+     "why": "SIP frames come after the handshake.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "q": "200 OK and silence points at",
+     "choices": [
+      "Media: SDP, ICE, DTLS-SRTP, or the RTP proxy",
+      "The glossary",
+      "GPL version 2",
+      "A CRM field"
+     ],
+     "answer": 0,
+     "why": "Signaling already finished.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    },
+    {
+     "q": "rtpengine flags that are not in the README",
+     "choices": [
+      "Are not filled in by this lab",
+      "Are safe to invent",
+      "Are required by RFC 3261",
+      "Are Kari's Law"
+     ],
+     "answer": 0,
+     "why": "Read the current README.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    {
+     "q": "FreeSWITCH parameter defaults",
+     "choices": [
+      "Come from the manual that says it checked the source",
+      "Come from this quiz",
+      "Come from memory",
+      "Come from 10DLC"
+     ],
+     "answer": 0,
+     "why": "This lesson does not repeat them.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "q": "A prefix before 911 is not fixed by",
+     "choices": [
+      "A successful test call to a lab extension",
+      "Reading the statute and the rules",
+      "Counsel",
+      "The provider's test procedure"
+     ],
+     "answer": 0,
+     "why": "SIP success is not the statutory test.",
+     "cite": {
+      "label": "Kari's Law Act of 2017, Public Law 115-127",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "pjsip.conf",
+     "back": "Asterisk SIP resources.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    {
+     "front": "extensions.conf",
+     "back": "Asterisk dialplan.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    {
+     "front": "101 first",
+     "back": "No WebSocket, no SIP.",
+     "cite": {
+      "label": "RFC 6455",
+      "url": "https://www.rfc-editor.org/rfc/rfc6455"
+     }
+    },
+    {
+     "front": "Plane",
+     "back": "Name signaling, media, identity, location, or messaging.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Choose the file",
+    "kind": "config",
+    "prompt": "The endpoint exists. The extension 1000 does not ring. Asterisk is the PBX.",
+    "steps": [
+     "Name the file that holds the endpoint.",
+     "Name the file that holds the extension.",
+     "Pick the one to open for this symptom."
+    ],
+    "check": {
+     "q": "Which file do you open for the extension that does not ring?",
+     "choices": [
+      "extensions.conf",
+      "The Campaign Registry",
+      "RFC 8489",
+      "Sec-WebSocket-Protocol"
+     ],
+     "answer": 0,
+     "why": "Registration can be fine while the dialplan has no extension.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    "config": "pjsip endpoint: registered\nextension 1000: no dialplan hit\n"
+   },
+   "fault": {
+    "title": "Codec change for a handshake failure",
+    "symptom": "The browser shows no WebSocket. The change removes Opus from the PBX.",
+    "log": "browser: WebSocket connection failed\nno SIP INVITE\n",
+    "choices": [
+     "The socket never opened. Codecs are not negotiated yet.",
+     "Opus blocks the handshake",
+     "Remove PCMU to fix TCP",
+     "Add a Campaign ID"
+    ],
+    "answer": 0,
+    "why": "RFC 7118's handshake happens before SDP.",
+    "cause": "A media codec was edited for a transport failure.",
+    "fix": "Fix the WebSocket URL, TLS, and the sip subprotocol. Then look at SDP.",
+    "cites": [
+     {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     },
+     {
+      "label": "RFC 6455",
+      "url": "https://www.rfc-editor.org/rfc/rfc6455"
+     }
+    ]
+   }
+  },
+  {
+   "id": "bridges-map",
+   "title": "Bridges from enterprise UC to open platforms",
+   "minutes": 16,
+   "level": "Advanced",
+   "tags": [
+    "cucm",
+    "webex",
+    "bridge"
+   ],
+   "summary": "CUCM, Webex, and the contact center already have SIP seams in this lab. The open projects are the other side of a trunk, not a hidden mode inside CUCM.",
+   "objectives": [
+    "Keep CUCM SIP Profile and a CUBE SIP profile distinct",
+    "Name Local Gateway as the Webex premises PSTN role",
+    "Place Asterisk or FreeSWITCH on the far side of a SIP trunk, not inside the Cisco product"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Enterprise to open core",
+    "caption": "Each box keeps the job its own document gives it. The arrow is SIP.",
+    "layers": [
+     {
+      "name": "CUCM",
+      "detail": "Enterprise registrar and SIP trunk endpoint toward an SBC."
+     },
+     {
+      "name": "SBC or Kamailio",
+      "detail": "Border or open SIP server. Not the same object as a CUCM SIP Profile."
+     },
+     {
+      "name": "Asterisk or FreeSWITCH",
+      "detail": "Dialplan on the open side, if that is the application you chose."
+     },
+     {
+      "name": "Webex Calling",
+      "detail": "Local Gateway for premises PSTN. Cloud Connected PSTN is a different setting."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "What the existing lab already cites",
+     "paragraphs": [
+      "CUCM is the enterprise registrar and the SIP trunk endpoint toward CUBE or another SBC. A CUCM SIP Profile is an administrative object. It is not a CUBE voice class sip-profiles list. UCCX call control goes through CUCM. Carrier SIP does not terminate on UCCX. CVP documentation describes SIP among the call server, gateways, and CUCM. Unity Connection's documented SIP integration sits on a CUCM SIP trunk. Those sentences are the bridge. This lesson does not add a menu click that the Cisco pages did not print.",
+      "Webex Calling premises PSTN uses a Local Gateway. Cloud Connected PSTN is a partner service, a different location setting. Teams Direct Routing uses a certified SBC and TLS to the pstnhub FQDNs. None of those vendor pages say to replace the SBC with an unstated open-source flag."
+     ],
+     "cites": [
+      {
+       "label": "Cisco Unified Communications Manager",
+       "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+      },
+      {
+       "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+       "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+      },
+      {
+       "label": "Cisco Unified Contact Center Express",
+       "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-contact-center-express/series.html"
+      },
+      {
+       "label": "Get started with Local Gateway",
+       "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+      },
+      {
+       "label": "Plan Direct Routing",
+       "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+      }
+     ]
+    },
+    {
+     "h": "The open side of the trunk",
+     "paragraphs": [
+      "Kamailio's page says it can scale a PBX such as Asterisk or FreeSWITCH, and that it speaks SIP, including WebSocket for WebRTC. That is the open side. A SIP trunk from a Cisco SBC toward Kamailio or toward Asterisk is still SIP: Request-URI, Via, SDP, and the certificates the vendor requires. The open project's dialplan does not become a CUCM route pattern because both say SIP.",
+      "rtpengine stays on the media path when you need the proxy the README describes. It does not become a CUCM SIP trunk by itself. Draw the trunk, name the document on each side, and test emergency calling and identity with the compliance track's documents rather than assuming the trunk copied them."
+     ],
+     "cites": [
+      {
+       "label": "Kamailio SIP server",
+       "url": "https://www.kamailio.org/w/"
+      },
+      {
+       "label": "Asterisk res_pjsip configuration",
+       "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+      },
+      {
+       "label": "rtpengine README",
+       "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+      },
+      {
+       "label": "RFC 6881",
+       "url": "https://www.rfc-editor.org/rfc/rfc6881"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "CUCM trunk toward an open SIP server",
+    "parties": [
+     "CUCM",
+     "SBC",
+     "Kamailio"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "CUCM sends a SIP INVITE on the trunk. The SIP Profile is CUCM's object, not the open server's file.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/TCP 198.51.100.30;branch=z9hG4bKcucm01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucm1\nTo: <sip:+15551212@example.com>\nCall-ID: bridge@example.com\nCSeq: 1 INVITE\nContact: <sip:cucm@198.51.100.30>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The SBC sends a new or forwarded INVITE toward Kamailio. Kamailio may front Asterisk.",
+      "message": "INVITE sip:+15551212@203.0.113.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKbr02\nMax-Forwards: 69\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucm1\nTo: <sip:+15551212@example.com>\nCall-ID: bridge@example.com\nCSeq: 1 INVITE\nContact: <sip:sbc@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "Ringing comes from the open side's dialplan, not from a CUCM menu.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKbr02\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucm1\nTo: <sip:+15551212@example.com>;tag=open180\nCall-ID: bridge@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "CUCM sees the provisional response on its trunk.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/TCP 198.51.100.30;branch=z9hG4bKcucm01\nFrom: \"Alice\" <sip:alice@example.com>;tag=cucm1\nTo: <sip:+15551212@example.com>;tag=open180\nCall-ID: bridge@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "A CUCM SIP Profile is",
+     "choices": [
+      "A CUCM administrative object, not a CUBE sip-profiles list",
+      "An Asterisk pjsip.conf",
+      "A PASSporT",
+      "A 10DLC campaign"
+     ],
+     "answer": 0,
+     "why": "The names look alike. The objects do not.",
+     "cite": {
+      "label": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+     }
+    },
+    {
+     "q": "UCCX call control is",
+     "choices": [
+      "Through CUCM. Carrier SIP does not terminate on UCCX.",
+      "Directly on rtpengine",
+      "A WebSocket subprotocol",
+      "The Campaign Registry"
+     ],
+     "answer": 0,
+     "why": "Confirm the design guide for the version you run.",
+     "cite": {
+      "label": "Cisco Unified Contact Center Express",
+      "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-contact-center-express/series.html"
+     }
+    },
+    {
+     "q": "Webex premises PSTN uses",
+     "choices": [
+      "A Local Gateway",
+      "Cloud Connected PSTN with no gateway, as the same setting",
+      "Only Kamailio with no Cisco role",
+      "STUN port 3478 as the trunk"
+     ],
+     "answer": 0,
+     "why": "Cloud Connected PSTN is the other location setting.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    },
+    {
+     "q": "Kamailio in this bridge is",
+     "choices": [
+      "An open SIP server that can front Asterisk or FreeSWITCH",
+      "A CUCM service parameter",
+      "A statute",
+      "An RTP kernel module only"
+     ],
+     "answer": 0,
+     "why": "That is the Kamailio page's description.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "q": "rtpengine on this map",
+     "choices": [
+      "Proxies media. It is not the CUCM trunk by itself.",
+      "Replaces the Local Gateway name",
+      "Signs SHAKEN",
+      "Stores the dialplan"
+     ],
+     "answer": 0,
+     "why": "The README keeps it on RTP.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    {
+     "q": "Emergency calling across the bridge",
+     "choices": [
+      "Still needs the emergency documents. SIP interop does not copy them.",
+      "Is automatic because both sides speak SIP",
+      "Is a codec",
+      "Is 10DLC"
+     ],
+     "answer": 0,
+     "why": "Use the compliance track and the provider's test.",
+     "cite": {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "CUCM trunk",
+     "back": "SIP toward the SBC. Profile is CUCM's object.",
+     "cite": {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     }
+    },
+    {
+     "front": "Local Gateway",
+     "back": "Webex Calling premises PSTN role.",
+     "cite": {
+      "label": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+     }
+    },
+    {
+     "front": "Open side",
+     "back": "Kamailio, Asterisk, or FreeSWITCH, per their pages.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "front": "Not inside CUCM",
+     "back": "The open dialplan stays on the open server.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Name both sides",
+    "kind": "config",
+    "prompt": "A trunk is up. Name the object on each side without merging the names.",
+    "steps": [
+     "Read the CUCM side.",
+     "Read the open side.",
+     "Say where the dialplan is."
+    ],
+    "check": {
+     "q": "The Asterisk dialplan is in",
+     "choices": [
+      "extensions.conf on Asterisk",
+      "The CUCM SIP Profile",
+      "The Webex location setting",
+      "Identity header"
+     ],
+     "answer": 0,
+     "why": "The CUCM object and the Asterisk file stay separate.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    "config": "CUCM: SIP trunk\nSBC: border\nKamailio: SIP server\nAsterisk dialplan: extensions.conf\n"
+   },
+   "fault": {
+    "title": "CUCM SIP Profile pasted into pjsip.conf",
+    "symptom": "A CUCM SIP Profile name was copied into an Asterisk file. The trunk fails and the note says the profiles are the same object.",
+    "log": "CUCM SIP Profile: Trunk_Profile\nAsterisk file: pjsip.conf\n",
+    "choices": [
+     "They are different products' objects. Configure each from its own document.",
+     "The names match so the files match",
+     "SIP Profile is an RTP codec",
+     "Paste it into rtpengine instead"
+    ],
+    "answer": 0,
+    "why": "A CUCM SIP Profile is not a CUBE sip-profiles list and not pjsip.conf.",
+    "cause": "A label was copied across vendors.",
+    "fix": "Set the CUCM trunk from CUCM's guide. Set the Asterisk endpoint from the res_pjsip examples for your version.",
+    "cites": [
+     {
+      "label": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+     },
+     {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    ]
+   }
+  },
+  {
+   "id": "future-hooks",
+   "title": "Integration hooks that are already named",
+   "minutes": 15,
+   "level": "Advanced",
+   "tags": [
+    "hooks",
+    "ari",
+    "siprec"
+   ],
+   "summary": "Future work should use hooks the documents already name: AMI, AGI, ARI, the Event Socket, SIPREC, and SIP over WebSocket. This lab does not ship a live connector.",
+   "objectives": [
+    "Name the control interfaces on the Asterisk license page",
+    "Name the FreeSWITCH Event Socket",
+    "Leave unstated vendor webhooks unstated"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Hooks this edition can point at",
+    "caption": "If a product advertises another API, open that page before you build to it. Empty cells stay empty.",
+    "columns": [
+     "Hook",
+     "Where it was named",
+     "What it is not"
+    ],
+    "rows": [
+     [
+      "AMI, AGI, ARI",
+      "Asterisk license page",
+      "Not SIP methods"
+     ],
+     [
+      "Event Socket",
+      "FreeSWITCH manual",
+      "Not the hosted SWML service"
+     ],
+     [
+      "SIPREC",
+      "RFC 7866",
+      "Not CRM screen pop by itself"
+     ],
+     [
+      "WebSocket subprotocol sip",
+      "RFC 7118",
+      "Not a new INVITE"
+     ],
+     [
+      "Elastic SIP trunk",
+      "Twilio SIP trunking docs",
+      "Not a definition of CPaaS"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Control planes the projects name",
+     "paragraphs": [
+      "The Asterisk license page names AMI, AGI, and ARI as management and control protocols. It states Digium's belief about GPL and applications that use those protocols. An integration that controls Asterisk can start by reading those interfaces in the documentation for your version. This lesson does not paste an ARI request.",
+      "The FreeSWITCH manual names the Event Socket and embedded scripting as the programming path for the server you run. The same page names REST and SWML for the hosted SignalWire platform. Pick the one that matches where the call actually runs. Kamailio and rtpengine expose their own module interfaces in their documentation. This lab stops at the roles their home pages and README state."
+     ],
+     "cites": [
+      {
+       "label": "Asterisk license information",
+       "url": "https://docs.asterisk.org/About-the-Project/License-Information/"
+      },
+      {
+       "label": "FreeSWITCH users manual",
+       "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+      }
+     ]
+    },
+    {
+     "h": "Protocol hooks, and what is not built here",
+     "paragraphs": [
+      "RFC 7866 is the hook for a recorder. RFC 7118 is the hook for a browser that speaks SIP. RFC 8224 is the hook for a signed identity. RFC 6442 is the hook for location in SIP. Those are specifications you can implement against. This repository does not run a registrar, a TURN server, or a campaign registry.",
+      "A webhook, a CRM connector, or a WFM feed that a vendor documents is real when you open that vendor page. It is not real because a mind map has a box labeled future. The ecosystem page lists the neighbors. The next integration should name the document, the message, and the test. Until that page is opened, the sources block says confirm and prints no URL."
+     ],
+     "cites": [
+      {
+       "label": "RFC 7866",
+       "url": "https://www.rfc-editor.org/rfc/rfc7866"
+      },
+      {
+       "label": "RFC 7118",
+       "url": "https://www.rfc-editor.org/rfc/rfc7118"
+      },
+      {
+       "label": "RFC 8224",
+       "url": "https://www.rfc-editor.org/rfc/rfc8224"
+      },
+      {
+       "label": "RFC 6442",
+       "url": "https://www.rfc-editor.org/rfc/rfc6442"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "A control event is not the SIP call",
+    "parties": [
+     "SIP",
+     "PBX",
+     "Controller"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The call is SIP, whatever sits beside it.",
+      "message": "INVITE sip:1000@203.0.113.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKhook01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=hook1\nTo: <sip:1000@example.com>\nCall-ID: hook@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Ringing is SIP.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKhook01\nFrom: \"Alice\" <sip:alice@example.com>;tag=hook1\nTo: <sip:1000@example.com>;tag=hook180\nCall-ID: hook@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "event",
+      "kind": "req",
+      "note": "ARI, AMI, or the Event Socket can tell another program that the call is ringing. That event is not a SIP method.",
+      "message": "study event: ringing\ncall-id hook@example.com\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "ack",
+      "kind": "res",
+      "note": "The controller may pop a screen or start a bot. It does not replace 200 OK.",
+      "message": "study event: received\nnot a SIP status\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "AMI, AGI, and ARI are named on",
+     "choices": [
+      "The Asterisk license page",
+      "RFC 7118",
+      "The Campaign Registry",
+      "Section 506"
+     ],
+     "answer": 0,
+     "why": "They are control protocols, not SIP methods.",
+     "cite": {
+      "label": "Asterisk license information",
+      "url": "https://docs.asterisk.org/About-the-Project/License-Information/"
+     }
+    },
+    {
+     "q": "The FreeSWITCH programming interface named in the manual is",
+     "choices": [
+      "The Event Socket",
+      "PASSporT",
+      "STUN",
+      "A CUCM SIP Profile"
+     ],
+     "answer": 0,
+     "why": "Embedded scripting is named beside it.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "q": "SWML belongs to",
+     "choices": [
+      "The hosted platform the FreeSWITCH page describes",
+      "RFC 3261",
+      "rtpengine's kernel module",
+      "Every open source install automatically"
+     ],
+     "answer": 0,
+     "why": "Do not paste it into a local profile and expect the hosted service.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "q": "A recorder hooks in through",
+     "choices": [
+      "SIPREC, RFC 7866",
+      "The glossary mind map alone",
+      "10DLC",
+      "A WebSocket Ping"
+     ],
+     "answer": 0,
+     "why": "The mind map is not an API.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "q": "A browser that speaks SIP hooks in through",
+     "choices": [
+      "RFC 7118",
+      "Kari's Law",
+      "The STI-GA",
+      "extensions.conf by itself"
+     ],
+     "answer": 0,
+     "why": "The subprotocol is sip.",
+     "cite": {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+     }
+    },
+    {
+     "q": "An integration this lab did not open a page for",
+     "choices": [
+      "Stays unpublished. Confirm, with no URL.",
+      "Can be invented if the box is labeled future",
+      "Is implied by SIP",
+      "Is legal advice"
+     ],
+     "answer": 0,
+     "why": "Name the document or do not ship the claim.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "ARI",
+     "back": "Asterisk REST Interface, named with AMI and AGI.",
+     "cite": {
+      "label": "Asterisk license information",
+      "url": "https://docs.asterisk.org/About-the-Project/License-Information/"
+     }
+    },
+    {
+     "front": "Event Socket",
+     "back": "FreeSWITCH programming path in the manual.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "front": "SIPREC",
+     "back": "Recording hook. RFC 7866.",
+     "cite": {
+      "label": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     }
+    },
+    {
+     "front": "No live connector",
+     "back": "This repository does not run the PBX or the registry.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Pick a real hook",
+    "kind": "config",
+    "prompt": "You want a program to hear that an Asterisk call is ringing. Choose an interface the license page names.",
+    "steps": [
+     "Read the three Asterisk names.",
+     "Do not invent a fourth.",
+     "Remember it is not a SIP method."
+    ],
+    "check": {
+     "q": "Which set is named on the Asterisk license page?",
+     "choices": [
+      "AMI, AGI, and ARI",
+      "INVITE, STUN, and 10DLC",
+      "WSS, Opus, and Kari",
+      "CUCM, SWML, and TURN"
+     ],
+     "answer": 0,
+     "why": "Those are the control protocols the page lists.",
+     "cite": {
+      "label": "Asterisk license information",
+      "url": "https://docs.asterisk.org/About-the-Project/License-Information/"
+     }
+    },
+    "config": "need: event when Asterisk rings\nopened names: AMI, AGI, ARI\n"
+   },
+   "fault": {
+    "title": "Future box treated as an API",
+    "symptom": "A design review says the mind map has a box called CRM, so a webhook URL is assumed and coded.",
+    "log": "mind map node: CRM\nwebhook URL: not in any opened page\n",
+    "choices": [
+     "A map node is not an API. Open the vendor page or do not claim the URL.",
+     "The mind map publishes webhooks",
+     "CRM is a SIP method",
+     "RFC 7118 defines the CRM path"
+    ],
+    "answer": 0,
+    "why": "The ecosystem drawing is a topic list.",
+    "cause": "A picture was implemented as a contract.",
+    "fix": "Find the vendor's integration document. Until it opens, leave the URL out and mark confirm.",
+    "cites": [
+     {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    ]
+   }
+  }
+ ]
+}

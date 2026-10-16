@@ -112,6 +112,18 @@ def glossary():
         ("Domain certificate", "Guidance for which names belong on a SIP TLS certificate.", "5922"),
         ("Connection reuse", "RFC 5923 aliasing. Microsoft’s Direct Routing proxy documentation says it does not support this aliasing.", "5923"),
         ("Documentation address", "203.0.113.0/24, 198.51.100.0/24, and 192.0.2.0/24 are reserved for examples.", "5737"),
+        ("JSEP", "JavaScript Session Establishment Protocol. The application chooses signaling. RFC 8829 names SIP as one option.", "8829"),
+        ("SIP WebSocket subprotocol", "The WebSocket subprotocol identifier sip, used to carry SIP after the opening handshake.", "7118"),
+        ("Opus rtpmap", "RFC 7587 requires the rtpmap clock 48000 and two channels: opus/48000/2.", "7587"),
+        ("Kamailio", "Open source SIP server under GPLv2+. The project page says it can front a PBX such as Asterisk or FreeSWITCH.", "kamailio"),
+        ("Asterisk", "Open source PBX. Current SIP configuration for chan_pjsip is res_pjsip in pjsip.conf, with the dialplan in extensions.conf.", "asterisk-pjsip"),
+        ("FreeSWITCH", "Telephony server whose manual covers SIP profiles, the dialplan, media, WebRTC, and the Event Socket.", "freeswitch"),
+        ("rtpengine", "Sipwise media proxy for RTP and other UDP media, meant to be used with Kamailio. GNU/Linux.", "rtpengine"),
+        ("Kari's Law", "Public Law 115-127. MLTS users can dial 9-1-1 with no extra digit, code, prefix, or post-fix. Not legal advice.", "kari-law"),
+        ("RAY BAUM'S Act", "A division of Public Law 115-141. Section 506 requires a proceeding on dispatchable location, including from MLTS. Not legal advice.", "ray-baum"),
+        ("Dispatchable location", "In section 506, the street address of the calling party plus room, floor, or similar information needed to identify the caller.", "ray-baum"),
+        ("10DLC", "On The Campaign Registry site, an application-to-person messaging channel. Not a SIP method. Not legal advice.", "tcr"),
+        ("ARI", "Asterisk REST Interface. Named with AMI and AGI on the Asterisk license page as a control protocol.", "asterisk-license"),
     ]
     return {"terms": [{"term": term, "def": text, "cites": cites(key)} for term, text, key in rows]}
 
@@ -140,15 +152,17 @@ def certs():
 
 
 def ecosystem():
-    return {
-        "summary": "SIP does not replace workforce management, quality monitoring, CRM, or emergency policy. It is the session seam those systems hang from.",
+    data = {
+        "summary": "SIP does not replace workforce management, quality monitoring, CRM, emergency policy, or a messaging registry. It is the session seam those systems hang from. Compliance notes on this page are educational and are not legal advice.",
+        "disclaimer": "Educational only. Not legal advice, not a compliance opinion, and not a filing. Statutes and the pages linked from each card outrank this paraphrase.",
         "sisters": [
             {"name": "Workforce management", "blurb": "WFM forecasts volume and builds schedules. It consumes contact-center events. It does not parse Via headers. When a forecast is wrong, the SIP symptom is usually queue delay and 480 or carrier congestion, not a broken dialog ID.", "cites": cites("3261-21")},
             {"name": "Quality management and recording", "blurb": "QM scores interactions. The standardized way an SBC forks a session to a recorder is SIPREC.", "cites": cites("7866", "7865")},
             {"name": "E911 / emergency calling", "blurb": "Location has to ride with the call. RFC 6881 is the BCP, RFC 6442 carries location in SIP, and the FCC MLTS page states Kari’s Law and RAY BAUM’s Act obligations for multi-line systems.", "cites": cites("6881", "6442", "fcc-mlts")},
             {"name": "Analytics", "blurb": "Amazon Connect can attach conversational analytics to an external voice system with a SIPREC connector. The analytics plane is not a second SIP proxy for the customer call.", "cites": cites("connect-ext", "connect-conn")},
             {"name": "CRM", "blurb": "Screen pop uses data the contact center already has: ANI, DNIS, case id. Those values may arrive in SIP headers or in a CTI event after the call is up. The CRM is not a SIP element.", "cites": cites("3261")},
-            {"name": "AI agents", "blurb": "A voice bot still needs a session. On Amazon Connect the platform owns the managed PSTN voice channel. Bridging an outside carrier into Connect with a Chime Voice Connector is not a supported pattern unless AWS reviews it.", "cites": cites("connect-tel", "chime-connect")},
+            {"name": "AI agents", "blurb": "A voice bot still needs a session. On Amazon Connect the platform owns the managed PSTN voice channel. Bridging an outside carrier into Connect with a Chime Voice Connector is not a supported pattern unless AWS reviews it. The FreeSWITCH manual page also describes SignalWire, founded by the FreeSWITCH team, as a hosted platform with AI agents behind REST APIs and SWML.", "cites": cites("connect-tel", "chime-connect", "freeswitch")},
+            {"name": "Programmable communications APIs", "blurb": "Twilio’s docs home is API reference, tutorials, and integration for Twilio products. Elastic SIP Trunking is the SIP-shaped product already cited in this lab. This page does not define the word CPaaS from an RFC. Read the vendor page before you copy a diagram that uses that word.", "cites": cites("twilio-docs", "twilio")},
         ],
         "bridges": [
             {"name": "CUCM", "blurb": "CUCM is the enterprise registrar and the SIP trunk endpoint toward CUBE or another SBC. A CUCM SIP Profile is an admin object. It is not a CUBE voice class sip-profiles list.", "cites": cites("cucm", "cube-prof")},
@@ -159,7 +173,58 @@ def ecosystem():
             {"name": "Webex Contact Center", "blurb": "This is a separate product from Webex Calling. Do not assume the Local Gateway pattern applies. Use Cisco’s current design guide for that product.", "cites": cites("webex-org")},
             {"name": "Teams Phone", "blurb": "Direct Routing uses a certified SBC, TLS to the pstnhub FQDNs, and SRTP media. Users are homed in Microsoft 365.", "cites": cites("teams-plan", "teams-sip")},
             {"name": "CCaaS BYOC", "blurb": "Genesys documents BYOC Cloud and BYOC Premises. Five9 documents BYO SIP to its SBCs. Twilio documents Elastic SIP Trunking. NICE documents connectivity ports and leaves carrier design account-specific.", "cites": cites("genesys-cloud", "five9", "twilio", "cxone-ports")},
+            {"name": "Open SIP core", "blurb": "Kamailio’s home page describes an open source SIP server that can front a PBX such as Asterisk or FreeSWITCH. rtpengine’s README describes the RTP proxy meant to sit with Kamailio. A CUCM SIP trunk toward that SIP server is still SIP. The CUCM SIP Profile and Asterisk’s pjsip.conf are different objects.", "cites": cites("kamailio", "asterisk-pjsip", "freeswitch", "rtpengine", "cucm")},
         ],
+        "config": [
+            {"name": "Asterisk PJSIP", "blurb": "chan_pjsip depends on res_pjsip. Accounts go in pjsip.conf. The dialplan is extensions.conf. Open the examples for the Asterisk version you run.", "cites": cites("asterisk-pjsip")},
+            {"name": "FreeSWITCH", "blurb": "The users manual covers SIP profiles, the dialplan, codecs, media, WebRTC, and the Event Socket. It says its parameter tables were checked against the source. This lab does not copy those defaults.", "cites": cites("freeswitch")},
+            {"name": "Kamailio and rtpengine", "blurb": "Use Kamailio for the SIP server roles its home page lists. Use rtpengine when SDP must be rewritten or when the README’s ICE and SRTP bridges are required. GNU/Linux is the platform that README names.", "cites": cites("kamailio", "rtpengine")},
+            {"name": "Browser socket", "blurb": "RFC 7118 requires the WebSocket subprotocol sip. Via uses WS or WSS. The URI transport parameter the RFC adds is transport=ws. A sips path that includes WebSocket must be a secure WebSocket.", "cites": cites("7118", "6455")},
+        ],
+        "troubleshoot": [
+            {"name": "No SIP from the browser", "blurb": "Stop at the WebSocket handshake. A missing 101 means the SIP request was never framed. Codecs are not negotiated yet.", "cites": cites("7118", "6455")},
+            {"name": "SIP succeeds and audio does not", "blurb": "Read c= and m=, then ICE candidates, then DTLS-SRTP. A private address in c= is a reachability problem. Identity headers do not move RTP.", "cites": cites("3264", "8445", "5764")},
+            {"name": "Caller identity", "blurb": "RFC 8224 defines the Identity header. RFC 8225 defines PASSporT. The STI-GA page describes SHAKEN. A placeholder token is not a verification. Not legal advice.", "cites": cites("8224", "8225", "sti-ga")},
+            {"name": "911 dialing and location", "blurb": "Public Law 115-127 is the direct-dial statute. Section 506 of RAY BAUM’S Act is the dispatchable-location proceeding. RFC 6442 is SIP location conveyance. Do not place a live 911 call for this lab. Not legal advice.", "cites": cites("kari-law", "ray-baum", "6442")},
+            {"name": "A2P messaging", "blurb": "10DLC on The Campaign Registry site is a messaging channel. Do not debug it as a missing rtpmap line.", "cites": cites("tcr")},
+        ],
+        "hooks": [
+            {"name": "AMI, AGI, ARI", "blurb": "Control protocols named on the Asterisk license page. The page states Digium’s belief about applications that use them. This lab does not paste an ARI request and does not give license advice.", "cites": cites("asterisk-license")},
+            {"name": "Event Socket", "blurb": "The FreeSWITCH manual’s programming interface for the server you run. SWML on that same page is the hosted platform, not the local dialplan file.", "cites": cites("freeswitch")},
+            {"name": "SIPREC", "blurb": "RFC 7866 is the recording session. It is a second SIP dialog, not a CRM webhook.", "cites": cites("7866")},
+            {"name": "SIP over WebSocket", "blurb": "RFC 7118 is the browser signaling hook when the application chooses SIP. JSEP also allows a custom protocol.", "cites": cites("7118", "8829")},
+            {"name": "Unopened APIs", "blurb": "A mind-map box is not an API. If this lab did not open the vendor page, the sources block says confirm and prints no URL.", "cites": cites("3261")},
+        ],
+        "mind": {
+            "content": "SIP session",
+            "children": [
+                {"content": "Signaling", "children": [
+                    {"content": "INVITE and responses"},
+                    {"content": "WebSocket subprotocol sip"},
+                    {"content": "Transactions and dialogs"},
+                ]},
+                {"content": "Media", "children": [
+                    {"content": "SDP offer and answer"},
+                    {"content": "ICE, STUN, TURN"},
+                    {"content": "DTLS-SRTP and Opus"},
+                ]},
+                {"content": "Open core", "children": [
+                    {"content": "Kamailio SIP server"},
+                    {"content": "Asterisk and FreeSWITCH"},
+                    {"content": "rtpengine"},
+                ]},
+                {"content": "Compliance study", "children": [
+                    {"content": "STIR and SHAKEN"},
+                    {"content": "Kari's Law and RAY BAUM'S Act"},
+                    {"content": "10DLC messaging"},
+                ]},
+                {"content": "Neighbors", "children": [
+                    {"content": "WFM and CRM"},
+                    {"content": "SIPREC recording"},
+                    {"content": "Programmable voice APIs"},
+                ]},
+            ],
+        },
         "map": {"type": "layers", "title": "What touches the SIP dialog", "caption": "Neighbors consume events. They do not replace the dialog.",
                 "layers": [
                     {"name": "CRM / AI / WFM", "detail": "Events and metadata after the session exists"},
@@ -185,6 +250,14 @@ def ecosystem():
             {"rfc": "RFC 8866", "title": "SDP", "url": C["8866"]["url"], "note": "Current SDP specification."},
         ],
     }
+    # Lesson index modulo 6 is the note these rooms already published.
+    # The seventh sister and the shorter AI blurb stay beside that note.
+    data["roomCycle"] = [{"name": sister["name"], "blurb": sister["blurb"]} for sister in data["sisters"][:5]]
+    data["roomCycle"].append({
+        "name": "AI omni-channel agents",
+        "blurb": "A voice bot still needs a session. SIP creates, modifies, and ends sessions. Omni-channel, in the contact-center sense, means the same contact can also live on chat or another digital channel. Those channels do not replace the voice session. On Amazon Connect the platform owns the managed PSTN voice channel. Bridging an outside carrier into Connect with a Chime Voice Connector is not a supported pattern unless AWS reviews it. When an SBC forks the voice leg to a recorder, that fork is SIPREC, a different plane from the customer dialog.",
+    })
+    return data
 
 
 def boss():

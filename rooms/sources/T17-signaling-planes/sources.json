@@ -1,0 +1,30 @@
+{
+  "id": "T17-signaling-planes",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 8825",
+      "url": "https://www.rfc-editor.org/rfc/rfc8825",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8829",
+      "url": "https://www.rfc-editor.org/rfc/rfc8829",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6455",
+      "url": "https://www.rfc-editor.org/rfc/rfc6455",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

@@ -1,0 +1,1504 @@
+{
+ "id": "opensource",
+ "title": "Open-source telephony core",
+ "summary": "Asterisk, FreeSWITCH, Kamailio, and rtpengine do different jobs. The pages below say which job each project claims.",
+ "level": "Intermediate",
+ "order": 18,
+ "lessons": [
+  {
+   "id": "four-roles",
+   "title": "Four projects, four roles",
+   "minutes": 14,
+   "level": "Foundation",
+   "tags": [
+    "asterisk",
+    "freeswitch",
+    "kamailio",
+    "rtpengine"
+   ],
+   "summary": "Read the role each project states. Do not treat them as four names for one PBX.",
+   "objectives": [
+    "Place Asterisk, FreeSWITCH, Kamailio, and rtpengine",
+    "Say which one is a media proxy meant to sit with Kamailio",
+    "Refuse a single configuration that the pages do not share"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Integration map, from the project pages",
+    "caption": "Kamailio can sit in front of a PBX. rtpengine proxies the RTP. This drawing is that relationship, not a production size.",
+    "layers": [
+     {
+      "name": "Kamailio",
+      "detail": "Open source SIP server. Proxy, registrar, load balancer, WebSocket."
+     },
+     {
+      "name": "Asterisk or FreeSWITCH",
+      "detail": "Dialplan and endpoints. Kamailio's page names both as systems it can front."
+     },
+     {
+      "name": "rtpengine",
+      "detail": "RTP and other UDP media. Meant to be used with Kamailio. GNU/Linux."
+     },
+     {
+      "name": "SIP dialog",
+      "detail": "Still RFC 3261. These programs do not replace the protocol."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "What each page calls itself",
+     "paragraphs": [
+      "The Asterisk history page says the project was published under the GPL and that the idea of an open source PBX caught on. Current SIP configuration for the PJSIP channel driver is documented as res_pjsip and chan_pjsip, in pjsip.conf, with extensions.conf as the dialplan.",
+      "The FreeSWITCH manual this lab opened teaches SIP profiles, the dialplan, codec selection, media handling, WebRTC, and the Event Socket. It says FreeSWITCH ships as Open Source FreeSWITCH and as FreeSWITCH Enterprise from SignalWire. Kamailio's home page calls it an open source SIP server under GPLv2+, able to handle thousands of call setups per second, and says it can be used to scale SIP-to-PSTN gateways, PBX systems, or media servers such as Asterisk, FreeSWITCH, or SEMS."
+     ],
+     "cites": [
+      {
+       "label": "A brief history of the Asterisk project",
+       "url": "https://docs.asterisk.org/About-the-Project/A-Brief-History-of-the-Asterisk-Project/"
+      },
+      {
+       "label": "Asterisk res_pjsip configuration",
+       "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+      },
+      {
+       "label": "FreeSWITCH users manual",
+       "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+      },
+      {
+       "label": "Kamailio SIP server",
+       "url": "https://www.kamailio.org/w/"
+      }
+     ]
+    },
+    {
+     "h": "rtpengine is the media proxy in this set",
+     "paragraphs": [
+      "The rtpengine README calls it a proxy for RTP and other UDP media, meant to be used with the Kamailio SIP proxy, and a drop-in replacement for other RTP and media proxies. The only supported platform named there is GNU/Linux.",
+      "That split is the integration map: Kamailio for SIP signaling roles the project lists, including registrar, edge proxy, and WebSocket support for WebRTC, and rtpengine when the media needs a proxy that can rewrite SDP and bridge RTP with SRTP. Asterisk or FreeSWITCH is where a dialplan lives. Putting all four on one host is a choice these pages do not require."
+     ],
+     "cites": [
+      {
+       "label": "rtpengine README",
+       "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+      },
+      {
+       "label": "Kamailio SIP server",
+       "url": "https://www.kamailio.org/w/"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "SIP hits Kamailio. Media can be anchored in rtpengine.",
+    "parties": [
+     "Phone",
+     "Kamailio",
+     "PBX"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The phone sends SIP to the SIP server. Kamailio's page describes that role.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKos01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=os1\nTo: <sip:+15551212@example.com>\nCall-ID: os-map@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Kamailio's page says it can sit in front of a PBX such as Asterisk or FreeSWITCH. This hop is that pattern, synthetic.",
+      "message": "INVITE sip:+15551212@203.0.113.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKos02\nMax-Forwards: 69\nFrom: \"Alice\" <sip:alice@example.com>;tag=os1\nTo: <sip:+15551212@example.com>\nCall-ID: os-map@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "200",
+      "kind": "res",
+      "note": "The PBX answers. SDP may still need a media proxy if the addresses cannot reach each other.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKos02\nFrom: \"Alice\" <sip:alice@example.com>;tag=os1\nTo: <sip:+15551212@example.com>;tag=pbx1\nCall-ID: os-map@example.com\nCSeq: 1 INVITE\nContact: <sip:pbx@203.0.113.30>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "rtpengine, if used, is the RTP proxy beside this SIP server. It is not a fourth SIP status code.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKos01\nFrom: \"Alice\" <sip:alice@example.com>;tag=os1\nTo: <sip:+15551212@example.com>;tag=pbx1\nCall-ID: os-map@example.com\nCSeq: 1 INVITE\nContact: <sip:pbx@203.0.113.20>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Kamailio's home page describes it as",
+     "choices": [
+      "An open source SIP server",
+      "A kernel RTP proxy only",
+      "A 911 statute",
+      "A codec"
+     ],
+     "answer": 0,
+     "why": "The page also lists registrar, edge proxy, and related SIP roles.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "q": "rtpengine is meant to be used with",
+     "choices": [
+      "The Kamailio SIP proxy",
+      "Only a PSTN gateway",
+      "The Campaign Registry",
+      "A browser with no SIP"
+     ],
+     "answer": 0,
+     "why": "That sentence is in the rtpengine README.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    {
+     "q": "The Asterisk history page calls the project an",
+     "choices": [
+      "Open source PBX",
+      "RTP kernel module",
+      "STIR certificate authority",
+      "SMS registry"
+     ],
+     "answer": 0,
+     "why": "The history page uses those words.",
+     "cite": {
+      "label": "A brief history of the Asterisk project",
+      "url": "https://docs.asterisk.org/About-the-Project/A-Brief-History-of-the-Asterisk-Project/"
+     }
+    },
+    {
+     "q": "FreeSWITCH's manual, as opened here, teaches",
+     "choices": [
+      "SIP profiles, dialplan, media, WebRTC, and the Event Socket",
+      "Only Kamailio module names",
+      "Only FCC rules",
+      "A single ini file with no dialplan"
+     ],
+     "answer": 0,
+     "why": "Those are the topics named in the manual introduction.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "q": "Kamailio says it can scale in front of",
+     "choices": [
+      "SIP-to-PSTN gateways, PBX systems, or media servers such as Asterisk and FreeSWITCH",
+      "Only rtpengine",
+      "Only WebRTC browsers",
+      "Only analog phones"
+     ],
+     "answer": 0,
+     "why": "Asterisk, FreeSWITCH, and SEMS are the names on that page.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "q": "rtpengine's supported platform, per the README, is",
+     "choices": [
+      "GNU/Linux",
+      "Any phone firmware",
+      "Only Windows",
+      "Only a browser"
+     ],
+     "answer": 0,
+     "why": "The README says GNU/Linux is the only supported platform.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Kamailio",
+     "back": "SIP server. GPLv2+. Registrar, proxy, WebSocket.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "front": "rtpengine",
+     "back": "RTP proxy for use with Kamailio. GNU/Linux.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    {
+     "front": "Asterisk",
+     "back": "Open source PBX. PJSIP lives in pjsip.conf.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    {
+     "front": "FreeSWITCH",
+     "back": "SIP profiles, dialplan, media, WebRTC, Event Socket.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Place the box",
+    "kind": "config",
+    "prompt": "Four lines. Pick the one that proxies RTP.",
+    "steps": [
+     "Read each name.",
+     "Match it to the page you would open.",
+     "Pick the media proxy."
+    ],
+    "check": {
+     "q": "Which project is the RTP proxy meant for Kamailio?",
+     "choices": [
+      "rtpengine",
+      "The Campaign Registry",
+      "RFC 7118 itself",
+      "Kari's Law"
+     ],
+     "answer": 0,
+     "why": "The README states that relationship.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    "config": "Kamailio: SIP server\nAsterisk: PBX dialplan\nFreeSWITCH: SIP profiles and dialplan\nrtpengine: RTP proxy\n"
+   },
+   "fault": {
+    "title": "Dialplan written on the RTP proxy",
+    "symptom": "Calls reach Kamailio. Someone pastes an Asterisk dialplan into rtpengine and expects extensions to run.",
+    "log": "rtpengine: proxy for RTP traffic\nexpected: extensions.conf style dialplan\n",
+    "choices": [
+     "rtpengine proxies media. The dialplan belongs on the PBX the Kamailio page names.",
+     "rtpengine is the registrar",
+     "A dialplan is a STUN request",
+     "FreeSWITCH cannot have a dialplan"
+    ],
+    "answer": 0,
+    "why": "The README defines rtpengine as a media proxy. Asterisk and FreeSWITCH document the dialplan.",
+    "cause": "One process was asked to do another project's job.",
+    "fix": "Keep SIP policy on Kamailio or the PBX. Keep RTP anchoring on rtpengine when you need that proxy.",
+    "cites": [
+     {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     },
+     {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    ]
+   }
+  },
+  {
+   "id": "asterisk-pjsip",
+   "title": "Asterisk, PJSIP, and the dialplan",
+   "minutes": 14,
+   "level": "Intermediate",
+   "tags": [
+    "asterisk",
+    "pjsip"
+   ],
+   "summary": "chan_pjsip is the SIP channel driver. res_pjsip reads pjsip.conf. extensions.conf is the dialplan. The license page is GPL version 2, with a stated exception for AMI, AGI, and ARI.",
+   "objectives": [
+    "Name pjsip.conf and extensions.conf",
+    "Name chan_pjsip and res_pjsip",
+    "Repeat the license page without turning it into legal advice"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Objects the Asterisk docs name",
+    "caption": "This is not a working pjsip.conf. It is the split the configuration page describes.",
+    "columns": [
+     "Name",
+     "Role on the page"
+    ],
+    "rows": [
+     [
+      "res_pjsip",
+      "Configuration for the SIP resources"
+     ],
+     [
+      "chan_pjsip",
+      "Channel driver. Depends on res_pjsip."
+     ],
+     [
+      "pjsip.conf",
+      "Endpoints, accounts, and related SIP objects"
+     ],
+     [
+      "extensions.conf",
+      "Dialplan"
+     ],
+     [
+      "AMI, AGI, ARI",
+      "Control protocols named on the license page"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Where SIP configuration goes",
+     "paragraphs": [
+      "The res_pjsip page says the channel driver included with Asterisk 12 is chan_pjsip, and that it depends on res_pjsip and associated modules. res_pjsip is configured through pjsip.conf. The same page says extensions.conf is the dialplan and points at examples, outbound registration, and endpoint identification by IP address.",
+      "This lab does not paste a production endpoint. A study sketch that invents option names the page did not print would be a guess. When you configure a phone, open the configuration examples and the parameter reference on docs.asterisk.org for the version you run."
+     ],
+     "cites": [
+      {
+       "label": "Asterisk res_pjsip configuration",
+       "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+      },
+      {
+       "label": "A brief history of the Asterisk project",
+       "url": "https://docs.asterisk.org/About-the-Project/A-Brief-History-of-the-Asterisk-Project/"
+      }
+     ]
+    },
+    {
+     "h": "License, stated carefully",
+     "paragraphs": [
+      "The license page says Asterisk is distributed under the GNU General Public License version 2 and is also available under alternative licenses negotiated directly with Digium, Inc. If you obtained Asterisk under the GPL, the page says the GPL applies to loadable Asterisk modules as well, except as that page defines.",
+      "The same page names the Asterisk Manager Interface (AMI), the Asterisk Gateway Interface (AGI), and the Asterisk REST Interface (ARI). It says Digium's belief is that applications using those protocols to manage or control an Asterisk instance do not have to be licensed under the GPL. That is the project's statement about its own license. It is not legal advice from this lab, and it is not a design for your module."
+     ],
+     "cites": [
+      {
+       "label": "Asterisk license information",
+       "url": "https://docs.asterisk.org/About-the-Project/License-Information/"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "A phone registers to Asterisk. The dialplan is a separate file.",
+    "parties": [
+     "Phone",
+     "Asterisk"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "REGISTER",
+      "kind": "req",
+      "note": "The binding is SIP. Where the account is stored is pjsip.conf, according to the res_pjsip page.",
+      "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKast01\nMax-Forwards: 70\nFrom: <sip:alice@example.com>;tag=ast1\nTo: <sip:alice@example.com>\nCall-ID: ast-reg@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK stores the contact. It does not execute the dialplan.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKast01\nFrom: <sip:alice@example.com>;tag=ast1\nTo: <sip:alice@example.com>;tag=astreg\nCall-ID: ast-reg@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@203.0.113.10>;expires=3600\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "An inbound call can enter the dialplan in extensions.conf. That file is not the REGISTER.",
+      "message": "INVITE sip:1000@203.0.113.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKast02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=ast2\nTo: <sip:1000@example.com>\nCall-ID: ast-call@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Ringing means the dialplan reached something that alerts. Confirm the version's examples before you copy a priority.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKast02\nFrom: \"Alice\" <sip:alice@example.com>;tag=ast2\nTo: <sip:1000@example.com>;tag=ast180\nCall-ID: ast-call@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "chan_pjsip depends on",
+     "choices": [
+      "res_pjsip",
+      "rtpengine",
+      "The Campaign Registry",
+      "RFC 6881"
+     ],
+     "answer": 0,
+     "why": "The configuration overview says that.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    {
+     "q": "SIP accounts for this driver are configured in",
+     "choices": [
+      "pjsip.conf",
+      "kamailio.cfg only",
+      "A WebSocket subprotocol",
+      "STIR certificates only"
+     ],
+     "answer": 0,
+     "why": "The page says res_pjsip is configured through pjsip.conf.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    {
+     "q": "The dialplan file named on that page is",
+     "choices": [
+      "extensions.conf",
+      "pjsip.conf",
+      "rtpengine.conf",
+      "Sec-WebSocket-Protocol"
+     ],
+     "answer": 0,
+     "why": "The page lists extensions.conf as the dialplan.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    {
+     "q": "The license page distributes Asterisk under",
+     "choices": [
+      "GNU GPL version 2, and also alternative licenses negotiated with Digium",
+      "A public-domain grant with no text",
+      "The SIP license in RFC 3261",
+      "CC0 only"
+     ],
+     "answer": 0,
+     "why": "Read that page before you ship a module. This quiz is not a license opinion.",
+     "cite": {
+      "label": "Asterisk license information",
+      "url": "https://docs.asterisk.org/About-the-Project/License-Information/"
+     }
+    },
+    {
+     "q": "AMI, AGI, and ARI are",
+     "choices": [
+      "Control protocols named on the Asterisk license page",
+      "SIP methods in RFC 3261",
+      "ICE candidate types",
+      "10DLC campaign fields"
+     ],
+     "answer": 0,
+     "why": "The page names all three.",
+     "cite": {
+      "label": "Asterisk license information",
+      "url": "https://docs.asterisk.org/About-the-Project/License-Information/"
+     }
+    },
+    {
+     "q": "The history page says the source was published under",
+     "choices": [
+      "The GPL",
+      "A proprietary-only license",
+      "The WebSocket subprotocol",
+      "No license"
+     ],
+     "answer": 0,
+     "why": "The history page says GPL, the same license used for Linux.",
+     "cite": {
+      "label": "A brief history of the Asterisk project",
+      "url": "https://docs.asterisk.org/About-the-Project/A-Brief-History-of-the-Asterisk-Project/"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "pjsip.conf",
+     "back": "Where res_pjsip accounts are written.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    {
+     "front": "extensions.conf",
+     "back": "The dialplan file named in the overview.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    {
+     "front": "GPL version 2",
+     "back": "The license page's stated distribution terms.",
+     "cite": {
+      "label": "Asterisk license information",
+      "url": "https://docs.asterisk.org/About-the-Project/License-Information/"
+     }
+    },
+    {
+     "front": "ARI",
+     "back": "Asterisk REST Interface, named next to AMI and AGI.",
+     "cite": {
+      "label": "Asterisk license information",
+      "url": "https://docs.asterisk.org/About-the-Project/License-Information/"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Which file",
+    "kind": "config",
+    "prompt": "A study sketch with the file names from the docs. It is not a working endpoint.",
+    "steps": [
+     "Read the two file names.",
+     "Say which one is the dialplan.",
+     "Do not invent options that are not on the page."
+    ],
+    "check": {
+     "q": "Which file is the dialplan?",
+     "choices": [
+      "extensions.conf",
+      "pjsip.conf",
+      "README of rtpengine",
+      "Public Law 115-127"
+     ],
+     "answer": 0,
+     "why": "pjsip.conf holds the SIP resources. extensions.conf is the dialplan.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    "config": "; study sketch, not a sample from docs.asterisk.org\n; SIP resources: pjsip.conf\n; dialplan: extensions.conf\n"
+   },
+   "fault": {
+    "title": "Dialplan pasted into pjsip.conf",
+    "symptom": "A priority exten line is in pjsip.conf. The phone registers and the called extension does nothing.",
+    "log": "file pjsip.conf\nexten => 1000,1,NoOp(wrong file)\n",
+    "choices": [
+     "The dialplan belongs in extensions.conf",
+     "pjsip.conf is the dialplan",
+     "NoOp is a STUN method",
+     "Registration failed because of Opus"
+    ],
+    "answer": 0,
+    "why": "The overview separates pjsip.conf from extensions.conf.",
+    "cause": "Call processing was written into the SIP resource file.",
+    "fix": "Move the extension to extensions.conf. Keep the endpoint in pjsip.conf and check the examples for your Asterisk version.",
+    "cites": [
+     {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    ]
+   }
+  },
+  {
+   "id": "freeswitch-core",
+   "title": "FreeSWITCH profiles, dialplan, and WebRTC",
+   "minutes": 14,
+   "level": "Intermediate",
+   "tags": [
+    "freeswitch",
+    "webrtc"
+   ],
+   "summary": "The manual covers SIP profiles, the dialplan, codecs, media, WebRTC, and the Event Socket. There is an open source edition and an enterprise edition.",
+   "objectives": [
+    "List what the opened manual says it teaches",
+    "Name the two editions",
+    "Treat SignalWire's hosted service as a separate product from the open source build"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "What the manual introduction names",
+    "caption": "Parameter tables in that manual are verified by its authors against the FreeSWITCH source. This lab does not copy those tables.",
+    "columns": [
+     "Topic",
+     "Where the manual puts it"
+    ],
+    "rows": [
+     [
+      "SIP profiles",
+      "Configuration of endpoints"
+     ],
+     [
+      "Dialplan",
+      "Call routing"
+     ],
+     [
+      "Codecs and media",
+      "Media handling"
+     ],
+     [
+      "WebRTC",
+      "Called out as its own topic"
+     ],
+     [
+      "Event Socket",
+      "Programming interface, with embedded scripting"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "What the manual says it covers",
+     "paragraphs": [
+      "The FreeSWITCH users manual opened for this lab says it teaches a technically competent operator how to configure, set up, and run FreeSWITCH. The introduction lists SIP profiles, the dialplan, codec selection and negotiation, media handling, bundled applications, WebRTC, and the integration interfaces. It adds a module reference, troubleshooting, and programming with the Event Socket and embedded scripting.",
+      "The manual says every parameter, value, and default in it is verified against the FreeSWITCH source and the shipped default configuration. Use that manual for a parameter. Do not reconstruct a default from this lesson."
+     ],
+     "cites": [
+      {
+       "label": "FreeSWITCH users manual",
+       "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+      }
+     ]
+    },
+    {
+     "h": "Two editions, and a hosted product",
+     "paragraphs": [
+      "The same introduction says FreeSWITCH ships in two editions and that the manual applies to both. Open Source FreeSWITCH is free and open source, with source and release builds on the FreeSWITCH releases page. FreeSWITCH Enterprise is the commercially supported edition from SignalWire.",
+      "The page also says SignalWire, founded by the FreeSWITCH team, operates this engine as a hosted platform with numbers, routing, conferencing, recording, and AI agents behind REST APIs and SWML. That hosted service is not the open source process on your server. An integration hook in the open source build that the manual names is the Event Socket."
+     ],
+     "cites": [
+      {
+       "label": "FreeSWITCH users manual",
+       "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "SIP profile accepts the call. The dialplan routes it.",
+    "parties": [
+     "Phone",
+     "FreeSWITCH"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The SIP profile is the endpoint configuration the manual discusses. This INVITE is synthetic.",
+      "message": "INVITE sip:1000@203.0.113.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKfs01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=fs1\nTo: <sip:1000@example.com>\nCall-ID: fs-call@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying means the SIP stack accepted the request for processing.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKfs01\nFrom: \"Alice\" <sip:alice@example.com>;tag=fs1\nTo: <sip:1000@example.com>\nCall-ID: fs-call@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Ringing is after the dialplan has somewhere to alert. The manual is the source for that routing.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKfs01\nFrom: \"Alice\" <sip:alice@example.com>;tag=fs1\nTo: <sip:1000@example.com>;tag=fs180\nCall-ID: fs-call@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "Answer. Media follows the codec negotiation the manual covers. WebRTC would add the DTLS-SRTP path from the WebRTC track.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKfs01\nFrom: \"Alice\" <sip:alice@example.com>;tag=fs1\nTo: <sip:1000@example.com>;tag=fs180\nCall-ID: fs-call@example.com\nCSeq: 1 INVITE\nContact: <sip:1000@203.0.113.30>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "The opened FreeSWITCH manual teaches",
+     "choices": [
+      "SIP profiles, dialplan, codecs, media, WebRTC, and the Event Socket",
+      "Only rtpengine kernel flags",
+      "Only FCC STIR rules",
+      "A Kamailio cfg schema"
+     ],
+     "answer": 0,
+     "why": "Those topics are in the introduction.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "q": "Open Source FreeSWITCH is described as",
+     "choices": [
+      "Free and open source",
+      "A closed appliance with no source",
+      "An FCC database",
+      "A TURN server only"
+     ],
+     "answer": 0,
+     "why": "The page contrasts it with the enterprise edition.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "q": "FreeSWITCH Enterprise is",
+     "choices": [
+      "The commercially supported edition from SignalWire",
+      "A SIP method",
+      "Public Law 115-127",
+      "The rtpengine kernel module"
+     ],
+     "answer": 0,
+     "why": "The manual says the same book applies to both editions.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "q": "SignalWire's hosted platform, as that page describes it, includes",
+     "choices": [
+      "Numbers, routing, conferencing, recording, and AI agents behind REST and SWML",
+      "Only a SIP Via header",
+      "The IETF RFC editor",
+      "No relation to FreeSWITCH"
+     ],
+     "answer": 0,
+     "why": "The page says SignalWire was founded by the FreeSWITCH team.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "q": "Parameter defaults should be read from",
+     "choices": [
+      "The FreeSWITCH manual, which says it checked the source",
+      "This lesson's quiz choices",
+      "A 10DLC campaign",
+      "RFC 7118's handshake"
+     ],
+     "answer": 0,
+     "why": "The manual makes that verification claim. This lesson does not repeat the defaults.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "q": "The Event Socket is",
+     "choices": [
+      "A programming interface the manual names",
+      "A STUN port",
+      "A SHAKEN attestation",
+      "An SDP proto token"
+     ],
+     "answer": 0,
+     "why": "It sits with embedded scripting in the programming section.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "SIP profile",
+     "back": "Endpoint configuration the manual teaches.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "front": "Event Socket",
+     "back": "Programming interface named in the manual.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "front": "Two editions",
+     "back": "Open source, and enterprise from SignalWire.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    {
+     "front": "SWML",
+     "back": "Hosted call-control markup on the SignalWire page.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Separate the products",
+    "kind": "config",
+    "prompt": "Three names from the page. Pick the open source build.",
+    "steps": [
+     "Read the three lines.",
+     "Pick the one that is not the hosted service.",
+     "Remember the manual applies to both editions."
+    ],
+    "check": {
+     "q": "Which line is the open source build?",
+     "choices": [
+      "Open Source FreeSWITCH",
+      "SignalWire hosted platform",
+      "The Campaign Registry",
+      "STI-GA"
+     ],
+     "answer": 0,
+     "why": "The page separates the open source edition from Enterprise and from the hosted platform.",
+     "cite": {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    },
+    "config": "Open Source FreeSWITCH\nFreeSWITCH Enterprise\nSignalWire hosted platform\n"
+   },
+   "fault": {
+    "title": "Hosted API used as a local dialplan file",
+    "symptom": "A lab note says to paste SWML into the local SIP profile and expect the open source process to become the hosted service.",
+    "log": "local file: sip profile\npasted: SWML from the hosted platform\n",
+    "choices": [
+     "SWML is the hosted markup the page describes. The local dialplan is the manual's dialplan.",
+     "SWML is a SIP method",
+     "The SIP profile is a 911 statute",
+     "Event Socket is the kernel RTP path"
+    ],
+    "answer": 0,
+    "why": "The page distinguishes the hosted platform from the server you configure with the manual.",
+    "cause": "A cloud markup was treated as a local profile.",
+    "fix": "Configure the local system from the manual. Call the hosted APIs only against the hosted platform.",
+    "cites": [
+     {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+     }
+    ]
+   }
+  },
+  {
+   "id": "kamailio-proxy",
+   "title": "Kamailio as the SIP server",
+   "minutes": 15,
+   "level": "Advanced",
+   "tags": [
+    "kamailio",
+    "proxy"
+   ],
+   "summary": "Kamailio is an open source SIP server under GPLv2+. Its page lists proxy, registrar, WebSocket, and scaling in front of a PBX.",
+   "objectives": [
+    "Quote the role from the Kamailio home page",
+    "Name WebSocket support for WebRTC as a listed feature",
+    "Decide when the SIP server is Kamailio and the dialplan is elsewhere"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Features named on the Kamailio home page",
+    "caption": "This is the page's list, not a module index. Open the documentation page before you enable a module.",
+    "columns": [
+     "Named on the page",
+     "How this lab uses it"
+    ],
+    "rows": [
+     [
+      "SIP server, GPLv2+",
+      "Signaling role"
+     ],
+     [
+      "Thousands of call setups per second",
+      "The page's scale claim"
+     ],
+     [
+      "Registrar and location",
+      "Bindings"
+     ],
+     [
+      "Edge proxy, load balancing, fail-over",
+      "In front of a PBX"
+     ],
+     [
+      "WebSocket support for WebRTC",
+      "Pairs with RFC 7118"
+     ],
+     [
+      "TLS, IPv4 and IPv6",
+      "Transport and address family"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "The sentence on the home page",
+     "paragraphs": [
+      "Kamailio, successor of OpenSER and SER, is described as an open source SIP server released under GPLv2+, able to handle thousands of call setups per second. The page says it can build large platforms for VoIP and realtime communications, including presence, WebRTC, and instant messaging.",
+      "It also says Kamailio can be used to scale SIP-to-PSTN gateways, PBX systems, or media servers like Asterisk, FreeSWITCH, or SEMS. Among the features it lists: TCP, UDP, and SCTP; TLS for voice, video, and text; WebSocket support for WebRTC; IPv4 and IPv6; SIMPLE instant messaging and presence; ENUM; least cost routing; load balancing; routing fail-over; accounting, authentication, and authorization."
+     ],
+     "cites": [
+      {
+       "label": "Kamailio SIP server",
+       "url": "https://www.kamailio.org/w/"
+      },
+      {
+       "label": "RFC 7118",
+       "url": "https://www.rfc-editor.org/rfc/rfc7118"
+      }
+     ]
+    },
+    {
+     "h": "When this is the box you add",
+     "paragraphs": [
+      "Use Kamailio when the problem is SIP signaling at the edge: registrar, proxy, load balancing, or a WebSocket listener in front of a PBX. The page claims that role. It does not claim to be the rtpengine media proxy, and it does not claim to be the Asterisk dialplan.",
+      "A browser from the WebRTC track can land on WebSocket support the Kamailio page lists. The SIP on that socket is still RFC 7118. Media for a WebRTC endpoint still follows DTLS-SRTP and ICE. If those packets need a media proxy, the rtpengine README is the next page, not another Kamailio slogan."
+     ],
+     "cites": [
+      {
+       "label": "Kamailio SIP server",
+       "url": "https://www.kamailio.org/w/"
+      },
+      {
+       "label": "rtpengine README",
+       "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+      },
+      {
+       "label": "RFC 7118",
+       "url": "https://www.rfc-editor.org/rfc/rfc7118"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Edge proxy in front of a PBX",
+    "parties": [
+     "Browser",
+     "Kamailio",
+     "Asterisk"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "WebSocket support for WebRTC is a feature the Kamailio page names. The SIP is still INVITE.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws02\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@labua.invalid;transport=ws>\nContent-Type: application/sdp\nContent-Length: 187\n\nv=0\no=browser 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 UDP/TLS/RTP/SAVPF 111 0 8\na=rtpmap:111 opus/48000/2\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The page says Kamailio can sit in front of Asterisk. This second hop is that idea, with a new Via.",
+      "message": "INVITE sip:+15551212@203.0.113.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKkam02\nMax-Forwards: 69\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "The PBX alerts. Kamailio forwards the response along the Via path.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKkam02\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>;tag=ast180\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "The browser receives 180 on the WebSocket.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws02\nFrom: \"Alice\" <sip:alice@example.com>;tag=labws2\nTo: <sip:+15551212@example.com>;tag=gw180\nCall-ID: lab-ws-call@example.com\nCSeq: 1 INVITE\nContact: <sip:gw@203.0.113.20>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Kamailio is released under",
+     "choices": [
+      "GPLv2+, according to its home page",
+      "A SIP method license",
+      "Public Law 115-141",
+      "No stated license"
+     ],
+     "answer": 0,
+     "why": "The home page says GPLv2+.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "q": "The scale phrase on that page is",
+     "choices": [
+      "Thousands of call setups per second",
+      "One call per minute",
+      "Unlimited with no statement",
+      "3478 setups"
+     ],
+     "answer": 0,
+     "why": "Use the page's words. Do not invent a higher number.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "q": "The page says Kamailio can front",
+     "choices": [
+      "Asterisk, FreeSWITCH, or SEMS",
+      "Only rtpengine",
+      "Only a browser with no PBX",
+      "Only analog lines"
+     ],
+     "answer": 0,
+     "why": "Those three names are in the sentence.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "q": "WebSocket support for WebRTC is",
+     "choices": [
+      "A feature the home page lists",
+      "Forbidden by GPLv2",
+      "A STIR attestation",
+      "An SDP proto token"
+     ],
+     "answer": 0,
+     "why": "The SIP on that socket is still RFC 7118.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "q": "Least cost routing and load balancing are",
+     "choices": [
+      "Named on the Kamailio page",
+      "Defined in Kari's Law",
+      "RTP payload types",
+      "TURN permissions"
+     ],
+     "answer": 0,
+     "why": "They are in the feature paragraph.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "q": "The dialplan for an Asterisk behind Kamailio still lives in",
+     "choices": [
+      "extensions.conf on Asterisk",
+      "The Kamailio GPLv2 text",
+      "rtpengine's kernel module",
+      "Sec-WebSocket-Protocol"
+     ],
+     "answer": 0,
+     "why": "Kamailio scales the SIP server. Asterisk's overview names the dialplan file.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "GPLv2+",
+     "back": "The license the Kamailio home page states.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "front": "Registrar",
+     "back": "A role the page lists, with location service.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "front": "WebSocket",
+     "back": "Listed as support for WebRTC.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    },
+    {
+     "front": "In front of a PBX",
+     "back": "The page names Asterisk and FreeSWITCH.",
+     "cite": {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Who answers the dialplan",
+    "kind": "config",
+    "prompt": "Kamailio received the INVITE. Asterisk is the next hop.",
+    "steps": [
+     "Read the two roles.",
+     "Say where extensions.conf is.",
+     "Leave RTP to rtpengine if you add it."
+    ],
+    "check": {
+     "q": "Where is the Asterisk dialplan?",
+     "choices": [
+      "extensions.conf on Asterisk",
+      "Inside the WebSocket handshake",
+      "In the STUN binding",
+      "On the Campaign Registry"
+     ],
+     "answer": 0,
+     "why": "Kamailio is the SIP server in front. The dialplan file is Asterisk's.",
+     "cite": {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    },
+    "config": "edge: Kamailio\npbx: Asterisk\ndialplan file: extensions.conf\nmedia proxy if needed: rtpengine\n"
+   },
+   "fault": {
+    "title": "PBX features expected from the proxy alone",
+    "symptom": "Kamailio routes the INVITE. The caller expects voicemail prompts. Nothing in the SIP server is configured as that PBX feature.",
+    "log": "INVITE reached Kamailio\nno dialplan application\n",
+    "choices": [
+     "Add the PBX the Kamailio page says it can front, or a feature that PBX documents",
+     "Voicemail is a WebSocket Ping",
+     "GPLv2 includes a voicemail application",
+     "Change Via to WSS and the prompt appears"
+    ],
+    "answer": 0,
+    "why": "The home page separates the SIP server from the PBX and media server it can scale.",
+    "cause": "A signaling proxy was treated as the application server.",
+    "fix": "Front Asterisk or FreeSWITCH for the dialplan feature, or confirm a Kamailio module in the current documentation before you claim the proxy itself plays the prompt.",
+    "cites": [
+     {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+     },
+     {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+     }
+    ]
+   }
+  },
+  {
+   "id": "rtpengine-map",
+   "title": "rtpengine and the integration map",
+   "minutes": 16,
+   "level": "Advanced",
+   "tags": [
+    "rtpengine",
+    "integration"
+   ],
+   "summary": "rtpengine proxies RTP, rewrites SDP, and can bridge ICE and SRTP. It runs on GNU/Linux and is meant to sit with Kamailio.",
+   "objectives": [
+    "List media features the README states",
+    "Draw the SIP server beside the media proxy",
+    "Keep kernel forwarding as an optimization the README describes"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "Who touches the packet",
+    "caption": "SIP stays on Kamailio. RTP can be forwarded by rtpengine, in kernel or in userspace.",
+    "layers": [
+     {
+      "name": "SIP",
+      "detail": "Kamailio. Registrar, proxy, WebSocket."
+     },
+     {
+      "name": "Control of the proxy",
+      "detail": "README: Kamailio rtpengine module, or the older rtpproxy-ng name."
+     },
+     {
+      "name": "RTP",
+      "detail": "Userspace, or in-kernel forwarding with userspace fallback."
+     },
+     {
+      "name": "Transform",
+      "detail": "ICE bridge, SDES, DTLS-SRTP, RTP to SRTP."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "What the README claims",
+     "paragraphs": [
+      "rtpengine is the Sipwise NGCP media proxy for RTP and other UDP media. It is meant to be used with Kamailio and can replace other RTP proxies. GNU/Linux is the only supported platform it names. Features in the README include IPv4 and IPv6, bridging between them, advertising a different address behind NAT, in-kernel packet forwarding with automatic fallback to userspace if the kernel module is unavailable, and HTTP, HTTPS, and WebSocket interfaces.",
+      "Used through the rtpengine module, or the older rtpproxy-ng name, the README adds full SDP parsing and rewriting, ICE support including a bridge between ICE-enabled and ICE-unaware agents, and SRTP support for SDES and DTLS-SRTP, including a bridge between RTP and SRTP user agents. Those are the reasons to add it. A deployment that does not need a media proxy does not need this process just because SIP is present."
+     ],
+     "cites": [
+      {
+       "label": "rtpengine README",
+       "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+      },
+      {
+       "label": "RFC 8445",
+       "url": "https://www.rfc-editor.org/rfc/rfc8445"
+      },
+      {
+       "label": "RFC 5764",
+       "url": "https://www.rfc-editor.org/rfc/rfc5764"
+      }
+     ]
+    },
+    {
+     "h": "The map",
+     "paragraphs": [
+      "Browser or phone to Kamailio for SIP. Kamailio to Asterisk or FreeSWITCH when a dialplan or PBX feature is required, which is the relationship Kamailio's own page describes. rtpengine beside Kamailio when SDP addresses must be rewritten or when ICE and SRTP need a bridge the README lists.",
+      "In-kernel forwarding is a performance path the README describes, with userspace fallback. This lab does not publish a packets-per-second figure for that path, because the README's sentence is low-latency and low-CPU, not a count. Confirm the current README before you enable a flag this page does not quote."
+     ],
+     "cites": [
+      {
+       "label": "rtpengine README",
+       "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+      },
+      {
+       "label": "Kamailio SIP server",
+       "url": "https://www.kamailio.org/w/"
+      },
+      {
+       "label": "Asterisk res_pjsip configuration",
+       "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "SIP on Kamailio, RTP toward rtpengine",
+    "parties": [
+     "Phone",
+     "Kamailio",
+     "rtpengine"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Signaling hits the SIP server. The body still has the phone's media address.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKrtp01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=rtp1\nTo: <sip:+15551212@example.com>\nCall-ID: rtp-map@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Type: application/sdp\nContent-Length: 98\n\nv=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "offer",
+      "kind": "req",
+      "note": "The Kamailio module asks rtpengine to rewrite SDP. This line is a study label, not a copy of the control protocol.",
+      "message": "study control: offer\nfrom 203.0.113.10:49170\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "answer",
+      "kind": "res",
+      "note": "The proxy can advertise its own address. The README lists that NAT behavior.",
+      "message": "study control: media 203.0.113.20:30000\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The caller receives SDP that points at the proxy. RTP then goes to rtpengine, not through the SIP process.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKrtp01\nFrom: \"Alice\" <sip:alice@example.com>;tag=rtp1\nTo: <sip:+15551212@example.com>;tag=rtp200\nCall-ID: rtp-map@example.com\nCSeq: 1 INVITE\nContent-Type: application/sdp\nContent-Length: 98\n\nv=0\no=proxy 2 1 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 30000 RTP/AVP 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "rtpengine proxies",
+     "choices": [
+      "RTP and other UDP media",
+      "Only SIP REGISTER",
+      "Only HTTP APIs",
+      "Only SMS"
+     ],
+     "answer": 0,
+     "why": "The README's first description.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    {
+     "q": "The supported platform named in the README is",
+     "choices": [
+      "GNU/Linux",
+      "Any RTOS",
+      "Browser JavaScript only",
+      "A PSTN switch"
+     ],
+     "answer": 0,
+     "why": "Do not plan another operating system from this page.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    {
+     "q": "In-kernel forwarding",
+     "choices": [
+      "Falls back to userspace if the kernel module is unavailable",
+      "Is required for SIP to parse",
+      "Replaces Kamailio",
+      "Disables SDP rewriting"
+     ],
+     "answer": 0,
+     "why": "The README states the fallback.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    {
+     "q": "ICE support in the README includes",
+     "choices": [
+      "Bridging ICE-enabled and ICE-unaware user agents",
+      "Removing SIP From tags",
+      "Signing a PASSporT",
+      "Registering a 10DLC campaign"
+     ],
+     "answer": 0,
+     "why": "That bridge is listed with the other ICE options.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    {
+     "q": "SRTP support includes",
+     "choices": [
+      "SDES, DTLS-SRTP, and bridging RTP with SRTP",
+      "Only clear RTP",
+      "Only SIP TLS",
+      "Only Opus"
+     ],
+     "answer": 0,
+     "why": "The README names SDES and DTLS-SRTP.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    {
+     "q": "SDP rewriting is available",
+     "choices": [
+      "Through the rtpengine module, or the older rtpproxy-ng name",
+      "Only by editing RTP headers with a text editor",
+      "By the STUN port",
+      "By Kari's Law"
+     ],
+     "answer": 0,
+     "why": "The README attaches SDP parsing to that module.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "With Kamailio",
+     "back": "The README's intended SIP proxy.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    {
+     "front": "Userspace fallback",
+     "back": "If the kernel module is unavailable.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    {
+     "front": "ICE bridge",
+     "back": "Between ICE-aware and ICE-unaware agents.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    },
+    {
+     "front": "RTP and SRTP",
+     "back": "The README lists a bridge between them.",
+     "cite": {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Read the rewritten c= line",
+    "kind": "sdp",
+    "prompt": "The offer points at the phone. The answer points at the proxy. That is the anchoring idea.",
+    "steps": [
+     "Negotiate.",
+     "Compare c=.",
+     "Say which address the caller will send RTP toward."
+    ],
+    "check": {
+     "q": "After anchoring, the caller sends RTP to",
+     "choices": [
+      "203.0.113.20, the address in the answer",
+      "203.0.113.10, the original offer",
+      "Port 3478 on the SIP server",
+      "The .invalid host"
+     ],
+     "answer": 0,
+     "why": "The answer c= line is the proxy address in this study pair.",
+     "cite": {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     }
+    },
+    "offer": "v=0\no=alice 1 1 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0\na=rtpmap:0 PCMU/8000\n",
+    "answer": "v=0\no=proxy 2 1 IN IP4 203.0.113.20\ns=-\nc=IN IP4 203.0.113.20\nt=0 0\nm=audio 30000 RTP/AVP 0\na=rtpmap:0 PCMU/8000\n"
+   },
+   "fault": {
+    "title": "Kernel module missing, proxy declared down",
+    "symptom": "The kernel module failed to load. RTP still flows. An alarm says rtpengine is dead because kernel forwarding is off.",
+    "log": "kernel module: unavailable\nuserspace forwarding: active\n",
+    "choices": [
+     "The README says userspace is the fallback when the kernel module is unavailable",
+     "Userspace means the proxy stopped",
+     "SIP must move to port 3478",
+     "DTLS cannot run in userspace so delete SDP"
+    ],
+    "answer": 0,
+    "why": "Fallback to userspace is a documented behavior, not proof the process exited.",
+    "cause": "The alarm treated one forwarding path as the whole proxy.",
+    "fix": "Confirm the process is up and userspace is forwarding. Restore the kernel module if you want that path. Read the current README for the flag names.",
+    "cites": [
+     {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -445,6 +445,11 @@ for (const arch of arches) {
 }
 
 const sisters = ecosystem.sisters || [];
+const roomCycle = ecosystem.roomCycle || [];
+function sisterParagraph(item) {
+  if (!item || !item.name) return "";
+  return `<p><strong>${esc(item.name)}</strong> ${esc(item.blurb || "")}</p>`;
+}
 for (const room of rooms) {
   const lesson = room.lesson;
   const items = citeItems(collectCites(lesson), log);
@@ -457,8 +462,12 @@ for (const room of rooms) {
   const lab = lesson.lab || {};
   const steps = (lab.steps || []).map((step) => `<li>${esc(step)}</li>`).join("");
   const fault = lesson.fault || {};
-  const sister = sisters.length ? sisters[room.index % sisters.length] : null;
-  const sisterHtml = sister ? `<p><strong>${esc(sister.name)}</strong> ${esc(sister.blurb || "")}</p>` : "<p>confirm</p>";
+  const current = sisters.length ? sisters[room.index % sisters.length] : null;
+  const prior = roomCycle.length ? roomCycle[room.index % roomCycle.length] : null;
+  const sisterNotes = [];
+  if (prior) sisterNotes.push(sisterParagraph(prior));
+  if (current && (!prior || prior.name !== current.name || prior.blurb !== current.blurb)) sisterNotes.push(sisterParagraph(current));
+  const sisterHtml = sisterNotes.join("") || "<p>confirm</p>";
   const caution = /cloud|cisco|multivendor|operations/.test(room.track.file) ? "<p>Vendor menus, ports, and license names change. Confirm before relying on a sentence that is not an RFC.</p>" : "";
   const body = `<p class="crumbs"><a href="../index.html">Home</a> / <a href="../${room.track.href}">${esc(room.track.title)}</a> / ${esc(lesson.title)}</p>
 <h1>${esc(lesson.title)}</h1>
@@ -547,6 +556,10 @@ const home = page({
 <a href="downloads.html">Cheat Codes</a>
 <a href="play.html">Play</a>
 <a href="ecosystem.html">Ecosystem</a>
+<a href="tracks/T17-webrtc.html">WebRTC</a>
+<a href="tracks/T18-opensource.html">Open core</a>
+<a href="tracks/T19-compliance.html">Compliance</a>
+<a href="tracks/T20-gaps.html">Gaps</a>
 <a href="downloads.html#sheets">Downloads</a>
 <a href="careers.html">Careers</a>
 </nav>
@@ -626,6 +639,7 @@ ${barChart("Fault write-ups in each track", faultRows, "Each room in the source 
 (function () {
   var rows = ${JSON.stringify(byTrack)};
   var svg = d3.select("#d3-lessons");
+  svg.attr("viewBox", "0 0 " + Math.max(640, 40 + rows.length * 38) + " 220");
   var max = d3.max(rows, function (row) { return row.value; }) || 1;
   svg.selectAll("rect").data(rows).enter().append("rect")
     .attr("x", function (_d, i) { return 20 + i * 38; })
@@ -654,7 +668,11 @@ const sheetSpecs = [
   ["troubleshoot", "Wireshark and sngrep", "wireshark"],
   ["e911", "Emergency calling basics", "e911"],
   ["interop", "Interop seams", "teams-signaling"],
-  ["ports", "Ports and transports", "prereq-network"]
+  ["ports", "Ports and transports", "prereq-network"],
+  ["webrtc-websocket", "WebRTC and SIP over WebSocket", "signaling-planes"],
+  ["open-source-core", "Open-source telephony core", "four-roles"],
+  ["compliance-study", "Call authentication and compliance", "not-legal-advice"],
+  ["ecosystem-gaps", "Ecosystem, maps, and hooks", "glossary-map"]
 ];
 const sheetItems = [];
 for (const [slug, title, lessonId] of sheetSpecs) {
@@ -792,19 +810,27 @@ writeFileSync(join(root, "drills.html"), page({ title: "Troubleshooting cases", 
 const interviewBlocks = (interview.items || []).map((item) => `<article class="track-card" data-title="${esc(item.q)}"><h2>${esc(item.q)}</h2><p>${esc(item.a)}</p>${sourcesHtml(citeItems(item.cites, log))}</article>`).join("");
 writeFileSync(join(root, "interviews.html"), page({ title: "Interview prep", desc: "Study questions with citations.", body: `<h1>Interview prep</h1><p>These are study questions. They are not a claim about anyone's job history.</p><section id="interviews">${interviewBlocks}</section>` }));
 
-const ecoSisters = (ecosystem.sisters || []).map((sister) => `<article class="track-card"><h2>${esc(sister.name)}</h2><p>${esc(sister.blurb || "")}</p>${sourcesHtml(citeItems(sister.cites, log))}</article>`).join("");
+function ecoArticles(items) {
+  return (items || []).map((item) => `<article class="track-card"><h2>${esc(item.name)}</h2><p>${esc(item.blurb || "")}</p>${sourcesHtml(citeItems(item.cites, log))}</article>`).join("");
+}
+const ecoSisters = ecoArticles(ecosystem.sisters);
+const ecoBridges = ecoArticles(ecosystem.bridges);
+const ecoConfig = ecoArticles(ecosystem.config);
+const ecoTrouble = ecoArticles(ecosystem.troubleshoot);
+const ecoHooks = ecoArticles(ecosystem.hooks);
+const mind = ecosystem.mind || { content: "SIP session", children: [] };
 writeFileSync(join(root, "ecosystem.html"), page({
   title: "Ecosystem",
   desc: "Systems that hang off a SIP session.",
   extra: `<script src="vendor/d3.min.js"></script><script src="vendor/markmap-view.js"></script>`,
-  body: `<h1>Ecosystem</h1><p>${esc(ecosystem.summary || "")}</p><section id="mind"><h2>Mind map</h2><svg id="mindmap"></svg><pre id="mind-md" hidden>${esc("# SIP session\n## Signaling\n- INVITE\n- REGISTER\n## Media\n- RTP\n- SRTP\n## Border\n- SBC\n- ICE\n## Neighbors\n- Recording\n- Emergency\n- Contact center")}</pre></section><section id="sisters"><h2>Sister technologies</h2>${ecoSisters}</section><script>
+  body: `<h1>Ecosystem</h1><p>${esc(ecosystem.summary || "")}</p><p>${esc(ecosystem.disclaimer || "Educational only. Not legal advice.")}</p><section id="mind"><h2>Mind map</h2><svg id="mindmap"></svg><pre id="mind-md" hidden>${esc(JSON.stringify(mind))}</pre></section><section id="sisters"><h2>Sister technologies</h2>${ecoSisters}</section><section id="bridges"><h2>Cross-platform bridges</h2>${ecoBridges}</section><section id="config"><h2>Configuration</h2>${ecoConfig}</section><section id="troubleshoot"><h2>Troubleshooting</h2>${ecoTrouble}</section><section id="hooks"><h2>Integration hooks</h2>${ecoHooks}</section><script>
 (function () {
-  var md = document.getElementById("mind-md").textContent;
+  var raw = document.getElementById("mind-md").textContent;
   if (!window.markmap || !window.d3) return;
-  var root = { content: "SIP session", children: md.split("\\n").filter(function (line) { return line.indexOf("## ") === 0; }).map(function (line) { return { content: line.replace("## ", "") }; }) };
+  var root = JSON.parse(raw);
   window.markmap.Markmap.create("svg#mindmap", null, root);
 })();
-</script>`
+</script>${sourcesHtml(citeItems([].concat(ecosystem.sisters || [], ecosystem.bridges || [], ecosystem.config || [], ecosystem.troubleshoot || [], ecosystem.hooks || []).flatMap((item) => item.cites || []), log).slice(0, 12))}`
 }));
 
 writeFileSync(join(root, "careers.html"), page({
@@ -1017,6 +1043,8 @@ Sibling labs checked on ${CHECKED}: https://cyphermonkeylabs.com/<repo>/ returne
 writeFileSync(join(root, "docs/PUBLISHING.md"), `# Publishing this lab
 
 The site is the repository root. \`node scripts/gzip-static.mjs\` serves it with gzip.
+
+Mermaid was not executed in this build. The ladders and architecture drawings are hand-built SVG files. three.js, anime.js, rough.js, D3, markmap-view, and canvas-confetti are vendored and used in the browser.
 
 ## Installed: progressive web app
 

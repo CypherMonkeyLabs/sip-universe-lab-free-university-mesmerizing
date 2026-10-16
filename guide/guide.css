@@ -781,6 +781,16 @@ html[data-motion="reduce"] .cg-root * {
   }
 }
 
+/* A 156px monkey on a 390px phone sat on the opening lines. Keep a
+   small corner control above the phone bar unless the greeting is open. */
+@media (max-width: 430px) {
+  .cg-root:not(.is-greeting),
+  .cg-root:not(.is-greeting) .cg-monkey {
+    width: 48px;
+    height: 56px;
+  }
+}
+
 .cg-root.is-menu-away {
   transform: translateX(140%);
 }

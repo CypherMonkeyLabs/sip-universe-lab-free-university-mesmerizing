@@ -357,7 +357,7 @@ function bench(title, copy, href, icon) {
 
 function renderTracks() {
   setTitle("Tracks");
-  view.innerHTML = `<p class="lede">Sixteen tracks, from the first Via header to cloud PSTN interconnects. Open one. Lessons load on their own.</p>
+  view.innerHTML = `<p class="lede">${catalog.stats.tracks} tracks, from the first Via header through WebRTC, the open-source core, compliance study, and the ecosystem gaps. Open one. Lessons load on their own.</p>
     <div class="card-grid">${catalog.tracks.map(trackCard).join("")}</div>`;
   return () => {};
 }
@@ -415,6 +415,7 @@ async function renderLesson(trackId, lessonId) {
         <div id="lesson-lab"></div>
         <h2>Fault and fix</h2>
         <div id="lesson-fault"></div>
+        <section id="go-deeper" class="go-deeper"><h2>Sources and go deeper</h2><ul>${lessonSources(lesson)}</ul></section>
         <div class="pager">
           ${prev ? `<a class="btn" href="#/lesson/${esc(track.id)}/${esc(prev.id)}">Previous</a>` : ""}
           ${next ? `<a class="btn" href="#/lesson/${esc(track.id)}/${esc(next.id)}">Next</a>` : ""}
@@ -635,18 +636,53 @@ async function renderGlossary() {
   return () => {};
 }
 
+function lessonSources(lesson) {
+  const seen = new Set();
+  const items = [];
+  const walk = (node) => {
+    if (!node || typeof node !== "object") return;
+    if (typeof node.label === "string" && typeof node.url === "string" && node.url.startsWith("http")) {
+      const key = `${node.label}|${node.url}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        items.push(node);
+      }
+    }
+    const values = Array.isArray(node) ? node : Object.values(node);
+    values.forEach(walk);
+  };
+  walk(lesson);
+  if (!items.length) return "<li>confirm</li>";
+  return items.map((cite) => {
+    if (/https?:\/\/(?:www\.)?fcc\.gov/i.test(cite.url)) return `<li>${esc(cite.label)} — confirm</li>`;
+    return `<li><a href="${esc(cite.url)}">${esc(cite.label)}</a> — last checked 2026-10</li>`;
+  }).join("");
+}
+
+function ecoCards(items) {
+  return (items || []).map((item) => `<article class="card"><h3>${esc(item.name)}</h3><p>${esc(item.blurb)}</p>${citeLinks(item.cites)}</article>`).join("");
+}
+
 async function renderEcosystem() {
   const data = await loadJSON("data/ecosystem.json");
   setTitle("Ecosystem");
   const author = data.author
     ? `<section class="panel" id="campus-author"><h2>${esc(data.author.title)}</h2><p>${esc(data.author.blurb)}</p>${citeLinks(data.author.cites)}</section>`
     : "";
+  const disclaimer = data.disclaimer ? `<p class="fine">${esc(data.disclaimer)}</p>` : "";
+  const extra = [
+    ["Configuration", data.config],
+    ["Troubleshooting", data.troubleshoot],
+    ["Integration hooks", data.hooks],
+  ].filter(([, items]) => items && items.length).map(([title, items]) => `<h2>${title}</h2><div class="card-grid">${ecoCards(items)}</div>`).join("");
   view.innerHTML = `${iconHTML("ecosystem")}<p class="lede">${esc(data.summary)}</p>
+    ${disclaimer}
     ${author}
     <h2>Neighboring systems</h2>
-    <div class="card-grid">${data.sisters.map((item) => `<article class="card"><h3>${esc(item.name)}</h3><p>${esc(item.blurb)}</p>${citeLinks(item.cites)}</article>`).join("")}</div>
+    <div class="card-grid">${ecoCards(data.sisters)}</div>
     <h2>Where SIP shows up in the UC stack</h2>
     ${data.bridges.map((item) => `<section class="panel"><h3>${esc(item.name)}</h3><p>${esc(item.blurb)}</p>${citeLinks(item.cites)}</section>`).join("")}
+    ${extra}
     ${illustration(data.map)}
     <h2>Timeline</h2>
     <div class="scroll"><table><thead><tr><th scope="col">RFC</th><th scope="col">Date</th><th scope="col">Title</th><th scope="col">Status note</th></tr></thead><tbody>

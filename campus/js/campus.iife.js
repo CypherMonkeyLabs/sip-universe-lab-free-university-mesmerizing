@@ -1739,26 +1739,29 @@
     content: "SIP session",
     children: [
       { content: "Signaling", children: [
-        { content: "INVITE" },
-        { content: "REGISTER" },
-        { content: "REFER" },
-        { content: "PRACK" }
+        { content: "INVITE and responses" },
+        { content: "WebSocket subprotocol sip" },
+        { content: "Transactions and dialogs" }
       ] },
       { content: "Media", children: [
-        { content: "SDP" },
-        { content: "RTP" },
-        { content: "SRTP" }
+        { content: "SDP offer and answer" },
+        { content: "ICE, STUN, TURN" },
+        { content: "DTLS-SRTP and Opus" }
       ] },
-      { content: "Reachability", children: [
-        { content: "NAT" },
-        { content: "ICE" },
-        { content: "TLS" }
+      { content: "Open core", children: [
+        { content: "Kamailio SIP server" },
+        { content: "Asterisk and FreeSWITCH" },
+        { content: "rtpengine" }
+      ] },
+      { content: "Compliance study", children: [
+        { content: "STIR and SHAKEN" },
+        { content: "Kari's Law and RAY BAUM'S Act" },
+        { content: "10DLC messaging" }
       ] },
       { content: "Neighbors", children: [
-        { content: "E911" },
-        { content: "SIPREC" },
-        { content: "WFM" },
-        { content: "CRM" }
+        { content: "WFM and CRM" },
+        { content: "SIPREC recording" },
+        { content: "Programmable voice APIs" }
       ] }
     ]
   };
@@ -4255,7 +4258,11 @@
     "troubleshoot",
     "operations",
     "ecosystem",
-    "capstone"
+    "capstone",
+    "webrtc",
+    "opensource",
+    "compliance",
+    "gaps"
   ];
   function reduced3() {
     const motion = document.documentElement.dataset.motion;
@@ -4425,6 +4432,34 @@
         moon.position.set(Math.cos(ang) * 0.7, Math.sin(ang) * 0.45, Math.sin(ang) * 0.3);
         add(moon);
       }
+    } else if (id === "webrtc") {
+      const pane = new THREE2.Mesh(new THREE2.BoxGeometry(0.9, 0.62, 0.08), lit(THREE2, A));
+      const cam = new THREE2.Mesh(new THREE2.SphereGeometry(0.1, 12, 12), glow(THREE2, C));
+      cam.position.set(0.22, 0.1, 0.12);
+      const mic = new THREE2.Mesh(new THREE2.CylinderGeometry(0.05, 0.05, 0.28, 8), lit(THREE2, B));
+      mic.position.set(-0.22, -0.02, 0.12);
+      add(pane, cam, mic);
+    } else if (id === "opensource") {
+      const core = new THREE2.Mesh(new THREE2.BoxGeometry(0.42, 0.42, 0.42), lit(THREE2, A));
+      const ring = new THREE2.Mesh(new THREE2.TorusGeometry(0.62, 0.06, 10, 24), lit(THREE2, B));
+      ring.rotation.x = Math.PI / 3;
+      const sat = new THREE2.Mesh(new THREE2.OctahedronGeometry(0.16), lit(THREE2, C));
+      sat.position.set(0.7, 0.25, 0);
+      add(core, ring, sat);
+    } else if (id === "compliance") {
+      const shield = new THREE2.Mesh(new THREE2.CylinderGeometry(0.42, 0.48, 0.16, 6), lit(THREE2, A));
+      const seal = new THREE2.Mesh(new THREE2.TorusGeometry(0.18, 0.05, 8, 16), glow(THREE2, C));
+      seal.rotation.x = Math.PI / 2;
+      seal.position.y = 0.12;
+      add(shield, seal);
+    } else if (id === "gaps") {
+      const hub2 = new THREE2.Mesh(new THREE2.IcosahedronGeometry(0.28, 0), lit(THREE2, A));
+      add(hub2);
+      [[-0.55, 0.2], [0.55, 0.15], [0, -0.5], [0.4, 0.5]].forEach(([x, y], i) => {
+        const leaf = new THREE2.Mesh(new THREE2.SphereGeometry(0.12, 10, 10), lit(THREE2, i % 2 ? C : B));
+        leaf.position.set(x, y, 0.1);
+        add(leaf);
+      });
     } else {
       const knot = new THREE2.Mesh(new THREE2.TorusKnotGeometry(0.42, 0.12, 80, 12), lit(THREE2, A));
       const halo = new THREE2.Mesh(new THREE2.TorusGeometry(0.7, 0.03, 8, 32), glow(THREE2, C));
@@ -4594,7 +4629,7 @@
   // campus/js/menu.js
   var NAV = [
     { href: "#/", label: "Home", group: "Learn", icon: "home", desc: "The call-path opening screen." },
-    { href: "#/tracks", label: "Tracks", group: "Learn", icon: "tracks", desc: "Sixteen tracks, from signaling to design drills." },
+    { href: "#/tracks", label: "Tracks", group: "Learn", icon: "tracks", desc: "Twenty tracks, from signaling through the ecosystem gaps." },
     { href: "#/labs", label: "Labs", group: "Learn", icon: "labs", desc: "Benches that sit inside the lessons." },
     { href: "#/guide", label: "Field guide", group: "Learn", icon: "guide", desc: "Checklists for trunks, faults, and cutovers." },
     { href: "#/boss", label: "Boss incidents", group: "Learn", icon: "boss", desc: "Synthetic logs. The fix cites a document." },
@@ -5302,7 +5337,7 @@
   }
   function renderTracks() {
     setTitle("Tracks");
-    view.innerHTML = `<p class="lede">Sixteen tracks, from the first Via header to cloud PSTN interconnects. Open one. Lessons load on their own.</p>
+    view.innerHTML = `<p class="lede">${catalog.stats.tracks} tracks, from the first Via header through WebRTC, the open-source core, compliance study, and the ecosystem gaps. Open one. Lessons load on their own.</p>
     <div class="card-grid">${catalog.tracks.map(trackCard).join("")}</div>`;
     return () => {
     };
@@ -5359,6 +5394,7 @@
         <div id="lesson-lab"></div>
         <h2>Fault and fix</h2>
         <div id="lesson-fault"></div>
+        <section id="go-deeper" class="go-deeper"><h2>Sources and go deeper</h2><ul>${lessonSources(lesson)}</ul></section>
         <div class="pager">
           ${prev ? `<a class="btn" href="#/lesson/${esc(track.id)}/${esc(prev.id)}">Previous</a>` : ""}
           ${next ? `<a class="btn" href="#/lesson/${esc(track.id)}/${esc(next.id)}">Next</a>` : ""}
@@ -5606,16 +5642,49 @@
     return () => {
     };
   }
+  function lessonSources(lesson) {
+    const seen = /* @__PURE__ */ new Set();
+    const items = [];
+    const walk = (node) => {
+      if (!node || typeof node !== "object") return;
+      if (typeof node.label === "string" && typeof node.url === "string" && node.url.startsWith("http")) {
+        const key = `${node.label}|${node.url}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          items.push(node);
+        }
+      }
+      const values = Array.isArray(node) ? node : Object.values(node);
+      values.forEach(walk);
+    };
+    walk(lesson);
+    if (!items.length) return "<li>confirm</li>";
+    return items.map((cite) => {
+      if (/https?:\/\/(?:www\.)?fcc\.gov/i.test(cite.url)) return `<li>${esc(cite.label)} \u2014 confirm</li>`;
+      return `<li><a href="${esc(cite.url)}">${esc(cite.label)}</a> \u2014 last checked 2026-10</li>`;
+    }).join("");
+  }
+  function ecoCards(items) {
+    return (items || []).map((item) => `<article class="card"><h3>${esc(item.name)}</h3><p>${esc(item.blurb)}</p>${citeLinks(item.cites)}</article>`).join("");
+  }
   async function renderEcosystem() {
     const data = await loadJSON("data/ecosystem.json");
     setTitle("Ecosystem");
     const author = data.author ? `<section class="panel" id="campus-author"><h2>${esc(data.author.title)}</h2><p>${esc(data.author.blurb)}</p>${citeLinks(data.author.cites)}</section>` : "";
+    const disclaimer = data.disclaimer ? `<p class="fine">${esc(data.disclaimer)}</p>` : "";
+    const extra = [
+      ["Configuration", data.config],
+      ["Troubleshooting", data.troubleshoot],
+      ["Integration hooks", data.hooks]
+    ].filter(([, items]) => items && items.length).map(([title, items]) => `<h2>${title}</h2><div class="card-grid">${ecoCards(items)}</div>`).join("");
     view.innerHTML = `${iconHTML("ecosystem")}<p class="lede">${esc(data.summary)}</p>
+    ${disclaimer}
     ${author}
     <h2>Neighboring systems</h2>
-    <div class="card-grid">${data.sisters.map((item) => `<article class="card"><h3>${esc(item.name)}</h3><p>${esc(item.blurb)}</p>${citeLinks(item.cites)}</article>`).join("")}</div>
+    <div class="card-grid">${ecoCards(data.sisters)}</div>
     <h2>Where SIP shows up in the UC stack</h2>
     ${data.bridges.map((item) => `<section class="panel"><h3>${esc(item.name)}</h3><p>${esc(item.blurb)}</p>${citeLinks(item.cites)}</section>`).join("")}
+    ${extra}
     ${illustration(data.map)}
     <h2>Timeline</h2>
     <div class="scroll"><table><thead><tr><th scope="col">RFC</th><th scope="col">Date</th><th scope="col">Title</th><th scope="col">Status note</th></tr></thead><tbody>
