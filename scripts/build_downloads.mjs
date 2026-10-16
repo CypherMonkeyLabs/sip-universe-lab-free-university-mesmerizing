@@ -13,7 +13,7 @@ const ports = load("ports.json");
 const glossary = load("glossary.json");
 const guide = load("fieldguide.json");
 
-const REPO = "https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing";
+const REPO = "https://github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing";
 const FOOT = `Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.`;
 
 function esc(value) {

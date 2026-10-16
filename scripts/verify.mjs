@@ -146,10 +146,10 @@ for (const rel of ["audio/architect-use.mp3", "audio/architect-share.mp3", "css/
   if (!statSync(join(root, "campus", rel), { throwIfNoEntry: false })) problems.push(`missing ${rel}`);
 }
 for (const page of [
-  "https://cipher0x9.github.io/uc-lab-free-university-mesmerizing/",
-  "https://cipher0x9.github.io/ai-lab-free-university-mesmerizing/",
-  "https://cipher0x9.github.io/webex-lab-free-university-mesmerizing/",
-  "https://cipher0x9.github.io/sip-universe-lab-free-university-mesmerizing/",
+  "https://cyphermonkeylabs.com/uc-lab-free-university-mesmerizing/",
+  "https://cyphermonkeylabs.com/ai-lab-free-university-mesmerizing/",
+  "https://cyphermonkeylabs.com/webex-lab-free-university-mesmerizing/",
+  "https://cyphermonkeylabs.com/sip-universe-lab-free-university-mesmerizing/",
 ]) {
   if (!indexHtml.includes(page)) problems.push(`sibling ${page}`);
 }
