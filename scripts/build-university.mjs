@@ -445,6 +445,11 @@ for (const arch of arches) {
 }
 
 const sisters = ecosystem.sisters || [];
+const roomCycle = ecosystem.roomCycle || [];
+function sisterParagraph(item) {
+  if (!item || !item.name) return "";
+  return `<p><strong>${esc(item.name)}</strong> ${esc(item.blurb || "")}</p>`;
+}
 for (const room of rooms) {
   const lesson = room.lesson;
   const items = citeItems(collectCites(lesson), log);
@@ -457,8 +462,12 @@ for (const room of rooms) {
   const lab = lesson.lab || {};
   const steps = (lab.steps || []).map((step) => `<li>${esc(step)}</li>`).join("");
   const fault = lesson.fault || {};
-  const sister = sisters.length ? sisters[room.index % sisters.length] : null;
-  const sisterHtml = sister ? `<p><strong>${esc(sister.name)}</strong> ${esc(sister.blurb || "")}</p>` : "<p>confirm</p>";
+  const current = sisters.length ? sisters[room.index % sisters.length] : null;
+  const prior = roomCycle.length ? roomCycle[room.index % roomCycle.length] : null;
+  const sisterNotes = [];
+  if (prior) sisterNotes.push(sisterParagraph(prior));
+  if (current && (!prior || prior.name !== current.name || prior.blurb !== current.blurb)) sisterNotes.push(sisterParagraph(current));
+  const sisterHtml = sisterNotes.join("") || "<p>confirm</p>";
   const caution = /cloud|cisco|multivendor|operations/.test(room.track.file) ? "<p>Vendor menus, ports, and license names change. Confirm before relying on a sentence that is not an RFC.</p>" : "";
   const body = `<p class="crumbs"><a href="../index.html">Home</a> / <a href="../${room.track.href}">${esc(room.track.title)}</a> / ${esc(lesson.title)}</p>
 <h1>${esc(lesson.title)}</h1>

@@ -152,7 +152,7 @@ def certs():
 
 
 def ecosystem():
-    return {
+    data = {
         "summary": "SIP does not replace workforce management, quality monitoring, CRM, emergency policy, or a messaging registry. It is the session seam those systems hang from. Compliance notes on this page are educational and are not legal advice.",
         "disclaimer": "Educational only. Not legal advice, not a compliance opinion, and not a filing. Statutes and the pages linked from each card outrank this paraphrase.",
         "sisters": [
@@ -250,6 +250,14 @@ def ecosystem():
             {"rfc": "RFC 8866", "title": "SDP", "url": C["8866"]["url"], "note": "Current SDP specification."},
         ],
     }
+    # Lesson index modulo 6 is the note these rooms already published.
+    # The seventh sister and the shorter AI blurb stay beside that note.
+    data["roomCycle"] = [{"name": sister["name"], "blurb": sister["blurb"]} for sister in data["sisters"][:5]]
+    data["roomCycle"].append({
+        "name": "AI omni-channel agents",
+        "blurb": "A voice bot still needs a session. SIP creates, modifies, and ends sessions. Omni-channel, in the contact-center sense, means the same contact can also live on chat or another digital channel. Those channels do not replace the voice session. On Amazon Connect the platform owns the managed PSTN voice channel. Bridging an outside carrier into Connect with a Chime Voice Connector is not a supported pattern unless AWS reviews it. When an SBC forks the voice leg to a recorder, that fork is SIPREC, a different plane from the customer dialog.",
+    })
+    return data
 
 
 def boss():

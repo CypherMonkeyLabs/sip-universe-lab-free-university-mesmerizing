@@ -902,6 +902,7 @@ function dockBottom() {
 }
 
 function monkeySize() {
+  if (window.matchMedia("(max-width: 430px)").matches) return { width: 48, height: 56 };
   if (window.matchMedia("(max-width: 720px)").matches) return { width: 156, height: 184 };
   return { width: 200, height: 236 };
 }

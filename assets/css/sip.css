@@ -64,6 +64,11 @@ html[data-hero="flat"] .world-hero .world-ui {
   body { padding-bottom: 92px; }
   main { padding-left: 12px; padding-right: 12px; }
 }
+@media (max-width: 430px) {
+  body:not(.home-world) main {
+    padding-right: 48px;
+  }
+}
 @media (min-width: 900px) {
   body:not(.home-world) .world-hero { min-height: 520px; }
 }
