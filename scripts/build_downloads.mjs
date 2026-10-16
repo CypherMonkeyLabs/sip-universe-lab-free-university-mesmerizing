@@ -13,8 +13,14 @@ const ports = load("ports.json");
 const glossary = load("glossary.json");
 const guide = load("fieldguide.json");
 
-const REPO = "https://github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing";
 const FOOT = `Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.`;
+const LINKS = [
+  ["Visit my GitHub", "https://github.com/cipher0x9"],
+  ["Visit the Labs org", "https://github.com/CypherMonkeyLabs"],
+  ["Visit Cypher Monkey Labs", "https://cyphermonkeylabs.com"],
+  ["X", "https://x.com/Cypher0x9"],
+  ["Hugging Face", "https://huggingface.co/Cypher0x9"],
+];
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -26,9 +32,20 @@ function page({ title, kicker, body }) {
 <head>
   <meta charset="utf-8">
   <title>${esc(title)} · SIP Universe</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <style>
+    @font-face {
+      font-family: "Campus UI";
+      src: local("Segoe UI"), local("system-ui"), local("Helvetica Neue"), local("Arial");
+      font-display: swap;
+      size-adjust: 100%;
+      ascent-override: 90%;
+      descent-override: 22%;
+      line-gap-override: 0%;
+    }
     @page { size: letter; margin: 0.45in; }
-    body { font: 13px/1.35 ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
+    body { font: 13px/1.35 "Campus UI", ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
     main { max-width: 980px; margin: 0 auto; padding: 18px 18px 8px; background: white; }
     h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.03em; }
     .kicker { color: #0f6e73; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
@@ -48,7 +65,8 @@ function page({ title, kicker, body }) {
   <h1>${esc(title)}</h1>
   ${body}
   <footer>
-    <p><a href="https://cyphermonkeylabs.com">cyphermonkeylabs.com</a> · <a href="https://linktr.ee/cyphermonkey">linktr.ee/cyphermonkey</a> · <a href="${REPO}">${REPO.replace("https://", "")}</a></p>
+    <p>© 2026 CypherMonkeyLabs 🐒</p>
+    <p>${LINKS.map(([label, href]) => `<a href="${href}">${esc(label)}</a>`).join(" · ")}</p>
     <p>${FOOT}</p>
   </footer>
 </main>
@@ -257,7 +275,7 @@ items.push({
   json: "downloads/flashcards.json",
 });
 
-writeFileSync(join(out, "manifest.json"), JSON.stringify({ generated: "2026-10-15", items }, null, 1));
+writeFileSync(join(out, "manifest.json"), JSON.stringify({ generated: "2026-10-16", items }, null, 1));
 
 const chrome = process.env.CHROME || "/opt/google/chrome/chrome";
 function render(htmlName, pdfName, pngName) {

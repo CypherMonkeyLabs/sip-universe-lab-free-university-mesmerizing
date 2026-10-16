@@ -32,7 +32,7 @@ function barChart(label, rows, unit) {
       <rect data-tip="${esc(tip)}" x="12" y="${y + 16}" width="536" height="22" fill="transparent"></rect>
       <rect class="bar" data-tip="${esc(tip)}" x="12" y="${y + 22}" width="${w.toFixed(1)}" height="12" rx="4" fill="var(--cc-accent-1)" opacity="0.9"></rect>`;
   }).join("");
-  return `<svg class="chart-svg" viewBox="0 0 560 ${h}" role="img" aria-label="${esc(label)}">
+  return `<svg class="chart-svg" width="560" height="${h}" viewBox="0 0 560 ${h}" role="img" aria-label="${esc(label)}">
     <rect width="560" height="${h}" rx="12" fill="var(--cc-bg)" stroke="var(--cc-line)"></rect>
     ${bars}
   </svg>`;
@@ -89,7 +89,7 @@ export function chartMarkup(id, catalog, ports) {
   if (id === "levels") return barChart("Tracks by level", levelRows(catalog), "");
   if (id === "ports") return barChart("Port rows by transport", portRows(ports), "");
   if (id === "tags") return barChart("Lesson tags", tagRows(catalog), "");
-  if (id === "totals") return `<svg id="chart-totals" class="chart-svg" viewBox="0 0 520 280" role="img" aria-label="Campus totals"></svg>`;
+  if (id === "totals") return `<svg id="chart-totals" class="chart-svg" width="520" height="280" viewBox="0 0 520 280" role="img" aria-label="Campus totals"></svg>`;
   return "";
 }
 
@@ -129,7 +129,9 @@ export function bindChartTips(root) {
 }
 
 export function animateCharts(root) {
-  if (!root || document.documentElement.dataset.motion === "reduce") return;
+  const motion = document.documentElement.dataset.motion;
+  const reduce = motion === "reduce" || (motion !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  if (!root || reduce) return;
   const anime = globalThis.anime;
   if (!anime || typeof anime.animate !== "function") return;
   root.querySelectorAll(".chart-svg rect.bar").forEach((rect, index) => {
@@ -218,7 +220,7 @@ function mindNode(node) {
 }
 
 export function mountMind(host) {
-  host.innerHTML = `<div class="markmap-wrap"><svg id="sip-mind" role="img" aria-label="SIP session mind map"></svg></div>
+  host.innerHTML = `<div class="markmap-wrap"><svg id="sip-mind" width="640" height="480" role="img" aria-label="SIP session mind map"></svg></div>
     <p class="fine">Mind map drawn with markmap and d3 from the campus outline. It is a map of topics, not a network.</p>`;
   const svg = host.querySelector("#sip-mind");
   const lib = globalThis.markmap;
@@ -233,7 +235,8 @@ export function mountMind(host) {
   svg.setAttribute("height", String(height));
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   try {
-    const reduced = document.documentElement.dataset.motion === "reduce";
+    const motion = document.documentElement.dataset.motion;
+    const reduced = motion === "reduce" || (motion !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     const mm = lib.Markmap.create(svg, { duration: reduced ? 0 : 300 }, mindNode(MIND));
     return () => { if (mm && typeof mm.destroy === "function") mm.destroy(); };
   } catch (err) {

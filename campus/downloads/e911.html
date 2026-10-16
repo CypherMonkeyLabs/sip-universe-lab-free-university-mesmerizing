@@ -3,9 +3,20 @@
 <head>
   <meta charset="utf-8">
   <title>Emergency calling checklist · SIP Universe</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <style>
+    @font-face {
+      font-family: "Campus UI";
+      src: local("Segoe UI"), local("system-ui"), local("Helvetica Neue"), local("Arial");
+      font-display: swap;
+      size-adjust: 100%;
+      ascent-override: 90%;
+      descent-override: 22%;
+      line-gap-override: 0%;
+    }
     @page { size: letter; margin: 0.45in; }
-    body { font: 13px/1.35 ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
+    body { font: 13px/1.35 "Campus UI", ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
     main { max-width: 980px; margin: 0 auto; padding: 18px 18px 8px; background: white; }
     h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.03em; }
     .kicker { color: #0f6e73; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
@@ -25,7 +36,8 @@
   <h1>Emergency calling checklist</h1>
   <h2>Protocol and the US obligations engineers are asked about</h2><p>RFC 6881 is the best current practice for emergency calling in SIP. A service URN identifies the emergency call. RFC 6442 carries location in the signaling. The location object itself is civic or geospatial data, not a guess from the caller’s extension.</p><p>In the United States, the FCC’s MLTS page describes Kari’s Law and RAY BAUM’s Act for multi-line systems: direct 911, notification, and a dispatchable location. Other countries write different rules. Confirm the obligation with the authority where the lines are, and with the provider that will deliver the call. A lab test uses the test number that provider gave you.</p><p><a href="https://www.rfc-editor.org/rfc/rfc6881">RFC 6881</a> · <a href="https://www.rfc-editor.org/rfc/rfc6442">RFC 6442</a> · <a href="https://www.fcc.gov/mlts-911-requirements">FCC MLTS 911 requirements</a></p><h2>Emergency checklist</h2><ul><li>Emergency route is explicit. It does not depend on a least-cost route that can hairpin the wrong way.</li><li>Location is configured for the site, the network, or the device, matching the product you deployed.</li><li>Notification path for on-site staff is tested if the law that applies to you requires it.</li><li>A move, add, or remote worker has an owner for the new location.</li><li>The test call uses the provider’s test procedure.</li></ul>
   <footer>
-    <p><a href="https://cyphermonkeylabs.com">cyphermonkeylabs.com</a> · <a href="https://linktr.ee/cyphermonkey">linktr.ee/cyphermonkey</a> · <a href="https://github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing">github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing</a></p>
+    <p>© 2026 CypherMonkeyLabs 🐒</p>
+    <p><a href="https://github.com/cipher0x9">Visit my GitHub</a> · <a href="https://github.com/CypherMonkeyLabs">Visit the Labs org</a> · <a href="https://cyphermonkeylabs.com">Visit Cypher Monkey Labs</a> · <a href="https://x.com/Cypher0x9">X</a> · <a href="https://huggingface.co/Cypher0x9">Hugging Face</a></p>
     <p>Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
   </footer>
 </main>

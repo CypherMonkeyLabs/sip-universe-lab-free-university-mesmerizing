@@ -14,7 +14,7 @@ let figSeq = 0;
 function svgFrame(title, caption, inner, w = 760, h = 280) {
   const id = `illu-${++figSeq}`;
   return `<figure class="illus">
-    <svg viewBox="0 0 ${w} ${h}" role="img" aria-labelledby="${id}-title ${id}-desc">
+    <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-labelledby="${id}-title ${id}-desc">
       <title id="${id}-title">${esc(title)}</title>
       <desc id="${id}-desc">${esc(caption || title)}</desc>
       <rect width="${w}" height="${h}" class="illus-bg"></rect>

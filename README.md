@@ -1,6 +1,8 @@
 # SIP Universe
 
-A static field guide to SIP, SDP, RTP/SRTP, and session border controllers. Lessons cite the RFCs and the vendor documents they depend on. The benches are interactive: ladders, a message dissector, an offer/answer negotiator, a header-manipulation sandbox, a `debug ccsip` capture reader, and a 3D border map.
+A static field guide to SIP, SDP, RTP/SRTP, and session border controllers. Lucky is a lifelong student and an AI enthusiast. The path into this campus ran through systems, networking, voice, and the contact center, and it is growing into AI omni-channel agents. It is wider than a UC engineer title. Lessons cite the RFCs and the vendor documents they depend on. The benches are interactive: ladders, a message dissector, an offer/answer negotiator, a header-manipulation sandbox, a `debug ccsip` capture reader, and a 3D border map.
+
+© 2026 CypherMonkeyLabs 🐒
 
 Open the lab at `campus/`. The root `index.html` redirects there so the same tree works on GitHub Pages.
 

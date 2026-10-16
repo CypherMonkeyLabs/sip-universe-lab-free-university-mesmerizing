@@ -1,4 +1,4 @@
-const CACHE = "sip-universe-v8";
+const CACHE = "sip-universe-v10";
 const SHELL = [
   "./",
   "./index.html",
@@ -13,7 +13,10 @@ const SHELL = [
   "./vendor/markmap-view.js",
   "./vendor/three.min.js",
   "./manifest.webmanifest",
+  "./favicon.svg",
+  "./favicon.ico",
   "./data/catalog.json",
+  "./data/guidebot.json",
 ];
 
 self.addEventListener("install", (event) => {

@@ -1,0 +1,221 @@
+{
+  "intro": "Guide Bot answers only from this campus. If a question is not on a page here, it says so. It does not invent a fact.",
+  "fallback": "I only answer from this campus, and I do not have that. I will not guess. Try Diagrams, the glossary, or the search box.",
+  "endpointNote": "A future guide endpoint may name an id from this file. This page will not read free text from that endpoint.",
+  "chips": ["What is 100 Trying?", "What is a dialog?", "Cheat codes", "Call path tour", "Quiz me"],
+  "entries": [
+    {
+      "id": "trying",
+      "prompts": ["100 trying", "what is 100", "trying", "retransmit"],
+      "text": "100 Trying stops the retransmit. It is not ringing.",
+      "href": "#/downloads",
+      "cite": { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21.1.1" }
+    },
+    {
+      "id": "ack",
+      "prompts": ["ack", "200 ok invite", "bye ack"],
+      "text": "200 OK to INVITE is acknowledged with ACK. A 200 to BYE is not.",
+      "href": "#/flows",
+      "cite": { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261" }
+    },
+    {
+      "id": "early",
+      "prompts": ["183", "early media", "180 ringing", "alerting"],
+      "text": "183 with SDP can be early media. 180 is alerting.",
+      "href": "#/flows",
+      "cite": { "label": "RFC 3960", "url": "https://www.rfc-editor.org/rfc/rfc3960" }
+    },
+    {
+      "id": "prack",
+      "prompts": ["prack", "reliable provisional", "3262"],
+      "text": "PRACK acknowledges a reliable 1xx.",
+      "href": "#/flows",
+      "cite": { "label": "RFC 3262", "url": "https://www.rfc-editor.org/rfc/rfc3262" }
+    },
+    {
+      "id": "cancel",
+      "prompts": ["cancel", "487"],
+      "text": "200 OK to CANCEL does not end the INVITE. Look for 487.",
+      "href": "#/flows",
+      "cite": { "label": "RFC 3261 §9", "url": "https://www.rfc-editor.org/rfc/rfc3261#section-9" }
+    },
+    {
+      "id": "refer",
+      "prompts": ["refer", "transfer"],
+      "text": "REFER asks the transferee to send a new INVITE.",
+      "href": "#/flows",
+      "cite": { "label": "RFC 3515", "url": "https://www.rfc-editor.org/rfc/rfc3515" }
+    },
+    {
+      "id": "dialog",
+      "prompts": ["dialog", "transaction", "call-id", "tags", "branch"],
+      "text": "The branch identifies a transaction. The tags identify the dialog.",
+      "href": "#/atlas",
+      "cite": { "label": "RFC 3261 §12", "url": "https://www.rfc-editor.org/rfc/rfc3261#section-12" }
+    },
+    {
+      "id": "stack",
+      "prompts": ["what does sip carry", "sdp", "rtp", "session stack", "who carries the voice"],
+      "text": "SIP does not carry the voice. SDP names the media. RTP moves it.",
+      "href": "#/atlas",
+      "cite": { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261" }
+    },
+    {
+      "id": "port0",
+      "prompts": ["port 0", "reject a stream", "offer answer"],
+      "text": "Port 0 rejects a media stream.",
+      "href": "#/downloads",
+      "cite": { "label": "RFC 3264", "url": "https://www.rfc-editor.org/rfc/rfc3264" }
+    },
+    {
+      "id": "g722",
+      "prompts": ["g.722", "g722", "clock rate", "8000"],
+      "text": "G.722 RTP clock rate is 8000 even though the audio is 16 kHz.",
+      "href": "#/downloads",
+      "cite": { "label": "RFC 3551 §4.5.2", "url": "https://www.rfc-editor.org/rfc/rfc3551#section-4.5.2" }
+    },
+    {
+      "id": "dtmf",
+      "prompts": ["dtmf", "telephone-event", "info digits"],
+      "text": "telephone-event is the IETF digit mechanism in RTP. INFO is not the DTMF spec.",
+      "href": "#/downloads",
+      "cite": { "label": "RFC 4733", "url": "https://www.rfc-editor.org/rfc/rfc4733" }
+    },
+    {
+      "id": "srtp",
+      "prompts": ["srtp", "sdes", "dtls-srtp", "keying"],
+      "text": "SRTP is RFC 3711. SDES (RFC 4568) and DTLS-SRTP (RFC 5764) are different keying paths.",
+      "href": "#/flows",
+      "cite": { "label": "RFC 3711", "url": "https://www.rfc-editor.org/rfc/rfc3711" }
+    },
+    {
+      "id": "hold",
+      "prompts": ["hold", "sendonly", "re-invite"],
+      "text": "Hold is a new offer. a=sendonly asks the other side to stop sending.",
+      "href": "#/flows",
+      "cite": { "label": "RFC 3264 §8.4", "url": "https://www.rfc-editor.org/rfc/rfc3264#section-8.4" }
+    },
+    {
+      "id": "ecosystem",
+      "prompts": ["ecosystem", "wfm", "crm", "neighbor", "session seam"],
+      "text": "SIP does not replace workforce management, quality monitoring, CRM, or emergency policy. It is the session seam those systems hang from.",
+      "href": "#/ecosystem",
+      "cite": { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261" }
+    },
+    {
+      "id": "agents",
+      "prompts": ["ai agent", "omni-channel", "omni channel", "voice bot", "connect"],
+      "text": "A voice bot still needs a session. SIP creates, modifies, and ends sessions. On Amazon Connect the platform owns the managed PSTN voice channel.",
+      "href": "#/ecosystem",
+      "cite": { "label": "Amazon Connect telephony", "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html" }
+    },
+    {
+      "id": "lucky",
+      "prompts": ["who is lucky", "about lucky", "who made this", "uc engineer"],
+      "text": "Lucky is a lifelong student and an AI enthusiast. The path into this campus ran through systems, networking, voice, and the contact center, and it is growing into AI omni-channel agents. That is the author's own description, not a vendor credential.",
+      "href": "#/ecosystem",
+      "cite": { "label": "Ecosystem", "url": "#/ecosystem" }
+    },
+    {
+      "id": "cheats",
+      "prompts": ["cheat", "cheat code", "cheat sheet", "download", "pdf", "flashcard"],
+      "text": "Cheat Codes are the one-page sheets and the printable flashcard deck in Downloads.",
+      "href": "#/downloads",
+      "cite": { "label": "Downloads", "url": "#/downloads" }
+    },
+    {
+      "id": "addresses",
+      "prompts": ["example address", "555", "documentation address", "rfc 5737"],
+      "text": "Example messages are synthetic. Addresses use the documentation ranges in RFC 5737. Phone numbers use 555.",
+      "href": "#/",
+      "cite": { "label": "RFC 5737", "url": "https://www.rfc-editor.org/rfc/rfc5737" }
+    },
+    {
+      "id": "teams",
+      "prompts": ["direct routing", "teams port", "5061", "pstnhub"],
+      "text": "Microsoft Teams Direct Routing, read 2026-10-15: signaling is TCP 5061 toward sip.pstnhub.microsoft.com, sip2.pstnhub.microsoft.com, and sip3.pstnhub.microsoft.com.",
+      "href": "#/regions",
+      "cite": { "label": "Plan Direct Routing", "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan" }
+    }
+  ],
+  "tours": [
+    {
+      "id": "call-path",
+      "title": "Call path tour",
+      "prompts": ["call path tour", "tour the call", "show me the call path"],
+      "steps": [
+        {
+          "href": "#/atlas",
+          "text": "SIP does not carry the voice. SDP names the media. RTP moves it.",
+          "cite": { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261" }
+        },
+        {
+          "href": "#/flows",
+          "text": "100 Trying stops the retransmit. It is not ringing.",
+          "cite": { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21.1.1" }
+        },
+        {
+          "href": "#/charts",
+          "text": "The charts count lessons, minutes, levels, ports, and tags from this campus. They are not a traffic report.",
+          "cite": { "label": "Charts", "url": "#/charts" }
+        }
+      ]
+    },
+    {
+      "id": "ecosystem-tour",
+      "title": "Ecosystem tour",
+      "prompts": ["ecosystem tour", "tour the neighbors", "border tour"],
+      "steps": [
+        {
+          "href": "#/ecosystem",
+          "text": "SIP does not replace workforce management, quality monitoring, CRM, or emergency policy. It is the session seam those systems hang from.",
+          "cite": { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261" }
+        },
+        {
+          "href": "#/ports",
+          "text": "The ports page lists RFC defaults and the cloud ranges read for this edition. If a vendor page changes, that page wins.",
+          "cite": { "label": "Ports", "url": "#/ports" }
+        },
+        {
+          "href": "#/downloads",
+          "text": "Cheat Codes are the one-page sheets and the printable flashcard deck in Downloads.",
+          "cite": { "label": "Downloads", "url": "#/downloads" }
+        }
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "id": "q-trying",
+      "q": "What does 100 Trying mean?",
+      "choices": ["It stops the retransmit. It is not ringing.", "The far end is ringing.", "The call is answered."],
+      "answer": 0,
+      "why": "100 Trying stops the retransmit. It is not ringing.",
+      "cite": { "label": "RFC 3261", "url": "https://www.rfc-editor.org/rfc/rfc3261#section-21.1.1" }
+    },
+    {
+      "id": "q-port",
+      "q": "What does port 0 in SDP do?",
+      "choices": ["It rejects that media stream.", "It picks any even port.", "It means SRTP."],
+      "answer": 0,
+      "why": "Port 0 rejects a media stream.",
+      "cite": { "label": "RFC 3264", "url": "https://www.rfc-editor.org/rfc/rfc3264" }
+    },
+    {
+      "id": "q-cancel",
+      "q": "Does 200 OK to CANCEL end the INVITE?",
+      "choices": ["No. Look for 487.", "Yes. The dialog is gone.", "Only if the branch cookie is wrong."],
+      "answer": 0,
+      "why": "200 OK to CANCEL does not end the INVITE. Look for 487.",
+      "cite": { "label": "RFC 3261 §9", "url": "https://www.rfc-editor.org/rfc/rfc3261#section-9" }
+    },
+    {
+      "id": "q-g722",
+      "q": "What RTP clock rate does G.722 use?",
+      "choices": ["8000, even though the audio is 16 kHz.", "16000.", "48000."],
+      "answer": 0,
+      "why": "G.722 RTP clock rate is 8000 even though the audio is 16 kHz.",
+      "cite": { "label": "RFC 3551 §4.5.2", "url": "https://www.rfc-editor.org/rfc/rfc3551#section-4.5.2" }
+    }
+  ]
+}

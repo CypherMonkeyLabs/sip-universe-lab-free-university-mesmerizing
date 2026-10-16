@@ -37,7 +37,10 @@ export function bindParade(root) {
 }
 
 function reduced() {
-  return document.documentElement.dataset.motion === "reduce";
+  const motion = document.documentElement.dataset.motion;
+  if (motion === "reduce") return true;
+  if (motion === "full") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 export function countUp(el, value) {

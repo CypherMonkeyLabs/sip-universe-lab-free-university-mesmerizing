@@ -15,6 +15,8 @@ import { mountHero, armFly } from "./hero.js";
 import { iconHTML } from "./icons.js";
 import { mountGlyphs } from "./glyphs.js";
 import { applyLang } from "./i18n.js";
+import { menuRows, iconHTML as menuIcon, navCurrent } from "./menu.js";
+import { mountGuide } from "./guide.js";
 
 const view = document.querySelector("#view");
 const titleEl = document.querySelector("#view-title");
@@ -24,37 +26,8 @@ const bottom = document.querySelector("#bottom");
 const pill = document.querySelector("#progress-pill");
 const PROG = "sip-universe-progress";
 
-const NAV = [
-  { href: "#/", label: "Home", group: "Learn", mobile: "Home" },
-  { href: "#/tracks", label: "Tracks", group: "Learn", mobile: "Tracks" },
-  { href: "#/labs", label: "Labs", group: "Learn" },
-  { href: "#/guide", label: "Field guide", group: "Learn" },
-  { href: "#/boss", label: "Boss incidents", group: "Learn" },
-  { href: "#/interview", label: "Interview", group: "Learn" },
-  { href: "#/play", label: "Practice", group: "Learn" },
-  { href: "#/tools/ladder", label: "Ladders", group: "Tools", mobile: "Tools" },
-  { href: "#/tools/dissector", label: "Dissector", group: "Tools" },
-  { href: "#/tools/sdp", label: "SDP negotiator", group: "Tools" },
-  { href: "#/tools/sandbox", label: "Normalization", group: "Tools" },
-  { href: "#/tools/capture", label: "Capture bench", group: "Tools" },
-  { href: "#/play/builder", label: "Flow builder", group: "Tools" },
-  { href: "#/explorer", label: "Flow explorer", group: "Tools" },
-  { href: "#/topology", label: "3D topology", group: "Tools", mobile: "Map" },
-  { href: "#/atlas", label: "Diagrams", group: "Field" },
-  { href: "#/flows", label: "Flows", group: "Field" },
-  { href: "#/charts", label: "Charts", group: "Field" },
-  { href: "#/ports", label: "Ports", group: "Field" },
-  { href: "#/glossary", label: "Glossary", group: "Field" },
-  { href: "#/ecosystem", label: "Ecosystem", group: "Field" },
-  { href: "#/certs", label: "Certifications", group: "Field" },
-  { href: "#/career", label: "Career", group: "Field" },
-  { href: "#/roadmap", label: "Roadmap", group: "Field" },
-  { href: "#/downloads", label: "Cheat codes", group: "Field" },
-  { href: "#/badges", label: "Badges", group: "Field" },
-  { href: "#/faults", label: "Faults", group: "Field" },
-];
-
 let catalog = null;
+let menuQuery = "";
 let cleanup = () => {};
 let routeGen = 0;
 
@@ -81,7 +54,7 @@ function updatePill() {
 }
 
 function markPrime(path) {
-  document.querySelectorAll(".prime a").forEach((link) => {
+  document.querySelectorAll(".prime a, .study-nav a").forEach((link) => {
     const href = link.getAttribute("href");
     const on = path === href || (href !== "#/" && path.startsWith(href));
     if (on) link.setAttribute("aria-current", "page");
@@ -105,45 +78,29 @@ function setTitle(text) {
   titleEl.focus();
 }
 
-function navCurrent(path, href) {
-  if (href === "#/tracks") {
-    return path === "#/tracks" || path.startsWith("#/track/") || path.startsWith("#/lesson/")
-      || path === "#/labs" || path.startsWith("#/guide") || path.startsWith("#/boss") || path.startsWith("#/interview");
-  }
-  if (href === "#/") return path === "#/" || path === "";
-  return path === href || path.startsWith(`${href}/`);
-}
-
-function fillPhoneMenu(path) {
-  const list = document.querySelector("#phone-menu-list");
-  if (!list) return;
-  const groups = ["Learn", "Tools", "Field"];
-  list.innerHTML = groups.map((group) => {
-    const links = NAV.filter((item) => item.group === group).map((item) => {
-      const current = navCurrent(path, item.href) ? ' aria-current="page"' : "";
-      return `<a href="${item.href}"${current}>${esc(item.label)}</a>`;
-    }).join("");
-    return `<h2>${group}</h2>${links}`;
-  }).join("");
-}
-
 function paintNav(path) {
-  const groups = ["Learn", "Tools", "Field"];
-  rail.innerHTML = groups.map((group) => {
-    const links = NAV.filter((item) => item.group === group).map((item) => {
-      const current = path === item.href ? ' aria-current="page"' : "";
-      return `<a href="${item.href}"${current}>${esc(item.label)}</a>`;
-    }).join("");
-    return `<h2>${group}</h2>${links}`;
-  }).join("") + `<button type="button" class="rail-settings" id="rail-settings">Settings</button>`;
-  rail.querySelector("#rail-settings").addEventListener("click", openSettings);
+  const active = document.activeElement;
+  const html = menuRows(path, menuQuery);
+  const railList = document.querySelector("#rail-list");
+  if (railList) {
+    railList.innerHTML = `${html}<button type="button" class="menu-item rail-settings" id="rail-settings">${menuIcon("settings")}<span class="menu-copy"><strong>Settings</strong><small>Theme, motion, sound, and type size.</small></span></button>`;
+    railList.querySelector("#rail-settings").addEventListener("click", openSettings);
+  }
+  const phoneList = document.querySelector("#phone-menu-list");
+  if (phoneList) phoneList.innerHTML = html;
+  const results = document.querySelector("#menu-results");
+  if (results) {
+    const open = menuQuery.trim().length > 0;
+    results.hidden = !open;
+    results.innerHTML = open ? html : "";
+  }
   markPrime(path);
   bottom.querySelectorAll("a").forEach((link) => {
     const href = link.getAttribute("href");
     if (navCurrent(path, href)) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   });
-  fillPhoneMenu(path);
+  if (active && (active.id === "rail-q" || active.id === "menu-q" || active.id === "head-q")) active.focus();
 }
 
 let menuHistory = false;
@@ -157,7 +114,7 @@ function setMenuExpanded(open) {
 function openPhoneMenu() {
   const dialog = document.querySelector("#phone-menu");
   if (!dialog || dialog.open) return;
-  fillPhoneMenu(parseHash().path);
+  paintNav(parseHash().path);
   dialog.showModal();
   setMenuExpanded(true);
   history.pushState({ sipMenu: true }, "");
@@ -192,8 +149,25 @@ function listenClip() {
   tryPlay(0);
 }
 
+function bindMenuSearch() {
+  document.querySelectorAll("#rail-q, #menu-q, #head-q").forEach((input) => {
+    input.addEventListener("input", () => {
+      menuQuery = input.value;
+      document.querySelectorAll("#rail-q, #menu-q, #head-q").forEach((other) => {
+        if (other !== input) other.value = menuQuery;
+      });
+      paintNav(parseHash().path);
+    });
+  });
+}
+
 function bindPhoneMenu() {
+  bindMenuSearch();
   document.querySelector("#menu-open")?.addEventListener("click", openPhoneMenu);
+  document.querySelector("#menu-listen")?.addEventListener("click", () => {
+    closePhoneMenu();
+    listenClip();
+  });
   document.querySelector("#quick-menu")?.addEventListener("click", openPhoneMenu);
   document.querySelector("#quick-listen")?.addEventListener("click", listenClip);
   document.querySelector("#phone-menu-close")?.addEventListener("click", closePhoneMenu);
@@ -307,6 +281,7 @@ async function renderHome() {
         <audio id="architect-use" controls preload="none" src="audio/architect-use.mp3"></audio>
         <audio id="architect-share" controls preload="none" src="audio/architect-share.mp3"></audio>
         <p class="fine">Scripts: <a href="audio/scripts/architect-use.md">how to view</a> · <a href="audio/scripts/architect-share.md">how to practise and share</a>.</p>
+        <p>Lucky is a lifelong student and an AI enthusiast. The path here runs through systems, networking, voice, and the contact center, and it is growing into AI omni-channel agents. This campus is that study, wider than a UC engineer title.</p>
         <p><a href="https://github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing">Rate, comment, or help on the repository</a> · <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Contact</a></p>
       </section>
       <h2>Signal, in motion</h2>
@@ -663,7 +638,11 @@ async function renderGlossary() {
 async function renderEcosystem() {
   const data = await loadJSON("data/ecosystem.json");
   setTitle("Ecosystem");
+  const author = data.author
+    ? `<section class="panel" id="campus-author"><h2>${esc(data.author.title)}</h2><p>${esc(data.author.blurb)}</p>${citeLinks(data.author.cites)}</section>`
+    : "";
   view.innerHTML = `${iconHTML("ecosystem")}<p class="lede">${esc(data.summary)}</p>
+    ${author}
     <h2>Neighboring systems</h2>
     <div class="card-grid">${data.sisters.map((item) => `<article class="card"><h3>${esc(item.name)}</h3><p>${esc(item.blurb)}</p>${citeLinks(item.cites)}</article>`).join("")}</div>
     <h2>Where SIP shows up in the UC stack</h2>
@@ -876,6 +855,7 @@ async function boot() {
   }
   updatePill();
   bindChrome(catalog);
+  mountGuide();
   window.addEventListener("hashchange", render);
   if (!location.hash) location.hash = "#/";
   else render();
@@ -885,7 +865,7 @@ async function boot() {
       navigator.serviceWorker.register("./sw.js").then(() => {
         window.setTimeout(() => {
           catalog.tracks.forEach((track) => { fetch(track.file).catch(() => {}); });
-          ["data/glossary.json", "data/boss.json", "data/interview.json", "data/ecosystem.json", "data/certs.json", "data/labs.json", "data/samples.json", "data/ports.json", "data/fieldguide.json", "data/daily.json", "downloads/manifest.json"].forEach((path) => {
+          ["data/glossary.json", "data/boss.json", "data/interview.json", "data/ecosystem.json", "data/certs.json", "data/labs.json", "data/samples.json", "data/ports.json", "data/fieldguide.json", "data/daily.json", "data/guidebot.json", "downloads/manifest.json"].forEach((path) => {
             fetch(path).catch(() => {});
           });
         }, 8000);

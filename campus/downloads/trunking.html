@@ -3,9 +3,20 @@
 <head>
   <meta charset="utf-8">
   <title>PSTN and BYOC options · SIP Universe</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <style>
+    @font-face {
+      font-family: "Campus UI";
+      src: local("Segoe UI"), local("system-ui"), local("Helvetica Neue"), local("Arial");
+      font-display: swap;
+      size-adjust: 100%;
+      ascent-override: 90%;
+      descent-override: 22%;
+      line-gap-override: 0%;
+    }
     @page { size: letter; margin: 0.45in; }
-    body { font: 13px/1.35 ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
+    body { font: 13px/1.35 "Campus UI", ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
     main { max-width: 980px; margin: 0 auto; padding: 18px 18px 8px; background: white; }
     h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.03em; }
     .kicker { color: #0f6e73; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
@@ -25,7 +36,8 @@
   <h1>PSTN and BYOC options</h1>
   <h2>Options you can actually tell apart</h2><p>A premises SIP trunk lands on your SBC. You own the certificate, the dial plan toward the carrier, and the media anchor unless the carrier’s design says otherwise. Bring-your-own-carrier on a cloud contact center means the cloud publishes a trunk target and you present calls to it. Genesys documents BYOC Cloud and BYOC Premises. Five9 documents BYO SIP. Twilio documents Elastic SIP Trunking. NICE publishes a port list and leaves carrier design account-specific. Read the page for the product you turned on.</p><p>Teams Phone has more than one PSTN door: Calling Plan, Operator Connect, Teams Phone Mobile, and Direct Routing through a certified SBC. Microsoft’s planning page says those can coexist in one tenant. Webex Calling separates a Local Gateway from Cloud Connected PSTN. They are different location settings. Amazon Connect’s own telephony is the supported PSTN door; bridging an arbitrary carrier with a Chime Voice Connector is not a pattern AWS documents as generally available.</p><p><a href="https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan">Plan Direct Routing</a> · <a href="https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization">Webex Calling PSTN</a> · <a href="https://help.genesys.cloud/articles/byoc-cloud-overview/">Genesys BYOC Cloud</a> · <a href="https://www.twilio.com/docs/sip-trunking">Twilio Elastic SIP Trunking</a> · <a href="https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html">Amazon Connect telephony</a></p><p><strong>Unverified. </strong>Named customer deployments were not verified for this edition, so none are invented. The integrations above are the vendors’ own published patterns.</p>
   <footer>
-    <p><a href="https://cyphermonkeylabs.com">cyphermonkeylabs.com</a> · <a href="https://linktr.ee/cyphermonkey">linktr.ee/cyphermonkey</a> · <a href="https://github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing">github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing</a></p>
+    <p>© 2026 CypherMonkeyLabs 🐒</p>
+    <p><a href="https://github.com/cipher0x9">Visit my GitHub</a> · <a href="https://github.com/CypherMonkeyLabs">Visit the Labs org</a> · <a href="https://cyphermonkeylabs.com">Visit Cypher Monkey Labs</a> · <a href="https://x.com/Cypher0x9">X</a> · <a href="https://huggingface.co/Cypher0x9">Hugging Face</a></p>
     <p>Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
   </footer>
 </main>

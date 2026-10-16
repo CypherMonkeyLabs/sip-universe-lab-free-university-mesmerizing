@@ -3,9 +3,20 @@
 <head>
   <meta charset="utf-8">
   <title>Troubleshooting tree · SIP Universe</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <style>
+    @font-face {
+      font-family: "Campus UI";
+      src: local("Segoe UI"), local("system-ui"), local("Helvetica Neue"), local("Arial");
+      font-display: swap;
+      size-adjust: 100%;
+      ascent-override: 90%;
+      descent-override: 22%;
+      line-gap-override: 0%;
+    }
     @page { size: letter; margin: 0.45in; }
-    body { font: 13px/1.35 ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
+    body { font: 13px/1.35 "Campus UI", ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
     main { max-width: 980px; margin: 0 auto; padding: 18px 18px 8px; background: white; }
     h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.03em; }
     .kicker { color: #0f6e73; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
@@ -25,7 +36,8 @@
   <h1>Troubleshooting tree</h1>
   <h2>A short order of work</h2><p>Save the signaling first. One call, both legs if a B2BUA split the dialog. Read the status code with RFC 3261 section 21, not with a blog’s nickname for it. Then read SDP: addresses, ports, direction, and whether a stream was rejected with port 0. Then the packet capture for RTP, if the signaling says the call is up and the ears disagree.</p><p>Toll fraud shows up as calls you did not intend to pay for. The defensive controls vendors document are source restrictions and narrow dial patterns. This playbook does not describe how to place those calls.</p><p><a href="https://www.rfc-editor.org/rfc/rfc3261#section-21">RFC 3261 §21</a> · <a href="https://www.rfc-editor.org/rfc/rfc3264">RFC 3264</a></p><h2>Signaling</h2><ul><li><strong>No response at all.</strong> The request is not reaching a SIP element, or the response is not routed back. Check the destination from RFC 3263, the firewall, and the Via sent-by. A missing 100 is not the same as a missing 180.</li><li><strong>401 or 407 and then nothing.</strong> The challenge was not answered with a matching digest. Read RFC 3261 authentication. Check realm, username, and whether the SBC is supposed to answer for the phone.</li><li><strong>488 or 606.</strong> Offer/answer failed. Compare codec, ptime, and transport in the two SDPs. 488 is a client error on this request. It is not a routing loop.</li><li><strong>CANCEL sent, still ringing.</strong> A 200 for CANCEL does not end the INVITE. Look for 487 on the INVITE transaction.</li><li><strong>Drops at a round interval.</strong> Look for Session-Expires and a refresh that never came. RFC 4028.</li></ul><h2>Media</h2><ul><li><strong>Up, both ways silent.</strong> SDP may be fine and the UDP is blocked both directions, or SRTP keys do not match. Confirm whether the profile is RTP/AVP or RTP/SAVP.</li><li><strong>One direction only.</strong> Compare c= and the port with the address the packet actually uses. An ALG or a missed NAT binding does this. ICE (RFC 8445) and latching (RFC 7362) are different tools.</li><li><strong>Audio with no DTMF.</strong> Look for telephone-event in both SDPs. In-band tones in a compressed codec are a different problem from a missing named event.</li></ul>
   <footer>
-    <p><a href="https://cyphermonkeylabs.com">cyphermonkeylabs.com</a> · <a href="https://linktr.ee/cyphermonkey">linktr.ee/cyphermonkey</a> · <a href="https://github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing">github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing</a></p>
+    <p>© 2026 CypherMonkeyLabs 🐒</p>
+    <p><a href="https://github.com/cipher0x9">Visit my GitHub</a> · <a href="https://github.com/CypherMonkeyLabs">Visit the Labs org</a> · <a href="https://cyphermonkeylabs.com">Visit Cypher Monkey Labs</a> · <a href="https://x.com/Cypher0x9">X</a> · <a href="https://huggingface.co/Cypher0x9">Hugging Face</a></p>
     <p>Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
   </footer>
 </main>

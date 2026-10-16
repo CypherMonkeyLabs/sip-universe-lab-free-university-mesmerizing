@@ -198,7 +198,8 @@ export async function mountTopology(host) {
     scene.fog = new THREE.Fog(0x070b14, 16, 32);
     camera = new THREE.PerspectiveCamera(48, 1, 0.1, 80);
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const mobile = window.matchMedia("(max-width: 800px)").matches;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2));
     scene.add(new THREE.AmbientLight(0x88aadd, 0.55));
     const key = new THREE.PointLight(0x3ddcff, 18, 30);
     key.position.set(4, 6, 4);

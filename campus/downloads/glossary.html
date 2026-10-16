@@ -3,9 +3,20 @@
 <head>
   <meta charset="utf-8">
   <title>Core glossary · SIP Universe</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <style>
+    @font-face {
+      font-family: "Campus UI";
+      src: local("Segoe UI"), local("system-ui"), local("Helvetica Neue"), local("Arial");
+      font-display: swap;
+      size-adjust: 100%;
+      ascent-override: 90%;
+      descent-override: 22%;
+      line-gap-override: 0%;
+    }
     @page { size: letter; margin: 0.45in; }
-    body { font: 13px/1.35 ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
+    body { font: 13px/1.35 "Campus UI", ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
     main { max-width: 980px; margin: 0 auto; padding: 18px 18px 8px; background: white; }
     h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.03em; }
     .kicker { color: #0f6e73; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
@@ -27,7 +38,8 @@
     <tr><td>SIP</td><td>Session Initiation Protocol. Application signaling that creates, modifies, and ends sessions.</td></tr><tr><td>SDP</td><td>Session Description Protocol. The text format that describes media streams for offer/answer.</td></tr><tr><td>Offer/answer</td><td>The rule set that pairs one SDP offer with one SDP answer. The answer mirrors the offer’s m-line count and order.</td></tr><tr><td>RTP</td><td>Real-time Transport Protocol. Carries media samples. It is not SIP.</td></tr><tr><td>SRTP</td><td>Secure RTP. Encrypts and authenticates media packets.</td></tr><tr><td>Dialog</td><td>A peer relationship identified by Call-ID, local tag, and remote tag.</td></tr><tr><td>Transaction</td><td>One request and its responses, identified on a hop by the Via branch.</td></tr><tr><td>B2BUA</td><td>Back-to-back user agent. A UAS on one side glued to a UAC on the other. Taxonomy: RFC 7092.</td></tr><tr><td>ICE</td><td>Interactive Connectivity Establishment. Tries candidate pairs until one works.</td></tr><tr><td>STUN</td><td>Session Traversal Utilities for NAT. Binding checks and mapped addresses.</td></tr><tr><td>TURN</td><td>Traversal Using Relays around NAT. Allocates a relayed media address.</td></tr><tr><td>PRACK</td><td>Provisional acknowledgement. Makes selected 1xx responses reliable when 100rel is in use.</td></tr><tr><td>REFER</td><td>Asks another UA to issue a request, typically for transfer.</td></tr><tr><td>telephone-event</td><td>RTP payload for DTMF and related tones.</td></tr><tr><td>SIPREC</td><td>SIP recording protocol. A session is forked to a recording server.</td></tr><tr><td>PAI</td><td>P-Asserted-Identity. An identity asserted inside a trusted network, not a cryptographic proof.</td></tr><tr><td>E911</td><td>Emergency calling from multi-line systems. Location and routing rules are in RFC 6881 and FCC MLTS rules.</td></tr><tr><td>Direct Routing</td><td>Microsoft Teams Phone connectivity through a certified customer SBC.</td></tr>
   </tbody></table>
   <footer>
-    <p><a href="https://cyphermonkeylabs.com">cyphermonkeylabs.com</a> · <a href="https://linktr.ee/cyphermonkey">linktr.ee/cyphermonkey</a> · <a href="https://github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing">github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing</a></p>
+    <p>© 2026 CypherMonkeyLabs 🐒</p>
+    <p><a href="https://github.com/cipher0x9">Visit my GitHub</a> · <a href="https://github.com/CypherMonkeyLabs">Visit the Labs org</a> · <a href="https://cyphermonkeylabs.com">Visit Cypher Monkey Labs</a> · <a href="https://x.com/Cypher0x9">X</a> · <a href="https://huggingface.co/Cypher0x9">Hugging Face</a></p>
     <p>Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
   </footer>
 </main>

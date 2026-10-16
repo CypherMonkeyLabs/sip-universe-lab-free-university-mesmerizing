@@ -40,7 +40,9 @@ let flyArmed = false;
 let looseFly = null;
 
 function pixelRatio() {
-  return Math.min(window.devicePixelRatio || 1, 2);
+  const dpr = window.devicePixelRatio || 1;
+  const mobile = window.matchMedia("(max-width: 800px)").matches;
+  return Math.min(dpr, mobile ? 1.5 : 2);
 }
 
 function reduced() {
@@ -614,9 +616,13 @@ export async function mountHero(host) {
     const box = canvas.getBoundingClientRect();
     const w = Math.max(2, box.width || window.innerWidth);
     const h = Math.max(2, box.height || window.innerHeight);
-    if (camera.aspect !== w / h) {
+    const ratio = pixelRatio();
+    const dw = Math.floor(w * ratio);
+    const dh = Math.floor(h * ratio);
+    if (canvas.width !== dw || canvas.height !== dh) {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      renderer.setPixelRatio(ratio);
       renderer.setSize(w, h, false);
       resizeTargets(w, h);
     }

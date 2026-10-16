@@ -267,6 +267,8 @@ function ensure(T) {
   canvas.width = 256;
   canvas.height = 256;
   renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+  const mobile = window.matchMedia("(max-width: 800px)").matches;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2));
   renderer.setSize(256, 256, false);
   renderer.setClearColor(0x000000, 0);
   scene = new T.Scene();
