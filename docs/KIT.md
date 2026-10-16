@@ -18,4 +18,4 @@ Contact is https://cyphermonkeylabs.com/#contact
 
 `node scripts/build-university.mjs` rebuilds rooms from `campus/data`.
 
-Sibling labs that returned HTTP 200 on 2026-10 use https://cyphermonkeylabs.github.io/<repo>/. https://cipher0x9.github.io/<repo>/ returned 404 that day, so those URLs are not used as live links.
+Sibling labs checked on 2026-10: https://cyphermonkeylabs.com/<repo>/ returned HTTP 200 and is the linked host. https://cyphermonkeylabs.github.io/<repo>/ returned 301 to that host. https://cipher0x9.github.io/<repo>/ returned 404, so it is not used as a live link.

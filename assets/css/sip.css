@@ -65,5 +65,93 @@ html[data-hero="flat"] .world-hero .world-ui {
   main { padding-left: 12px; padding-right: 12px; }
 }
 @media (min-width: 900px) {
-  .world-hero { min-height: 520px; }
+  body:not(.home-world) .world-hero { min-height: 520px; }
+}
+@keyframes count-pop {
+  from { transform: translateY(3px); }
+  to { transform: none; }
+}
+b[data-count-up].count-pop { display: inline-block; animation: count-pop 0.45s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  b[data-count-up].count-pop { animation: none; }
+}
+html[data-motion="reduce"] b[data-count-up].count-pop { animation: none; }
+
+/* Phone: the cube is its own row above the title, so it cannot cover "color." */
+@media (max-width: 720px) {
+  body.home-world .world-hero { padding-bottom: 8px; }
+  body.home-world .world-title {
+    max-width: 100%;
+    z-index: 2;
+  }
+  body.home-world .hero-3d {
+    position: relative;
+    order: -1;
+    align-self: flex-end;
+    inset: auto;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    width: 260px;
+    height: 230px;
+    margin: 2px 6px 4px auto;
+    transform: none;
+    zoom: 0.46;
+    z-index: 0;
+    flex: none;
+  }
+}
+
+/* Wide home: keep the hero short enough that the first track row is inside 900px. */
+@media (min-width: 1100px) {
+  body.home-world .world-hero,
+  body.home-world .world-ui {
+    min-height: 0;
+  }
+  body.home-world .world-hero { margin-bottom: 6px; }
+  body.home-world .world-ui {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 270px;
+    column-gap: 12px;
+    row-gap: 4px;
+    align-content: start;
+    padding: 4px 16px 2px;
+    width: min(100%, 72rem);
+  }
+  body.home-world .world-kicker,
+  body.home-world .world-title,
+  body.home-world .world-lede { grid-column: 1; margin: 0; }
+  body.home-world .world-hero .uni-menu,
+  body.home-world .fold-counts,
+  body.home-world .theme-switch,
+  body.home-world .mascot-row,
+  body.home-world .world-ui > p { grid-column: 1 / -1; margin: 0; }
+  body.home-world .world-ui .orbit { display: none; }
+  body.home-world .world-title {
+    max-width: none;
+    font-size: 2.35rem;
+    line-height: 0.95;
+  }
+  body.home-world .world-lede { font-size: 0.98rem; max-width: 68ch; }
+  body.home-world .world-hero .uni-menu {
+    display: flex;
+    flex-wrap: wrap;
+    grid-template-columns: none;
+    max-width: none;
+    gap: 6px;
+  }
+  body.home-world .world-hero .uni-menu a {
+    min-height: 0;
+    padding: 5px 10px;
+  }
+  body.home-world .fold-counts,
+  body.home-world .theme-switch,
+  body.home-world .mascot-row { gap: 6px; }
+  body.home-world .mascot-card { width: 58px; }
+  body.home-world .mascot-card svg { width: 46px; height: 50px; }
+  body.home-world .theme-switch button { padding: 3px 9px; }
+  body.home-world #rooms { margin-top: 0; }
+  body.home-world #rooms > h2 { margin: 0 0 6px; font-size: 1.35rem; }
+  body.home-world #rooms > label { display: block; margin: 0 0 8px; }
 }

@@ -14,14 +14,14 @@ const disclaimer = readFileSync(join(root, "assets/disclaimer.html"), "utf8");
 const brandNav = readFileSync(join(root, "assets/brand-nav.html"), "utf8");
 
 const LABS = [
-  ["UC Lab", "https://cyphermonkeylabs.github.io/uc-lab-free-university-mesmerizing/"],
-  ["AI Lab", "https://cyphermonkeylabs.github.io/ai-lab-free-university-mesmerizing/"],
-  ["Webex Lab", "https://cyphermonkeylabs.github.io/webex-lab-free-university-mesmerizing/"],
-  ["Microsoft Voice", "https://cyphermonkeylabs.github.io/microsoft-voice-cc-lab-free-university-mesmerizing/"],
-  ["Amazon Connect", "https://cyphermonkeylabs.github.io/amazon-connect-lab-free-university-mesmerizing/"],
-  ["Genesys Cloud", "https://cyphermonkeylabs.github.io/genesys-cloud-lab-free-university-mesmerizing/"],
-  ["Five9", "https://cyphermonkeylabs.github.io/five9-lab-free-university-mesmerizing/"],
-  ["NICE CXone", "https://cyphermonkeylabs.github.io/nice-cxone-lab-free-university-mesmerizing/"]
+  ["UC Lab", "https://cyphermonkeylabs.com/uc-lab-free-university-mesmerizing/"],
+  ["AI Lab", "https://cyphermonkeylabs.com/ai-lab-free-university-mesmerizing/"],
+  ["Webex Lab", "https://cyphermonkeylabs.com/webex-lab-free-university-mesmerizing/"],
+  ["Microsoft Voice", "https://cyphermonkeylabs.com/microsoft-voice-cc-lab-free-university-mesmerizing/"],
+  ["Amazon Connect", "https://cyphermonkeylabs.com/amazon-connect-lab-free-university-mesmerizing/"],
+  ["Genesys Cloud", "https://cyphermonkeylabs.com/genesys-cloud-lab-free-university-mesmerizing/"],
+  ["Five9", "https://cyphermonkeylabs.com/five9-lab-free-university-mesmerizing/"],
+  ["NICE CXone", "https://cyphermonkeylabs.com/nice-cxone-lab-free-university-mesmerizing/"]
 ];
 
 function esc(value) {
@@ -120,7 +120,7 @@ function sourcesHtml(items) {
 }
 
 function footer(depth) {
-  const labs = LABS.map(([name, href]) => `<a class="lab-card" style="--c:#7c3aed" href="${esc(href)}"><span class="lab-card-copy"><strong>${esc(name)}</strong><small>Opened on cyphermonkeylabs.github.io, ${CHECKED}.</small></span></a>`).join("");
+  const labs = LABS.map(([name, href]) => `<a class="lab-card" style="--c:#7c3aed" href="${esc(href)}"><span class="lab-card-copy"><strong>${esc(name)}</strong><small>Opened on cyphermonkeylabs.com, ${CHECKED}.</small></span></a>`).join("");
   return `<footer class="site-footer lab-footer wrap" data-canon-footer>
 ${disclaimer}
 <p class="footer-brand">CypherMonkey Labs</p>
@@ -128,7 +128,7 @@ ${brandNav}
 <p class="site-copy">© 2026 CypherMonkeyLabs 🐒</p>
 <p class="fine">MIT code. CC BY-NC-SA content. <a href="https://cyphermonkeylabs.com/#contact">Report a concern</a>.</p>
 <nav class="next-labs" aria-label="Other labs"><p class="next-title">Other labs</p><div class="lab-cards">${labs}</div>
-<p>cipher0x9.github.io returned 404 for these names on ${CHECKED}. The links above are the host that answered 200. confirm the Pages host before you bookmark a mirror.</p></nav>
+<p>Checked ${CHECKED}: these cards use cyphermonkeylabs.com, which returned HTTP 200. cyphermonkeylabs.github.io returned 301 to that host. cipher0x9.github.io returned 404, so it is not linked.</p></nav>
 <p><a href="${depth}index.html">Open app</a> · <a href="${REPO}">View repo</a></p>
 </footer>`;
 }
@@ -491,7 +491,7 @@ for (const diagram of diagrams.filter((item) => item.kind === "architecture")) {
 for (const track of tracks) {
   const mine = rooms.filter((room) => room.track === track);
   const rows = mine.map((room) => `<li class="room-row" data-title="${esc(room.lesson.title)} ${esc(track.title)}" data-track="${track.code}"><a href="../${room.href}">${esc(room.lesson.title)}</a><p>${esc(room.lesson.summary || "")}</p></li>`).join("");
-  const counts = `<p class="fold-counts"><span><b data-count-up="${mine.length}">0</b> rooms</span><span><b>${mine.reduce((sum, room) => sum + (room.lesson.quiz?.length || 0), 0)}</b> quiz items</span></p>`;
+  const counts = `<p class="fold-counts"><span><b data-count-up="${mine.length}">${mine.length}</b> rooms</span><span><b>${mine.reduce((sum, room) => sum + (room.lesson.quiz?.length || 0), 0)}</b> quiz items</span></p>`;
   const body = `<p class="crumbs"><a href="../index.html">Home</a> / ${esc(track.title)}</p>
 <h1>${esc(track.title)}</h1>
 <p class="lede">${esc(track.summary || "")}</p>
@@ -546,10 +546,10 @@ const home = page({
 <a href="careers.html">Careers</a>
 </nav>
 <div class="fold-counts" aria-label="Live counters">
-<span><b data-count-up="${lessons}">0</b> rooms</span>
-<span><b data-count-up="${quizzes}">0</b> prompts</span>
-<span><b data-count-up="${cards}">0</b> cards</span>
-<span><b data-count-up="${diagrams.length}">0</b> diagrams</span>
+<span><b data-count-up="${lessons}">${lessons}</b> rooms</span>
+<span><b data-count-up="${quizzes}">${quizzes}</b> prompts</span>
+<span><b data-count-up="${cards}">${cards}</b> cards</span>
+<span><b data-count-up="${diagrams.length}">${diagrams.length}</b> diagrams</span>
 <span data-progress data-progress-max="${lessons}">0 rooms opened</span>
 </div>
 <div class="theme-switch" role="group" aria-label="Theme switcher">
@@ -1005,7 +1005,7 @@ Contact is https://cyphermonkeylabs.com/#contact
 
 \`node scripts/build-university.mjs\` rebuilds rooms from \`campus/data\`.
 
-Sibling labs that returned HTTP 200 on ${CHECKED} use https://cyphermonkeylabs.github.io/<repo>/. https://cipher0x9.github.io/<repo>/ returned 404 that day, so those URLs are not used as live links.
+Sibling labs checked on ${CHECKED}: https://cyphermonkeylabs.com/<repo>/ returned HTTP 200 and is the linked host. https://cyphermonkeylabs.github.io/<repo>/ returned 301 to that host. https://cipher0x9.github.io/<repo>/ returned 404, so it is not used as a live link.
 `);
 
 writeFileSync(join(root, "docs/PUBLISHING.md"), `# Publishing this lab
