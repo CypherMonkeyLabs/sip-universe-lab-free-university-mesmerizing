@@ -1,0 +1,12 @@
+{
+  "id": "T18-freeswitch-core",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

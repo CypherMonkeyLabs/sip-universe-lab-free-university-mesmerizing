@@ -1,0 +1,35 @@
+{
+  "id": "T19-e911-statutes",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Kari's Law Act of 2017, Public Law 115-127",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Public Law 115-141, RAY BAUM'S Act of 2018",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ141/html/PLAW-115publ141.htm",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 6442",
+      "url": "https://www.rfc-editor.org/rfc/rfc6442",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "FCC MLTS 911 requirements",
+      "status": "confirm",
+      "note": "confirm"
+    }
+  ]
+}

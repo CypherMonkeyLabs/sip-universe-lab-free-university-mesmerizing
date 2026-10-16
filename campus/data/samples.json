@@ -910,6 +910,172 @@
      "message": "ACK sip:bob@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK7766ack\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=9fxced76sl\nTo: <sip:+15551212@example.com>;tag=314159\nCall-ID: a84b4c76e66710@example.com\nCSeq: 1 ACK\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
     }
    ]
+  },
+  {
+   "title": "WebRTC and SIP over WebSocket: The application picks SIP. The socket is only the transport.",
+   "parties": [
+    "Page",
+    "WSS server"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "GET",
+     "kind": "req",
+     "note": "The handshake asks for the WebSocket subprotocol named sip. This hop is HTTP, not a SIP method.",
+     "message": "GET /sip HTTP/1.1\nHost: proxy.example.com\nUpgrade: websocket\nConnection: Upgrade\nSec-WebSocket-Protocol: sip\nSec-WebSocket-Version: 13\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "101",
+     "kind": "res",
+     "note": "The 101 reply has to carry sip in Sec-WebSocket-Protocol or this subprotocol was not selected.",
+     "message": "HTTP/1.1 101 Switching Protocols\nUpgrade: websocket\nConnection: Upgrade\nSec-WebSocket-Protocol: sip\n"
+    },
+    {
+     "from": 0,
+     "to": 1,
+     "label": "REGISTER",
+     "kind": "req",
+     "note": "After the socket is open, SIP messages are frames on that connection. REGISTER is still REGISTER.",
+     "message": "REGISTER sip:example.com SIP/2.0\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws01\nMax-Forwards: 70\nFrom: <sip:alice@example.com>;tag=labws1\nTo: <sip:alice@example.com>\nCall-ID: lab-ws-reg@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@labua.invalid;transport=ws>;reg-id=1;+sip.instance=\"<urn:uuid:11111111-2222-3333-4444-555555555555>\"\nSupported: outbound\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "200",
+     "kind": "res",
+     "note": "The registrar answer is a SIP response on the same WebSocket.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/WSS labua.invalid;branch=z9hG4bKlabws01\nFrom: <sip:alice@example.com>;tag=labws1\nTo: <sip:alice@example.com>;tag=regok1\nCall-ID: lab-ws-reg@example.com\nCSeq: 1 REGISTER\nContact: <sip:alice@labua.invalid;transport=ws>;expires=3600\nContent-Length: 0\n"
+    }
+   ]
+  },
+  {
+   "title": "Open-source telephony core: SIP hits Kamailio. Media can be anchored in rtpengine.",
+   "parties": [
+    "Phone",
+    "Kamailio",
+    "PBX"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "The phone sends SIP to the SIP server. Kamailio's page describes that role.",
+     "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKos01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:alice@example.com>;tag=os1\nTo: <sip:+15551212@example.com>\nCall-ID: os-map@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.10>\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 2,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Kamailio's page says it can sit in front of a PBX such as Asterisk or FreeSWITCH. This hop is that pattern, synthetic.",
+     "message": "INVITE sip:+15551212@203.0.113.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKos02\nMax-Forwards: 69\nFrom: \"Alice\" <sip:alice@example.com>;tag=os1\nTo: <sip:+15551212@example.com>\nCall-ID: os-map@example.com\nCSeq: 1 INVITE\nContact: <sip:alice@203.0.113.20>\nContent-Length: 0\n"
+    },
+    {
+     "from": 2,
+     "to": 1,
+     "label": "200",
+     "kind": "res",
+     "note": "The PBX answers. SDP may still need a media proxy if the addresses cannot reach each other.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKos02\nFrom: \"Alice\" <sip:alice@example.com>;tag=os1\nTo: <sip:+15551212@example.com>;tag=pbx1\nCall-ID: os-map@example.com\nCSeq: 1 INVITE\nContact: <sip:pbx@203.0.113.30>\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "200",
+     "kind": "res",
+     "note": "rtpengine, if used, is the RTP proxy beside this SIP server. It is not a fourth SIP status code.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKos01\nFrom: \"Alice\" <sip:alice@example.com>;tag=os1\nTo: <sip:+15551212@example.com>;tag=pbx1\nCall-ID: os-map@example.com\nCSeq: 1 INVITE\nContact: <sip:pbx@203.0.113.20>\nContent-Length: 0\n"
+    }
+   ]
+  },
+  {
+   "title": "Call authentication and compliance: A successful call is not a compliance result",
+   "parties": [
+    "PBX",
+    "Carrier"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "INVITE",
+     "kind": "req",
+     "note": "Signaling can succeed while identity, location, or a messaging campaign is still wrong.",
+     "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKcomp01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:+15551212@example.com>;tag=comp1\nTo: <sip:+15551212@example.com>\nCall-ID: comp-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "100",
+     "kind": "res",
+     "note": "Trying means the next hop received the request. It is not an attestation.",
+     "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKcomp01\nFrom: \"Alice\" <sip:+15551212@example.com>;tag=comp1\nTo: <sip:+15551212@example.com>\nCall-ID: comp-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "180",
+     "kind": "res",
+     "note": "Ringing is alerting. It does not mean a 911 location object was sent.",
+     "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKcomp01\nFrom: \"Alice\" <sip:+15551212@example.com>;tag=comp1\nTo: <sip:+15551212@example.com>;tag=comp180\nCall-ID: comp-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "200",
+     "kind": "res",
+     "note": "200 OK completes the SIP transaction. Read the statute for any duty this lab mentions.",
+     "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKcomp01\nFrom: \"Alice\" <sip:+15551212@example.com>;tag=comp1\nTo: <sip:+15551212@example.com>;tag=comp180\nCall-ID: comp-01@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+    }
+   ]
+  },
+  {
+   "title": "Ecosystem, maps, and integration hooks: From a word to a document",
+   "parties": [
+    "Reader",
+    "Glossary",
+    "RFC"
+   ],
+   "steps": [
+    {
+     "from": 0,
+     "to": 1,
+     "label": "term",
+     "kind": "req",
+     "note": "You meet a word such as PASSporT or transport=ws.",
+     "message": "term: PASSporT\n"
+    },
+    {
+     "from": 1,
+     "to": 0,
+     "label": "row",
+     "kind": "res",
+     "note": "The glossary gives one sentence and a citation.",
+     "message": "PASSporT: token in RFC 8225\n"
+    },
+    {
+     "from": 0,
+     "to": 2,
+     "label": "open",
+     "kind": "req",
+     "note": "The citation is the page to read. The glossary does not add rules.",
+     "message": "open RFC 8225\n"
+    },
+    {
+     "from": 2,
+     "to": 0,
+     "label": "text",
+     "kind": "res",
+     "note": "The RFC text wins over the sentence in the glossary.",
+     "message": "abstract: signed token for the originator\n"
+    }
+   ]
   }
  ],
  "messages": {

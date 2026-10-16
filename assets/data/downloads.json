@@ -255,6 +255,90 @@
               "bytes": 19299
             }
           ]
+        },
+        {
+          "label": "WebRTC and SIP over WebSocket",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/webrtc-websocket.html",
+              "bytes": 8760
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/webrtc-websocket.pdf",
+              "bytes": 90716
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/webrtc-websocket.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "Open-source telephony core",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/open-source-core.html",
+              "bytes": 9395
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/open-source-core.pdf",
+              "bytes": 92740
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/open-source-core.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "Call authentication and compliance",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/compliance-study.html",
+              "bytes": 9107
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/compliance-study.pdf",
+              "bytes": 92094
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/compliance-study.png",
+              "bytes": 19299
+            }
+          ]
+        },
+        {
+          "label": "Ecosystem, maps, and hooks",
+          "blurb": "HTML, PDF, and PNG.",
+          "files": [
+            {
+              "kind": "HTML",
+              "href": "downloads/sheets/ecosystem-gaps.html",
+              "bytes": 9054
+            },
+            {
+              "kind": "PDF",
+              "href": "downloads/sheets/ecosystem-gaps.pdf",
+              "bytes": 93250
+            },
+            {
+              "kind": "PNG",
+              "href": "downloads/sheets/ecosystem-gaps.png",
+              "bytes": 19299
+            }
+          ]
         }
       ]
     },

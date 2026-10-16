@@ -2,7 +2,7 @@ import { esc } from "./draw.js";
 
 export const NAV = [
   { href: "#/", label: "Home", group: "Learn", icon: "home", desc: "The call-path opening screen." },
-  { href: "#/tracks", label: "Tracks", group: "Learn", icon: "tracks", desc: "Sixteen tracks, from signaling to design drills." },
+  { href: "#/tracks", label: "Tracks", group: "Learn", icon: "tracks", desc: "Twenty tracks, from signaling through the ecosystem gaps." },
   { href: "#/labs", label: "Labs", group: "Learn", icon: "labs", desc: "Benches that sit inside the lessons." },
   { href: "#/guide", label: "Field guide", group: "Learn", icon: "guide", desc: "Checklists for trunks, faults, and cutovers." },
   { href: "#/boss", label: "Boss incidents", group: "Learn", icon: "boss", desc: "Synthetic logs. The fix cites a document." },

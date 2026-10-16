@@ -188,26 +188,29 @@ const MIND = {
   content: "SIP session",
   children: [
     { content: "Signaling", children: [
-      { content: "INVITE" },
-      { content: "REGISTER" },
-      { content: "REFER" },
-      { content: "PRACK" },
+      { content: "INVITE and responses" },
+      { content: "WebSocket subprotocol sip" },
+      { content: "Transactions and dialogs" },
     ] },
     { content: "Media", children: [
-      { content: "SDP" },
-      { content: "RTP" },
-      { content: "SRTP" },
+      { content: "SDP offer and answer" },
+      { content: "ICE, STUN, TURN" },
+      { content: "DTLS-SRTP and Opus" },
     ] },
-    { content: "Reachability", children: [
-      { content: "NAT" },
-      { content: "ICE" },
-      { content: "TLS" },
+    { content: "Open core", children: [
+      { content: "Kamailio SIP server" },
+      { content: "Asterisk and FreeSWITCH" },
+      { content: "rtpengine" },
+    ] },
+    { content: "Compliance study", children: [
+      { content: "STIR and SHAKEN" },
+      { content: "Kari's Law and RAY BAUM'S Act" },
+      { content: "10DLC messaging" },
     ] },
     { content: "Neighbors", children: [
-      { content: "E911" },
-      { content: "SIPREC" },
-      { content: "WFM" },
-      { content: "CRM" },
+      { content: "WFM and CRM" },
+      { content: "SIPREC recording" },
+      { content: "Programmable voice APIs" },
     ] },
   ],
 };

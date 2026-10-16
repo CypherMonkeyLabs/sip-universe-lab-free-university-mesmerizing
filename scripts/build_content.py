@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT / "content"))
 import extras  # noqa: E402
 import tracks_2  # noqa: E402
 import tracks_3  # noqa: E402
+import tracks_gaps  # noqa: E402
 
 OUT = ROOT / "campus" / "data"
 ILLUSTRATIONS = {"layers", "states", "table", "nodes"}
@@ -137,6 +138,7 @@ def main():
     tracks.extend(tracks_2.tracks())
     tracks.extend(tracks_3.tracks())
     tracks.extend(load_frozen("tracks_4.json"))
+    tracks.extend(tracks_gaps.tracks())
     tracks.sort(key=lambda t: t["order"])
     problems = validate(tracks)
     if problems:

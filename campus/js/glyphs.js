@@ -1,6 +1,7 @@
 const ORDER = [
   "foundations", "sip-core", "call-flows", "routing", "sdp", "rtp", "security", "nat",
   "sbc", "cisco", "multivendor", "cloud", "troubleshoot", "operations", "ecosystem", "capstone",
+  "webrtc", "opensource", "compliance", "gaps",
 ];
 
 function reduced() {
@@ -177,6 +178,34 @@ function build(THREE, id, colors) {
       moon.position.set(Math.cos(ang) * 0.7, Math.sin(ang) * 0.45, Math.sin(ang) * 0.3);
       add(moon);
     }
+  } else if (id === "webrtc") {
+    const pane = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.62, 0.08), lit(THREE, A));
+    const cam = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), glow(THREE, C));
+    cam.position.set(0.22, 0.1, 0.12);
+    const mic = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.28, 8), lit(THREE, B));
+    mic.position.set(-0.22, -0.02, 0.12);
+    add(pane, cam, mic);
+  } else if (id === "opensource") {
+    const core = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), lit(THREE, A));
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.06, 10, 24), lit(THREE, B));
+    ring.rotation.x = Math.PI / 3;
+    const sat = new THREE.Mesh(new THREE.OctahedronGeometry(0.16), lit(THREE, C));
+    sat.position.set(0.7, 0.25, 0);
+    add(core, ring, sat);
+  } else if (id === "compliance") {
+    const shield = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, 0.16, 6), lit(THREE, A));
+    const seal = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.05, 8, 16), glow(THREE, C));
+    seal.rotation.x = Math.PI / 2;
+    seal.position.y = 0.12;
+    add(shield, seal);
+  } else if (id === "gaps") {
+    const hub = new THREE.Mesh(new THREE.IcosahedronGeometry(0.28, 0), lit(THREE, A));
+    add(hub);
+    [[-0.55, 0.2], [0.55, 0.15], [0, -0.5], [0.4, 0.5]].forEach(([x, y], i) => {
+      const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10), lit(THREE, i % 2 ? C : B));
+      leaf.position.set(x, y, 0.1);
+      add(leaf);
+    });
   } else {
     const knot = new THREE.Mesh(new THREE.TorusKnotGeometry(0.42, 0.12, 80, 12), lit(THREE, A));
     const halo = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.03, 8, 32), glow(THREE, C));

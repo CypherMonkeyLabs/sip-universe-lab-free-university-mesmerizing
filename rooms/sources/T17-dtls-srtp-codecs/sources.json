@@ -1,0 +1,42 @@
+{
+  "id": "T17-dtls-srtp-codecs",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8834",
+      "url": "https://www.rfc-editor.org/rfc/rfc8834",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8827",
+      "url": "https://www.rfc-editor.org/rfc/rfc8827",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 7874",
+      "url": "https://www.rfc-editor.org/rfc/rfc7874",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 7587",
+      "url": "https://www.rfc-editor.org/rfc/rfc7587",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

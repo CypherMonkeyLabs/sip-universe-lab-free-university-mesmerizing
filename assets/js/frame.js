@@ -74,7 +74,7 @@
   var GEMS = ["server", "phone", "headset", "cloud", "node", "building", "diamond", "script"];
 
   var SECTIONS = [
-    { id: "home", label: "Home", href: "index.html", icon: "home", desc: "Sixteen SIP tracks. Read offline. Claims stay cited." },
+    { id: "home", label: "Home", href: "index.html", icon: "home", desc: "Twenty SIP tracks. Read offline. Claims stay cited." },
     { id: "start", label: "Start Here", href: "start.html", icon: "rocket", desc: "Read a ladder before a vendor menu." },
     { id: "resources", label: "Resources", href: "resources.html", icon: "link", desc: "RFCs and vendor pages that opened, last checked 2026-10." },
     { id: "rooms", label: "All Rooms", href: "index.html#rooms", icon: "rooms", desc: "Every written room, from fundamentals to interop." },
@@ -84,6 +84,10 @@
     { id: "cheat", label: "Cheat Codes", href: "downloads.html", icon: "cards", desc: "One-page sheets, a card deck, and a zip of this site." },
     { id: "play", label: "Play", href: "play.html", icon: "spark", desc: "A port game and a quiz. Scores stay in this browser." },
     { id: "ecosystem", label: "Ecosystem", href: "ecosystem.html", icon: "globe", desc: "Neighbors that hang off a SIP session." },
+    { id: "webrtc", label: "WebRTC and SIP over WebSocket", href: "tracks/T17-webrtc.html", icon: "phone", desc: "RFC 7118 signaling, ICE, and DTLS-SRTP for a browser softphone." },
+    { id: "opensource", label: "Open-source telephony core", href: "tracks/T18-opensource.html", icon: "server", desc: "Asterisk, FreeSWITCH, Kamailio, and rtpengine, and when to use each." },
+    { id: "compliance", label: "Call authentication and compliance", href: "tracks/T19-compliance.html", icon: "check", desc: "STIR/SHAKEN, E911 statutes, and 10DLC. Educational, not legal advice." },
+    { id: "gaps", label: "Ecosystem gaps", href: "tracks/T20-gaps.html", icon: "node", desc: "Glossary, mind map, sister systems, bridges, and named integration hooks." },
     { id: "atlas", label: "Atlas", href: "diagrams.html", icon: "globe", desc: "The same diagram atlas, opened as a map." },
     { id: "downloads", label: "Downloads", href: "downloads.html#downloads-bonus", icon: "download", desc: "SVG, PNG, HTML, PDF, cards, and the offline zip." },
     { id: "careers", label: "Careers", href: "careers.html", icon: "mic", desc: "Study labels. Not a hiring promise and not a salary." },
@@ -297,7 +301,7 @@
       }).join("") +
       "</div>" +
       '<button type="button" class="a11y-motion" data-motion-toggle aria-pressed="' + (motionOn() ? "true" : "false") + '">Reduce motion</button>' +
-      '<p class="display-stats">16 tracks · SIP rooms · cited sources</p>' +
+      '<p class="display-stats">20 tracks · SIP rooms · cited sources</p>' +
       "</div>";
     if (bar) bar.appendChild(dock);
     else document.body.insertBefore(dock, document.body.firstChild);

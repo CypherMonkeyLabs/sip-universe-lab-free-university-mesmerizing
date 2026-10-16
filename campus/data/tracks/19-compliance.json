@@ -1,0 +1,1533 @@
+{
+ "id": "compliance",
+ "title": "Call authentication and compliance",
+ "summary": "STIR/SHAKEN, Kari's Law, RAY BAUM'S Act, and 10DLC, as the opened documents describe them. Educational only. Not legal advice.",
+ "level": "Advanced",
+ "order": 19,
+ "lessons": [
+  {
+   "id": "not-legal-advice",
+   "title": "How to read a compliance page",
+   "minutes": 12,
+   "level": "Foundation",
+   "tags": [
+    "disclaimer",
+    "compliance"
+   ],
+   "summary": "This lesson is educational. It is not legal advice, not a compliance opinion, and not a filing. Statutes and the FCC pages outrank this lab. A quiz answer is not a legal conclusion.",
+   "objectives": [
+    "Treat this track as study material",
+    "Prefer the statute or the agency page over a paraphrase",
+    "Separate SIP headers from messaging rules"
+   ],
+   "illustration": {
+    "type": "layers",
+    "title": "What outranks this page",
+    "caption": "If a sentence here and the statute disagree, the statute wins. This lab is not a lawyer.",
+    "layers": [
+     {
+      "name": "Statute or rule",
+      "detail": "The text that was enacted or adopted"
+     },
+     {
+      "name": "Agency or industry page",
+      "detail": "FCC, ATIS STI-GA, The Campaign Registry"
+     },
+     {
+      "name": "Protocol",
+      "detail": "RFC 8224 and RFC 8225 for STIR tokens"
+     },
+     {
+      "name": "This lab",
+      "detail": "A paraphrase with a link, or the word confirm"
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "Educational, not advice",
+     "paragraphs": [
+      "This lesson is educational. It is not legal advice, not a compliance opinion, and not a filing. Nothing in this track tells you that your system is lawful, that a certificate is valid, or that a campaign is approved. Those are decisions for the texts and for counsel.",
+      "When this lab names a date or a duty, it is repeating a sentence from a page that was opened. The sources block at the bottom is the check. If a link says confirm, this environment could not open it, and you should open it yourself before you rely on it."
+     ],
+     "cites": [
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      },
+      {
+       "label": "RFC 8224",
+       "url": "https://www.rfc-editor.org/rfc/rfc8224"
+      }
+     ]
+    },
+    {
+     "h": "Do not mix the protocols",
+     "paragraphs": [
+      "STIR is a SIP identity mechanism. The Identity header and PASSporT are specified in RFC 8224 and RFC 8225. SHAKEN is the telephone-industry application described on the ATIS STI-GA page. 10DLC, on The Campaign Registry site, is an application-to-person messaging channel. It is not a SIP method and it does not authenticate a voice call.",
+      "Emergency calling has its own documents: RFC 6881 is a best current practice, RFC 6442 conveys location in SIP, and the statutes below are United States public laws about multi-line telephone systems. A working INVITE does not prove any of those duties are met."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8224",
+       "url": "https://www.rfc-editor.org/rfc/rfc8224"
+      },
+      {
+       "label": "The Campaign Registry",
+       "url": "https://www.campaignregistry.com/"
+      },
+      {
+       "label": "RFC 6881",
+       "url": "https://www.rfc-editor.org/rfc/rfc6881"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "A successful call is not a compliance result",
+    "parties": [
+     "PBX",
+     "Carrier"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "Signaling can succeed while identity, location, or a messaging campaign is still wrong.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKcomp01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:+15551212@example.com>;tag=comp1\nTo: <sip:+15551212@example.com>\nCall-ID: comp-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying means the next hop received the request. It is not an attestation.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKcomp01\nFrom: \"Alice\" <sip:+15551212@example.com>;tag=comp1\nTo: <sip:+15551212@example.com>\nCall-ID: comp-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Ringing is alerting. It does not mean a 911 location object was sent.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKcomp01\nFrom: \"Alice\" <sip:+15551212@example.com>;tag=comp1\nTo: <sip:+15551212@example.com>;tag=comp180\nCall-ID: comp-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK completes the SIP transaction. Read the statute for any duty this lab mentions.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKcomp01\nFrom: \"Alice\" <sip:+15551212@example.com>;tag=comp1\nTo: <sip:+15551212@example.com>;tag=comp180\nCall-ID: comp-01@example.com\nCSeq: 1 INVITE\nContact: <sip:bob@192.0.2.40>\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "This track is",
+     "choices": [
+      "Educational study material, not legal advice",
+      "A filing with the FCC",
+      "A certificate of compliance",
+      "A substitute for the statute"
+     ],
+     "answer": 0,
+     "why": "The disclaimer is part of the lesson.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "If this page and the statute disagree",
+     "choices": [
+      "The statute wins",
+      "The quiz wins",
+      "The SIP 200 OK wins",
+      "The glossary wins"
+     ],
+     "answer": 0,
+     "why": "This lab tells you to read the source.",
+     "cite": {
+      "label": "Kari's Law Act of 2017, Public Law 115-127",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+     }
+    },
+    {
+     "q": "10DLC, as The Campaign Registry describes it, is",
+     "choices": [
+      "An application-to-person messaging channel",
+      "A SIP method",
+      "An RTP codec",
+      "A STUN port"
+     ],
+     "answer": 0,
+     "why": "Do not look for it in a Via header.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    },
+    {
+     "q": "STIR's SIP mechanism is specified in",
+     "choices": [
+      "RFC 8224 and RFC 8225",
+      "RFC 7118 only",
+      "The FreeSWITCH dialplan",
+      "pjsip.conf"
+     ],
+     "answer": 0,
+     "why": "8224 is the Identity header. 8225 is the token.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    },
+    {
+     "q": "A SIP 200 OK proves",
+     "choices": [
+      "The INVITE transaction succeeded",
+      "That every statute on this track is satisfied",
+      "That a 10DLC campaign is registered",
+      "That dispatchable location was delivered"
+     ],
+     "answer": 0,
+     "why": "Signaling success is not a legal conclusion.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "A source marked confirm means",
+     "choices": [
+      "This environment did not open that URL, so no link is published",
+      "The fact is invented",
+      "The statute was repealed",
+      "The quiz is optional"
+     ],
+     "answer": 0,
+     "why": "Open the document yourself before you rely on it.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Not legal advice",
+     "back": "Study notes. The statute and the agency page win.",
+     "cite": {
+      "label": "Kari's Law Act of 2017, Public Law 115-127",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+     }
+    },
+    {
+     "front": "200 OK",
+     "back": "SIP success. Not a compliance result.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "Confirm",
+     "back": "No URL when the link was not opened.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "Separate planes",
+     "back": "Voice identity, emergency location, and SMS campaigns are different documents.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Classify the document",
+    "kind": "config",
+    "prompt": "Three opened sources. Match the topic.",
+    "steps": [
+     "Read the three names.",
+     "Pick the messaging one.",
+     "Leave SIP methods out of it."
+    ],
+    "check": {
+     "q": "Which source is about A2P messaging rather than a SIP call?",
+     "choices": [
+      "The Campaign Registry",
+      "RFC 8224",
+      "Public Law 115-127",
+      "RFC 5764"
+     ],
+     "answer": 0,
+     "why": "10DLC on that site is a messaging channel.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    },
+    "config": "RFC 8224: SIP identity\nPublic Law 115-127: direct 911 dialing\nCampaign Registry: 10DLC messaging\n"
+   },
+   "fault": {
+    "title": "Compliance inferred from a ringing call",
+    "symptom": "A test call returns 180 Ringing. The change ticket is closed as STIR, 911, and 10DLC complete.",
+    "log": "SIP/2.0 180 Ringing\nCSeq: 1 INVITE\n",
+    "choices": [
+     "180 means alerting. It does not settle those duties.",
+     "180 is the SHAKEN attestation",
+     "180 registers a 10DLC brand",
+     "180 is dispatchable location"
+    ],
+    "answer": 0,
+    "why": "Each duty has its own document. A provisional response is only SIP.",
+    "cause": "One status line was asked to stand in for three regimes.",
+    "fix": "Keep the call trace for signaling. Check identity, location, and messaging against their own documents.",
+    "cites": [
+     {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     },
+     {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    ]
+   }
+  },
+  {
+   "id": "stir-shaken",
+   "title": "STIR and SHAKEN",
+   "minutes": 16,
+   "level": "Intermediate",
+   "tags": [
+    "stir",
+    "shaken",
+    "passport"
+   ],
+   "summary": "RFC 8224 defines a signed SIP Identity header. RFC 8225 defines PASSporT. SHAKEN is the industry mechanism the ATIS STI-GA page describes. Educational only.",
+   "objectives": [
+    "Separate STIR from SHAKEN",
+    "Name PASSporT",
+    "Repeat the FCC description without treating this page as the rule"
+   ],
+   "illustration": {
+    "type": "states",
+    "title": "Sign, then verify",
+    "caption": "The protocol pieces are IETF documents. The governance body on the page this lab opened is the STI-GA.",
+    "states": [
+     {
+      "name": "PASSporT",
+      "detail": "RFC 8225. A signed token about the originator."
+     },
+     {
+      "name": "Identity",
+      "detail": "RFC 8224. The SIP header that carries the signature."
+     },
+     {
+      "name": "SHAKEN",
+      "detail": "ATIS-SIP Forum mechanism, described by the STI-GA."
+     },
+     {
+      "name": "STI-GA",
+      "detail": "Governance for the certificate infrastructure."
+     }
+    ]
+   },
+   "sections": [
+    {
+     "h": "The IETF pieces",
+     "paragraphs": [
+      "RFC 8224 says the baseline SIP security mechanisms are inadequate to assure the identity of the end users that originate SIP requests, especially between domains. It defines a SIP header field that conveys a signature used to validate the identity of the originator. It obsoletes RFC 4474.",
+      "RFC 8225 defines PASSporT, a Personal Assertion Token. The token is cryptographically signed to protect the integrity of the originator's identity and to let the destination verify that assertion. The abstract says the signature is intended to verify the originating persona even when it is sent over an insecure channel. PASSporT is the token. The Identity header is how SIP carries the STIR signature. This lab does not print a sample token or a private key."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8224",
+       "url": "https://www.rfc-editor.org/rfc/rfc8224"
+      },
+      {
+       "label": "RFC 8225",
+       "url": "https://www.rfc-editor.org/rfc/rfc8225"
+      }
+     ]
+    },
+    {
+     "h": "SHAKEN, as the opened pages describe it",
+     "paragraphs": [
+      "The Secure Telephone Identity Governance Authority page says the STI-GA works with the IETF STIR protocol, and that the ATIS-SIP Forum SHAKEN specification specifies a practical mechanism for authenticating calls. The page says attaching a digital signature will help consumers trust caller ID, and that ATIS works with the STI-GA Board on rules for the certificate management infrastructure.",
+      "On the STI-GA page, SHAKEN is written out as Signature-based Handling of Asserted information using toKENs. The page says attaching a digital signature will help consumers trust caller ID, and that ATIS works with the STI-GA Board on rules for the certificate management infrastructure. This environment could not open the FCC call-authentication page, so this lesson does not repeat a deadline or a provider duty from that page. If the sources block shows confirm and no URL, open the page yourself. This is not legal advice."
+     ],
+     "cites": [
+      {
+       "label": "Secure Telephone Identity Governance Authority",
+       "url": "https://www.atis.org/sti-ga/"
+      },
+      {
+       "label": "RFC 8224",
+       "url": "https://www.rfc-editor.org/rfc/rfc8224"
+      },
+      {
+       "label": "RFC 8225",
+       "url": "https://www.rfc-editor.org/rfc/rfc8225"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Identity is a header on the INVITE, not a second call",
+    "parties": [
+     "Originating provider",
+     "Terminating provider"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "RFC 8224 puts the signature in a SIP header on the request. This study INVITE names the header and does not include a real token.",
+      "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKstir01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:+15551200@example.com>;tag=stir1\nTo: <sip:+15551212@example.com>\nCall-ID: stir-01@example.com\nCSeq: 1 INVITE\nIdentity: <study-token-not-a-real-passport>\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "100",
+      "kind": "res",
+      "note": "Trying does not mean the signature was valid.",
+      "message": "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKstir01\nFrom: \"Alice\" <sip:+15551200@example.com>;tag=stir1\nTo: <sip:+15551212@example.com>\nCall-ID: stir-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "Ringing is still not verification. Verification is the check RFC 8224 describes.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKstir01\nFrom: \"Alice\" <sip:+15551200@example.com>;tag=stir1\nTo: <sip:+15551212@example.com>;tag=stir180\nCall-ID: stir-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "200 OK can happen on a call the verifier rejected, or the reverse. Read the response and the Identity handling in the RFC.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKstir01\nFrom: \"Alice\" <sip:+15551200@example.com>;tag=stir1\nTo: <sip:+15551212@example.com>;tag=stir180\nCall-ID: stir-01@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "RFC 8224 defines",
+     "choices": [
+      "A SIP header that carries a signature for the originator's identity",
+      "The Opus rtpmap clock",
+      "TURN allocations",
+      "Kari's Law"
+     ],
+     "answer": 0,
+     "why": "It obsoletes RFC 4474.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    },
+    {
+     "q": "PASSporT is",
+     "choices": [
+      "The token format in RFC 8225",
+      "A SIP method",
+      "A WebSocket subprotocol",
+      "A 10DLC campaign ID"
+     ],
+     "answer": 0,
+     "why": "The token is signed. SIP carries it in the Identity header.",
+     "cite": {
+      "label": "RFC 8225",
+      "url": "https://www.rfc-editor.org/rfc/rfc8225"
+     }
+    },
+    {
+     "q": "The STI-GA page describes SHAKEN as",
+     "choices": [
+      "An ATIS-SIP Forum mechanism for authenticating calls, using STIR",
+      "A replacement for RTP",
+      "A dialplan",
+      "An SMS registry"
+     ],
+     "answer": 0,
+     "why": "The page also describes the certificate governance role.",
+     "cite": {
+      "label": "Secure Telephone Identity Governance Authority",
+      "url": "https://www.atis.org/sti-ga/"
+     }
+    },
+    {
+     "q": "On the STI-GA page, SHAKEN is written out as",
+     "choices": [
+      "Signature-based Handling of Asserted information using toKENs",
+      "A SIP method named SHAKE",
+      "Secure RTP",
+      "A 10DLC campaign"
+     ],
+     "answer": 0,
+     "why": "That expansion is on the page this lab opened. It is not a SIP method.",
+     "cite": {
+      "label": "Secure Telephone Identity Governance Authority",
+      "url": "https://www.atis.org/sti-ga/"
+     }
+    },
+    {
+     "q": "The STI-GA page says a digital signature is meant to",
+     "choices": [
+      "Help consumers trust caller ID",
+      "Replace the RTP clock",
+      "Open a WebSocket",
+      "Register an SMS brand"
+     ],
+     "answer": 0,
+     "why": "The page uses those words. This quiz is not a legal conclusion.",
+     "cite": {
+      "label": "Secure Telephone Identity Governance Authority",
+      "url": "https://www.atis.org/sti-ga/"
+     }
+    },
+    {
+     "q": "This lesson's Identity value is",
+     "choices": [
+      "A study placeholder, not a real PASSporT",
+      "A token you can replay in production",
+      "A private key",
+      "A certificate from the STI-GA"
+     ],
+     "answer": 0,
+     "why": "The lab does not mint identity tokens.",
+     "cite": {
+      "label": "RFC 8225",
+      "url": "https://www.rfc-editor.org/rfc/rfc8225"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Identity",
+     "back": "SIP header for the STIR signature. RFC 8224.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    },
+    {
+     "front": "PASSporT",
+     "back": "Signed token. RFC 8225.",
+     "cite": {
+      "label": "RFC 8225",
+      "url": "https://www.rfc-editor.org/rfc/rfc8225"
+     }
+    },
+    {
+     "front": "SHAKEN",
+     "back": "Industry mechanism described on the STI-GA page.",
+     "cite": {
+      "label": "Secure Telephone Identity Governance Authority",
+      "url": "https://www.atis.org/sti-ga/"
+     }
+    },
+    {
+     "front": "toKENs",
+     "back": "The STI-GA page writes SHAKEN out with that word.",
+     "cite": {
+      "label": "Secure Telephone Identity Governance Authority",
+      "url": "https://www.atis.org/sti-ga/"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Find the header",
+    "kind": "dissect",
+    "prompt": "The Identity value is a placeholder. Do not treat it as a signature.",
+    "steps": [
+     "Open the dissector.",
+     "Find Identity.",
+     "Say which RFC defines the header."
+    ],
+    "check": {
+     "q": "Which document defines the Identity header for STIR?",
+     "choices": [
+      "RFC 8224",
+      "RFC 7118",
+      "RFC 8489",
+      "Public Law 115-127"
+     ],
+     "answer": 0,
+     "why": "8225 defines the token. 8224 defines the SIP header that carries a signature.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    },
+    "message": "INVITE sip:+15551212@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bKstir01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:+15551200@example.com>;tag=stir1\nTo: <sip:+15551212@example.com>\nCall-ID: stir-01@example.com\nCSeq: 1 INVITE\nIdentity: <study-token-not-a-real-passport>\nContent-Length: 0\n"
+   },
+   "fault": {
+    "title": "Placeholder token accepted as proof",
+    "symptom": "A test tool shows Identity: <study-token-not-a-real-passport> and the display name matches. The ticket says SHAKEN passed.",
+    "log": "Identity: <study-token-not-a-real-passport>\n",
+    "choices": [
+     "A placeholder is not a PASSporT and not a verification result",
+     "Any Identity value is valid SHAKEN",
+     "The display name is the signature",
+     "180 Ringing completes verification"
+    ],
+    "answer": 0,
+    "why": "RFC 8225 describes a cryptographic token. This lab's string is not one.",
+    "cause": "The presence of the header was treated as success.",
+    "fix": "Verify with the procedure in RFC 8224 and the certificates your governance process names. Do not use this lesson's token.",
+    "cites": [
+     {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     },
+     {
+      "label": "RFC 8225",
+      "url": "https://www.rfc-editor.org/rfc/rfc8225"
+     }
+    ]
+   }
+  },
+  {
+   "id": "e911-statutes",
+   "title": "Kari's Law, RAY BAUM'S Act, and SIP location",
+   "minutes": 16,
+   "level": "Intermediate",
+   "tags": [
+    "e911",
+    "kari",
+    "raybaum"
+   ],
+   "summary": "Public Law 115-127 requires direct 911 dialing from MLTS. Section 506 of RAY BAUM'S Act requires a proceeding on dispatchable location. Educational only. Not legal advice.",
+   "objectives": [
+    "State Kari's Law from the public law",
+    "State the section 506 duty as a proceeding, and the statutory definition",
+    "Keep RFC 6881 and RFC 6442 in the protocol column"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Documents, not a checklist of your building",
+    "caption": "Dates below are the ones printed in the public laws this lab opened. This environment could not open the FCC MLTS page, so no implementation date from that page is listed.",
+    "columns": [
+     "Document",
+     "What the opened text says"
+    ],
+    "rows": [
+     [
+      "Public Law 115-127",
+      "Feb. 16, 2018. Kari's Law Act of 2017. Direct 911 dialing from MLTS."
+     ],
+     [
+      "RAY BAUM'S Act",
+      "Division of Public Law 115-141. Short title printed in the act."
+     ],
+     [
+      "Section 506",
+      "Proceeding so dispatchable location is conveyed, including from MLTS."
+     ],
+     [
+      "Dispatchable location",
+      "Street address plus room, floor, or similar information."
+     ],
+     [
+      "RFC 6881",
+      "BCP for emergency calling. Not legal advice."
+     ],
+     [
+      "RFC 6442",
+      "SIP location conveyance."
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "The statutes this lab opened",
+     "paragraphs": [
+      "Public Law 115-127, enacted February 16, 2018, is the Kari's Law Act of 2017. Its stated purpose is to amend the Communications Act of 1934 so multi-line telephone systems have a configuration that permits users to directly initiate a call to 9-1-1 without dialing any additional digit, code, prefix, or post-fix.",
+      "RAY BAUM'S Act of 2018 is a division of Public Law 115-141. The act says it may be cited as the Repack Airwaves Yielding Better Access for Users of Modern Services Act of 2018 or RAY BAUM'S Act of 2018. Section 506 requires the Commission to conclude a proceeding, not later than 18 months after enactment, to consider adopting rules so that the dispatchable location is conveyed with a 9-1-1 call, regardless of the technological platform, including calls from multi-line telephone systems. The section defines dispatchable location as the street address of the calling party and additional information such as room number, floor number, or similar information necessary to adequately identify the location of the calling party."
+     ],
+     "cites": [
+      {
+       "label": "Kari's Law Act of 2017, Public Law 115-127",
+       "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+      },
+      {
+       "label": "Public Law 115-141, RAY BAUM'S Act of 2018",
+       "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ141/html/PLAW-115publ141.htm"
+      }
+     ]
+    },
+    {
+     "h": "Protocol documents, and the FCC page",
+     "paragraphs": [
+      "RFC 6881 is a best current practice for communications services in support of emergency calling. It is not a statute. RFC 6442 defines a SIP extension to convey geographic location, including location-based routing. A SIP header that carries location is the protocol mechanism. It does not, by itself, prove a dispatchable location as the statute defines that term.",
+      "RFC 6881 is a best current practice. It does not replace the statute. This environment could not open the FCC MLTS page, so this lesson does not repeat an implementation date from that page. Read 47 CFR and the statute yourself. This lesson is not legal advice and not a determination about any system. If the sources block shows confirm and no URL, that is the FCC link."
+     ],
+     "cites": [
+      {
+       "label": "RFC 6881",
+       "url": "https://www.rfc-editor.org/rfc/rfc6881"
+      },
+      {
+       "label": "RFC 6442",
+       "url": "https://www.rfc-editor.org/rfc/rfc6442"
+      },
+      {
+       "label": "Kari's Law Act of 2017, Public Law 115-127",
+       "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "An emergency study call still needs location, not just SIP",
+    "parties": [
+     "Phone",
+     "MLTS",
+     "Provider"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "The user dials 911 with no prefix. Whether your MLTS must allow that is the statute and the rules, not this arrow.",
+      "message": "INVITE sip:911@198.51.100.30 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK911a\nMax-Forwards: 70\nFrom: \"Room 4\" <sip:room4@example.com>;tag=e911a\nTo: <sip:911@example.com>\nCall-ID: e911-study@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 2,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "RFC 6442 is the SIP extension for location conveyance. This study request does not include a real location body.",
+      "message": "INVITE sip:911@192.0.2.40 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK911b\nMax-Forwards: 69\nFrom: \"Room 4\" <sip:room4@example.com>;tag=e911a\nTo: <sip:911@example.com>\nCall-ID: e911-study@example.com\nCSeq: 1 INVITE\nGeolocation: <study-not-a-real-location>\nContent-Length: 0\n"
+     },
+     {
+      "from": 2,
+      "to": 1,
+      "label": "180",
+      "kind": "res",
+      "note": "Alerting is not proof the PSAP received a dispatchable location.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.20;branch=z9hG4bK911b\nFrom: \"Room 4\" <sip:room4@example.com>;tag=e911a\nTo: <sip:911@example.com>;tag=e911b\nCall-ID: e911-study@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "180",
+      "kind": "res",
+      "note": "The phone hears ringing. Confirm a test with the provider. Do not place a live 911 call to test this lab.",
+      "message": "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bK911a\nFrom: \"Room 4\" <sip:room4@example.com>;tag=e911a\nTo: <sip:911@example.com>;tag=e911b\nCall-ID: e911-study@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "Kari's Law Act of 2017 is",
+     "choices": [
+      "Public Law 115-127",
+      "RFC 7118",
+      "A SIP method",
+      "An RTP profile"
+     ],
+     "answer": 0,
+     "why": "The short title is in section 1 of that act.",
+     "cite": {
+      "label": "Kari's Law Act of 2017, Public Law 115-127",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+     }
+    },
+    {
+     "q": "The act's dialing requirement is that an MLTS user can call 9-1-1",
+     "choices": [
+      "Without an extra digit, code, prefix, or post-fix",
+      "Only after dialing 9",
+      "Only with a SIP REGISTER",
+      "Only over WebSocket"
+     ],
+     "answer": 0,
+     "why": "That is the purpose statement of the public law.",
+     "cite": {
+      "label": "Kari's Law Act of 2017, Public Law 115-127",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+     }
+    },
+    {
+     "q": "Section 506 of RAY BAUM'S Act requires the Commission to",
+     "choices": [
+      "Conclude a proceeding on conveying dispatchable location, including from MLTS",
+      "Ban SIP",
+      "Define Opus",
+      "Register 10DLC campaigns"
+     ],
+     "answer": 0,
+     "why": "The duty in the section this lab opened is a proceeding.",
+     "cite": {
+      "label": "Public Law 115-141, RAY BAUM'S Act of 2018",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ141/html/PLAW-115publ141.htm"
+     }
+    },
+    {
+     "q": "Dispatchable location in that section means",
+     "choices": [
+      "Street address plus room, floor, or similar information needed to identify the caller",
+      "The SIP Call-ID",
+      "A STUN mapped port",
+      "The codec list"
+     ],
+     "answer": 0,
+     "why": "The definition is in section 506.",
+     "cite": {
+      "label": "Public Law 115-141, RAY BAUM'S Act of 2018",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ141/html/PLAW-115publ141.htm"
+     }
+    },
+    {
+     "q": "RFC 6442 is",
+     "choices": [
+      "Location conveyance for SIP",
+      "The Kari's Law statute",
+      "The SHAKEN governance authority",
+      "A messaging registry"
+     ],
+     "answer": 0,
+     "why": "The statute and the SIP extension are different documents.",
+     "cite": {
+      "label": "RFC 6442",
+      "url": "https://www.rfc-editor.org/rfc/rfc6442"
+     }
+    },
+    {
+     "q": "This lab's Geolocation value is",
+     "choices": [
+      "A study placeholder",
+      "A validated civic address",
+      "Proof of compliance",
+      "A PASSporT"
+     ],
+     "answer": 0,
+     "why": "Do not send it to a PSAP.",
+     "cite": {
+      "label": "RFC 6442",
+      "url": "https://www.rfc-editor.org/rfc/rfc6442"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "PL 115-127",
+     "back": "Kari's Law. Direct 911 dialing from MLTS.",
+     "cite": {
+      "label": "Kari's Law Act of 2017, Public Law 115-127",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+     }
+    },
+    {
+     "front": "Section 506",
+     "back": "Dispatchable location proceeding, including MLTS.",
+     "cite": {
+      "label": "Public Law 115-141, RAY BAUM'S Act of 2018",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ141/html/PLAW-115publ141.htm"
+     }
+    },
+    {
+     "front": "RFC 6442",
+     "back": "How SIP conveys location.",
+     "cite": {
+      "label": "RFC 6442",
+      "url": "https://www.rfc-editor.org/rfc/rfc6442"
+     }
+    },
+    {
+     "front": "RFC 6881",
+     "back": "Emergency calling BCP. Not a statute.",
+     "cite": {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Which document",
+    "kind": "config",
+    "prompt": "Match the duty to the text. This is not a determination about a building.",
+    "steps": [
+     "Read the three rows.",
+     "Pick the statute for the extra-digit problem.",
+     "Leave the SIP extension in the protocol row."
+    ],
+    "check": {
+     "q": "Which text is the statute about dialing 911 with no prefix?",
+     "choices": [
+      "Public Law 115-127",
+      "RFC 7587",
+      "The rtpengine README",
+      "RFC 7118"
+     ],
+     "answer": 0,
+     "why": "Kari's Law is that public law. RFC 6442 is the SIP location extension.",
+     "cite": {
+      "label": "Kari's Law Act of 2017, Public Law 115-127",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+     }
+    },
+    "config": "PL 115-127: direct 911 dialing\nPL 115-141 section 506: dispatchable location proceeding\nRFC 6442: SIP location conveyance\n"
+   },
+   "fault": {
+    "title": "Prefix required, ticket closed on 200 OK",
+    "symptom": "Users must dial 9 before 911. A test call to a lab number returns 200 OK. The ticket says Kari's Law is satisfied because SIP works.",
+    "log": "dialing: 9 + 911\nSIP/2.0 200 OK\n",
+    "choices": [
+     "The statute is about dialing 911 with no extra digit. A 200 OK does not answer that.",
+     "200 OK is the statutory test",
+     "The prefix 9 is required by RFC 3261",
+     "Location conveyance removes the prefix rule"
+    ],
+    "answer": 0,
+    "why": "Public Law 115-127 states the direct-dial configuration. This is not a ruling on any PBX.",
+    "cause": "Signaling success was substituted for the dialing configuration.",
+    "fix": "Read the statute and the current FCC rules with counsel. Test only with the provider's test procedure. Do not place a live 911 call for this lab.",
+    "cites": [
+     {
+      "label": "Kari's Law Act of 2017, Public Law 115-127",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+     },
+     {
+      "label": "FCC MLTS 911 requirements",
+      "url": "https://www.fcc.gov/mlts-911-requirements"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ten-dlc",
+   "title": "10DLC is a messaging channel",
+   "minutes": 14,
+   "level": "Advanced",
+   "tags": [
+    "10dlc",
+    "messaging"
+   ],
+   "summary": "The Campaign Registry describes 10DLC as an A2P messaging channel with verified brands and campaign service providers. It is not SIP. Educational only.",
+   "objectives": [
+    "Say what 10DLC is on the opened registry page",
+    "Keep it out of the SIP dialog",
+    "Refuse to invent a statute this lab did not open"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Voice SIP versus the messaging registry",
+    "caption": "If a vendor also sells both, the documents are still different.",
+    "columns": [
+     "Question",
+     "SIP voice",
+     "10DLC"
+    ],
+    "rows": [
+     [
+      "Opened source",
+      "RFC 3261",
+      "campaignregistry.com"
+     ],
+     [
+      "What moves",
+      "SIP requests and RTP",
+      "A2P messages"
+     ],
+     [
+      "Who is verified first",
+      "Not defined by 10DLC",
+      "Brands and CSPs, on that page"
+     ],
+     [
+      "Campaign ID",
+      "Not a SIP header in RFC 3261",
+      "What the page says is given to the connectivity partner"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "The page this lab opened",
+     "paragraphs": [
+      "The Campaign Registry home page says it is the backbone support for the 10DLC messaging ecosystem. It says 10DLC is an A2P messaging channel in which brands and campaign service providers are verified before they are allowed to send messages. It says campaigns can be registered through the CSP portal or APIs, and that messages are sent after the user gives their connectivity partner a Campaign ID.",
+      "The page also says to be a CSP before registering. This lab did not open a statute that uses the word 10DLC, so it does not claim a section number for one. Telephone consumer rules may still apply to messaging. Read those texts. This is not legal advice."
+     ],
+     "cites": [
+      {
+       "label": "The Campaign Registry",
+       "url": "https://www.campaignregistry.com/"
+      }
+     ]
+    },
+    {
+     "h": "What not to configure in the SIP proxy",
+     "paragraphs": [
+      "A SIP INVITE does not become a 10DLC campaign because the From user looks like a telephone number. Kamailio, Asterisk, and FreeSWITCH are not named on the registry page this lab opened. Do not add a Campaign ID header to a voice INVITE and call it compliance.",
+      "When a design includes both voice SIP and application messaging, draw two paths. The voice path uses the SIP and RTP documents in the earlier tracks. The messaging path uses the registry and the carrier's current messaging rules. Mixing the traces wastes a troubleshooting hour."
+     ],
+     "cites": [
+      {
+       "label": "The Campaign Registry",
+       "url": "https://www.campaignregistry.com/"
+      },
+      {
+       "label": "RFC 3261",
+       "url": "https://www.rfc-editor.org/rfc/rfc3261"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Two paths. Do not merge them in one ladder.",
+    "parties": [
+     "App",
+     "Voice SIP",
+     "Messaging"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "INVITE",
+      "kind": "req",
+      "note": "A voice call is SIP. No Campaign ID is defined by this hop.",
+      "message": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdlc01\nMax-Forwards: 70\nFrom: \"Alice\" <sip:+15551200@example.com>;tag=dlc1\nTo: <sip:+15551212@example.com>\nCall-ID: voice-not-sms@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "200",
+      "kind": "res",
+      "note": "The voice call can complete with no messaging registration involved.",
+      "message": "SIP/2.0 200 OK\nVia: SIP/2.0/UDP 203.0.113.10;branch=z9hG4bKdlc01\nFrom: \"Alice\" <sip:+15551200@example.com>;tag=dlc1\nTo: <sip:+15551212@example.com>;tag=dlc200\nCall-ID: voice-not-sms@example.com\nCSeq: 1 INVITE\nContent-Length: 0\n"
+     },
+     {
+      "from": 0,
+      "to": 2,
+      "label": "SMS",
+      "kind": "req",
+      "note": "A2P messaging is the other path. The registry page talks about a Campaign ID given to a connectivity partner.",
+      "message": "study note: A2P message\nbrand and CSP verified first\ncampaign id to the partner\n"
+     },
+     {
+      "from": 2,
+      "to": 0,
+      "label": "accept",
+      "kind": "res",
+      "note": "Acceptance of a message is not a SIP 200 OK and not SHAKEN.",
+      "message": "study note: messaging result\nnot a SIP status line\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "On The Campaign Registry page, 10DLC is",
+     "choices": [
+      "An A2P messaging channel",
+      "A SIP transport",
+      "An RTP profile",
+      "A 911 location object"
+     ],
+     "answer": 0,
+     "why": "Brands and CSPs are verified before sending.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    },
+    {
+     "q": "The page says messages go out after",
+     "choices": [
+      "The user gives the connectivity partner a Campaign ID",
+      "A SIP ACK",
+      "A DTLS handshake",
+      "A STUN binding"
+     ],
+     "answer": 0,
+     "why": "That is the sequence the page states.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    },
+    {
+     "q": "This lab claims a statute section for the word 10DLC",
+     "choices": [
+      "No. It did not open one.",
+      "Yes. RFC 3261 section 10.",
+      "Yes. Kari's Law.",
+      "Yes. Section 506."
+     ],
+     "answer": 0,
+     "why": "Do not invent the citation.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    },
+    {
+     "q": "A voice INVITE should be debugged as 10DLC when",
+     "choices": [
+      "It should not. They are different paths.",
+      "The From user has 10 digits",
+      "Via says UDP",
+      "The codec is PCMU"
+     ],
+     "answer": 0,
+     "why": "Telephone-shaped SIP is still SIP.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "q": "Who the page says must register as, before using the registry",
+     "choices": [
+      "A CSP, campaign service provider",
+      "A SIP proxy",
+      "A TURN server",
+      "A PSAP"
+     ],
+     "answer": 0,
+     "why": "The page says to make sure you are a CSP before you register.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    },
+    {
+     "q": "This lesson is",
+     "choices": [
+      "Educational, not legal advice",
+      "An approval of a campaign",
+      "A carrier contract",
+      "A SIP extension"
+     ],
+     "answer": 0,
+     "why": "Read the registry and the carrier rules for a real campaign.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "10DLC",
+     "back": "A2P messaging channel on the registry page.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    },
+    {
+     "front": "CSP",
+     "back": "Campaign service provider. The page says to be one before registering.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    },
+    {
+     "front": "Campaign ID",
+     "back": "Given to the connectivity partner, on that page.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    },
+    {
+     "front": "Not SIP",
+     "back": "Do not add it to a voice INVITE and call it done.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Split the ticket",
+    "kind": "config",
+    "prompt": "Two symptoms arrived in one ticket. Separate them.",
+    "steps": [
+     "Read the voice line.",
+     "Read the messaging line.",
+     "Pick the one that is 10DLC."
+    ],
+    "check": {
+     "q": "Which line belongs to the messaging registry?",
+     "choices": [
+      "Brand not verified for A2P",
+      "INVITE has no Contact",
+      "Opus clock is 8000",
+      "Via transport is WS"
+     ],
+     "answer": 0,
+     "why": "Verification of a brand is the registry's messaging topic.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    },
+    "config": "voice: INVITE timeout\nmessaging: brand not verified for A2P\n"
+   },
+   "fault": {
+    "title": "Campaign ID stuffed into a SIP header",
+    "symptom": "Outbound calls fail. A custom header X-Campaign was added so the voice carrier would treat the call as 10DLC.",
+    "log": "INVITE sip:+15551212@203.0.113.20 SIP/2.0\nX-Campaign: study\n",
+    "choices": [
+     "10DLC on the opened page is a messaging registration, not a SIP header",
+     "X-Campaign is required by RFC 8224",
+     "The carrier must read that header as SHAKEN",
+     "Removing Contact fixes 10DLC"
+    ],
+    "answer": 0,
+    "why": "The registry page describes campaigns and connectivity partners, not a SIP header.",
+    "cause": "A messaging identifier was inserted into a voice request.",
+    "fix": "Remove the invented header. Debug the SIP failure as SIP. Register messaging campaigns in the messaging path the registry describes.",
+    "cites": [
+     {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     },
+     {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    ]
+   }
+  },
+  {
+   "id": "compliance-troubleshoot",
+   "title": "Troubleshooting without a legal conclusion",
+   "minutes": 15,
+   "level": "Advanced",
+   "tags": [
+    "troubleshoot",
+    "compliance"
+   ],
+   "summary": "Sort the symptom into SIP, identity, emergency location, or messaging. Then open that document. Educational only. Not legal advice.",
+   "objectives": [
+    "Pick the document that matches the symptom",
+    "Keep a live 911 test out of this lab",
+    "Write a next step that cites a page"
+   ],
+   "illustration": {
+    "type": "table",
+    "title": "Symptom to document",
+    "caption": "The fix column is a study direction. It is not a ruling.",
+    "columns": [
+     "Symptom",
+     "Open",
+     "Do not conclude"
+    ],
+    "rows": [
+     [
+      "No Identity on an IP call you expected to be signed",
+      "RFC 8224 and the STI-GA page",
+      "That the call is lawful"
+     ],
+     [
+      "Users must dial 9 to reach 911",
+      "Public Law 115-127 and the FCC MLTS page",
+      "That a 200 OK cured it"
+     ],
+     [
+      "PSAP address is only a city",
+      "Section 506's definition and RFC 6442",
+      "That a Geolocation header is enough"
+     ],
+     [
+      "A2P SMS blocked",
+      "The Campaign Registry",
+      "That the SIP proxy is the registry"
+     ],
+     [
+      "Browser call has no audio",
+      "DTLS-SRTP and ICE, not 10DLC",
+      "That SHAKEN repairs one-way audio"
+     ]
+    ]
+   },
+   "sections": [
+    {
+     "h": "Sort before you configure",
+     "paragraphs": [
+      "A troubleshooting hour goes wrong when one symptom is asked to explain three regimes. No audio is a media problem: SDP, ICE, DTLS-SRTP, or the RTP proxy. A rejected caller ID story is an identity problem: RFC 8224, RFC 8225, and the SHAKEN governance page. A phone that cannot dial 911 without a prefix is the Kari's Law configuration, which is a statute and the FCC rules, not a codec.",
+      "An SMS campaign that will not send is The Campaign Registry's topic, plus whatever carrier rule you open. It will not show up as a missing a=rtpmap line. Write the next action as the name of the document and the observation, and stop before you declare the system compliant."
+     ],
+     "cites": [
+      {
+       "label": "RFC 8224",
+       "url": "https://www.rfc-editor.org/rfc/rfc8224"
+      },
+      {
+       "label": "Kari's Law Act of 2017, Public Law 115-127",
+       "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+      },
+      {
+       "label": "The Campaign Registry",
+       "url": "https://www.campaignregistry.com/"
+      },
+      {
+       "label": "RFC 5764",
+       "url": "https://www.rfc-editor.org/rfc/rfc5764"
+      }
+     ]
+    },
+    {
+     "h": "What a careful note looks like",
+     "paragraphs": [
+      "A careful note says which message was seen, which document was opened, and what is still unknown. Example: INVITE left the PBX with no Identity header. RFC 8224 defines that header. This note does not say whether a rule required the header on this call.",
+      "For emergency tests, use the provider's test procedure. Do not place a live 911 call to satisfy this lesson. RFC 6881 remains a best current practice for how IETF protocols support emergency calling. It does not replace section 506 or the FCC rules. If a vendor debug guide disagrees with the statute, the statute is the law and the debug guide is the vendor's instructions. This is not legal advice."
+     ],
+     "cites": [
+      {
+       "label": "RFC 6881",
+       "url": "https://www.rfc-editor.org/rfc/rfc6881"
+      },
+      {
+       "label": "Public Law 115-141, RAY BAUM'S Act of 2018",
+       "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ141/html/PLAW-115publ141.htm"
+      },
+      {
+       "label": "FCC MLTS 911 requirements",
+       "url": "https://www.fcc.gov/mlts-911-requirements"
+      }
+     ]
+    }
+   ],
+   "flow": {
+    "title": "Four checks, one call trace",
+    "parties": [
+     "You",
+     "Trace"
+    ],
+    "steps": [
+     {
+      "from": 0,
+      "to": 1,
+      "label": "SIP?",
+      "kind": "req",
+      "note": "Does the ladder show the method and the status you think it shows?",
+      "message": "look for INVITE, status, Call-ID\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "media?",
+      "kind": "res",
+      "note": "If audio is the symptom, leave compliance and open SDP, ICE, and DTLS-SRTP.",
+      "message": "c= and m=\nDTLS or clear RTP\n"
+     },
+     {
+      "from": 0,
+      "to": 1,
+      "label": "which law?",
+      "kind": "req",
+      "note": "If the symptom is identity, location, or messaging, name that document before changing a dialplan.",
+      "message": "identity: RFC 8224\nlocation: PL 115-141 sec 506 and RFC 6442\nmessaging: Campaign Registry\n"
+     },
+     {
+      "from": 1,
+      "to": 0,
+      "label": "stop",
+      "kind": "res",
+      "note": "Stop when the next step needs a lawyer, a filing, or a provider test number.",
+      "message": "unknowns written down\nno live 911 call from this lab\n"
+     }
+    ]
+   },
+   "quiz": [
+    {
+     "q": "No audio on a browser call is first",
+     "choices": [
+      "A media problem: SDP, ICE, DTLS-SRTP",
+      "A 10DLC campaign",
+      "Kari's Law",
+      "A PASSporT by default"
+     ],
+     "answer": 0,
+     "why": "SHAKEN does not repair a missing DTLS handshake.",
+     "cite": {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+     }
+    },
+    {
+     "q": "A required 9 before 911 is first",
+     "choices": [
+      "The direct-dial statute and the FCC MLTS rules",
+      "An Opus clock mismatch",
+      "A Kamailio GPL question",
+      "A STUN port"
+     ],
+     "answer": 0,
+     "why": "Public Law 115-127 is the statute this lab opened.",
+     "cite": {
+      "label": "Kari's Law Act of 2017, Public Law 115-127",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+     }
+    },
+    {
+     "q": "A missing Identity header is first",
+     "choices": [
+      "RFC 8224, then the SHAKEN process you are actually in",
+      "rtpengine kernel fallback",
+      "The WebSocket subprotocol",
+      "extensions.conf syntax"
+     ],
+     "answer": 0,
+     "why": "Do not jump to a legal conclusion from the missing header alone.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    },
+    {
+     "q": "Blocked A2P SMS is first",
+     "choices": [
+      "The Campaign Registry and the carrier's messaging rules",
+      "RFC 8445",
+      "Via WSS",
+      "G.711 comfort noise"
+     ],
+     "answer": 0,
+     "why": "It is not a SIP codec failure.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    },
+    {
+     "q": "This lesson allows a live 911 call",
+     "choices": [
+      "No. Use the provider's test procedure.",
+      "Yes, any time",
+      "Yes, if ACK was sent",
+      "Yes, from the browser console"
+     ],
+     "answer": 0,
+     "why": "The study flow says not to place that call.",
+     "cite": {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881"
+     }
+    },
+    {
+     "q": "A careful note includes",
+     "choices": [
+      "The observation, the document, and what is still unknown",
+      "The word compliant and nothing else",
+      "A private key",
+      "A real PASSporT minted here"
+     ],
+     "answer": 0,
+     "why": "Unknowns stay written down.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    }
+   ],
+   "cards": [
+    {
+     "front": "Sort first",
+     "back": "SIP, media, identity, location, or messaging.",
+     "cite": {
+      "label": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+     }
+    },
+    {
+     "front": "No live 911",
+     "back": "Use the provider test. This lab is not that test.",
+     "cite": {
+      "label": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881"
+     }
+    },
+    {
+     "front": "Identity header",
+     "back": "RFC 8224. Presence is not a legal conclusion.",
+     "cite": {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    },
+    {
+     "front": "Not advice",
+     "back": "Counsel and the current rule outrank the quiz.",
+     "cite": {
+      "label": "Kari's Law Act of 2017, Public Law 115-127",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+     }
+    }
+   ],
+   "lab": {
+    "title": "Pick the next document",
+    "kind": "config",
+    "prompt": "One symptom. One next document. No legal conclusion.",
+    "steps": [
+     "Read the symptom.",
+     "Ignore the unrelated protocols.",
+     "Name the document."
+    ],
+    "check": {
+     "q": "Symptom: SMS from a new brand never leaves. The SIP phone works. Next document?",
+     "choices": [
+      "The Campaign Registry",
+      "RFC 7587",
+      "The rtpengine kernel section only",
+      "RFC 5764"
+     ],
+     "answer": 0,
+     "why": "Working SIP does not debug an A2P messaging block.",
+     "cite": {
+      "label": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+     }
+    },
+    "config": "symptom: A2P SMS blocked\nvoice SIP: calls complete\n"
+   },
+   "fault": {
+    "title": "One-way audio blamed on SHAKEN",
+    "symptom": "The caller hears silence. Identity is present. The ticket says to rotate the STIR certificate.",
+    "log": "200 OK\nc=IN IP4 10.1.2.3\nIdentity: present\n",
+    "choices": [
+     "10.1.2.3 in c= is a media reachability problem. Identity does not move RTP.",
+     "A certificate rotation repairs a private c= line",
+     "Silence means the PASSporT clock is 8000",
+     "Delete Call-ID"
+    ],
+    "answer": 0,
+    "why": "RTP follows the address in SDP. STIR is a signature on the request.",
+    "cause": "An identity feature was blamed for an unreachable media address.",
+    "fix": "Fix the media address or the anchor. Check the Identity header only if the symptom is caller identity.",
+    "cites": [
+     {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+     },
+     {
+      "label": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+     }
+    ]
+   }
+  }
+ ]
+}

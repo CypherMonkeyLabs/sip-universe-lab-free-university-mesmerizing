@@ -1,7 +1,7 @@
 {
   "checked": "2026-10",
-  "opened": 119,
-  "total": 123,
+  "opened": 138,
+  "total": 142,
   "results": {
     "https://www.rfc-editor.org/rfc/rfc6026": {
       "status": 200,
@@ -619,6 +619,101 @@
       "status": 200,
       "ok": true,
       "ms": 1985
+    },
+    "https://www.rfc-editor.org/rfc/rfc6455": {
+      "status": 200,
+      "ok": true,
+      "ms": 112
+    },
+    "https://docs.asterisk.org/About-the-Project/A-Brief-History-of-the-Asterisk-Project/": {
+      "status": 200,
+      "ok": true,
+      "ms": 159
+    },
+    "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/": {
+      "status": 200,
+      "ok": true,
+      "ms": 211
+    },
+    "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md": {
+      "status": 200,
+      "ok": true,
+      "ms": 154
+    },
+    "https://docs.asterisk.org/About-the-Project/License-Information/": {
+      "status": 200,
+      "ok": true,
+      "ms": 116
+    },
+    "https://www.rfc-editor.org/rfc/rfc7874": {
+      "status": 200,
+      "ok": true,
+      "ms": 311
+    },
+    "https://www.rfc-editor.org/rfc/rfc8825": {
+      "status": 200,
+      "ok": true,
+      "ms": 365
+    },
+    "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm": {
+      "status": 200,
+      "ok": true,
+      "ms": 79
+    },
+    "https://www.twilio.com/docs": {
+      "status": 200,
+      "ok": true,
+      "ms": 31
+    },
+    "https://www.campaignregistry.com/": {
+      "status": 200,
+      "ok": true,
+      "ms": 191
+    },
+    "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/": {
+      "status": 200,
+      "ok": true,
+      "ms": 422
+    },
+    "https://www.rfc-editor.org/rfc/rfc8834": {
+      "status": 200,
+      "ok": true,
+      "ms": 453
+    },
+    "https://www.govinfo.gov/content/pkg/PLAW-115publ141/html/PLAW-115publ141.htm": {
+      "status": 200,
+      "ok": true,
+      "ms": 219
+    },
+    "https://www.kamailio.org/w/": {
+      "status": 200,
+      "ok": true,
+      "ms": 654
+    },
+    "https://www.rfc-editor.org/rfc/rfc7587": {
+      "status": 200,
+      "ok": true,
+      "ms": 680
+    },
+    "https://www.rfc-editor.org/rfc/rfc8829": {
+      "status": 200,
+      "ok": true,
+      "ms": 966
+    },
+    "https://www.rfc-editor.org/rfc/rfc8839": {
+      "status": 200,
+      "ok": true,
+      "ms": 991
+    },
+    "https://www.rfc-editor.org/rfc/rfc8827": {
+      "status": 200,
+      "ok": true,
+      "ms": 1016
+    },
+    "https://www.atis.org/sti-ga/": {
+      "status": 200,
+      "ok": true,
+      "ms": 1028
     }
   }
 }

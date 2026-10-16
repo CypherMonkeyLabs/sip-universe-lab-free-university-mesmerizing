@@ -1,0 +1,24 @@
+{
+  "id": "T18-asterisk-pjsip",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "A brief history of the Asterisk project",
+      "url": "https://docs.asterisk.org/About-the-Project/A-Brief-History-of-the-Asterisk-Project/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Asterisk license information",
+      "url": "https://docs.asterisk.org/About-the-Project/License-Information/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}

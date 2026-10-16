@@ -1,15 +1,15 @@
 {
  "stats": {
-  "tracks": 16,
-  "lessons": 112,
-  "quizzes": 672,
-  "cards": 448,
-  "labs": 112,
-  "faults": 112,
+  "tracks": 20,
+  "lessons": 132,
+  "quizzes": 792,
+  "cards": 528,
+  "labs": 132,
+  "faults": 132,
   "boss": 8,
   "interview": 40,
-  "glossary": 109,
-  "cites": 2304
+  "glossary": 121,
+  "cites": 2711
  },
  "preview": {
   "title": "A call, compressed",
@@ -1439,6 +1439,258 @@
       "rfc",
       "8866",
       "8445"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "webrtc",
+   "title": "WebRTC and SIP over WebSocket",
+   "summary": "How a browser reaches SIP: RFC 7118 on the signaling socket, ICE for candidates, and DTLS-SRTP for the media.",
+   "level": "Foundation",
+   "order": 17,
+   "file": "data/tracks/17-webrtc.json",
+   "lessons": [
+    {
+     "id": "signaling-planes",
+     "title": "Signaling, JSEP, and the media plane",
+     "summary": "WebRTC names a browser protocol suite. JSEP leaves the signaling protocol to the application. SIP over WebSocket is one such protocol.",
+     "minutes": 14,
+     "tags": [
+      "webrtc",
+      "jsep",
+      "7118"
+     ]
+    },
+    {
+     "id": "sip-websocket",
+     "title": "RFC 7118: the sip subprotocol",
+     "summary": "The handshake must offer sip. Via uses WS or WSS. The URI transport parameter added by the RFC is ws.",
+     "minutes": 16,
+     "tags": [
+      "7118",
+      "websocket",
+      "wss"
+     ]
+    },
+    {
+     "id": "ice-stun-turn",
+     "title": "ICE, STUN, and TURN",
+     "summary": "ICE gathers host, server-reflexive, and relayed candidates. STUN and TURN are the tools. The default STUN port is 3478.",
+     "minutes": 15,
+     "tags": [
+      "ice",
+      "stun",
+      "turn"
+     ]
+    },
+    {
+     "id": "dtls-srtp-codecs",
+     "title": "DTLS-SRTP and the required audio codecs",
+     "summary": "WebRTC media is SRTP. The profile is RTP/SAVPF. Opus, PCMA, and PCMU are required audio codecs.",
+     "minutes": 16,
+     "tags": [
+      "dtls",
+      "srtp",
+      "opus"
+     ]
+    },
+    {
+     "id": "browser-softphone",
+     "title": "Browser softphone call flow",
+     "summary": "A study ladder: WebSocket handshake, SIP INVITE, answer, then DTLS on the media path. Step the hops.",
+     "minutes": 16,
+     "tags": [
+      "interactive-flow",
+      "softphone",
+      "7118"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "opensource",
+   "title": "Open-source telephony core",
+   "summary": "Asterisk, FreeSWITCH, Kamailio, and rtpengine do different jobs. The pages below say which job each project claims.",
+   "level": "Intermediate",
+   "order": 18,
+   "file": "data/tracks/18-opensource.json",
+   "lessons": [
+    {
+     "id": "four-roles",
+     "title": "Four projects, four roles",
+     "summary": "Read the role each project states. Do not treat them as four names for one PBX.",
+     "minutes": 14,
+     "tags": [
+      "asterisk",
+      "freeswitch",
+      "kamailio",
+      "rtpengine"
+     ]
+    },
+    {
+     "id": "asterisk-pjsip",
+     "title": "Asterisk, PJSIP, and the dialplan",
+     "summary": "chan_pjsip is the SIP channel driver. res_pjsip reads pjsip.conf. extensions.conf is the dialplan. The license page is GPL version 2, with a stated exception for AMI, AGI, and ARI.",
+     "minutes": 14,
+     "tags": [
+      "asterisk",
+      "pjsip"
+     ]
+    },
+    {
+     "id": "freeswitch-core",
+     "title": "FreeSWITCH profiles, dialplan, and WebRTC",
+     "summary": "The manual covers SIP profiles, the dialplan, codecs, media, WebRTC, and the Event Socket. There is an open source edition and an enterprise edition.",
+     "minutes": 14,
+     "tags": [
+      "freeswitch",
+      "webrtc"
+     ]
+    },
+    {
+     "id": "kamailio-proxy",
+     "title": "Kamailio as the SIP server",
+     "summary": "Kamailio is an open source SIP server under GPLv2+. Its page lists proxy, registrar, WebSocket, and scaling in front of a PBX.",
+     "minutes": 15,
+     "tags": [
+      "kamailio",
+      "proxy"
+     ]
+    },
+    {
+     "id": "rtpengine-map",
+     "title": "rtpengine and the integration map",
+     "summary": "rtpengine proxies RTP, rewrites SDP, and can bridge ICE and SRTP. It runs on GNU/Linux and is meant to sit with Kamailio.",
+     "minutes": 16,
+     "tags": [
+      "rtpengine",
+      "integration"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "compliance",
+   "title": "Call authentication and compliance",
+   "summary": "STIR/SHAKEN, Kari's Law, RAY BAUM'S Act, and 10DLC, as the opened documents describe them. Educational only. Not legal advice.",
+   "level": "Advanced",
+   "order": 19,
+   "file": "data/tracks/19-compliance.json",
+   "lessons": [
+    {
+     "id": "not-legal-advice",
+     "title": "How to read a compliance page",
+     "summary": "This lesson is educational. It is not legal advice, not a compliance opinion, and not a filing. Statutes and the FCC pages outrank this lab. A quiz answer is not a legal conclusion.",
+     "minutes": 12,
+     "tags": [
+      "disclaimer",
+      "compliance"
+     ]
+    },
+    {
+     "id": "stir-shaken",
+     "title": "STIR and SHAKEN",
+     "summary": "RFC 8224 defines a signed SIP Identity header. RFC 8225 defines PASSporT. SHAKEN is the industry mechanism the ATIS STI-GA page describes. Educational only.",
+     "minutes": 16,
+     "tags": [
+      "stir",
+      "shaken",
+      "passport"
+     ]
+    },
+    {
+     "id": "e911-statutes",
+     "title": "Kari's Law, RAY BAUM'S Act, and SIP location",
+     "summary": "Public Law 115-127 requires direct 911 dialing from MLTS. Section 506 of RAY BAUM'S Act requires a proceeding on dispatchable location. Educational only. Not legal advice.",
+     "minutes": 16,
+     "tags": [
+      "e911",
+      "kari",
+      "raybaum"
+     ]
+    },
+    {
+     "id": "ten-dlc",
+     "title": "10DLC is a messaging channel",
+     "summary": "The Campaign Registry describes 10DLC as an A2P messaging channel with verified brands and campaign service providers. It is not SIP. Educational only.",
+     "minutes": 14,
+     "tags": [
+      "10dlc",
+      "messaging"
+     ]
+    },
+    {
+     "id": "compliance-troubleshoot",
+     "title": "Troubleshooting without a legal conclusion",
+     "summary": "Sort the symptom into SIP, identity, emergency location, or messaging. Then open that document. Educational only. Not legal advice.",
+     "minutes": 15,
+     "tags": [
+      "troubleshoot",
+      "compliance"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "gaps",
+   "title": "Ecosystem, maps, and integration hooks",
+   "summary": "Glossary, sister systems, configuration, bridges from enterprise UC to the open projects, and the hooks those projects actually name.",
+   "level": "Foundation",
+   "order": 20,
+   "file": "data/tracks/20-gaps.json",
+   "lessons": [
+    {
+     "id": "glossary-map",
+     "title": "Glossary and the mind map",
+     "summary": "The glossary is a short definition plus a citation. The mind map is a topic picture, not a network diagram.",
+     "minutes": 12,
+     "tags": [
+      "glossary",
+      "mindmap"
+     ]
+    },
+    {
+     "id": "sister-systems",
+     "title": "Sister technologies around the session",
+     "summary": "WFM, recording, emergency policy, analytics, CRM, AI agents, and programmable APIs hang off the session. They are not SIP proxies.",
+     "minutes": 14,
+     "tags": [
+      "wfm",
+      "crm",
+      "cpaas"
+     ]
+    },
+    {
+     "id": "config-troubleshoot",
+     "title": "Configuration and troubleshooting seams",
+     "summary": "Configure the file the project names. Troubleshoot the plane that failed. Do not copy a sample this lab did not print.",
+     "minutes": 14,
+     "tags": [
+      "config",
+      "troubleshoot"
+     ]
+    },
+    {
+     "id": "bridges-map",
+     "title": "Bridges from enterprise UC to open platforms",
+     "summary": "CUCM, Webex, and the contact center already have SIP seams in this lab. The open projects are the other side of a trunk, not a hidden mode inside CUCM.",
+     "minutes": 16,
+     "tags": [
+      "cucm",
+      "webex",
+      "bridge"
+     ]
+    },
+    {
+     "id": "future-hooks",
+     "title": "Integration hooks that are already named",
+     "summary": "Future work should use hooks the documents already name: AMI, AGI, ARI, the Event Socket, SIPREC, and SIP over WebSocket. This lab does not ship a live connector.",
+     "minutes": 15,
+     "tags": [
+      "hooks",
+      "ari",
+      "siprec"
      ]
     }
    ]

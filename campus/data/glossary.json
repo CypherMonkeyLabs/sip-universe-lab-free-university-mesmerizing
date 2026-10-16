@@ -1089,6 +1089,126 @@
      "url": "https://www.rfc-editor.org/rfc/rfc5737"
     }
    ]
+  },
+  {
+   "term": "JSEP",
+   "def": "JavaScript Session Establishment Protocol. The application chooses signaling. RFC 8829 names SIP as one option.",
+   "cites": [
+    {
+     "label": "RFC 8829",
+     "url": "https://www.rfc-editor.org/rfc/rfc8829"
+    }
+   ]
+  },
+  {
+   "term": "SIP WebSocket subprotocol",
+   "def": "The WebSocket subprotocol identifier sip, used to carry SIP after the opening handshake.",
+   "cites": [
+    {
+     "label": "RFC 7118",
+     "url": "https://www.rfc-editor.org/rfc/rfc7118"
+    }
+   ]
+  },
+  {
+   "term": "Opus rtpmap",
+   "def": "RFC 7587 requires the rtpmap clock 48000 and two channels: opus/48000/2.",
+   "cites": [
+    {
+     "label": "RFC 7587",
+     "url": "https://www.rfc-editor.org/rfc/rfc7587"
+    }
+   ]
+  },
+  {
+   "term": "Kamailio",
+   "def": "Open source SIP server under GPLv2+. The project page says it can front a PBX such as Asterisk or FreeSWITCH.",
+   "cites": [
+    {
+     "label": "Kamailio SIP server",
+     "url": "https://www.kamailio.org/w/"
+    }
+   ]
+  },
+  {
+   "term": "Asterisk",
+   "def": "Open source PBX. Current SIP configuration for chan_pjsip is res_pjsip in pjsip.conf, with the dialplan in extensions.conf.",
+   "cites": [
+    {
+     "label": "Asterisk res_pjsip configuration",
+     "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+    }
+   ]
+  },
+  {
+   "term": "FreeSWITCH",
+   "def": "Telephony server whose manual covers SIP profiles, the dialplan, media, WebRTC, and the Event Socket.",
+   "cites": [
+    {
+     "label": "FreeSWITCH users manual",
+     "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+    }
+   ]
+  },
+  {
+   "term": "rtpengine",
+   "def": "Sipwise media proxy for RTP and other UDP media, meant to be used with Kamailio. GNU/Linux.",
+   "cites": [
+    {
+     "label": "rtpengine README",
+     "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+    }
+   ]
+  },
+  {
+   "term": "Kari's Law",
+   "def": "Public Law 115-127. MLTS users can dial 9-1-1 with no extra digit, code, prefix, or post-fix. Not legal advice.",
+   "cites": [
+    {
+     "label": "Kari's Law Act of 2017, Public Law 115-127",
+     "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+    }
+   ]
+  },
+  {
+   "term": "RAY BAUM'S Act",
+   "def": "A division of Public Law 115-141. Section 506 requires a proceeding on dispatchable location, including from MLTS. Not legal advice.",
+   "cites": [
+    {
+     "label": "Public Law 115-141, RAY BAUM'S Act of 2018",
+     "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ141/html/PLAW-115publ141.htm"
+    }
+   ]
+  },
+  {
+   "term": "Dispatchable location",
+   "def": "In section 506, the street address of the calling party plus room, floor, or similar information needed to identify the caller.",
+   "cites": [
+    {
+     "label": "Public Law 115-141, RAY BAUM'S Act of 2018",
+     "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ141/html/PLAW-115publ141.htm"
+    }
+   ]
+  },
+  {
+   "term": "10DLC",
+   "def": "On The Campaign Registry site, an application-to-person messaging channel. Not a SIP method. Not legal advice.",
+   "cites": [
+    {
+     "label": "The Campaign Registry",
+     "url": "https://www.campaignregistry.com/"
+    }
+   ]
+  },
+  {
+   "term": "ARI",
+   "def": "Asterisk REST Interface. Named with AMI and AGI on the Asterisk license page as a control protocol.",
+   "cites": [
+    {
+     "label": "Asterisk license information",
+     "url": "https://docs.asterisk.org/About-the-Project/License-Information/"
+    }
+   ]
   }
  ]
 }

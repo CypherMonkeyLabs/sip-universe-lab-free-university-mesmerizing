@@ -1,19 +1,6 @@
 {
- "summary": "SIP does not replace workforce management, quality monitoring, CRM, or emergency policy. It is the session seam those systems hang from. The same seam is what an AI omni-channel agent still needs when the voice leg is a real call.",
- "author": {
-  "title": "Who is studying this",
-  "blurb": "Lucky is a lifelong student and an AI enthusiast. The path into this campus ran through systems, networking, voice, and the contact center, and it is growing into AI omni-channel agents. That is a wider seat than a UC engineer title. The sentence about Lucky is the author's own description of the path. The protocol claims on this page stay tied to the documents they cite.",
-  "cites": [
-   {
-    "label": "RFC 3261",
-    "url": "https://www.rfc-editor.org/rfc/rfc3261"
-   },
-   {
-    "label": "Amazon Connect telephony",
-    "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html"
-   }
-  ]
- },
+ "summary": "SIP does not replace workforce management, quality monitoring, CRM, emergency policy, or a messaging registry. It is the session seam those systems hang from. Compliance notes on this page are educational and are not legal advice.",
+ "disclaimer": "Educational only. Not legal advice, not a compliance opinion, and not a filing. Statutes and the pages linked from each card outrank this paraphrase.",
  "sisters": [
   {
    "name": "Workforce management",
@@ -82,13 +69,9 @@
    ]
   },
   {
-   "name": "AI omni-channel agents",
-   "blurb": "A voice bot still needs a session. SIP creates, modifies, and ends sessions. Omni-channel, in the contact-center sense, means the same contact can also live on chat or another digital channel. Those channels do not replace the voice session. On Amazon Connect the platform owns the managed PSTN voice channel. Bridging an outside carrier into Connect with a Chime Voice Connector is not a supported pattern unless AWS reviews it. When an SBC forks the voice leg to a recorder, that fork is SIPREC, a different plane from the customer dialog.",
+   "name": "AI agents",
+   "blurb": "A voice bot still needs a session. On Amazon Connect the platform owns the managed PSTN voice channel. Bridging an outside carrier into Connect with a Chime Voice Connector is not a supported pattern unless AWS reviews it. The FreeSWITCH manual page also describes SignalWire, founded by the FreeSWITCH team, as a hosted platform with AI agents behind REST APIs and SWML.",
    "cites": [
-    {
-     "label": "RFC 3261",
-     "url": "https://www.rfc-editor.org/rfc/rfc3261"
-    },
     {
      "label": "Amazon Connect telephony",
      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html"
@@ -98,8 +81,22 @@
      "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/vc-connect-integrations.html"
     },
     {
-     "label": "RFC 7866 SIPREC",
-     "url": "https://www.rfc-editor.org/rfc/rfc7866"
+     "label": "FreeSWITCH users manual",
+     "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+    }
+   ]
+  },
+  {
+   "name": "Programmable communications APIs",
+   "blurb": "Twilio’s docs home is API reference, tutorials, and integration for Twilio products. Elastic SIP Trunking is the SIP-shaped product already cited in this lab. This page does not define the word CPaaS from an RFC. Read the vendor page before you copy a diagram that uses that word.",
+   "cites": [
+    {
+     "label": "Twilio docs",
+     "url": "https://www.twilio.com/docs"
+    },
+    {
+     "label": "Twilio Elastic SIP Trunking",
+     "url": "https://www.twilio.com/docs/sip-trunking"
     }
    ]
   }
@@ -212,8 +209,295 @@
      "url": "https://help.nicecxone.com/content/platformrequirements/ports.htm"
     }
    ]
+  },
+  {
+   "name": "Open SIP core",
+   "blurb": "Kamailio’s home page describes an open source SIP server that can front a PBX such as Asterisk or FreeSWITCH. rtpengine’s README describes the RTP proxy meant to sit with Kamailio. A CUCM SIP trunk toward that SIP server is still SIP. The CUCM SIP Profile and Asterisk’s pjsip.conf are different objects.",
+   "cites": [
+    {
+     "label": "Kamailio SIP server",
+     "url": "https://www.kamailio.org/w/"
+    },
+    {
+     "label": "Asterisk res_pjsip configuration",
+     "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+    },
+    {
+     "label": "FreeSWITCH users manual",
+     "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+    },
+    {
+     "label": "rtpengine README",
+     "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+    },
+    {
+     "label": "Cisco Unified Communications Manager",
+     "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+    }
+   ]
   }
  ],
+ "config": [
+  {
+   "name": "Asterisk PJSIP",
+   "blurb": "chan_pjsip depends on res_pjsip. Accounts go in pjsip.conf. The dialplan is extensions.conf. Open the examples for the Asterisk version you run.",
+   "cites": [
+    {
+     "label": "Asterisk res_pjsip configuration",
+     "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+    }
+   ]
+  },
+  {
+   "name": "FreeSWITCH",
+   "blurb": "The users manual covers SIP profiles, the dialplan, codecs, media, WebRTC, and the Event Socket. It says its parameter tables were checked against the source. This lab does not copy those defaults.",
+   "cites": [
+    {
+     "label": "FreeSWITCH users manual",
+     "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+    }
+   ]
+  },
+  {
+   "name": "Kamailio and rtpengine",
+   "blurb": "Use Kamailio for the SIP server roles its home page lists. Use rtpengine when SDP must be rewritten or when the README’s ICE and SRTP bridges are required. GNU/Linux is the platform that README names.",
+   "cites": [
+    {
+     "label": "Kamailio SIP server",
+     "url": "https://www.kamailio.org/w/"
+    },
+    {
+     "label": "rtpengine README",
+     "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+    }
+   ]
+  },
+  {
+   "name": "Browser socket",
+   "blurb": "RFC 7118 requires the WebSocket subprotocol sip. Via uses WS or WSS. The URI transport parameter the RFC adds is transport=ws. A sips path that includes WebSocket must be a secure WebSocket.",
+   "cites": [
+    {
+     "label": "RFC 7118",
+     "url": "https://www.rfc-editor.org/rfc/rfc7118"
+    },
+    {
+     "label": "RFC 6455",
+     "url": "https://www.rfc-editor.org/rfc/rfc6455"
+    }
+   ]
+  }
+ ],
+ "troubleshoot": [
+  {
+   "name": "No SIP from the browser",
+   "blurb": "Stop at the WebSocket handshake. A missing 101 means the SIP request was never framed. Codecs are not negotiated yet.",
+   "cites": [
+    {
+     "label": "RFC 7118",
+     "url": "https://www.rfc-editor.org/rfc/rfc7118"
+    },
+    {
+     "label": "RFC 6455",
+     "url": "https://www.rfc-editor.org/rfc/rfc6455"
+    }
+   ]
+  },
+  {
+   "name": "SIP succeeds and audio does not",
+   "blurb": "Read c= and m=, then ICE candidates, then DTLS-SRTP. A private address in c= is a reachability problem. Identity headers do not move RTP.",
+   "cites": [
+    {
+     "label": "RFC 3264",
+     "url": "https://www.rfc-editor.org/rfc/rfc3264"
+    },
+    {
+     "label": "RFC 8445",
+     "url": "https://www.rfc-editor.org/rfc/rfc8445"
+    },
+    {
+     "label": "RFC 5764",
+     "url": "https://www.rfc-editor.org/rfc/rfc5764"
+    }
+   ]
+  },
+  {
+   "name": "Caller identity",
+   "blurb": "RFC 8224 defines the Identity header. RFC 8225 defines PASSporT. The STI-GA page describes SHAKEN. A placeholder token is not a verification. Not legal advice.",
+   "cites": [
+    {
+     "label": "RFC 8224",
+     "url": "https://www.rfc-editor.org/rfc/rfc8224"
+    },
+    {
+     "label": "RFC 8225",
+     "url": "https://www.rfc-editor.org/rfc/rfc8225"
+    },
+    {
+     "label": "Secure Telephone Identity Governance Authority",
+     "url": "https://www.atis.org/sti-ga/"
+    }
+   ]
+  },
+  {
+   "name": "911 dialing and location",
+   "blurb": "Public Law 115-127 is the direct-dial statute. Section 506 of RAY BAUM’S Act is the dispatchable-location proceeding. RFC 6442 is SIP location conveyance. Do not place a live 911 call for this lab. Not legal advice.",
+   "cites": [
+    {
+     "label": "Kari's Law Act of 2017, Public Law 115-127",
+     "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+    },
+    {
+     "label": "Public Law 115-141, RAY BAUM'S Act of 2018",
+     "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ141/html/PLAW-115publ141.htm"
+    },
+    {
+     "label": "RFC 6442",
+     "url": "https://www.rfc-editor.org/rfc/rfc6442"
+    }
+   ]
+  },
+  {
+   "name": "A2P messaging",
+   "blurb": "10DLC on The Campaign Registry site is a messaging channel. Do not debug it as a missing rtpmap line.",
+   "cites": [
+    {
+     "label": "The Campaign Registry",
+     "url": "https://www.campaignregistry.com/"
+    }
+   ]
+  }
+ ],
+ "hooks": [
+  {
+   "name": "AMI, AGI, ARI",
+   "blurb": "Control protocols named on the Asterisk license page. The page states Digium’s belief about applications that use them. This lab does not paste an ARI request and does not give license advice.",
+   "cites": [
+    {
+     "label": "Asterisk license information",
+     "url": "https://docs.asterisk.org/About-the-Project/License-Information/"
+    }
+   ]
+  },
+  {
+   "name": "Event Socket",
+   "blurb": "The FreeSWITCH manual’s programming interface for the server you run. SWML on that same page is the hosted platform, not the local dialplan file.",
+   "cites": [
+    {
+     "label": "FreeSWITCH users manual",
+     "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+    }
+   ]
+  },
+  {
+   "name": "SIPREC",
+   "blurb": "RFC 7866 is the recording session. It is a second SIP dialog, not a CRM webhook.",
+   "cites": [
+    {
+     "label": "RFC 7866",
+     "url": "https://www.rfc-editor.org/rfc/rfc7866"
+    }
+   ]
+  },
+  {
+   "name": "SIP over WebSocket",
+   "blurb": "RFC 7118 is the browser signaling hook when the application chooses SIP. JSEP also allows a custom protocol.",
+   "cites": [
+    {
+     "label": "RFC 7118",
+     "url": "https://www.rfc-editor.org/rfc/rfc7118"
+    },
+    {
+     "label": "RFC 8829",
+     "url": "https://www.rfc-editor.org/rfc/rfc8829"
+    }
+   ]
+  },
+  {
+   "name": "Unopened APIs",
+   "blurb": "A mind-map box is not an API. If this lab did not open the vendor page, the sources block says confirm and prints no URL.",
+   "cites": [
+    {
+     "label": "RFC 3261",
+     "url": "https://www.rfc-editor.org/rfc/rfc3261"
+    }
+   ]
+  }
+ ],
+ "mind": {
+  "content": "SIP session",
+  "children": [
+   {
+    "content": "Signaling",
+    "children": [
+     {
+      "content": "INVITE and responses"
+     },
+     {
+      "content": "WebSocket subprotocol sip"
+     },
+     {
+      "content": "Transactions and dialogs"
+     }
+    ]
+   },
+   {
+    "content": "Media",
+    "children": [
+     {
+      "content": "SDP offer and answer"
+     },
+     {
+      "content": "ICE, STUN, TURN"
+     },
+     {
+      "content": "DTLS-SRTP and Opus"
+     }
+    ]
+   },
+   {
+    "content": "Open core",
+    "children": [
+     {
+      "content": "Kamailio SIP server"
+     },
+     {
+      "content": "Asterisk and FreeSWITCH"
+     },
+     {
+      "content": "rtpengine"
+     }
+    ]
+   },
+   {
+    "content": "Compliance study",
+    "children": [
+     {
+      "content": "STIR and SHAKEN"
+     },
+     {
+      "content": "Kari's Law and RAY BAUM'S Act"
+     },
+     {
+      "content": "10DLC messaging"
+     }
+    ]
+   },
+   {
+    "content": "Neighbors",
+    "children": [
+     {
+      "content": "WFM and CRM"
+     },
+     {
+      "content": "SIPREC recording"
+     },
+     {
+      "content": "Programmable voice APIs"
+     }
+    ]
+   }
+  ]
+ },
  "map": {
   "type": "layers",
   "title": "What touches the SIP dialog",

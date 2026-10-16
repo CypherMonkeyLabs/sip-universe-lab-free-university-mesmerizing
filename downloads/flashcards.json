@@ -2688,6 +2688,486 @@
       "back": "A newer obsoleting RFC that this edition does not cite still wins.",
       "href": "rooms/T16-specs-move.html",
       "room": "When the RFC number moves"
+    },
+    {
+      "front": "RFC 8825",
+      "back": "Applicability statement for WebRTC. It does not define SIP.",
+      "href": "rooms/T17-signaling-planes.html",
+      "room": "Signaling, JSEP, and the media plane"
+    },
+    {
+      "front": "JSEP",
+      "back": "JavaScript controls signaling. SIP is one allowed choice.",
+      "href": "rooms/T17-signaling-planes.html",
+      "room": "Signaling, JSEP, and the media plane"
+    },
+    {
+      "front": "RFC 7118",
+      "back": "WebSocket subprotocol sip for SIP messages.",
+      "href": "rooms/T17-signaling-planes.html",
+      "room": "Signaling, JSEP, and the media plane"
+    },
+    {
+      "front": "RFC 6455",
+      "back": "WebSocket handshake and framing over TCP.",
+      "href": "rooms/T17-signaling-planes.html",
+      "room": "Signaling, JSEP, and the media plane"
+    },
+    {
+      "front": "sip",
+      "back": "WebSocket subprotocol identifier for this transport.",
+      "href": "rooms/T17-sip-websocket.html",
+      "room": "RFC 7118: the sip subprotocol"
+    },
+    {
+      "front": "WSS",
+      "back": "Via transport when the WebSocket used TLS.",
+      "href": "rooms/T17-sip-websocket.html",
+      "room": "RFC 7118: the sip subprotocol"
+    },
+    {
+      "front": "transport=ws",
+      "back": "URI transport parameter added by RFC 7118.",
+      "href": "rooms/T17-sip-websocket.html",
+      "room": "RFC 7118: the sip subprotocol"
+    },
+    {
+      "front": "SIP+D2W",
+      "back": "NAPTR service value for a SIP WebSocket server.",
+      "href": "rooms/T17-sip-websocket.html",
+      "room": "RFC 7118: the sip subprotocol"
+    },
+    {
+      "front": "3478",
+      "back": "Default STUN port for UDP and TCP.",
+      "href": "rooms/T17-ice-stun-turn.html",
+      "room": "ICE, STUN, and TURN"
+    },
+    {
+      "front": "5349",
+      "back": "Default port for STUN over TLS and DTLS.",
+      "href": "rooms/T17-ice-stun-turn.html",
+      "room": "ICE, STUN, and TURN"
+    },
+    {
+      "front": "Host / srflx / relay",
+      "back": "Local interface, NAT mapping, TURN address.",
+      "href": "rooms/T17-ice-stun-turn.html",
+      "room": "ICE, STUN, and TURN"
+    },
+    {
+      "front": "TURN",
+      "back": "A controlled relay. One address, multiple peers.",
+      "href": "rooms/T17-ice-stun-turn.html",
+      "room": "ICE, STUN, and TURN"
+    },
+    {
+      "front": "UDP/TLS/RTP/SAVPF",
+      "back": "Proto token for SAVPF over DTLS with UDP.",
+      "href": "rooms/T17-dtls-srtp-codecs.html",
+      "room": "DTLS-SRTP and the required audio codecs"
+    },
+    {
+      "front": "use_srtp",
+      "back": "DTLS extension type 14 for SRTP keying.",
+      "href": "rooms/T17-dtls-srtp-codecs.html",
+      "room": "DTLS-SRTP and the required audio codecs"
+    },
+    {
+      "front": "Opus clock",
+      "back": "a=rtpmap clock 48000 and 2 channels.",
+      "href": "rooms/T17-dtls-srtp-codecs.html",
+      "room": "DTLS-SRTP and the required audio codecs"
+    },
+    {
+      "front": "PCMU and PCMA",
+      "back": "Required G.711 codecs for WebRTC audio.",
+      "href": "rooms/T17-dtls-srtp-codecs.html",
+      "room": "DTLS-SRTP and the required audio codecs"
+    },
+    {
+      "front": "Step",
+      "back": "Use the hop buttons. One caption at a time.",
+      "href": "rooms/T17-browser-softphone.html",
+      "room": "Browser softphone call flow"
+    },
+    {
+      "front": "101 then INVITE",
+      "back": "Open the socket before the SIP request.",
+      "href": "rooms/T17-browser-softphone.html",
+      "room": "Browser softphone call flow"
+    },
+    {
+      "front": "ACK is not the key",
+      "back": "SRTP keys come from DTLS, not from ACK.",
+      "href": "rooms/T17-browser-softphone.html",
+      "room": "Browser softphone call flow"
+    },
+    {
+      "front": "5737",
+      "back": "Example addresses in this ladder are documentation ranges.",
+      "href": "rooms/T17-browser-softphone.html",
+      "room": "Browser softphone call flow"
+    },
+    {
+      "front": "Kamailio",
+      "back": "SIP server. GPLv2+. Registrar, proxy, WebSocket.",
+      "href": "rooms/T18-four-roles.html",
+      "room": "Four projects, four roles"
+    },
+    {
+      "front": "rtpengine",
+      "back": "RTP proxy for use with Kamailio. GNU/Linux.",
+      "href": "rooms/T18-four-roles.html",
+      "room": "Four projects, four roles"
+    },
+    {
+      "front": "Asterisk",
+      "back": "Open source PBX. PJSIP lives in pjsip.conf.",
+      "href": "rooms/T18-four-roles.html",
+      "room": "Four projects, four roles"
+    },
+    {
+      "front": "FreeSWITCH",
+      "back": "SIP profiles, dialplan, media, WebRTC, Event Socket.",
+      "href": "rooms/T18-four-roles.html",
+      "room": "Four projects, four roles"
+    },
+    {
+      "front": "pjsip.conf",
+      "back": "Where res_pjsip accounts are written.",
+      "href": "rooms/T18-asterisk-pjsip.html",
+      "room": "Asterisk, PJSIP, and the dialplan"
+    },
+    {
+      "front": "extensions.conf",
+      "back": "The dialplan file named in the overview.",
+      "href": "rooms/T18-asterisk-pjsip.html",
+      "room": "Asterisk, PJSIP, and the dialplan"
+    },
+    {
+      "front": "GPL version 2",
+      "back": "The license page's stated distribution terms.",
+      "href": "rooms/T18-asterisk-pjsip.html",
+      "room": "Asterisk, PJSIP, and the dialplan"
+    },
+    {
+      "front": "ARI",
+      "back": "Asterisk REST Interface, named next to AMI and AGI.",
+      "href": "rooms/T18-asterisk-pjsip.html",
+      "room": "Asterisk, PJSIP, and the dialplan"
+    },
+    {
+      "front": "SIP profile",
+      "back": "Endpoint configuration the manual teaches.",
+      "href": "rooms/T18-freeswitch-core.html",
+      "room": "FreeSWITCH profiles, dialplan, and WebRTC"
+    },
+    {
+      "front": "Event Socket",
+      "back": "Programming interface named in the manual.",
+      "href": "rooms/T18-freeswitch-core.html",
+      "room": "FreeSWITCH profiles, dialplan, and WebRTC"
+    },
+    {
+      "front": "Two editions",
+      "back": "Open source, and enterprise from SignalWire.",
+      "href": "rooms/T18-freeswitch-core.html",
+      "room": "FreeSWITCH profiles, dialplan, and WebRTC"
+    },
+    {
+      "front": "SWML",
+      "back": "Hosted call-control markup on the SignalWire page.",
+      "href": "rooms/T18-freeswitch-core.html",
+      "room": "FreeSWITCH profiles, dialplan, and WebRTC"
+    },
+    {
+      "front": "GPLv2+",
+      "back": "The license the Kamailio home page states.",
+      "href": "rooms/T18-kamailio-proxy.html",
+      "room": "Kamailio as the SIP server"
+    },
+    {
+      "front": "Registrar",
+      "back": "A role the page lists, with location service.",
+      "href": "rooms/T18-kamailio-proxy.html",
+      "room": "Kamailio as the SIP server"
+    },
+    {
+      "front": "WebSocket",
+      "back": "Listed as support for WebRTC.",
+      "href": "rooms/T18-kamailio-proxy.html",
+      "room": "Kamailio as the SIP server"
+    },
+    {
+      "front": "In front of a PBX",
+      "back": "The page names Asterisk and FreeSWITCH.",
+      "href": "rooms/T18-kamailio-proxy.html",
+      "room": "Kamailio as the SIP server"
+    },
+    {
+      "front": "With Kamailio",
+      "back": "The README's intended SIP proxy.",
+      "href": "rooms/T18-rtpengine-map.html",
+      "room": "rtpengine and the integration map"
+    },
+    {
+      "front": "Userspace fallback",
+      "back": "If the kernel module is unavailable.",
+      "href": "rooms/T18-rtpengine-map.html",
+      "room": "rtpengine and the integration map"
+    },
+    {
+      "front": "ICE bridge",
+      "back": "Between ICE-aware and ICE-unaware agents.",
+      "href": "rooms/T18-rtpengine-map.html",
+      "room": "rtpengine and the integration map"
+    },
+    {
+      "front": "RTP and SRTP",
+      "back": "The README lists a bridge between them.",
+      "href": "rooms/T18-rtpengine-map.html",
+      "room": "rtpengine and the integration map"
+    },
+    {
+      "front": "Not legal advice",
+      "back": "Study notes. The statute and the agency page win.",
+      "href": "rooms/T19-not-legal-advice.html",
+      "room": "How to read a compliance page"
+    },
+    {
+      "front": "200 OK",
+      "back": "SIP success. Not a compliance result.",
+      "href": "rooms/T19-not-legal-advice.html",
+      "room": "How to read a compliance page"
+    },
+    {
+      "front": "Confirm",
+      "back": "No URL when the link was not opened.",
+      "href": "rooms/T19-not-legal-advice.html",
+      "room": "How to read a compliance page"
+    },
+    {
+      "front": "Separate planes",
+      "back": "Voice identity, emergency location, and SMS campaigns are different documents.",
+      "href": "rooms/T19-not-legal-advice.html",
+      "room": "How to read a compliance page"
+    },
+    {
+      "front": "Identity",
+      "back": "SIP header for the STIR signature. RFC 8224.",
+      "href": "rooms/T19-stir-shaken.html",
+      "room": "STIR and SHAKEN"
+    },
+    {
+      "front": "PASSporT",
+      "back": "Signed token. RFC 8225.",
+      "href": "rooms/T19-stir-shaken.html",
+      "room": "STIR and SHAKEN"
+    },
+    {
+      "front": "SHAKEN",
+      "back": "Industry mechanism described on the STI-GA page.",
+      "href": "rooms/T19-stir-shaken.html",
+      "room": "STIR and SHAKEN"
+    },
+    {
+      "front": "toKENs",
+      "back": "The STI-GA page writes SHAKEN out with that word.",
+      "href": "rooms/T19-stir-shaken.html",
+      "room": "STIR and SHAKEN"
+    },
+    {
+      "front": "PL 115-127",
+      "back": "Kari's Law. Direct 911 dialing from MLTS.",
+      "href": "rooms/T19-e911-statutes.html",
+      "room": "Kari's Law, RAY BAUM'S Act, and SIP location"
+    },
+    {
+      "front": "Section 506",
+      "back": "Dispatchable location proceeding, including MLTS.",
+      "href": "rooms/T19-e911-statutes.html",
+      "room": "Kari's Law, RAY BAUM'S Act, and SIP location"
+    },
+    {
+      "front": "RFC 6442",
+      "back": "How SIP conveys location.",
+      "href": "rooms/T19-e911-statutes.html",
+      "room": "Kari's Law, RAY BAUM'S Act, and SIP location"
+    },
+    {
+      "front": "RFC 6881",
+      "back": "Emergency calling BCP. Not a statute.",
+      "href": "rooms/T19-e911-statutes.html",
+      "room": "Kari's Law, RAY BAUM'S Act, and SIP location"
+    },
+    {
+      "front": "10DLC",
+      "back": "A2P messaging channel on the registry page.",
+      "href": "rooms/T19-ten-dlc.html",
+      "room": "10DLC is a messaging channel"
+    },
+    {
+      "front": "CSP",
+      "back": "Campaign service provider. The page says to be one before registering.",
+      "href": "rooms/T19-ten-dlc.html",
+      "room": "10DLC is a messaging channel"
+    },
+    {
+      "front": "Campaign ID",
+      "back": "Given to the connectivity partner, on that page.",
+      "href": "rooms/T19-ten-dlc.html",
+      "room": "10DLC is a messaging channel"
+    },
+    {
+      "front": "Not SIP",
+      "back": "Do not add it to a voice INVITE and call it done.",
+      "href": "rooms/T19-ten-dlc.html",
+      "room": "10DLC is a messaging channel"
+    },
+    {
+      "front": "Sort first",
+      "back": "SIP, media, identity, location, or messaging.",
+      "href": "rooms/T19-compliance-troubleshoot.html",
+      "room": "Troubleshooting without a legal conclusion"
+    },
+    {
+      "front": "No live 911",
+      "back": "Use the provider test. This lab is not that test.",
+      "href": "rooms/T19-compliance-troubleshoot.html",
+      "room": "Troubleshooting without a legal conclusion"
+    },
+    {
+      "front": "Identity header",
+      "back": "RFC 8224. Presence is not a legal conclusion.",
+      "href": "rooms/T19-compliance-troubleshoot.html",
+      "room": "Troubleshooting without a legal conclusion"
+    },
+    {
+      "front": "Not advice",
+      "back": "Counsel and the current rule outrank the quiz.",
+      "href": "rooms/T19-compliance-troubleshoot.html",
+      "room": "Troubleshooting without a legal conclusion"
+    },
+    {
+      "front": "Citation",
+      "back": "The glossary row's authority.",
+      "href": "rooms/T20-glossary-map.html",
+      "room": "Glossary and the mind map"
+    },
+    {
+      "front": "Mind map",
+      "back": "Topics. Not a network.",
+      "href": "rooms/T20-glossary-map.html",
+      "room": "Glossary and the mind map"
+    },
+    {
+      "front": "Confirm",
+      "back": "No link when the URL was not opened.",
+      "href": "rooms/T20-glossary-map.html",
+      "room": "Glossary and the mind map"
+    },
+    {
+      "front": "Next track",
+      "back": "Use the map to pick WebRTC, the open core, or compliance.",
+      "href": "rooms/T20-glossary-map.html",
+      "room": "Glossary and the mind map"
+    },
+    {
+      "front": "SIPREC",
+      "back": "Fork a session to a recorder. RFC 7866.",
+      "href": "rooms/T20-sister-systems.html",
+      "room": "Sister technologies around the session"
+    },
+    {
+      "front": "WFM",
+      "back": "Schedules. SIP only shows the symptom, such as 480.",
+      "href": "rooms/T20-sister-systems.html",
+      "room": "Sister technologies around the session"
+    },
+    {
+      "front": "CRM",
+      "back": "Events and numbers. Not a proxy.",
+      "href": "rooms/T20-sister-systems.html",
+      "room": "Sister technologies around the session"
+    },
+    {
+      "front": "Twilio docs",
+      "back": "API reference and tutorials. Confirm product names there.",
+      "href": "rooms/T20-sister-systems.html",
+      "room": "Sister technologies around the session"
+    },
+    {
+      "front": "pjsip.conf",
+      "back": "Asterisk SIP resources.",
+      "href": "rooms/T20-config-troubleshoot.html",
+      "room": "Configuration and troubleshooting seams"
+    },
+    {
+      "front": "extensions.conf",
+      "back": "Asterisk dialplan.",
+      "href": "rooms/T20-config-troubleshoot.html",
+      "room": "Configuration and troubleshooting seams"
+    },
+    {
+      "front": "101 first",
+      "back": "No WebSocket, no SIP.",
+      "href": "rooms/T20-config-troubleshoot.html",
+      "room": "Configuration and troubleshooting seams"
+    },
+    {
+      "front": "Plane",
+      "back": "Name signaling, media, identity, location, or messaging.",
+      "href": "rooms/T20-config-troubleshoot.html",
+      "room": "Configuration and troubleshooting seams"
+    },
+    {
+      "front": "CUCM trunk",
+      "back": "SIP toward the SBC. Profile is CUCM's object.",
+      "href": "rooms/T20-bridges-map.html",
+      "room": "Bridges from enterprise UC to open platforms"
+    },
+    {
+      "front": "Local Gateway",
+      "back": "Webex Calling premises PSTN role.",
+      "href": "rooms/T20-bridges-map.html",
+      "room": "Bridges from enterprise UC to open platforms"
+    },
+    {
+      "front": "Open side",
+      "back": "Kamailio, Asterisk, or FreeSWITCH, per their pages.",
+      "href": "rooms/T20-bridges-map.html",
+      "room": "Bridges from enterprise UC to open platforms"
+    },
+    {
+      "front": "Not inside CUCM",
+      "back": "The open dialplan stays on the open server.",
+      "href": "rooms/T20-bridges-map.html",
+      "room": "Bridges from enterprise UC to open platforms"
+    },
+    {
+      "front": "ARI",
+      "back": "Asterisk REST Interface, named with AMI and AGI.",
+      "href": "rooms/T20-future-hooks.html",
+      "room": "Integration hooks that are already named"
+    },
+    {
+      "front": "Event Socket",
+      "back": "FreeSWITCH programming path in the manual.",
+      "href": "rooms/T20-future-hooks.html",
+      "room": "Integration hooks that are already named"
+    },
+    {
+      "front": "SIPREC",
+      "back": "Recording hook. RFC 7866.",
+      "href": "rooms/T20-future-hooks.html",
+      "room": "Integration hooks that are already named"
+    },
+    {
+      "front": "No live connector",
+      "back": "This repository does not run the PBX or the registry.",
+      "href": "rooms/T20-future-hooks.html",
+      "room": "Integration hooks that are already named"
     }
   ]
 }

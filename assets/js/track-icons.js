@@ -1,12 +1,13 @@
 /* One shared WebGL renderer bakes a sprite per track, then every card reuses it. */
 import * as THREE from "../../vendor/three.module.min.js";
 
-var TRACKS = ["T01","T02","T03","T04","T05","T06","T07","T08","T09","T10","T11","T12","T13","T14","T15","T16"];
+var TRACKS = ["T01","T02","T03","T04","T05","T06","T07","T08","T09","T10","T11","T12","T13","T14","T15","T16","T17","T18","T19","T20"];
 var COLORS = {
   T01: 0x3ecfb2, T02: 0x7eb6ff, T03: 0xf0b429, T04: 0xff8b9a,
   T05: 0xc4b5fd, T06: 0xc6e27a, T07: 0xffb067, T08: 0xf0a0ff,
   T09: 0x22d3ee, T10: 0xf472b6, T11: 0xfde047, T12: 0x86efac,
-  T13: 0xfb7185, T14: 0xa78bfa, T15: 0x38bdf8, T16: 0xfbbf24
+  T13: 0xfb7185, T14: 0xa78bfa, T15: 0x38bdf8, T16: 0xfbbf24,
+  T17: 0x67e8f9, T18: 0xa3e635, T19: 0xf97316, T20: 0xe879f9
 };
 
 function geometry(id) {

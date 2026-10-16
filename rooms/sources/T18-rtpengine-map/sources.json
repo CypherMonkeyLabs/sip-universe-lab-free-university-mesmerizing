@@ -1,0 +1,42 @@
+{
+  "id": "T18-rtpengine-map",
+  "checked": "2026-10",
+  "items": [
+    {
+      "label": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    },
+    {
+      "label": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264",
+      "status": "opened",
+      "note": "last checked 2026-10"
+    }
+  ]
+}
