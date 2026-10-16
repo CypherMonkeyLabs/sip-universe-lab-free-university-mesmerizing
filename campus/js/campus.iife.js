@@ -1,5 +1,5 @@
 (() => {
-  // ../../workspace/campus/js/draw.js
+  // campus/js/draw.js
   function esc(value) {
     return String(value ?? "").replace(/[&<>"']/g, (c) => ({
       "&": "&amp;",
@@ -74,7 +74,7 @@
     return svgFrame(spec.title, spec.caption, inner);
   }
 
-  // ../../workspace/campus/js/audio.js
+  // campus/js/audio.js
   var KEY = "sip-universe-settings";
   var DEFAULTS = {
     theme: "neon",
@@ -244,7 +244,7 @@
     }
   }
 
-  // ../../workspace/campus/js/flow.js
+  // campus/js/flow.js
   function paint(message) {
     return String(message || "").split("\n").map((line, index) => {
       if (index === 0) return `<span class="sip-start">${esc(line)}</span>`;
@@ -368,7 +368,7 @@
     return stop;
   }
 
-  // ../../workspace/campus/js/store.js
+  // campus/js/store.js
   var cache = /* @__PURE__ */ new Map();
   async function loadJSON(path) {
     if (cache.has(path)) return cache.get(path);
@@ -384,7 +384,7 @@
     return data;
   }
 
-  // ../../workspace/campus/js/diagrams.js
+  // campus/js/diagrams.js
   function live() {
     const motion = document.documentElement.dataset.motion;
     if (motion === "reduce") return false;
@@ -1045,7 +1045,7 @@
     host.innerHTML = `<div class="atlas-grid">${picks.map(figureHTML).join("")}</div>`;
   }
 
-  // ../../workspace/campus/js/pack.js
+  // campus/js/pack.js
   var CRC_TABLE = (() => {
     const table = new Uint32Array(256);
     for (let n = 0; n < 256; n += 1) {
@@ -1232,13 +1232,13 @@
     return files.length;
   }
 
-  // ../../workspace/campus/js/icons.js
+  // campus/js/icons.js
   function iconHTML(id) {
     const safe = String(id || "foundations").replace(/[^a-z0-9-]/gi, "") || "foundations";
     return `<span class="iso glyph-hold"><canvas class="glyph-view" data-glyph="${safe}" width="256" height="256" aria-hidden="true"></canvas></span>`;
   }
 
-  // ../../workspace/campus/js/play.js
+  // campus/js/play.js
   function cardSvg({ title, lines }) {
     const body = lines.map((line, i) => `<text x="48" y="${230 + i * 40}" fill="#e8f6ff" font-size="26" font-family="ui-sans-serif,system-ui,sans-serif">${esc(line)}</text>`).join("");
     return `<?xml version="1.0" encoding="UTF-8"?>
@@ -1559,7 +1559,7 @@
     };
   }
 
-  // ../../workspace/campus/js/charts.js
+  // campus/js/charts.js
   var CHARTS = [
     { id: "lessons", title: "Lessons per track", source: "Counted from campus/data/catalog.json." },
     { id: "minutes", title: "Minutes per track", source: "Sum of lesson minutes in the catalog index." },
@@ -1798,7 +1798,7 @@
     }
   }
 
-  // ../../workspace/campus/js/fx.js
+  // campus/js/fx.js
   var TOKENS = [
     ["SIP", "5060"],
     ["SDP", "m="],
@@ -1920,7 +1920,7 @@
     });
   }
 
-  // ../../workspace/campus/js/i18n.js
+  // campus/js/i18n.js
   var LANGS = [
     { id: "en", label: "English", dir: "ltr" },
     { id: "es", label: "Espa\xF1ol", dir: "ltr" },
@@ -2124,7 +2124,7 @@
     if (line) line.textContent = t("greeting");
   }
 
-  // ../../workspace/campus/js/field.js
+  // campus/js/field.js
   var BADGE_KEY = "sip-universe-badges";
   var BADGES = [
     { id: "read", name: "First trace", detail: "Mark a lesson read." },
@@ -2505,7 +2505,7 @@
     };
   }
 
-  // ../../workspace/campus/js/parse.js
+  // campus/js/parse.js
   var STATIC_PT = {
     0: "PCMU/8000",
     3: "GSM/8000",
@@ -3014,7 +3014,7 @@
     return messages;
   }
 
-  // ../../workspace/campus/js/tools.js
+  // campus/js/tools.js
   function field(label, id, value, rows = 12) {
     return `<label class="stack" for="${id}"><span>${esc(label)}</span>
     <textarea id="${id}" rows="${rows}" spellcheck="false">${esc(value || "")}</textarea></label>`;
@@ -3138,7 +3138,7 @@
     if (initial) host.querySelector("#cap-run").click();
   }
 
-  // ../../workspace/campus/js/topology.js
+  // campus/js/topology.js
   var NODES = [
     { id: "pstn", label: "PSTN", x: -6.2, y: 0.2, z: 0.4 },
     { id: "carrier", label: "Carrier SBC", x: -3.6, y: 0.6, z: 1.1 },
@@ -3428,7 +3428,7 @@
     }
   }
 
-  // ../../workspace/campus/js/hero.js
+  // campus/js/hero.js
   var LABELS = ["UA", "SBC", "DNS", "PSTN", "TURN", "RTP"];
   var MESSAGES = ["INVITE", "180", "200", "ACK"];
   var VERT = `
@@ -4017,9 +4017,13 @@
       const box2 = canvas.getBoundingClientRect();
       const w = Math.max(2, box2.width || window.innerWidth);
       const h = Math.max(2, box2.height || window.innerHeight);
-      if (camera2.aspect !== w / h) {
+      const ratio = pixelRatio();
+      const dw = Math.floor(w * ratio);
+      const dh = Math.floor(h * ratio);
+      if (canvas.width !== dw || canvas.height !== dh) {
         camera2.aspect = w / h;
         camera2.updateProjectionMatrix();
+        renderer2.setPixelRatio(ratio);
         renderer2.setSize(w, h, false);
         resizeTargets(w, h);
       }
@@ -4234,7 +4238,7 @@
     };
   }
 
-  // ../../workspace/campus/js/glyphs.js
+  // campus/js/glyphs.js
   var ORDER = [
     "foundations",
     "sip-core",
@@ -4587,7 +4591,7 @@
     };
   }
 
-  // ../../workspace/campus/js/menu.js
+  // campus/js/menu.js
   var NAV = [
     { href: "#/", label: "Home", group: "Learn", icon: "home", desc: "The call-path opening screen." },
     { href: "#/tracks", label: "Tracks", group: "Learn", icon: "tracks", desc: "Sixteen tracks, from signaling to design drills." },
@@ -4653,7 +4657,7 @@
     return `<a class="menu-item" href="${item.href}"${current}>${iconHTML2(item.icon)}<span class="menu-copy"><strong${i18n}>${esc(item.label)}</strong><small>${esc(item.desc)}</small></span></a>`;
   }
 
-  // ../../workspace/campus/js/guide.js
+  // campus/js/guide.js
   var book = null;
   var endpoint = "";
   var token = 0;
@@ -4962,7 +4966,7 @@
     setChips(book.chips);
   }
 
-  // ../../workspace/campus/js/app.js
+  // campus/js/app.js
   var view = document.querySelector("#view");
   var titleEl = document.querySelector("#view-title");
   var announcer = document.querySelector("#announcer");
@@ -5224,7 +5228,7 @@
         <audio id="architect-share" controls preload="none" src="audio/architect-share.mp3"></audio>
         <p class="fine">Scripts: <a href="audio/scripts/architect-use.md">how to view</a> \xB7 <a href="audio/scripts/architect-share.md">how to practise and share</a>.</p>
         <p>Lucky is a lifelong student and an AI enthusiast. The path here runs through systems, networking, voice, and the contact center, and it is growing into AI omni-channel agents. This campus is that study, wider than a UC engineer title.</p>
-        <p><a href="https://github.com/CypherMonkeyLabs" rel="noopener noreferrer">Visit the Labs org</a> \xB7 <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Contact</a></p>
+        <p><a href="https://github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing">Rate, comment, or help on the repository</a> \xB7 <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Contact</a></p>
       </section>
       <h2>Signal, in motion</h2>
       <div id="home-atlas"></div>

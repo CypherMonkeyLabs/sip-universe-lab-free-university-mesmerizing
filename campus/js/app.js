@@ -282,7 +282,7 @@ async function renderHome() {
         <audio id="architect-share" controls preload="none" src="audio/architect-share.mp3"></audio>
         <p class="fine">Scripts: <a href="audio/scripts/architect-use.md">how to view</a> · <a href="audio/scripts/architect-share.md">how to practise and share</a>.</p>
         <p>Lucky is a lifelong student and an AI enthusiast. The path here runs through systems, networking, voice, and the contact center, and it is growing into AI omni-channel agents. This campus is that study, wider than a UC engineer title.</p>
-        <p><a href="https://github.com/CypherMonkeyLabs" rel="noopener noreferrer">Visit the Labs org</a> · <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Contact</a></p>
+        <p><a href="https://github.com/CypherMonkeyLabs/sip-universe-lab-free-university-mesmerizing">Rate, comment, or help on the repository</a> · <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Contact</a></p>
       </section>
       <h2>Signal, in motion</h2>
       <div id="home-atlas"></div>

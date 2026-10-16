@@ -616,9 +616,13 @@ export async function mountHero(host) {
     const box = canvas.getBoundingClientRect();
     const w = Math.max(2, box.width || window.innerWidth);
     const h = Math.max(2, box.height || window.innerHeight);
-    if (camera.aspect !== w / h) {
+    const ratio = pixelRatio();
+    const dw = Math.floor(w * ratio);
+    const dh = Math.floor(h * ratio);
+    if (canvas.width !== dw || canvas.height !== dh) {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      renderer.setPixelRatio(ratio);
       renderer.setSize(w, h, false);
       resizeTargets(w, h);
     }
