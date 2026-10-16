@@ -381,6 +381,11 @@ for (const track of tracks) walkUrls(track, urlSet);
   "https://creativecommons.org/licenses/by-nc-sa/4.0/"
 ].forEach((url) => urlSet.add(url));
 const log = await checkUrls(urlSet);
+const coreSources = sourcesHtml([
+  ["RFC 3261", "https://www.rfc-editor.org/rfc/rfc3261"],
+  ["RFC 3264", "https://www.rfc-editor.org/rfc/rfc3264"],
+  ["RFC 3550", "https://www.rfc-editor.org/rfc/rfc3550"]
+].map(([label, url]) => ({ label, url, status: opened(log, url) ? "opened" : "confirm" })));
 
 const rooms = [];
 for (const track of tracks) {
@@ -571,7 +576,8 @@ ${mascots()}
 <p data-empty-search hidden>No titles match.</p>
 <div class="room-grid">${trackCards}</div>
 ${rooms.map((room) => `<p class="room-row" data-title="${esc(room.lesson.title)} ${esc(room.track.title)}" data-track="${room.code}"><a href="${room.href}">${esc(room.code)} ${esc(room.lesson.title)}</a></p>`).join("")}
-</section>`
+</section>
+${coreSources}`
 });
 writeFileSync(join(root, "index.html"), home);
 
@@ -822,7 +828,7 @@ writeFileSync(join(root, "start.html"), page({
 writeFileSync(join(root, "mastery.html"), page({
   title: "Mastery",
   desc: "A path from fundamentals to interop.",
-  body: `<h1>Mastery</h1><section id="path"><h2>Path</h2><ol>${tracks.map((track) => `<li><a href="${track.href}">${esc(track.title)}</a></li>`).join("")}</ol><p>Anything a vendor page did not open is marked confirm and has no link.</p></section>`
+  body: `<h1>Mastery</h1><section id="path"><h2>Path</h2><ol>${tracks.map((track) => `<li><a href="${track.href}">${esc(track.title)}</a></li>`).join("")}</ol><p>Anything a vendor page did not open is marked confirm and has no link.</p></section>${coreSources}`
 }));
 
 const openedLinks = [];
@@ -833,7 +839,7 @@ for (const [url, row] of Object.entries(log)) {
 writeFileSync(join(root, "resources.html"), page({
   title: "Resources",
   desc: "Links this build opened.",
-  body: `<h1>Resources</h1><p>A link is listed only when this build opened it in ${CHECKED}. Everything else stays on the room as the word confirm, with no URL.</p><section id="opened"><h2>Opened</h2><ul>${openedLinks.sort().map((url) => `<li><a href="${esc(url)}">${esc(url)}</a> — last checked ${CHECKED}</li>`).join("")}</ul></section>`
+  body: `<h1>Resources</h1><p>A link is listed only when this build opened it in ${CHECKED}. Everything else stays on the room as the word confirm, with no URL.</p><section id="opened"><h2>Opened</h2><ul>${openedLinks.sort().map((url) => `<li><a href="${esc(url)}">${esc(url)}</a> — last checked ${CHECKED}</li>`).join("")}</ul></section>${coreSources}`
 }));
 void confirmLabels;
 
@@ -841,7 +847,7 @@ const quizBank = rooms.flatMap((room) => (room.lesson.quiz || []).slice(0, 1).ma
 writeFileSync(join(root, "quizzes.html"), page({
   title: "Practice quiz",
   desc: "One practice item from each room.",
-  body: `<h1>Practice quiz</h1><p>${quizBank.length} items, one from each room. The room page keeps the full set.</p>${quizHtml(quizBank.slice(0, 12))}<section id="more"><h2>More</h2><ul>${quizBank.map((q) => `<li><a href="${q.href}">${esc(q.title)}</a> — ${esc(q.q)}</li>`).join("")}</ul></section>`
+  body: `<h1>Practice quiz</h1><p>${quizBank.length} items, one from each room. The room page keeps the full set.</p>${quizHtml(quizBank.slice(0, 12))}<section id="more"><h2>More</h2><ul>${quizBank.map((q) => `<li><a href="${q.href}">${esc(q.title)}</a> — ${esc(q.q)}</li>`).join("")}</ul></section>${coreSources}`
 }));
 
 writeFileSync(join(root, "flashcards.html"), page({
@@ -853,13 +859,13 @@ writeFileSync(join(root, "flashcards.html"), page({
 writeFileSync(join(root, "labs.html"), page({
   title: "Hands-on labs",
   desc: "Browser benches for SIP messages. Not a live PBX.",
-  body: `<h1>Hands-on labs</h1><section id="benches"><h2>Benches</h2><p>The message dissector, offer/answer negotiator, header sandbox, and border map live in the campus benches. They run in this browser.</p><p><a class="export-btn ex-html" href="campus/">Open the benches</a></p><ul>${rooms.slice(0, 16).map((room) => `<li><a href="${room.href}">${esc(room.lesson.lab?.title || room.lesson.title)}</a></li>`).join("")}</ul></section>`
+  body: `<h1>Hands-on labs</h1><section id="benches"><h2>Benches</h2><p>The message dissector, offer/answer negotiator, header sandbox, and border map live in the campus benches. They run in this browser.</p><p><a class="export-btn ex-html" href="campus/">Open the benches</a></p><ul>${rooms.slice(0, 16).map((room) => `<li><a href="${room.href}">${esc(room.lesson.lab?.title || room.lesson.title)}</a></li>`).join("")}</ul></section>${coreSources}`
 }));
 
 writeFileSync(join(root, "play.html"), page({
   title: "Play",
   desc: "A short quiz and a port match. Scores stay in this browser.",
-  body: `<h1>Play</h1><section id="play"><h2>Five checks</h2>${quizHtml(quizBank.slice(0, 5))}<p>Port match uses the rows on <a href="ports.html">Ports</a>. A high score is not a certification.</p></section>`
+  body: `<h1>Play</h1><section id="play"><h2>Five checks</h2>${quizHtml(quizBank.slice(0, 5))}<p>Port match uses the rows on <a href="ports.html">Ports</a>. A high score is not a certification.</p></section>${coreSources}`
 }));
 
 writeFileSync(join(root, "help.html"), page({
@@ -869,7 +875,7 @@ writeFileSync(join(root, "help.html"), page({
 <section id="course"><h2>Course</h2><p>Home, then a track, then a room. Each room has a five-minute list, a drawing, a worked example, a quiz, an ecosystem note, and sources.</p></section>
 <section id="bot"><h2>Guide</h2><p>After the first tour the monkey greets once in the middle, then sits on the right. Drag it. Voice stays off until you turn it on. Read along follows the page. Idle offers stop when you choose Stop offering.</p></section>
 <section id="downloads"><h2>Downloads</h2><p>Every diagram has SVG, PNG, and HTML. Sheets have HTML, PDF, and PNG. Cards have HTML, JSON, and PDF. Templates have HTML, DOCX, and PDF. The deck is PPTX. The zip is optional.</p></section>
-<p><button type="button" data-replay-onboard>Show the first-open tour</button></p>`
+<p><button type="button" data-replay-onboard>Show the first-open tour</button></p>${coreSources}`
 }));
 
 writeFileSync(join(root, "legal.html"), page({
@@ -945,7 +951,7 @@ writeFileSync(join(root, "downloads.html"), page({
 <p><a href="downloads/templates/trunk-checklist.html">Trunk checklist</a> (HTML, DOCX, PDF) · <a href="downloads/templates/capture-worksheet.html">Capture worksheet</a> · <a href="downloads/templates/interop-matrix.html">Interop matrix</a></p>
 <p><a href="downloads/sip-university-deck.pptx">PPTX deck</a> · <a href="downloads/sip-university-offline.zip">Offline zip</a></p>
 </section>
-<section id="downloads-bonus"><h2>Test table</h2><p>${testRows.length} files checked. ${failedTests.length} missing.</p>${testTable}</section>`
+<section id="downloads-bonus"><h2>Test table</h2><p>${testRows.length} files checked. ${failedTests.length} missing.</p>${testTable}</section>${coreSources}`
 }));
 
 ensure(join(root, "assets/data"));

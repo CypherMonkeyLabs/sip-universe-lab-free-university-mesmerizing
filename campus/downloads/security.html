@@ -26,6 +26,9 @@
     ul { margin: 6px 0 12px; padding-left: 18px; }
     li { margin: 3px 0; }
     a { color: #0f6e73; }
+    .go-deeper { margin: 16px 0 8px; padding: 12px 14px; border: 2px solid #134e4a; border-radius: 12px; background: #f0fdfa; color: #042f2e; }
+    .go-deeper h2 { margin: 0 0 8px; font-size: 16px; color: #042f2e; }
+    .go-deeper a { color: #134e4a; }
     footer { border-top: 2px solid #0f6e73; margin-top: 12px; padding-top: 8px; font-size: 11px; color: #3c5168; }
     .ladder { font-family: ui-monospace, monospace; background: #07111c; color: #d7f6ff; padding: 10px; border-radius: 8px; white-space: pre; }
   </style>
@@ -34,10 +37,10 @@
 <main>
   <p class="kicker">Cheat sheet</p>
   <h1>Signaling security checklist</h1>
-  <h2>What the RFCs actually cover</h2><p>RFC 3261 defines digest authentication for SIP. TLS protects a hop, not a diagram. SRTP (RFC 3711) protects media; the keying can be SDES (RFC 4568) or DTLS-SRTP (RFC 5764). They do not interoperate by hope. STIR (RFC 8224) puts a PASSporT in Identity. SHAKEN is the ATIS profile North American carriers use. Attestation letters are policy. Confirm the current ATIS specification and the FCC call-authentication page before you treat a letter as a rule.</p><p>Toll fraud defense, as vendors document it, is a trusted source list and a dial plan that does not allow the world to place outbound calls through you. Recording consent and emergency policy are legal questions for the place you operate. This page is not that advice.</p><p><a href="https://www.rfc-editor.org/rfc/rfc3711">RFC 3711</a> · <a href="https://www.rfc-editor.org/rfc/rfc5764">RFC 5764</a> · <a href="https://www.rfc-editor.org/rfc/rfc8224">RFC 8224</a> · <a href="https://www.fcc.gov/call-authentication">FCC call authentication</a> · <a href="https://www.rfc-editor.org/rfc/rfc8996">RFC 8996 TLS deprecation</a></p>
+  <h2>What the RFCs actually cover</h2><p>RFC 3261 defines digest authentication for SIP. TLS protects a hop, not a diagram. SRTP (RFC 3711) protects media; the keying can be SDES (RFC 4568) or DTLS-SRTP (RFC 5764). They do not interoperate by hope. STIR (RFC 8224) puts a PASSporT in Identity. SHAKEN is the ATIS profile North American carriers use. Attestation letters are policy. Confirm the current ATIS specification and the FCC call-authentication page before you treat a letter as a rule.</p><p>Toll fraud defense, as vendors document it, is a trusted source list and a dial plan that does not allow the world to place outbound calls through you. Recording consent and emergency policy are legal questions for the place you operate. This page is not that advice.</p><p><a href="https://www.rfc-editor.org/rfc/rfc3711">RFC 3711</a> · <a href="https://www.rfc-editor.org/rfc/rfc5764">RFC 5764</a> · <a href="https://www.rfc-editor.org/rfc/rfc8224">RFC 8224</a> · <a href="https://www.fcc.gov/call-authentication">FCC call authentication</a> · <a href="https://www.rfc-editor.org/rfc/rfc8996">RFC 8996 TLS deprecation</a></p><section id="go-deeper" class="go-deeper"><h2>Sources and go deeper</h2><ul><li><a href="https://www.rfc-editor.org/rfc/rfc3711">RFC 3711</a> — last checked 2026-10</li><li><a href="https://www.rfc-editor.org/rfc/rfc5764">RFC 5764</a> — last checked 2026-10</li><li><a href="https://www.rfc-editor.org/rfc/rfc8224">RFC 8224</a> — last checked 2026-10</li><li>FCC call authentication — confirm</li><li>RFC 8996 TLS deprecation — confirm</li></ul></section>
   <footer>
     <p>© 2026 CypherMonkeyLabs 🐒</p>
-    <p> · <a href="https://github.com/CypherMonkeyLabs">Visit the Labs org</a> · <a href="https://cyphermonkeylabs.com">CypherMonkey Labs</a> · <a href="https://linktr.ee/cyphermonkey">Linktree</a> · ·</p>
+    <p><a href="https://cyphermonkeylabs.com">CypherMonkey Labs</a> · <a href="https://github.com/CypherMonkeyLabs">CypherMonkeyLabs on GitHub</a> · <a href="https://linktr.ee/cyphermonkey">CypherMonkey on Linktree</a></p>
     <p>Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
   </footer>
 </main>

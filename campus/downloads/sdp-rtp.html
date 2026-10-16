@@ -26,6 +26,9 @@
     ul { margin: 6px 0 12px; padding-left: 18px; }
     li { margin: 3px 0; }
     a { color: #0f6e73; }
+    .go-deeper { margin: 16px 0 8px; padding: 12px 14px; border: 2px solid #134e4a; border-radius: 12px; background: #f0fdfa; color: #042f2e; }
+    .go-deeper h2 { margin: 0 0 8px; font-size: 16px; color: #042f2e; }
+    .go-deeper a { color: #134e4a; }
     footer { border-top: 2px solid #0f6e73; margin-top: 12px; padding-top: 8px; font-size: 11px; color: #3c5168; }
     .ladder { font-family: ui-monospace, monospace; background: #07111c; color: #d7f6ff; padding: 10px; border-radius: 8px; white-space: pre; }
   </style>
@@ -42,10 +45,10 @@
   </ul>
   <table><thead><tr><th>Term</th><th>In one breath</th></tr></thead><tbody>
     <tr><td>SDP</td><td>Session Description Protocol. The text format that describes media streams for offer/answer.</td></tr><tr><td>Offer/answer</td><td>The rule set that pairs one SDP offer with one SDP answer. The answer mirrors the offer’s m-line count and order.</td></tr><tr><td>RTP</td><td>Real-time Transport Protocol. Carries media samples. It is not SIP.</td></tr><tr><td>SRTP</td><td>Secure RTP. Encrypts and authenticates media packets.</td></tr><tr><td>telephone-event</td><td>RTP payload for DTMF and related tones.</td></tr>
-  </tbody></table>
+  </tbody></table><section id="go-deeper" class="go-deeper"><h2>Sources and go deeper</h2><ul><li><a href="https://www.rfc-editor.org/rfc/rfc3264">RFC 3264</a> — last checked 2026-10</li><li><a href="https://www.rfc-editor.org/rfc/rfc3551#section-4.5.2">RFC 3551 §4.5.2</a> — last checked 2026-10</li><li><a href="https://www.rfc-editor.org/rfc/rfc4733">RFC 4733</a> — last checked 2026-10</li><li><a href="https://www.rfc-editor.org/rfc/rfc6086">RFC 6086</a> — last checked 2026-10</li></ul></section>
   <footer>
     <p>© 2026 CypherMonkeyLabs 🐒</p>
-    <p> · <a href="https://github.com/CypherMonkeyLabs">Visit the Labs org</a> · <a href="https://cyphermonkeylabs.com">CypherMonkey Labs</a> · <a href="https://linktr.ee/cyphermonkey">Linktree</a> · ·</p>
+    <p><a href="https://cyphermonkeylabs.com">CypherMonkey Labs</a> · <a href="https://github.com/CypherMonkeyLabs">CypherMonkeyLabs on GitHub</a> · <a href="https://linktr.ee/cyphermonkey">CypherMonkey on Linktree</a></p>
     <p>Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
   </footer>
 </main>

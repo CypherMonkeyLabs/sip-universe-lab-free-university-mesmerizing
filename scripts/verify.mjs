@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dissect, negotiate, applyCube, applyAcme, extractMessages } from "../campus/js/parse.js";
+import { brandLinkProblems } from "./check-brand-links.mjs";
 import { ATLAS } from "../campus/js/diagrams.js";
 import { CHARTS } from "../campus/js/charts.js";
 
@@ -110,6 +111,12 @@ for (const item of manifest.items) {
 }
 const indexHtml = readFileSync(join(root, "campus", "index.html"), "utf8").toLowerCase();
 if (indexHtml.includes("linkedin") || indexHtml.includes("mailto:")) problems.push("chrome contact policy");
+for (const hit of brandLinkProblems(root)) problems.push(hit);
+const campusSheets = readdirSync(join(root, "campus", "downloads")).filter((name) => name.endsWith(".html"));
+for (const name of campusSheets) {
+  const text = readFileSync(join(root, "campus", "downloads", name), "utf8");
+  if (!text.includes("Sources and go deeper")) problems.push(`campus download sources ${name}`);
+}
 const menuWords = ["diagrams", "flows", "charts", "cheat codes", "play", "ecosystem", "downloads", "careers"];
 for (const word of menuWords) {
   if (!indexHtml.includes(word)) problems.push(`menu ${word}`);
