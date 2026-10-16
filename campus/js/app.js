@@ -88,13 +88,19 @@ function paintNav(path) {
   }
   const phoneList = document.querySelector("#phone-menu-list");
   if (phoneList) phoneList.innerHTML = html;
+  const results = document.querySelector("#menu-results");
+  if (results) {
+    const open = menuQuery.trim().length > 0;
+    results.hidden = !open;
+    results.innerHTML = open ? html : "";
+  }
   markPrime(path);
   bottom.querySelectorAll("a").forEach((link) => {
     const href = link.getAttribute("href");
     if (navCurrent(path, href)) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   });
-  if (active && (active.id === "rail-q" || active.id === "menu-q")) active.focus();
+  if (active && (active.id === "rail-q" || active.id === "menu-q" || active.id === "head-q")) active.focus();
 }
 
 let menuHistory = false;
@@ -144,10 +150,10 @@ function listenClip() {
 }
 
 function bindMenuSearch() {
-  document.querySelectorAll("#rail-q, #menu-q").forEach((input) => {
+  document.querySelectorAll("#rail-q, #menu-q, #head-q").forEach((input) => {
     input.addEventListener("input", () => {
       menuQuery = input.value;
-      document.querySelectorAll("#rail-q, #menu-q").forEach((other) => {
+      document.querySelectorAll("#rail-q, #menu-q, #head-q").forEach((other) => {
         if (other !== input) other.value = menuQuery;
       });
       paintNav(parseHash().path);

@@ -711,6 +711,28 @@ html[data-motion="reduce"] .card:hover { transform: none; }
   box-shadow: inset 3px 0 0 var(--cc-accent-1);
 }
 .menu-search { margin: 0 0 10px; }
+.menu-search-head {
+  position: relative;
+  flex: 1 1 220px;
+  max-width: 320px;
+  margin: 0;
+}
+#menu-results {
+  position: absolute;
+  z-index: 32;
+  top: calc(100% + 6px);
+  left: 0;
+  width: min(320px, 80vw);
+  max-height: 320px;
+  overflow: auto;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--cc-line);
+  background: var(--cc-bg);
+  box-shadow: var(--shadow);
+}
+#menu-results[hidden] { display: none; }
+#menu-results .menu-item { width: 100%; max-width: none; }
 .menu-search input {
   width: 100%;
   box-sizing: border-box;

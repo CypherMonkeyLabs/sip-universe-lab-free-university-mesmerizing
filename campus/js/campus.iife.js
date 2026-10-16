@@ -4657,6 +4657,7 @@
   var book = null;
   var endpoint = "";
   var token = 0;
+  var generation = 0;
   var tour = null;
   var tourStep = 0;
   var quizIndex = -1;
@@ -4772,9 +4773,10 @@
     const html = `${lead ? `<p>${esc(lead)}</p>` : ""}<p>${esc(entry.text)}${citeHTML(entry.cite)}</p><p><a href="${esc(entry.href)}">Open the page</a></p>`;
     return bubble("bot", html, plain);
   }
-  async function sayFallback(extra) {
+  async function sayFallback(extra, mine) {
     const text2 = extra ? `${extra} ${book.fallback}` : book.fallback;
     await bubble("bot", `<p>${esc(text2)}</p>`, text2);
+    if (mine !== generation) return;
     setChips(book.chips);
   }
   async function askEndpoint(question) {
@@ -4796,103 +4798,114 @@
     endpoint = next;
     return endpoint;
   }
-  function startTour(item) {
+  function startTour(item, mine) {
     tour = item;
     tourStep = 0;
     quizIndex = -1;
-    return showTourStep();
+    return showTourStep(mine);
   }
-  async function showTourStep() {
+  async function showTourStep(mine) {
     const step = tour.steps[tourStep];
     if (location.hash !== step.href) location.hash = step.href;
     const plain = `${tour.title}, step ${tourStep + 1} of ${tour.steps.length}. ${step.text}`;
     const html = `<p><strong>${esc(tour.title)}</strong> \xB7 ${tourStep + 1} of ${tour.steps.length}</p><p>${esc(step.text)}${citeHTML(step.cite)}</p>`;
     await bubble("bot", html, plain);
+    if (mine !== generation) return;
     const more = tourStep < tour.steps.length - 1;
     setChips(more ? ["Next step", "Stop the tour"] : ["Quiz me", "Cheat codes"]);
     if (!more) tour = null;
   }
-  function startQuiz() {
+  function startQuiz(mine) {
     tour = null;
     quizIndex = 0;
-    return showQuiz();
+    return showQuiz(mine);
   }
-  async function showQuiz() {
+  async function showQuiz(mine) {
     const item = book.quizzes[quizIndex];
     const choices = item.choices.map((choice, index) => `<button type="button" data-guide-answer="${index}">${esc(choice)}</button>`).join("");
     await bubble("bot", `<p>${esc(item.q)}</p><div class="guide-choices">${choices}</div>`, item.q);
+    if (mine !== generation) return;
     setChips(["Stop the quiz"]);
   }
-  async function grade(index) {
+  async function grade(index, mine) {
     const item = book.quizzes[quizIndex];
     const ok = index === item.answer;
     const plain = `${ok ? "Correct." : "Not quite."} ${item.why}`;
     await bubble("bot", `<p>${ok ? "Correct." : "Not quite."} ${esc(item.why)}${citeHTML(item.cite)}</p>`, plain);
+    if (mine !== generation) return;
     quizIndex += 1;
     if (quizIndex < book.quizzes.length) {
       setChips(["Next question", "Stop the quiz"]);
     } else {
       quizIndex = -1;
       await bubble("bot", "<p>That is the end of this quiz. The items are the same facts as the cheat sheets.</p>", "That is the end of this quiz. The items are the same facts as the cheat sheets.");
+      if (mine !== generation) return;
       setChips(book.chips);
     }
   }
   async function respond(question) {
     const trimmed = question.trim();
     if (!trimmed) return;
+    const mine = ++generation;
     await bubble("user", `<p>${esc(trimmed)}</p>`, trimmed);
+    if (mine !== generation) return;
     if (/^next step$/i.test(trimmed) && tour) {
       tourStep += 1;
-      await showTourStep();
+      await showTourStep(mine);
       return;
     }
     if (/^stop the tour$/i.test(trimmed)) {
       tour = null;
       await bubble("bot", "<p>Tour stopped. The pages you already opened are unchanged.</p>", "Tour stopped. The pages you already opened are unchanged.");
+      if (mine !== generation) return;
       setChips(book.chips);
       return;
     }
     if (/^next question$/i.test(trimmed) && quizIndex >= 0) {
-      await showQuiz();
+      await showQuiz(mine);
       return;
     }
     if (/^stop the quiz$/i.test(trimmed)) {
       quizIndex = -1;
       await bubble("bot", "<p>Quiz stopped.</p>", "Quiz stopped.");
+      if (mine !== generation) return;
       setChips(book.chips);
       return;
     }
     if (/quiz me|start a quiz|another quiz/i.test(trimmed)) {
-      await startQuiz();
+      await startQuiz(mine);
       return;
     }
     const tourHit = bestTour(trimmed);
     if (tourHit) {
-      await startTour(tourHit);
+      await startTour(tourHit, mine);
       return;
     }
     const entry = bestEntry(trimmed);
     if (entry) {
       await sayEntry(entry);
+      if (mine !== generation) return;
       setChips(book.chips);
       return;
     }
     try {
       const remote = await askEndpoint(trimmed);
+      if (mine !== generation) return;
       if (remote && remote.entry) {
         await sayEntry(remote.entry, "Named by the configured guide endpoint. The sentence is still from this campus. ");
+        if (mine !== generation) return;
         setChips(book.chips);
         return;
       }
       if (remote && remote.miss) {
-        await sayFallback(remote.miss);
+        await sayFallback(remote.miss, mine);
         return;
       }
     } catch {
-      await sayFallback("The guide endpoint could not be reached.");
+      await sayFallback("The guide endpoint could not be reached.", mine);
       return;
     }
-    await sayFallback("");
+    await sayFallback("", mine);
   }
   async function mountGuide() {
     const root = document.querySelector("#guide");
@@ -4934,7 +4947,7 @@
       choice.closest(".guide-choices")?.querySelectorAll("button").forEach((button) => {
         button.disabled = true;
       });
-      grade(Number(choice.dataset.guideAnswer));
+      grade(Number(choice.dataset.guideAnswer), generation);
     });
     try {
       book = await loadJSON("data/guidebot.json");
@@ -5023,13 +5036,19 @@
     }
     const phoneList = document.querySelector("#phone-menu-list");
     if (phoneList) phoneList.innerHTML = html;
+    const results = document.querySelector("#menu-results");
+    if (results) {
+      const open = menuQuery.trim().length > 0;
+      results.hidden = !open;
+      results.innerHTML = open ? html : "";
+    }
     markPrime(path);
     bottom.querySelectorAll("a").forEach((link) => {
       const href = link.getAttribute("href");
       if (navCurrent(path, href)) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     });
-    if (active2 && (active2.id === "rail-q" || active2.id === "menu-q")) active2.focus();
+    if (active2 && (active2.id === "rail-q" || active2.id === "menu-q" || active2.id === "head-q")) active2.focus();
   }
   var menuHistory = false;
   function setMenuExpanded(open) {
@@ -5074,10 +5093,10 @@
     tryPlay(0);
   }
   function bindMenuSearch() {
-    document.querySelectorAll("#rail-q, #menu-q").forEach((input) => {
+    document.querySelectorAll("#rail-q, #menu-q, #head-q").forEach((input) => {
       input.addEventListener("input", () => {
         menuQuery = input.value;
-        document.querySelectorAll("#rail-q, #menu-q").forEach((other) => {
+        document.querySelectorAll("#rail-q, #menu-q, #head-q").forEach((other) => {
           if (other !== input) other.value = menuQuery;
         });
         paintNav(parseHash().path);

@@ -4,6 +4,7 @@ import { loadJSON } from "./store.js";
 let book = null;
 let endpoint = "";
 let token = 0;
+let generation = 0;
 let tour = null;
 let tourStep = 0;
 let quizIndex = -1;
@@ -130,9 +131,10 @@ function sayEntry(entry, lead) {
   return bubble("bot", html, plain);
 }
 
-async function sayFallback(extra) {
+async function sayFallback(extra, mine) {
   const text = extra ? `${extra} ${book.fallback}` : book.fallback;
   await bubble("bot", `<p>${esc(text)}</p>`, text);
+  if (mine !== generation) return;
   setChips(book.chips);
 }
 
@@ -157,48 +159,52 @@ export function configureGuide(options) {
   return endpoint;
 }
 
-function startTour(item) {
+function startTour(item, mine) {
   tour = item;
   tourStep = 0;
   quizIndex = -1;
-  return showTourStep();
+  return showTourStep(mine);
 }
 
-async function showTourStep() {
+async function showTourStep(mine) {
   const step = tour.steps[tourStep];
   if (location.hash !== step.href) location.hash = step.href;
   const plain = `${tour.title}, step ${tourStep + 1} of ${tour.steps.length}. ${step.text}`;
   const html = `<p><strong>${esc(tour.title)}</strong> · ${tourStep + 1} of ${tour.steps.length}</p><p>${esc(step.text)}${citeHTML(step.cite)}</p>`;
   await bubble("bot", html, plain);
+  if (mine !== generation) return;
   const more = tourStep < tour.steps.length - 1;
   setChips(more ? ["Next step", "Stop the tour"] : ["Quiz me", "Cheat codes"]);
   if (!more) tour = null;
 }
 
-function startQuiz() {
+function startQuiz(mine) {
   tour = null;
   quizIndex = 0;
-  return showQuiz();
+  return showQuiz(mine);
 }
 
-async function showQuiz() {
+async function showQuiz(mine) {
   const item = book.quizzes[quizIndex];
   const choices = item.choices.map((choice, index) => `<button type="button" data-guide-answer="${index}">${esc(choice)}</button>`).join("");
   await bubble("bot", `<p>${esc(item.q)}</p><div class="guide-choices">${choices}</div>`, item.q);
+  if (mine !== generation) return;
   setChips(["Stop the quiz"]);
 }
 
-async function grade(index) {
+async function grade(index, mine) {
   const item = book.quizzes[quizIndex];
   const ok = index === item.answer;
   const plain = `${ok ? "Correct." : "Not quite."} ${item.why}`;
   await bubble("bot", `<p>${ok ? "Correct." : "Not quite."} ${esc(item.why)}${citeHTML(item.cite)}</p>`, plain);
+  if (mine !== generation) return;
   quizIndex += 1;
   if (quizIndex < book.quizzes.length) {
     setChips(["Next question", "Stop the quiz"]);
   } else {
     quizIndex = -1;
     await bubble("bot", "<p>That is the end of this quiz. The items are the same facts as the cheat sheets.</p>", "That is the end of this quiz. The items are the same facts as the cheat sheets.");
+    if (mine !== generation) return;
     setChips(book.chips);
   }
 }
@@ -206,59 +212,66 @@ async function grade(index) {
 async function respond(question) {
   const trimmed = question.trim();
   if (!trimmed) return;
+  const mine = ++generation;
   await bubble("user", `<p>${esc(trimmed)}</p>`, trimmed);
+  if (mine !== generation) return;
   if (/^next step$/i.test(trimmed) && tour) {
     tourStep += 1;
-    await showTourStep();
+    await showTourStep(mine);
     return;
   }
   if (/^stop the tour$/i.test(trimmed)) {
     tour = null;
     await bubble("bot", "<p>Tour stopped. The pages you already opened are unchanged.</p>", "Tour stopped. The pages you already opened are unchanged.");
+    if (mine !== generation) return;
     setChips(book.chips);
     return;
   }
   if (/^next question$/i.test(trimmed) && quizIndex >= 0) {
-    await showQuiz();
+    await showQuiz(mine);
     return;
   }
   if (/^stop the quiz$/i.test(trimmed)) {
     quizIndex = -1;
     await bubble("bot", "<p>Quiz stopped.</p>", "Quiz stopped.");
+    if (mine !== generation) return;
     setChips(book.chips);
     return;
   }
   if (/quiz me|start a quiz|another quiz/i.test(trimmed)) {
-    await startQuiz();
+    await startQuiz(mine);
     return;
   }
   const tourHit = bestTour(trimmed);
   if (tourHit) {
-    await startTour(tourHit);
+    await startTour(tourHit, mine);
     return;
   }
   const entry = bestEntry(trimmed);
   if (entry) {
     await sayEntry(entry);
+    if (mine !== generation) return;
     setChips(book.chips);
     return;
   }
   try {
     const remote = await askEndpoint(trimmed);
+    if (mine !== generation) return;
     if (remote && remote.entry) {
       await sayEntry(remote.entry, "Named by the configured guide endpoint. The sentence is still from this campus. ");
+      if (mine !== generation) return;
       setChips(book.chips);
       return;
     }
     if (remote && remote.miss) {
-      await sayFallback(remote.miss);
+      await sayFallback(remote.miss, mine);
       return;
     }
   } catch {
-    await sayFallback("The guide endpoint could not be reached.");
+    await sayFallback("The guide endpoint could not be reached.", mine);
     return;
   }
-  await sayFallback("");
+  await sayFallback("", mine);
 }
 
 export async function mountGuide() {
@@ -297,7 +310,7 @@ export async function mountGuide() {
     const host = logEl();
     if (!choice || quizIndex < 0 || !host || choice.closest(".guide-bubble") !== host.lastElementChild) return;
     choice.closest(".guide-choices")?.querySelectorAll("button").forEach((button) => { button.disabled = true; });
-    grade(Number(choice.dataset.guideAnswer));
+    grade(Number(choice.dataset.guideAnswer), generation);
   });
   try {
     book = await loadJSON("data/guidebot.json");
