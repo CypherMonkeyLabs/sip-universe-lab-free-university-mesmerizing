@@ -3,9 +3,20 @@
 <head>
   <meta charset="utf-8">
   <title>Ports and protocols · SIP Universe</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <style>
+    @font-face {
+      font-family: "Campus UI";
+      src: local("Segoe UI"), local("system-ui"), local("Helvetica Neue"), local("Arial");
+      font-display: swap;
+      size-adjust: 100%;
+      ascent-override: 90%;
+      descent-override: 22%;
+      line-gap-override: 0%;
+    }
     @page { size: letter; margin: 0.45in; }
-    body { font: 13px/1.35 ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
+    body { font: 13px/1.35 "Campus UI", ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
     main { max-width: 980px; margin: 0 auto; padding: 18px 18px 8px; background: white; }
     h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.03em; }
     .kicker { color: #0f6e73; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
@@ -28,7 +39,8 @@
     <tr><td>SIP</td><td>5060</td><td>UDP, TCP</td><td><a href="https://www.rfc-editor.org/rfc/rfc3261">RFC 3261</a></td></tr><tr><td>SIP over TLS</td><td>5061</td><td>TCP</td><td><a href="https://www.rfc-editor.org/rfc/rfc3261">RFC 3261</a></td></tr><tr><td>STUN</td><td>3478</td><td>UDP, TCP</td><td><a href="https://www.rfc-editor.org/rfc/rfc8489">RFC 8489</a></td></tr><tr><td>STUN/TURN over TLS</td><td>5349</td><td>TCP</td><td><a href="https://www.rfc-editor.org/rfc/rfc8656">RFC 8656</a></td></tr><tr><td>DNS</td><td>53</td><td>UDP, TCP</td><td><a href="https://www.rfc-editor.org/rfc/rfc3263">RFC 3263</a></td></tr><tr><td>RTP</td><td>negotiated</td><td>UDP</td><td><a href="https://www.rfc-editor.org/rfc/rfc3550">RFC 3550</a></td></tr><tr><td>RTCP</td><td>RTP + 1, or mux</td><td>UDP</td><td><a href="https://www.rfc-editor.org/rfc/rfc5761">RFC 5761</a></td></tr><tr><td>MSRP</td><td>2855</td><td>TCP</td><td><a href="https://www.rfc-editor.org/rfc/rfc4975">RFC 4975</a></td></tr><tr><td>SIP over WebSocket</td><td>80 or 443</td><td>TCP</td><td><a href="https://www.rfc-editor.org/rfc/rfc7118">RFC 7118</a></td></tr><tr><td>NTP</td><td>123</td><td>UDP</td><td><a href="https://www.rfc-editor.org/rfc/rfc5905">RFC 5905</a></td></tr><tr><td>Teams Direct Routing signaling</td><td>5061</td><td>TCP (TLS)</td><td><a href="https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan">Plan Direct Routing</a></td></tr><tr><td>Teams Direct Routing media</td><td>3478-3481, 49152-53247</td><td>UDP (SRTP)</td><td><a href="https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan">Plan Direct Routing</a></td></tr><tr><td>Webex Calling signaling (registration trunk and devices)</td><td>8934</td><td>TCP (TLS)</td><td><a href="https://help.webex.com/en-us/article/b2exve">Webex Calling port reference</a></td></tr><tr><td>Webex Calling signaling (certificate trunk)</td><td>5062</td><td>TCP (TLS)</td><td><a href="https://help.webex.com/en-us/article/b2exve">Webex Calling port reference</a></td></tr><tr><td>Webex Calling media</td><td>5004, 9000, 8500-8699, 19560-65535</td><td>UDP (SRTP)</td><td><a href="https://help.webex.com/en-us/article/b2exve">Webex Calling port reference</a></td></tr>
     </tbody></table>
   <footer>
-    <p><a href="https://cyphermonkeylabs.com">cyphermonkeylabs.com</a> · <a href="https://linktr.ee/cyphermonkey">linktr.ee/cyphermonkey</a> · <a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing">github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing</a></p>
+    <p>© 2026 CypherMonkeyLabs 🐒</p>
+    <p><a href="https://github.com/cipher0x9">Visit my GitHub</a> · <a href="https://github.com/CypherMonkeyLabs">Visit the Labs org</a> · <a href="https://cyphermonkeylabs.com">Visit Cypher Monkey Labs</a> · <a href="https://x.com/Cypher0x9">X</a> · <a href="https://huggingface.co/Cypher0x9">Hugging Face</a></p>
     <p>Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
   </footer>
 </main>

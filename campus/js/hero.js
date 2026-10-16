@@ -40,7 +40,9 @@ let flyArmed = false;
 let looseFly = null;
 
 function pixelRatio() {
-  return Math.min(window.devicePixelRatio || 1, 2);
+  const dpr = window.devicePixelRatio || 1;
+  const mobile = window.matchMedia("(max-width: 800px)").matches;
+  return Math.min(dpr, mobile ? 1.5 : 2);
 }
 
 function reduced() {

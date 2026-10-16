@@ -107,6 +107,7 @@ const SHELL = [
   "data/ports.json",
   "data/fieldguide.json",
   "data/daily.json",
+  "data/guidebot.json",
 ];
 
 async function fetchBytes(path) {

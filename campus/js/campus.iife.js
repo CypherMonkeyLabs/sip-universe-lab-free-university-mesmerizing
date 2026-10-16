@@ -1,5 +1,5 @@
 (() => {
-  // campus/js/draw.js
+  // ../../workspace/campus/js/draw.js
   function esc(value) {
     return String(value ?? "").replace(/[&<>"']/g, (c) => ({
       "&": "&amp;",
@@ -17,7 +17,7 @@
   function svgFrame(title, caption, inner, w = 760, h = 280) {
     const id = `illu-${++figSeq}`;
     return `<figure class="illus">
-    <svg viewBox="0 0 ${w} ${h}" role="img" aria-labelledby="${id}-title ${id}-desc">
+    <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-labelledby="${id}-title ${id}-desc">
       <title id="${id}-title">${esc(title)}</title>
       <desc id="${id}-desc">${esc(caption || title)}</desc>
       <rect width="${w}" height="${h}" class="illus-bg"></rect>
@@ -51,7 +51,7 @@
     }
     if (spec.type === "table") {
       const head = (spec.columns || []).map((c) => `<th scope="col">${esc(c)}</th>`).join("");
-      const body = (spec.rows || []).map((row) => `<tr>${row.map((cell) => `<td>${esc(cell)}</td>`).join("")}</tr>`).join("");
+      const body = (spec.rows || []).map((row2) => `<tr>${row2.map((cell) => `<td>${esc(cell)}</td>`).join("")}</tr>`).join("");
       return `<figure class="illus"><figcaption>${esc(spec.title)}</figcaption>
       <div class="scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>
       <p class="caption">${esc(spec.caption || "")}</p></figure>`;
@@ -74,7 +74,7 @@
     return svgFrame(spec.title, spec.caption, inner);
   }
 
-  // campus/js/audio.js
+  // ../../workspace/campus/js/audio.js
   var KEY = "sip-universe-settings";
   var DEFAULTS = {
     theme: "neon",
@@ -244,7 +244,7 @@
     }
   }
 
-  // campus/js/flow.js
+  // ../../workspace/campus/js/flow.js
   function paint(message) {
     return String(message || "").split("\n").map((line, index) => {
       if (index === 0) return `<span class="sip-start">${esc(line)}</span>`;
@@ -259,9 +259,9 @@
     const parties = flow.parties || [];
     const steps = flow.steps || [];
     const width = Math.max(640, parties.length * 180);
-    const row = 64;
+    const row2 = 64;
     const top = 56;
-    const height = top + Math.max(1, steps.length) * row + 28;
+    const height = top + Math.max(1, steps.length) * row2 + 28;
     const col = width / parties.length;
     const heads = parties.map((name, i) => {
       const x = col * i + col / 2;
@@ -271,7 +271,7 @@
     const arrows = steps.map((step, i) => {
       const x1 = col * step.from + col / 2;
       const x2 = col * step.to + col / 2;
-      const y = top + i * row + 28;
+      const y = top + i * row2 + 28;
       const on = i === active2 ? "is-on" : i < active2 ? "is-done" : "";
       const mid = (x1 + x2) / 2;
       const travel = i === active2 && !prefersReduced() ? `<circle r="5" fill="var(--cc-accent-3)"><animate attributeName="cx" from="${x1}" to="${x2}" dur="0.9s" repeatCount="indefinite"></animate><animate attributeName="cy" from="${y}" to="${y}" dur="0.9s" repeatCount="indefinite"></animate></circle>` : "";
@@ -368,7 +368,7 @@
     return stop;
   }
 
-  // campus/js/store.js
+  // ../../workspace/campus/js/store.js
   var cache = /* @__PURE__ */ new Map();
   async function loadJSON(path) {
     if (cache.has(path)) return cache.get(path);
@@ -384,12 +384,15 @@
     return data;
   }
 
-  // campus/js/diagrams.js
+  // ../../workspace/campus/js/diagrams.js
   function live() {
-    return document.documentElement.dataset.motion !== "reduce";
+    const motion = document.documentElement.dataset.motion;
+    if (motion === "reduce") return false;
+    if (motion === "full") return true;
+    return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
   function svg(label, w, h, body) {
-    return `<svg class="atlas-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">
+    return `<svg class="atlas-svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">
     <rect width="${w}" height="${h}" rx="18" fill="var(--cc-bg)" stroke="var(--cc-line)"></rect>
     ${body}
   </svg>`;
@@ -423,9 +426,9 @@
     <animate attributeName="cy" values="${y1};${y2}" dur="1.8s" repeatCount="indefinite"></animate>
   </circle>`;
   }
-  function ladder(parties, steps, w = 860, row = 52) {
+  function ladder(parties, steps, w = 860, row2 = 52) {
     const top = 48;
-    const h = top + steps.length * row + 24;
+    const h = top + steps.length * row2 + 24;
     const col = w / parties.length;
     const heads = parties.map((name, i) => {
       const x = col * i + col / 2;
@@ -434,7 +437,7 @@
     const hops = steps.map((step, i) => {
       const x1 = col * step.from + col / 2;
       const x2 = col * step.to + col / 2;
-      const y = top + i * row + 18;
+      const y = top + i * row2 + 18;
       return `<g class="hop" data-i="${i}">${arrow(x1, y, x2, y, step.label)}${packet(x1, y, x2, y)}</g>`;
     }).join("");
     return svg(parties.join(" "), w, h, heads + hops);
@@ -859,7 +862,7 @@
           ["2020", "RFC 8489"],
           ["2021", "RFC 8866"]
         ];
-        const body = rows.map((row, i) => `${text(40, 48 + i * 36, row[0], "d-sub", "start")}${text(140, 48 + i * 36, row[1], "d-label", "start")}`).join("");
+        const body = rows.map((row2, i) => `${text(40, 48 + i * 36, row2[0], "d-sub", "start")}${text(140, 48 + i * 36, row2[1], "d-label", "start")}`).join("");
         return svg("timeline", 860, 40 + rows.length * 36, `<line x1="28" y1="20" x2="28" y2="${rows.length * 36}" stroke="var(--cc-accent-1)"></line>${body}`);
       }
     },
@@ -938,23 +941,20 @@
       title: "REGISTER, from Mermaid",
       caption: "Mermaid 11.12.0 drew this at build time from the same registration sequence. The hand ladder is the one that animates.",
       cite: { label: "RFC 3261 \xA710", url: "https://www.rfc-editor.org/rfc/rfc3261#section-10" },
-      draw: () => `<img class="atlas-svg" alt="REGISTER sequence drawn by Mermaid" src="diagrams/register.svg">`
+      draw: () => `<img class="atlas-svg" width="450" height="347" alt="REGISTER sequence drawn by Mermaid" src="diagrams/register.svg">`
     },
     {
       id: "mermaid-border",
       title: "Border paths, from Mermaid",
       caption: "A teaching sketch of a phone, an SBC, a call agent, and a carrier. Mermaid 11.12.0 drew it at build time. It is not a customer topology.",
       cite: { label: "RFC 7092", url: "https://www.rfc-editor.org/rfc/rfc7092" },
-      draw: () => `<img class="atlas-svg" alt="Phone, SBC, CUCM, and carrier drawn by Mermaid" src="diagrams/border.svg">`
+      draw: () => `<img class="atlas-svg" width="424" height="174" alt="Phone, SBC, CUCM, and carrier drawn by Mermaid" src="diagrams/border.svg">`
     }
   ];
   var ANIMATED = /* @__PURE__ */ new Set([
     "invite-txn",
     "noninvite",
-    "stun",
-    "turn",
     "nat",
-    "ice",
     "register",
     "prack",
     "refer",
@@ -966,8 +966,7 @@
     "hold",
     "tls",
     "srtp-flow",
-    "cutover",
-    "fault-tree"
+    "cutover"
   ]);
   for (const item of ATLAS) item.animated = ANIMATED.has(item.id);
   function figureHTML(item) {
@@ -1046,7 +1045,7 @@
     host.innerHTML = `<div class="atlas-grid">${picks.map(figureHTML).join("")}</div>`;
   }
 
-  // campus/js/pack.js
+  // ../../workspace/campus/js/pack.js
   var CRC_TABLE = (() => {
     const table = new Uint32Array(256);
     for (let n = 0; n < 256; n += 1) {
@@ -1182,7 +1181,8 @@
     "data/interview.json",
     "data/ports.json",
     "data/fieldguide.json",
-    "data/daily.json"
+    "data/daily.json",
+    "data/guidebot.json"
   ];
   async function fetchBytes(path) {
     const bag = globalThis.SIP_DATA;
@@ -1232,13 +1232,13 @@
     return files.length;
   }
 
-  // campus/js/icons.js
+  // ../../workspace/campus/js/icons.js
   function iconHTML(id) {
     const safe = String(id || "foundations").replace(/[^a-z0-9-]/gi, "") || "foundations";
     return `<span class="iso glyph-hold"><canvas class="glyph-view" data-glyph="${safe}" width="256" height="256" aria-hidden="true"></canvas></span>`;
   }
 
-  // campus/js/play.js
+  // ../../workspace/campus/js/play.js
   function cardSvg({ title, lines }) {
     const body = lines.map((line, i) => `<text x="48" y="${230 + i * 40}" fill="#e8f6ff" font-size="26" font-family="ui-sans-serif,system-ui,sans-serif">${esc(line)}</text>`).join("");
     return `<?xml version="1.0" encoding="UTF-8"?>
@@ -1559,7 +1559,7 @@
     };
   }
 
-  // campus/js/charts.js
+  // ../../workspace/campus/js/charts.js
   var CHARTS = [
     { id: "lessons", title: "Lessons per track", source: "Counted from campus/data/catalog.json." },
     { id: "minutes", title: "Minutes per track", source: "Sum of lesson minutes in the catalog index." },
@@ -1576,21 +1576,21 @@
     return (value) => Number(value) / (max || 1) * width;
   }
   function barChart(label, rows, unit) {
-    const max = Math.max(...rows.map((row) => row.value), 1);
+    const max = Math.max(...rows.map((row2) => row2.value), 1);
     const widthOf = scaleOf(max, 520);
     const rowH = 42;
     const h = 16 + rows.length * rowH;
-    const bars = rows.map((row, i) => {
+    const bars = rows.map((row2, i) => {
       const y = 10 + i * rowH;
-      const w = Math.max(4, widthOf(row.value));
+      const w = Math.max(4, widthOf(row2.value));
       const suffix = unit ? ` ${unit}` : "";
-      const tip = `${row.label}: ${row.value}${suffix}`;
-      return `<text x="12" y="${y + 14}" class="d-sub">${esc(row.label)}</text>
-      <text x="548" y="${y + 14}" text-anchor="end" class="d-sub">${esc(String(row.value))}${esc(suffix)}</text>
+      const tip = `${row2.label}: ${row2.value}${suffix}`;
+      return `<text x="12" y="${y + 14}" class="d-sub">${esc(row2.label)}</text>
+      <text x="548" y="${y + 14}" text-anchor="end" class="d-sub">${esc(String(row2.value))}${esc(suffix)}</text>
       <rect data-tip="${esc(tip)}" x="12" y="${y + 16}" width="536" height="22" fill="transparent"></rect>
       <rect class="bar" data-tip="${esc(tip)}" x="12" y="${y + 22}" width="${w.toFixed(1)}" height="12" rx="4" fill="var(--cc-accent-1)" opacity="0.9"></rect>`;
     }).join("");
-    return `<svg class="chart-svg" viewBox="0 0 560 ${h}" role="img" aria-label="${esc(label)}">
+    return `<svg class="chart-svg" width="560" height="${h}" viewBox="0 0 560 ${h}" role="img" aria-label="${esc(label)}">
     <rect width="560" height="${h}" rx="12" fill="var(--cc-bg)" stroke="var(--cc-line)"></rect>
     ${bars}
   </svg>`;
@@ -1611,7 +1611,7 @@
   }
   function portRows(ports) {
     const map = /* @__PURE__ */ new Map();
-    for (const row of ports.rows || []) map.set(row.transport, (map.get(row.transport) || 0) + 1);
+    for (const row2 of ports.rows || []) map.set(row2.transport, (map.get(row2.transport) || 0) + 1);
     return [...map.entries()].map(([label, value]) => ({ label, value }));
   }
   function tagRows(catalog2) {
@@ -1640,7 +1640,7 @@
     if (id === "levels") return barChart("Tracks by level", levelRows(catalog2), "");
     if (id === "ports") return barChart("Port rows by transport", portRows(ports), "");
     if (id === "tags") return barChart("Lesson tags", tagRows(catalog2), "");
-    if (id === "totals") return `<svg id="chart-totals" class="chart-svg" viewBox="0 0 520 280" role="img" aria-label="Campus totals"></svg>`;
+    if (id === "totals") return `<svg id="chart-totals" class="chart-svg" width="520" height="280" viewBox="0 0 520 280" role="img" aria-label="Campus totals"></svg>`;
     return "";
   }
   function chartsHTML(catalog2, ports) {
@@ -1683,7 +1683,9 @@
     return () => stops.forEach((fn) => fn());
   }
   function animateCharts(root) {
-    if (!root || document.documentElement.dataset.motion === "reduce") return;
+    const motion = document.documentElement.dataset.motion;
+    const reduce = motion === "reduce" || motion !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!root || reduce) return;
     const anime = globalThis.anime;
     if (!anime || typeof anime.animate !== "function") return;
     root.querySelectorAll(".chart-svg rect.bar").forEach((rect, index) => {
@@ -1707,12 +1709,12 @@
     const rough = globalThis.rough;
     if (!svg2 || !rough || typeof rough.svg !== "function") return;
     const rows = totalRows(catalog2);
-    const max = Math.max(...rows.map((row) => row.value), 1);
+    const max = Math.max(...rows.map((row2) => row2.value), 1);
     const widthOf = scaleOf(max, 240);
     const rc = rough.svg(svg2);
-    rows.forEach((row, i) => {
+    rows.forEach((row2, i) => {
       const y = 24 + i * 40;
-      const w = Math.max(8, widthOf(row.value));
+      const w = Math.max(8, widthOf(row2.value));
       const node = rc.rectangle(150, y, w, 22, {
         stroke: "#3ddcff",
         fill: "#173049",
@@ -1725,7 +1727,7 @@
       label.setAttribute("x", "12");
       label.setAttribute("y", String(y + 16));
       label.setAttribute("class", "d-sub");
-      label.textContent = `${row.label} ${row.value}`;
+      label.textContent = `${row2.label} ${row2.value}`;
       svg2.appendChild(label);
     });
   }
@@ -1767,7 +1769,7 @@
     };
   }
   function mountMind(host) {
-    host.innerHTML = `<div class="markmap-wrap"><svg id="sip-mind" role="img" aria-label="SIP session mind map"></svg></div>
+    host.innerHTML = `<div class="markmap-wrap"><svg id="sip-mind" width="640" height="480" role="img" aria-label="SIP session mind map"></svg></div>
     <p class="fine">Mind map drawn with markmap and d3 from the campus outline. It is a map of topics, not a network.</p>`;
     const svg2 = host.querySelector("#sip-mind");
     const lib = globalThis.markmap;
@@ -1783,8 +1785,9 @@
     svg2.setAttribute("height", String(height));
     svg2.setAttribute("viewBox", `0 0 ${width} ${height}`);
     try {
-      const reduced4 = document.documentElement.dataset.motion === "reduce";
-      const mm = lib.Markmap.create(svg2, { duration: reduced4 ? 0 : 300 }, mindNode(MIND));
+      const motion = document.documentElement.dataset.motion;
+      const reduced5 = motion === "reduce" || motion !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const mm = lib.Markmap.create(svg2, { duration: reduced5 ? 0 : 300 }, mindNode(MIND));
       return () => {
         if (mm && typeof mm.destroy === "function") mm.destroy();
       };
@@ -1795,7 +1798,7 @@
     }
   }
 
-  // campus/js/fx.js
+  // ../../workspace/campus/js/fx.js
   var TOKENS = [
     ["SIP", "5060"],
     ["SDP", "m="],
@@ -1833,7 +1836,10 @@
     };
   }
   function reduced() {
-    return document.documentElement.dataset.motion === "reduce";
+    const motion = document.documentElement.dataset.motion;
+    if (motion === "reduce") return true;
+    if (motion === "full") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
   function countUp(el, value) {
     const end = Number(value) || 0;
@@ -1914,7 +1920,7 @@
     });
   }
 
-  // campus/js/i18n.js
+  // ../../workspace/campus/js/i18n.js
   var LANGS = [
     { id: "en", label: "English", dir: "ltr" },
     { id: "es", label: "Espa\xF1ol", dir: "ltr" },
@@ -2118,7 +2124,7 @@
     if (line) line.textContent = t("greeting");
   }
 
-  // campus/js/field.js
+  // ../../workspace/campus/js/field.js
   var BADGE_KEY = "sip-universe-badges";
   var BADGES = [
     { id: "read", name: "First trace", detail: "Mark a lesson read." },
@@ -2405,11 +2411,11 @@
       ctx2.setTitle("Ports and protocols");
       view2.innerHTML = `<p class="lede">${esc(data.summary)} Read ${esc(data.checked)}.</p>
       <div class="scroll"><table><thead><tr><th scope="col">Name</th><th scope="col">Port</th><th scope="col">Transport</th><th scope="col">Why it is here</th><th scope="col">Source</th></tr></thead><tbody>
-        ${data.rows.map((row) => `<tr><th scope="row">${esc(row.name)}</th><td>${esc(row.port)}</td><td>${esc(row.transport)}</td><td>${esc(row.purpose)} ${esc(row.note)}</td><td><a href="${esc(row.cite.url)}">${esc(row.cite.label)}</a></td></tr>`).join("")}
+        ${data.rows.map((row2) => `<tr><th scope="row">${esc(row2.name)}</th><td>${esc(row2.port)}</td><td>${esc(row2.transport)}</td><td>${esc(row2.purpose)} ${esc(row2.note)}</td><td><a href="${esc(row2.cite.url)}">${esc(row2.cite.label)}</a></td></tr>`).join("")}
       </tbody></table></div>
       <h2>Firewall matrix</h2>
       <div class="scroll"><table><thead><tr><th scope="col">Flow</th><th scope="col">From</th><th scope="col">To</th><th scope="col">Transport</th><th scope="col">Ports</th><th scope="col">Source</th></tr></thead><tbody>
-        ${data.matrix.map((row) => `<tr><th scope="row">${esc(row.flow)}</th><td>${esc(row.from)}</td><td>${esc(row.to)}</td><td>${esc(row.transport)}</td><td>${esc(row.ports)}</td><td>${esc(row.source)}</td></tr>`).join("")}
+        ${data.matrix.map((row2) => `<tr><th scope="row">${esc(row2.flow)}</th><td>${esc(row2.from)}</td><td>${esc(row2.to)}</td><td>${esc(row2.transport)}</td><td>${esc(row2.ports)}</td><td>${esc(row2.source)}</td></tr>`).join("")}
       </tbody></table></div>
       <p><a class="btn" href="#/play/ports">Play the ports game</a></p>`;
       return () => {
@@ -2452,8 +2458,8 @@
       ctx2.setTitle("Progress");
       const raw = JSON.parse(localStorage.getItem("sip-universe-progress") || '{"lessons":{}}');
       const rows = Object.entries(raw.lessons || {});
-      const read = rows.filter(([, row]) => row.read).length;
-      const quizzed = rows.filter(([, row]) => row.quizN).length;
+      const read = rows.filter(([, row2]) => row2.read).length;
+      const quizzed = rows.filter(([, row2]) => row2.quizN).length;
       view2.innerHTML = `<p class="lede">${read} lessons marked read. ${quizzed} quizzes scored. ${ctx2.catalog.stats.lessons} lessons in the catalog.</p>
       <div class="stat-row">
         <div class="stat"><b>${rows.length}</b> touched</div>
@@ -2499,7 +2505,7 @@
     };
   }
 
-  // campus/js/parse.js
+  // ../../workspace/campus/js/parse.js
   var STATIC_PT = {
     0: "PCMU/8000",
     3: "GSM/8000",
@@ -2809,8 +2815,8 @@
     const m = start.match(/^SIP\/2\.0\s+(\d{3})/);
     return m ? m[1] : null;
   }
-  function ruleMatchesMessage(token, start) {
-    const t2 = String(token || "ANY").toUpperCase();
+  function ruleMatchesMessage(token2, start) {
+    const t2 = String(token2 || "ANY").toUpperCase();
     if (t2 === "ANY") return true;
     const method = requestMethod(start);
     const code = responseCode(start);
@@ -2831,11 +2837,11 @@
         warnings.push(`Line ${idx + 1} is not in the teaching subset (request|response METHOD sip-header NAME add|remove|modify).`);
         return;
       }
-      const [, dir, token, header, action, rest] = m;
+      const [, dir, token2, header, action, rest] = m;
       const isResp = Boolean(responseCode(msg.start));
       if (dir.toLowerCase() === "request" && isResp) return;
       if (dir.toLowerCase() === "response" && !isResp) return;
-      if (!ruleMatchesMessage(token, msg.start)) return;
+      if (!ruleMatchesMessage(token2, msg.start)) return;
       const name = header.toLowerCase();
       if (action.toLowerCase() === "remove") {
         const before = msg.headers.length;
@@ -3008,7 +3014,7 @@
     return messages;
   }
 
-  // campus/js/tools.js
+  // ../../workspace/campus/js/tools.js
   function field(label, id, value, rows = 12) {
     return `<label class="stack" for="${id}"><span>${esc(label)}</span>
     <textarea id="${id}" rows="${rows}" spellcheck="false">${esc(value || "")}</textarea></label>`;
@@ -3132,7 +3138,7 @@
     if (initial) host.querySelector("#cap-run").click();
   }
 
-  // campus/js/topology.js
+  // ../../workspace/campus/js/topology.js
   var NODES = [
     { id: "pstn", label: "PSTN", x: -6.2, y: 0.2, z: 0.4 },
     { id: "carrier", label: "Carrier SBC", x: -3.6, y: 0.6, z: 1.1 },
@@ -3270,7 +3276,7 @@
     let camera2 = null;
     let THREE2 = null;
     const sph = { r: 13.5, theta: 0.5, phi: 1.05 };
-    const reduced4 = prefersReduced();
+    const reduced5 = prefersReduced();
     function placeCamera() {
       if (!camera2) return;
       camera2.position.set(
@@ -3309,7 +3315,7 @@
       host.querySelector("#topo-detail").innerHTML = `<h3>${esc(node.label)}</h3><p>Select a failure to see how this node\u2019s paths change. Labels are a teaching map, not a discovery scan.</p>`;
     });
     applyFailure();
-    if (reduced4) {
+    if (reduced5) {
       host.querySelector("#topo-mode").textContent = "Reduced motion is on, so the flat map is the view. Turn motion back on in Settings to orbit the 3D model.";
       return () => {
       };
@@ -3326,7 +3332,8 @@
       scene2.fog = new THREE2.Fog(461588, 16, 32);
       camera2 = new THREE2.PerspectiveCamera(48, 1, 0.1, 80);
       renderer2 = new THREE2.WebGLRenderer({ canvas, antialias: true, alpha: true });
-      renderer2.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      const mobile = window.matchMedia("(max-width: 800px)").matches;
+      renderer2.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2));
       scene2.add(new THREE2.AmbientLight(8956637, 0.55));
       const key = new THREE2.PointLight(4054271, 18, 30);
       key.position.set(4, 6, 4);
@@ -3421,7 +3428,7 @@
     }
   }
 
-  // campus/js/hero.js
+  // ../../workspace/campus/js/hero.js
   var LABELS = ["UA", "SBC", "DNS", "PSTN", "TURN", "RTP"];
   var MESSAGES = ["INVITE", "180", "200", "ACK"];
   var VERT = `
@@ -3461,7 +3468,9 @@
   var flyArmed = false;
   var looseFly = null;
   function pixelRatio() {
-    return Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = window.devicePixelRatio || 1;
+    const mobile = window.matchMedia("(max-width: 800px)").matches;
+    return Math.min(dpr, mobile ? 1.5 : 2);
   }
   function reduced2() {
     const motion = document.documentElement.dataset.motion;
@@ -4225,7 +4234,7 @@
     };
   }
 
-  // campus/js/glyphs.js
+  // ../../workspace/campus/js/glyphs.js
   var ORDER = [
     "foundations",
     "sip-core",
@@ -4498,6 +4507,8 @@
     canvas.width = 256;
     canvas.height = 256;
     renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+    const mobile = window.matchMedia("(max-width: 800px)").matches;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2));
     renderer.setSize(256, 256, false);
     renderer.setClearColor(0, 0);
     scene = new T.Scene();
@@ -4576,7 +4587,369 @@
     };
   }
 
-  // campus/js/app.js
+  // ../../workspace/campus/js/menu.js
+  var NAV = [
+    { href: "#/", label: "Home", group: "Learn", icon: "home", desc: "The call-path opening screen." },
+    { href: "#/tracks", label: "Tracks", group: "Learn", icon: "tracks", desc: "Sixteen tracks, from signaling to design drills." },
+    { href: "#/labs", label: "Labs", group: "Learn", icon: "labs", desc: "Benches that sit inside the lessons." },
+    { href: "#/guide", label: "Field guide", group: "Learn", icon: "guide", desc: "Checklists for trunks, faults, and cutovers." },
+    { href: "#/boss", label: "Boss incidents", group: "Learn", icon: "boss", desc: "Synthetic logs. The fix cites a document." },
+    { href: "#/interview", label: "Interview", group: "Learn", icon: "interview", desc: "Spoken drills. Not a dump of a vendor exam." },
+    { href: "#/play", label: "Practice", group: "Learn", icon: "play", i18n: "play", desc: "Games and the flow builder." },
+    { href: "#/tools/ladder", label: "Ladders", group: "Tools", icon: "ladder", desc: "Play, pause, and step a call." },
+    { href: "#/tools/dissector", label: "Dissector", group: "Tools", icon: "dissector", desc: "Headers and structural warnings." },
+    { href: "#/tools/sdp", label: "SDP negotiator", group: "Tools", icon: "sdp", desc: "Codec, direction, and port 0." },
+    { href: "#/tools/sandbox", label: "Normalization", group: "Tools", icon: "sandbox", desc: "A CUBE and Acme header-rule subset." },
+    { href: "#/tools/capture", label: "Capture bench", group: "Tools", icon: "capture", desc: "Synthetic debug ccsip, one message at a time." },
+    { href: "#/play/builder", label: "Flow builder", group: "Tools", icon: "builder", desc: "Assemble your own ladder." },
+    { href: "#/explorer", label: "Flow explorer", group: "Tools", icon: "explorer", desc: "Click an edge and read the citation." },
+    { href: "#/topology", label: "3D topology", group: "Tools", icon: "topology", desc: "A teaching map. It does not touch a live network." },
+    { href: "#/atlas", label: "Diagrams", group: "Field", icon: "diagrams", i18n: "diagrams", desc: "Stacks, ladders, and borders." },
+    { href: "#/flows", label: "Flows", group: "Field", icon: "flows", i18n: "flows", desc: "Animated call, signal, and media sequences." },
+    { href: "#/charts", label: "Charts", group: "Field", icon: "charts", i18n: "charts", desc: "Counts from the catalog and the ports table." },
+    { href: "#/ports", label: "Ports", group: "Field", icon: "ports", desc: "RFC defaults and the cloud ranges read for this edition." },
+    { href: "#/glossary", label: "Glossary", group: "Field", icon: "glossary", desc: "Short definitions. The citation is the authority." },
+    { href: "#/ecosystem", label: "Ecosystem", group: "Field", icon: "ecosystem", i18n: "ecosystem", desc: "Neighbors that hang off the SIP session." },
+    { href: "#/certs", label: "Certifications", group: "Field", icon: "certs", desc: "Status checked against the linked vendor pages." },
+    { href: "#/career", label: "Careers", group: "Field", icon: "career", i18n: "careers", desc: "Practice seats. Not a hiring promise." },
+    { href: "#/roadmap", label: "Roadmap", group: "Field", icon: "roadmap", desc: "What this edition checked, and what it did not." },
+    { href: "#/downloads", label: "Cheat Codes", group: "Field", icon: "cheats", i18n: "cheats", desc: "One-page sheets and the printable flashcard deck." },
+    { href: "#/badges", label: "Badges", group: "Field", icon: "badges", desc: "Marks stored in this browser." },
+    { href: "#/faults", label: "Faults", group: "Field", icon: "faults", desc: "The symptom index. Each fault lives in its lesson." },
+    { href: "#/regions", label: "Regions", group: "Field", icon: "regions", i18n: "regions", desc: "Cited facts, plus examples marked as examples." }
+  ];
+  function iconHTML2(name) {
+    const id = `ico-${String(name || "home").replace(/[^a-z0-9-]/g, "") || "home"}`;
+    return `<svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#${id}"></use></svg>`;
+  }
+  function navCurrent(path, href) {
+    if (href === "#/tracks") {
+      return path === "#/tracks" || path.startsWith("#/track/") || path.startsWith("#/lesson/") || path === "#/labs" || path.startsWith("#/guide") || path.startsWith("#/boss") || path.startsWith("#/interview");
+    }
+    if (href === "#/") return path === "#/" || path === "";
+    if (href === "#/downloads") return path === "#/downloads";
+    return path === href || path.startsWith(`${href}/`);
+  }
+  function menuRows(path, query) {
+    const needle = query.trim().toLowerCase();
+    const items = NAV.filter((item) => {
+      if (!needle) return true;
+      return `${item.label} ${item.desc} ${item.group}`.toLowerCase().includes(needle);
+    });
+    if (!items.length) {
+      return `<p class="menu-empty">No menu page matches that.</p>`;
+    }
+    if (needle) {
+      return items.map((item) => row(item, path)).join("");
+    }
+    return ["Learn", "Tools", "Field"].map((group) => {
+      const links = items.filter((item) => item.group === group).map((item) => row(item, path)).join("");
+      return `<h2>${group}</h2>${links}`;
+    }).join("");
+  }
+  function row(item, path) {
+    const current = navCurrent(path, item.href) ? ' aria-current="page"' : "";
+    const i18n = item.i18n ? ` data-i18n="${item.i18n}"` : "";
+    return `<a class="menu-item" href="${item.href}"${current}>${iconHTML2(item.icon)}<span class="menu-copy"><strong${i18n}>${esc(item.label)}</strong><small>${esc(item.desc)}</small></span></a>`;
+  }
+
+  // ../../workspace/campus/js/guide.js
+  var book = null;
+  var endpoint = "";
+  var token = 0;
+  var tour = null;
+  var tourStep = 0;
+  var quizIndex = -1;
+  function reduced4() {
+    const motion = document.documentElement.dataset.motion;
+    if (motion === "reduce") return true;
+    if (motion === "full") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+  function norm(value) {
+    return String(value || "").toLowerCase().replace(/[^a-z0-9.+# ]+/g, " ").replace(/\s+/g, " ").trim();
+  }
+  function tokens(value) {
+    return norm(value).split(" ").filter((part) => part.length > 1);
+  }
+  function dice(left, right) {
+    const a = new Set(tokens(left));
+    const b = new Set(tokens(right));
+    if (!a.size || !b.size) return 0;
+    let shared = 0;
+    a.forEach((part) => {
+      if (b.has(part)) shared += 1;
+    });
+    return 2 * shared / (a.size + b.size);
+  }
+  function scoreText(query, text2) {
+    const q = norm(query);
+    const hay = norm(text2);
+    if (!q || !hay) return 0;
+    if (hay.includes(q) || q.includes(hay)) return 1;
+    return dice(q, hay);
+  }
+  function bestEntry(query) {
+    let best = null;
+    let score = 0;
+    for (const entry of book.entries) {
+      const blob = [entry.text, ...entry.prompts || []].join(" ");
+      const next = scoreText(query, blob);
+      if (next > score) {
+        score = next;
+        best = entry;
+      }
+    }
+    return score >= 0.34 ? best : null;
+  }
+  function bestTour(query) {
+    let best = null;
+    let score = 0;
+    for (const item of book.tours) {
+      const blob = [item.title, ...item.prompts || []].join(" ");
+      const next = scoreText(query, blob);
+      if (next > score) {
+        score = next;
+        best = item;
+      }
+    }
+    return score >= 0.45 ? best : null;
+  }
+  function wait(ms) {
+    return new Promise((resolve) => {
+      window.setTimeout(resolve, ms);
+    });
+  }
+  function citeHTML(cite) {
+    if (!cite) return "";
+    return ` <a href="${esc(cite.url)}">${esc(cite.label)}</a>`;
+  }
+  function logEl() {
+    return document.querySelector("#guide-log");
+  }
+  function chipsEl() {
+    return document.querySelector("#guide-chips");
+  }
+  function setChips(labels) {
+    const host = chipsEl();
+    if (!host) return;
+    const list = labels && labels.length ? labels : book.chips;
+    host.innerHTML = list.map((label) => `<button type="button" data-guide-chip>${esc(label)}</button>`).join("");
+  }
+  async function bubble(kind, html, plain) {
+    const host = logEl();
+    if (!host) return;
+    const mine = ++token;
+    const node = document.createElement("div");
+    node.className = `guide-bubble is-${kind}`;
+    host.appendChild(node);
+    host.scrollTop = host.scrollHeight;
+    if (kind !== "bot" || reduced4()) {
+      node.innerHTML = html;
+      return;
+    }
+    node.classList.add("is-typing");
+    node.textContent = "";
+    const dots = document.createElement("span");
+    dots.className = "guide-dots";
+    dots.textContent = "\xB7\xB7\xB7";
+    node.appendChild(dots);
+    await wait(280);
+    if (mine !== token) return;
+    node.classList.remove("is-typing");
+    const span = document.createElement("span");
+    node.replaceChildren(span);
+    for (let i = 0; i < plain.length; i += 1) {
+      if (mine !== token) return;
+      span.textContent += plain[i];
+      if (i % 3 === 0) await wait(12);
+    }
+    node.innerHTML = html;
+    host.scrollTop = host.scrollHeight;
+  }
+  function sayEntry(entry, lead) {
+    const plain = `${lead || ""}${entry.text}`;
+    const html = `${lead ? `<p>${esc(lead)}</p>` : ""}<p>${esc(entry.text)}${citeHTML(entry.cite)}</p><p><a href="${esc(entry.href)}">Open the page</a></p>`;
+    return bubble("bot", html, plain);
+  }
+  async function sayFallback(extra) {
+    const text2 = extra ? `${extra} ${book.fallback}` : book.fallback;
+    await bubble("bot", `<p>${esc(text2)}</p>`, text2);
+    setChips(book.chips);
+  }
+  async function askEndpoint(question) {
+    if (!endpoint) return null;
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ question })
+    });
+    if (!res.ok) return { miss: "The guide endpoint did not answer." };
+    const body = await res.json();
+    const id = body && typeof body.id === "string" ? body.id : "";
+    const entry = book.entries.find((item) => item.id === id);
+    if (!entry) return { miss: "The guide endpoint did not name a page in this campus. I did not use any other text it sent." };
+    return { entry };
+  }
+  function configureGuide(options) {
+    const next = options && typeof options.endpoint === "string" ? options.endpoint.trim() : "";
+    endpoint = next;
+    return endpoint;
+  }
+  function startTour(item) {
+    tour = item;
+    tourStep = 0;
+    quizIndex = -1;
+    return showTourStep();
+  }
+  async function showTourStep() {
+    const step = tour.steps[tourStep];
+    if (location.hash !== step.href) location.hash = step.href;
+    const plain = `${tour.title}, step ${tourStep + 1} of ${tour.steps.length}. ${step.text}`;
+    const html = `<p><strong>${esc(tour.title)}</strong> \xB7 ${tourStep + 1} of ${tour.steps.length}</p><p>${esc(step.text)}${citeHTML(step.cite)}</p>`;
+    await bubble("bot", html, plain);
+    const more = tourStep < tour.steps.length - 1;
+    setChips(more ? ["Next step", "Stop the tour"] : ["Quiz me", "Cheat codes"]);
+    if (!more) tour = null;
+  }
+  function startQuiz() {
+    tour = null;
+    quizIndex = 0;
+    return showQuiz();
+  }
+  async function showQuiz() {
+    const item = book.quizzes[quizIndex];
+    const choices = item.choices.map((choice, index) => `<button type="button" data-guide-answer="${index}">${esc(choice)}</button>`).join("");
+    await bubble("bot", `<p>${esc(item.q)}</p><div class="guide-choices">${choices}</div>`, item.q);
+    setChips(["Stop the quiz"]);
+  }
+  async function grade(index) {
+    const item = book.quizzes[quizIndex];
+    const ok = index === item.answer;
+    const plain = `${ok ? "Correct." : "Not quite."} ${item.why}`;
+    await bubble("bot", `<p>${ok ? "Correct." : "Not quite."} ${esc(item.why)}${citeHTML(item.cite)}</p>`, plain);
+    quizIndex += 1;
+    if (quizIndex < book.quizzes.length) {
+      setChips(["Next question", "Stop the quiz"]);
+    } else {
+      quizIndex = -1;
+      await bubble("bot", "<p>That is the end of this quiz. The items are the same facts as the cheat sheets.</p>", "That is the end of this quiz. The items are the same facts as the cheat sheets.");
+      setChips(book.chips);
+    }
+  }
+  async function respond(question) {
+    const trimmed = question.trim();
+    if (!trimmed) return;
+    await bubble("user", `<p>${esc(trimmed)}</p>`, trimmed);
+    if (/^next step$/i.test(trimmed) && tour) {
+      tourStep += 1;
+      await showTourStep();
+      return;
+    }
+    if (/^stop the tour$/i.test(trimmed)) {
+      tour = null;
+      await bubble("bot", "<p>Tour stopped. The pages you already opened are unchanged.</p>", "Tour stopped. The pages you already opened are unchanged.");
+      setChips(book.chips);
+      return;
+    }
+    if (/^next question$/i.test(trimmed) && quizIndex >= 0) {
+      await showQuiz();
+      return;
+    }
+    if (/^stop the quiz$/i.test(trimmed)) {
+      quizIndex = -1;
+      await bubble("bot", "<p>Quiz stopped.</p>", "Quiz stopped.");
+      setChips(book.chips);
+      return;
+    }
+    if (/quiz me|start a quiz|another quiz/i.test(trimmed)) {
+      await startQuiz();
+      return;
+    }
+    const tourHit = bestTour(trimmed);
+    if (tourHit) {
+      await startTour(tourHit);
+      return;
+    }
+    const entry = bestEntry(trimmed);
+    if (entry) {
+      await sayEntry(entry);
+      setChips(book.chips);
+      return;
+    }
+    try {
+      const remote = await askEndpoint(trimmed);
+      if (remote && remote.entry) {
+        await sayEntry(remote.entry, "Named by the configured guide endpoint. The sentence is still from this campus. ");
+        setChips(book.chips);
+        return;
+      }
+      if (remote && remote.miss) {
+        await sayFallback(remote.miss);
+        return;
+      }
+    } catch {
+      await sayFallback("The guide endpoint could not be reached.");
+      return;
+    }
+    await sayFallback("");
+  }
+  async function mountGuide() {
+    const root = document.querySelector("#guide");
+    const panel = document.querySelector("#guide-panel");
+    const open = document.querySelector("#guide-open");
+    const form = document.querySelector("#guide-form");
+    if (!root || !panel || !open || !form || root.dataset.bound) return;
+    root.dataset.bound = "1";
+    globalThis.SIP_GUIDE = {
+      configure: configureGuide,
+      get endpoint() {
+        return endpoint;
+      }
+    };
+    const setOpen = (on) => {
+      panel.hidden = !on;
+      open.setAttribute("aria-expanded", on ? "true" : "false");
+      if (on) document.querySelector("#guide-q")?.focus();
+    };
+    open.addEventListener("click", () => setOpen(panel.hidden));
+    document.querySelector("#guide-close")?.addEventListener("click", () => setOpen(false));
+    document.querySelector("#quick-guide")?.addEventListener("click", () => setOpen(true));
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const input = document.querySelector("#guide-q");
+      const value = input.value;
+      input.value = "";
+      respond(value);
+    });
+    chipsEl()?.addEventListener("click", (event) => {
+      const chip = event.target.closest("[data-guide-chip]");
+      if (!chip) return;
+      respond(chip.textContent || "");
+    });
+    logEl()?.addEventListener("click", (event) => {
+      const choice = event.target.closest("[data-guide-answer]");
+      const host = logEl();
+      if (!choice || quizIndex < 0 || !host || choice.closest(".guide-bubble") !== host.lastElementChild) return;
+      choice.closest(".guide-choices")?.querySelectorAll("button").forEach((button) => {
+        button.disabled = true;
+      });
+      grade(Number(choice.dataset.guideAnswer));
+    });
+    try {
+      book = await loadJSON("data/guidebot.json");
+    } catch {
+      book = null;
+    }
+    if (!book) {
+      await bubble("bot", "<p>The guide file did not load. I will not guess.</p>", "The guide file did not load. I will not guess.");
+      return;
+    }
+    await bubble("bot", `<p>${esc(book.intro)}</p>`, book.intro);
+    setChips(book.chips);
+  }
+
+  // ../../workspace/campus/js/app.js
   var view = document.querySelector("#view");
   var titleEl = document.querySelector("#view-title");
   var announcer = document.querySelector("#announcer");
@@ -4584,36 +4957,8 @@
   var bottom = document.querySelector("#bottom");
   var pill = document.querySelector("#progress-pill");
   var PROG = "sip-universe-progress";
-  var NAV = [
-    { href: "#/", label: "Home", group: "Learn", mobile: "Home" },
-    { href: "#/tracks", label: "Tracks", group: "Learn", mobile: "Tracks" },
-    { href: "#/labs", label: "Labs", group: "Learn" },
-    { href: "#/guide", label: "Field guide", group: "Learn" },
-    { href: "#/boss", label: "Boss incidents", group: "Learn" },
-    { href: "#/interview", label: "Interview", group: "Learn" },
-    { href: "#/play", label: "Practice", group: "Learn" },
-    { href: "#/tools/ladder", label: "Ladders", group: "Tools", mobile: "Tools" },
-    { href: "#/tools/dissector", label: "Dissector", group: "Tools" },
-    { href: "#/tools/sdp", label: "SDP negotiator", group: "Tools" },
-    { href: "#/tools/sandbox", label: "Normalization", group: "Tools" },
-    { href: "#/tools/capture", label: "Capture bench", group: "Tools" },
-    { href: "#/play/builder", label: "Flow builder", group: "Tools" },
-    { href: "#/explorer", label: "Flow explorer", group: "Tools" },
-    { href: "#/topology", label: "3D topology", group: "Tools", mobile: "Map" },
-    { href: "#/atlas", label: "Diagrams", group: "Field" },
-    { href: "#/flows", label: "Flows", group: "Field" },
-    { href: "#/charts", label: "Charts", group: "Field" },
-    { href: "#/ports", label: "Ports", group: "Field" },
-    { href: "#/glossary", label: "Glossary", group: "Field" },
-    { href: "#/ecosystem", label: "Ecosystem", group: "Field" },
-    { href: "#/certs", label: "Certifications", group: "Field" },
-    { href: "#/career", label: "Career", group: "Field" },
-    { href: "#/roadmap", label: "Roadmap", group: "Field" },
-    { href: "#/downloads", label: "Cheat codes", group: "Field" },
-    { href: "#/badges", label: "Badges", group: "Field" },
-    { href: "#/faults", label: "Faults", group: "Field" }
-  ];
   var catalog = null;
+  var menuQuery = "";
   var cleanup = () => {
   };
   var routeGen = 0;
@@ -4642,12 +4987,12 @@
   }
   function updatePill() {
     const data = progress();
-    const done = Object.values(data.lessons).filter((row) => row.read || row.quizN && row.quiz / row.quizN >= 0.8).length;
+    const done = Object.values(data.lessons).filter((row2) => row2.read || row2.quizN && row2.quiz / row2.quizN >= 0.8).length;
     const total = catalog ? catalog.stats.lessons : 0;
     pill.textContent = total ? `${done}/${total} read` : `${done} read`;
   }
   function markPrime(path) {
-    document.querySelectorAll(".prime a").forEach((link) => {
+    document.querySelectorAll(".prime a, .study-nav a").forEach((link) => {
       const href = link.getAttribute("href");
       const on = path === href || href !== "#/" && path.startsWith(href);
       if (on) link.setAttribute("aria-current", "page");
@@ -4668,42 +5013,23 @@
     announcer.textContent = text2;
     titleEl.focus();
   }
-  function navCurrent(path, href) {
-    if (href === "#/tracks") {
-      return path === "#/tracks" || path.startsWith("#/track/") || path.startsWith("#/lesson/") || path === "#/labs" || path.startsWith("#/guide") || path.startsWith("#/boss") || path.startsWith("#/interview");
-    }
-    if (href === "#/") return path === "#/" || path === "";
-    return path === href || path.startsWith(`${href}/`);
-  }
-  function fillPhoneMenu(path) {
-    const list = document.querySelector("#phone-menu-list");
-    if (!list) return;
-    const groups = ["Learn", "Tools", "Field"];
-    list.innerHTML = groups.map((group) => {
-      const links = NAV.filter((item) => item.group === group).map((item) => {
-        const current = navCurrent(path, item.href) ? ' aria-current="page"' : "";
-        return `<a href="${item.href}"${current}>${esc(item.label)}</a>`;
-      }).join("");
-      return `<h2>${group}</h2>${links}`;
-    }).join("");
-  }
   function paintNav(path) {
-    const groups = ["Learn", "Tools", "Field"];
-    rail.innerHTML = groups.map((group) => {
-      const links = NAV.filter((item) => item.group === group).map((item) => {
-        const current = path === item.href ? ' aria-current="page"' : "";
-        return `<a href="${item.href}"${current}>${esc(item.label)}</a>`;
-      }).join("");
-      return `<h2>${group}</h2>${links}`;
-    }).join("") + `<button type="button" class="rail-settings" id="rail-settings">Settings</button>`;
-    rail.querySelector("#rail-settings").addEventListener("click", openSettings);
+    const active2 = document.activeElement;
+    const html = menuRows(path, menuQuery);
+    const railList = document.querySelector("#rail-list");
+    if (railList) {
+      railList.innerHTML = `${html}<button type="button" class="menu-item rail-settings" id="rail-settings">${iconHTML2("settings")}<span class="menu-copy"><strong>Settings</strong><small>Theme, motion, sound, and type size.</small></span></button>`;
+      railList.querySelector("#rail-settings").addEventListener("click", openSettings);
+    }
+    const phoneList = document.querySelector("#phone-menu-list");
+    if (phoneList) phoneList.innerHTML = html;
     markPrime(path);
     bottom.querySelectorAll("a").forEach((link) => {
       const href = link.getAttribute("href");
       if (navCurrent(path, href)) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     });
-    fillPhoneMenu(path);
+    if (active2 && (active2.id === "rail-q" || active2.id === "menu-q")) active2.focus();
   }
   var menuHistory = false;
   function setMenuExpanded(open) {
@@ -4714,7 +5040,7 @@
   function openPhoneMenu() {
     const dialog = document.querySelector("#phone-menu");
     if (!dialog || dialog.open) return;
-    fillPhoneMenu(parseHash().path);
+    paintNav(parseHash().path);
     dialog.showModal();
     setMenuExpanded(true);
     history.pushState({ sipMenu: true }, "");
@@ -4747,8 +5073,24 @@
     if ((location.hash || "#/") !== "#/") location.hash = "#/";
     tryPlay(0);
   }
+  function bindMenuSearch() {
+    document.querySelectorAll("#rail-q, #menu-q").forEach((input) => {
+      input.addEventListener("input", () => {
+        menuQuery = input.value;
+        document.querySelectorAll("#rail-q, #menu-q").forEach((other) => {
+          if (other !== input) other.value = menuQuery;
+        });
+        paintNav(parseHash().path);
+      });
+    });
+  }
   function bindPhoneMenu() {
+    bindMenuSearch();
     document.querySelector("#menu-open")?.addEventListener("click", openPhoneMenu);
+    document.querySelector("#menu-listen")?.addEventListener("click", () => {
+      closePhoneMenu();
+      listenClip();
+    });
     document.querySelector("#quick-menu")?.addEventListener("click", openPhoneMenu);
     document.querySelector("#quick-listen")?.addEventListener("click", listenClip);
     document.querySelector("#phone-menu-close")?.addEventListener("click", closePhoneMenu);
@@ -4862,7 +5204,8 @@
         <audio id="architect-use" controls preload="none" src="audio/architect-use.mp3"></audio>
         <audio id="architect-share" controls preload="none" src="audio/architect-share.mp3"></audio>
         <p class="fine">Scripts: <a href="audio/scripts/architect-use.md">how to view</a> \xB7 <a href="audio/scripts/architect-share.md">how to practise and share</a>.</p>
-        <p><a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing">Rate, comment, or help on the repository</a> \xB7 <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Contact</a></p>
+        <p>Lucky is a lifelong student and an AI enthusiast. The path here runs through systems, networking, voice, and the contact center, and it is growing into AI omni-channel agents. This campus is that study, wider than a UC engineer title.</p>
+        <p><a href="https://github.com/CypherMonkeyLabs" rel="noopener noreferrer">Visit the Labs org</a> \xB7 <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Contact</a></p>
       </section>
       <h2>Signal, in motion</h2>
       <div id="home-atlas"></div>
@@ -4912,8 +5255,8 @@
   function trackCard(track) {
     const data = progress();
     const done = track.lessons.filter((lesson) => {
-      const row = data.lessons[lessonKey(track.id, lesson.id)];
-      return row && (row.read || row.quizN && row.quiz / row.quizN >= 0.8);
+      const row2 = data.lessons[lessonKey(track.id, lesson.id)];
+      return row2 && (row2.read || row2.quizN && row2.quiz / row2.quizN >= 0.8);
     }).length;
     const pct = Math.round(done / track.lessons.length * 100);
     const ring = (188.4 * pct / 100).toFixed(1);
@@ -5243,7 +5586,9 @@
   async function renderEcosystem() {
     const data = await loadJSON("data/ecosystem.json");
     setTitle("Ecosystem");
+    const author = data.author ? `<section class="panel" id="campus-author"><h2>${esc(data.author.title)}</h2><p>${esc(data.author.blurb)}</p>${citeLinks(data.author.cites)}</section>` : "";
     view.innerHTML = `${iconHTML("ecosystem")}<p class="lede">${esc(data.summary)}</p>
+    ${author}
     <h2>Neighboring systems</h2>
     <div class="card-grid">${data.sisters.map((item) => `<article class="card"><h3>${esc(item.name)}</h3><p>${esc(item.blurb)}</p>${citeLinks(item.cites)}</article>`).join("")}</div>
     <h2>Where SIP shows up in the UC stack</h2>
@@ -5251,7 +5596,7 @@
     ${illustration(data.map)}
     <h2>Timeline</h2>
     <div class="scroll"><table><thead><tr><th scope="col">RFC</th><th scope="col">Date</th><th scope="col">Title</th><th scope="col">Status note</th></tr></thead><tbody>
-      ${data.timeline.map((row) => `<tr><td><a href="${esc(row.url)}">${esc(row.rfc)}</a></td><td>${esc(row.date || "see RFC")}</td><td>${esc(row.title)}</td><td>${esc(row.note || "")}</td></tr>`).join("")}
+      ${data.timeline.map((row2) => `<tr><td><a href="${esc(row2.url)}">${esc(row2.rfc)}</a></td><td>${esc(row2.date || "see RFC")}</td><td>${esc(row2.title)}</td><td>${esc(row2.note || "")}</td></tr>`).join("")}
     </tbody></table></div>`;
     return () => {
     };
@@ -5473,6 +5818,7 @@
     }
     updatePill();
     bindChrome(catalog);
+    mountGuide();
     window.addEventListener("hashchange", render);
     if (!location.hash) location.hash = "#/";
     else render();
@@ -5485,7 +5831,7 @@
               fetch(track.file).catch(() => {
               });
             });
-            ["data/glossary.json", "data/boss.json", "data/interview.json", "data/ecosystem.json", "data/certs.json", "data/labs.json", "data/samples.json", "data/ports.json", "data/fieldguide.json", "data/daily.json", "downloads/manifest.json"].forEach((path) => {
+            ["data/glossary.json", "data/boss.json", "data/interview.json", "data/ecosystem.json", "data/certs.json", "data/labs.json", "data/samples.json", "data/ports.json", "data/fieldguide.json", "data/daily.json", "data/guidebot.json", "downloads/manifest.json"].forEach((path) => {
               fetch(path).catch(() => {
               });
             });

@@ -6,7 +6,9 @@
   <title>SIP Universe</title>
   <meta name="description" content="SIP Universe is a field guide to SIP, SDP, RTP/SRTP, NAT, ICE, and session border controllers, with ladders, labs, and cited sources.">
   <meta name="theme-color" content="#070112">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%2307111c' width='32' height='32' rx='6'/%3E%3Cpath d='M6 16h8M18 10l8 6-8 6' stroke='%233ddcff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="favicon.svg">
   <script>
     if (location.protocol !== "file:") {
       var manifestLink = document.createElement("link");
@@ -24,6 +26,7 @@
       if (saved.theme) document.documentElement.dataset.theme = saved.theme;
       if (saved.font) document.documentElement.dataset.font = saved.font;
       if (saved.motion) document.documentElement.dataset.motion = saved.motion;
+      else if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.dataset.motion = "reduce";
       if (saved.lang) {
         document.documentElement.lang = saved.lang;
         document.documentElement.dir = saved.lang === "ar" ? "rtl" : "ltr";
@@ -32,6 +35,41 @@
   </script>
 </head>
 <body>
+  <svg class="sprite" aria-hidden="true">
+    <symbol id="ico-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v8H4z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-tracks" viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-labs" viewBox="0 0 24 24"><path d="M9 3v7L5 19a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3l-4-9V3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 3h6" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-guide" viewBox="0 0 24 24"><path d="M6 4h11a2 2 0 0 1 2 2v14H8a2 2 0 0 0-2 2z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-boss" viewBox="0 0 24 24"><path d="M12 4 3 19h18z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-interview" viewBox="0 0 24 24"><path d="M5 6h14v9H8l-3 3z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></symbol>
+    <symbol id="ico-ladder" viewBox="0 0 24 24"><path d="M7 4v16M17 4v16M7 9h10M7 15h10" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-dissector" viewBox="0 0 24 24"><path d="M8 6 3 12l5 6M16 6l5 6-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-sdp" viewBox="0 0 24 24"><path d="M3 14c2-4 4-4 6 0s4 4 6 0 4-4 6 0" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-sandbox" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16M8 6v4M16 14v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-capture" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-builder" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-explorer" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="18" cy="7" r="2" fill="currentColor"/><circle cx="18" cy="17" r="2" fill="currentColor"/><path d="M8 12h8M16 8l-8 3M16 16l-8-3" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-topology" viewBox="0 0 24 24"><path d="M12 3 21 8v8l-9 5-9-5V8z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-diagrams" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 7h4v7" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-flows" viewBox="0 0 24 24"><path d="M4 7h12M4 17h12M16 4l4 3-4 3M8 14l-4 3 4 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ico-charts" viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-ports" viewBox="0 0 24 24"><path d="M8 4v6M16 4v6M6 10h12v6a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-glossary" viewBox="0 0 24 24"><path d="M6 4h9a3 3 0 0 1 3 3v13H9a3 3 0 0 0-3 3zM6 4v16" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-ecosystem" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="5" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="19" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="5" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="19" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="m7 8 3 3M17 8l-3 3M7 16l3-3M17 16l-3-3" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-certs" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="m9 13-1 8 4-2 4 2-1-8" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-career" viewBox="0 0 24 24"><path d="M4 18c2-6 4-8 8-8s6 2 8 8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="6" r="2" fill="currentColor"/></symbol>
+    <symbol id="ico-roadmap" viewBox="0 0 24 24"><path d="M5 20V6l6 3 6-3 2 1v13l-2-1-6 3-6-3z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-cheats" viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 3v5h5M9 13h6M9 17h6" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-downloads" viewBox="0 0 24 24"><path d="M12 4v10M8 10l4 4 4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-badges" viewBox="0 0 24 24"><path d="m12 3 2.5 5 5.5.8-4 3.9.9 5.5L12 16l-4.9 2.2.9-5.5-4-3.9 5.5-.8z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-faults" viewBox="0 0 24 24"><path d="M14 4 8 14h5l-1 6 6-10h-5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="ico-regions" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 12h16M12 4c2 2.5 2 13.5 0 16M12 4c-2 2.5-2 13.5 0 16" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="ico-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-listen" viewBox="0 0 24 24"><path d="M4 10v4h3l4 3V7L7 10zM16 9a4 4 0 0 1 0 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="ico-bot" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7V4M9 12h.01M15 12h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  </svg>
   <a class="skip" href="#main">Skip to content</a>
   <div class="read-progress" id="read-progress"></div>
   <div class="shell">
@@ -68,23 +106,22 @@
         </div>
       </header>
       <nav class="prime" aria-label="Campus">
-        <a href="#/atlas" data-i18n="diagrams">Diagrams</a>
-        <a href="#/flows" data-i18n="flows">Flows</a>
-        <a href="#/charts" data-i18n="charts">Charts</a>
-        <a href="#/downloads" data-i18n="cheats">Cheat Codes</a>
-        <a href="#/play" data-i18n="play">Play</a>
-        <a href="#/ecosystem" data-i18n="ecosystem">Ecosystem</a>
-        <a href="#/downloads" data-i18n="downloads">Downloads</a>
-        <a href="#/career" data-i18n="careers">Careers</a>
-        <a href="#/regions" data-i18n="regions">Regions</a>
+        <a class="menu-item" href="#/atlas"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-diagrams"></use></svg><span class="menu-copy"><strong data-i18n="diagrams">Diagrams</strong><small>Stacks, ladders, and borders.</small></span></a>
+        <a class="menu-item" href="#/flows"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-flows"></use></svg><span class="menu-copy"><strong data-i18n="flows">Flows</strong><small>Animated call, signal, and media sequences.</small></span></a>
+        <a class="menu-item" href="#/charts"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-charts"></use></svg><span class="menu-copy"><strong data-i18n="charts">Charts</strong><small>Counts from the catalog and the ports table.</small></span></a>
+        <a class="menu-item" href="#/downloads"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-cheats"></use></svg><span class="menu-copy"><strong data-i18n="cheats">Cheat Codes</strong><small>One-page sheets and the printable flashcard deck.</small></span></a>
+        <a class="menu-item" href="#/play"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-play"></use></svg><span class="menu-copy"><strong data-i18n="play">Play</strong><small>Games and the flow builder.</small></span></a>
+        <a class="menu-item" href="#/ecosystem"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-ecosystem"></use></svg><span class="menu-copy"><strong data-i18n="ecosystem">Ecosystem</strong><small>Neighbors that hang off the SIP session.</small></span></a>
+        <a class="menu-item" href="#/downloads"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-downloads"></use></svg><span class="menu-copy"><strong data-i18n="downloads">Downloads</strong><small>The same sheets, listed for saving.</small></span></a>
+        <a class="menu-item" href="#/career"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-career"></use></svg><span class="menu-copy"><strong data-i18n="careers">Careers</strong><small>Practice seats. Not a hiring promise.</small></span></a>
+        <a class="menu-item" href="#/regions"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-regions"></use></svg><span class="menu-copy"><strong data-i18n="regions">Regions</strong><small>Cited facts, plus examples marked as examples.</small></span></a>
       </nav>
       <nav class="linkbar" aria-label="CypherMonkey">
-        <a href="https://cyphermonkeylabs.com" rel="noopener noreferrer">Labs</a>
-        <a href="https://linktr.ee/cyphermonkey" rel="noopener noreferrer">Linktree</a>
-        <a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing" rel="noopener noreferrer">Rate, comment, help</a>
-        <a href="https://dev.to/cyphermonkey" rel="noopener noreferrer">DEV</a>
-        <a href="https://huggingface.co/Cypher0x9" rel="noopener noreferrer">Hugging Face</a>
-        <a href="https://x.com/Cypher0x9" rel="noopener noreferrer">X</a>
+        <a class="brand-link" href="https://github.com/cipher0x9" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg><span>Visit my GitHub</span></a>
+        <a class="brand-link" href="https://github.com/CypherMonkeyLabs" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg><span>Visit the Labs org</span></a>
+        <a class="brand-link" href="https://cyphermonkeylabs.com" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="7" cy="9" r="3.2" fill="#ff2bd6"/><circle cx="17" cy="9" r="3.2" fill="#ff2bd6"/><circle cx="12" cy="13" r="6" fill="#39ff14"/><circle cx="10" cy="12.4" r="0.9" fill="#071208"/><circle cx="14" cy="12.4" r="0.9" fill="#071208"/><path d="M10 15.2c.8.8 3.2.8 4 0" stroke="#071208" stroke-width="1" fill="none" stroke-linecap="round"/></svg><span>Visit Cypher Monkey Labs</span></a>
+        <a class="brand-link" href="https://x.com/Cypher0x9" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>X</span></a>
+        <a class="brand-link" href="https://huggingface.co/Cypher0x9" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#FFD21E"/><circle cx="9" cy="11" r="1.15" fill="#111"/><circle cx="15" cy="11" r="1.15" fill="#111"/><path d="M8.2 14.2c1.3 1.8 6.3 1.8 7.6 0" stroke="#111" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg><span>Hugging Face</span></a>
         <div class="swatches" role="group" aria-label="Theme">
           <button type="button" data-set-theme="holographic" aria-pressed="false"><span class="swatch-label">Holographic</span></button>
           <button type="button" data-set-theme="neon" aria-pressed="true"><span class="swatch-label">Neon</span></button>
@@ -93,9 +130,22 @@
           <button type="button" data-set-theme="light" aria-pressed="false"><span class="swatch-label">Light</span></button>
         </div>
       </nav>
+      <nav class="study-nav" aria-label="Study">
+        <a class="menu-item" href="#/atlas"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-diagrams"></use></svg><span class="menu-copy"><strong>Diagrams</strong><small>Stacks, ladders, and borders.</small></span></a>
+        <a class="menu-item" href="#/flows"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-flows"></use></svg><span class="menu-copy"><strong>Flows</strong><small>Animated call and media sequences.</small></span></a>
+        <a class="menu-item" href="#/charts"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-charts"></use></svg><span class="menu-copy"><strong>Charts</strong><small>Counts from the catalog.</small></span></a>
+        <a class="menu-item" href="#/downloads"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-cheats"></use></svg><span class="menu-copy"><strong>Cheat Codes</strong><small>Sheets you can download.</small></span></a>
+        <a class="menu-item" href="#/ecosystem"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-ecosystem"></use></svg><span class="menu-copy"><strong>Ecosystem</strong><small>Neighbors of the SIP session.</small></span></a>
+      </nav>
     </div>
     <div class="layout">
-      <nav class="rail" id="rail" aria-label="Primary"></nav>
+      <nav class="rail" id="rail" aria-label="Primary">
+        <form class="menu-search" role="search">
+          <label class="sr-only" for="rail-q">Search the menu</label>
+          <input id="rail-q" type="search" placeholder="Search the menu" autocomplete="off">
+        </form>
+        <div id="rail-list"></div>
+      </nav>
       <main id="main">
         <p id="announcer" class="sr-only" aria-live="polite"></p>
         <p id="toast" class="fine" aria-live="polite"></p>
@@ -106,10 +156,15 @@
       </main>
     </div>
     <footer class="site-foot">
-      <p><strong>CypherMonkey</strong> · SIP Universe · independent study campus</p>
+      <p><strong>CypherMonkey</strong> · SIP Universe · Lucky, a lifelong student of systems, networking, voice, and the contact center, growing into AI omni-channel agents.</p>
+      <p class="fine">© 2026 CypherMonkeyLabs 🐒</p>
       <p class="fine">Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
       <p class="foot-links">
-        <a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing" rel="noopener noreferrer">Rate, comment, help</a>
+        <a class="brand-link" href="https://github.com/cipher0x9" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg><span>Visit my GitHub</span></a>
+        <a class="brand-link" href="https://github.com/CypherMonkeyLabs" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg><span>Visit the Labs org</span></a>
+        <a class="brand-link" href="https://cyphermonkeylabs.com" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="7" cy="9" r="3.2" fill="#ff2bd6"/><circle cx="17" cy="9" r="3.2" fill="#ff2bd6"/><circle cx="12" cy="13" r="6" fill="#39ff14"/><circle cx="10" cy="12.4" r="0.9" fill="#071208"/><circle cx="14" cy="12.4" r="0.9" fill="#071208"/><path d="M10 15.2c.8.8 3.2.8 4 0" stroke="#071208" stroke-width="1" fill="none" stroke-linecap="round"/></svg><span>Visit Cypher Monkey Labs</span></a>
+        <a class="brand-link" href="https://x.com/Cypher0x9" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>X</span></a>
+        <a class="brand-link" href="https://huggingface.co/Cypher0x9" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#FFD21E"/><circle cx="9" cy="11" r="1.15" fill="#111"/><circle cx="15" cy="11" r="1.15" fill="#111"/><path d="M8.2 14.2c1.3 1.8 6.3 1.8 7.6 0" stroke="#111" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg><span>Hugging Face</span></a>
         <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Report a concern / takedown</a>
         <a href="https://cyphermonkeylabs.com/#contact" rel="noopener noreferrer">Work with us</a>
         <button type="button" data-offline>Download offline pack</button>
@@ -124,12 +179,28 @@
     </footer>
   </div>
   <nav class="bottom" id="bottom" aria-label="Quick">
-    <a href="#/tracks">Learn</a>
-    <a href="#/atlas">Diagrams</a>
-    <a href="#/play">Play</a>
-    <button type="button" id="quick-menu" aria-expanded="false" aria-controls="phone-menu">Menu</button>
-    <button type="button" id="quick-listen">Listen</button>
+    <a class="menu-item" href="#/tracks"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-tracks"></use></svg><span class="menu-copy"><strong>Learn</strong></span></a>
+    <a class="menu-item" href="#/atlas"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-diagrams"></use></svg><span class="menu-copy"><strong>Diagrams</strong></span></a>
+    <a class="menu-item" href="#/flows"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-flows"></use></svg><span class="menu-copy"><strong>Flows</strong></span></a>
+    <button type="button" class="menu-item" id="quick-guide" aria-controls="guide-panel"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-bot"></use></svg><span class="menu-copy"><strong>Guide</strong></span></button>
+    <button type="button" class="menu-item" id="quick-menu" aria-expanded="false" aria-controls="phone-menu"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-menu"></use></svg><span class="menu-copy"><strong>Menu</strong></span></button>
   </nav>
+  <div class="guide" id="guide">
+    <button type="button" id="guide-open" aria-expanded="false" aria-controls="guide-panel"><svg class="menu-ico" aria-hidden="true" width="22" height="22"><use href="#ico-bot"></use></svg><span>Guide Bot</span></button>
+    <section id="guide-panel" hidden aria-labelledby="guide-title">
+      <header class="guide-bar">
+        <h2 id="guide-title">Guide Bot</h2>
+        <button type="button" id="guide-close">Close</button>
+      </header>
+      <div id="guide-log" aria-live="polite"></div>
+      <div id="guide-chips"></div>
+      <form id="guide-form">
+        <label class="sr-only" for="guide-q">Ask the guide</label>
+        <input id="guide-q" type="text" placeholder="Ask about 100 Trying, dialogs, cheat codes…" autocomplete="off">
+        <button type="submit" class="primary">Send</button>
+      </form>
+    </section>
+  </div>
   <div class="mascot" id="mascot" data-pose="wave" data-look="visor">
     <svg viewBox="0 0 80 96" aria-hidden="true">
       <ellipse cx="40" cy="78" rx="18" ry="12" fill="var(--cc-accent-3)"/>
@@ -238,7 +309,19 @@
         <button type="button" data-set-theme="light" aria-pressed="false">Light</button>
       </div>
       <button type="button" id="menu-settings">Settings</button>
+      <button type="button" id="menu-listen">Listen</button>
     </div>
+    <form class="menu-search" role="search">
+      <label for="menu-q">Search the menu</label>
+      <input id="menu-q" type="search" placeholder="Search the menu" autocomplete="off">
+    </form>
+    <nav class="menu-brands" aria-label="CypherMonkey">
+      <a class="brand-link" href="https://github.com/cipher0x9" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg><span>Visit my GitHub</span></a>
+      <a class="brand-link" href="https://github.com/CypherMonkeyLabs" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg><span>Visit the Labs org</span></a>
+      <a class="brand-link" href="https://cyphermonkeylabs.com" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="7" cy="9" r="3.2" fill="#ff2bd6"/><circle cx="17" cy="9" r="3.2" fill="#ff2bd6"/><circle cx="12" cy="13" r="6" fill="#39ff14"/><circle cx="10" cy="12.4" r="0.9" fill="#071208"/><circle cx="14" cy="12.4" r="0.9" fill="#071208"/><path d="M10 15.2c.8.8 3.2.8 4 0" stroke="#071208" stroke-width="1" fill="none" stroke-linecap="round"/></svg><span>Visit Cypher Monkey Labs</span></a>
+      <a class="brand-link" href="https://x.com/Cypher0x9" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>X</span></a>
+      <a class="brand-link" href="https://huggingface.co/Cypher0x9" rel="noopener noreferrer"><svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#FFD21E"/><circle cx="9" cy="11" r="1.15" fill="#111"/><circle cx="15" cy="11" r="1.15" fill="#111"/><path d="M8.2 14.2c1.3 1.8 6.3 1.8 7.6 0" stroke="#111" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg><span>Hugging Face</span></a>
+    </nav>
     <nav id="phone-menu-list" aria-label="Sections"></nav>
   </dialog>
   <dialog id="more" aria-labelledby="more-title">

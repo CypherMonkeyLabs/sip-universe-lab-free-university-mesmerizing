@@ -268,5 +268,7 @@ html:not([data-motion="reduce"]) .d-march { animation: march 1s linear infinite;
   html:not([data-motion="full"]) .orb-a,
   html:not([data-motion="full"]) .orb-b,
   html:not([data-motion="full"]) .d-march,
-  html:not([data-motion="full"]) .arm { animation: none; }
+  html:not([data-motion="full"]) .arm,
+  html:not([data-motion="full"]) .mascot .lid,
+  html:not([data-motion="full"]) .ticker span { animation: none; }
 }

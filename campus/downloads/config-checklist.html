@@ -3,9 +3,20 @@
 <head>
   <meta charset="utf-8">
   <title>Trunk configuration checklist · SIP Universe</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <style>
+    @font-face {
+      font-family: "Campus UI";
+      src: local("Segoe UI"), local("system-ui"), local("Helvetica Neue"), local("Arial");
+      font-display: swap;
+      size-adjust: 100%;
+      ascent-override: 90%;
+      descent-override: 22%;
+      line-gap-override: 0%;
+    }
     @page { size: letter; margin: 0.45in; }
-    body { font: 13px/1.35 ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
+    body { font: 13px/1.35 "Campus UI", ui-sans-serif, system-ui, sans-serif; color: #142033; margin: 0; background: #f4f7fb; }
     main { max-width: 980px; margin: 0 auto; padding: 18px 18px 8px; background: white; }
     h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.03em; }
     .kicker { color: #0f6e73; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
@@ -25,7 +36,8 @@
   <h1>Trunk configuration checklist</h1>
   <h2>Walk the call before you walk the GUI</h2><p>Transport: UDP retransmits, TCP does not at the SIP layer the same way, TLS adds certificates. Pick the one the peer documents. Destination: an address, or a domain with NAPTR and SRV. Certificates: the name in the certificate has to match the name you dial, or the product’s own override. Codecs: the order in the offer is a preference, not a command. The answer chooses. DTMF: list telephone-event if you want RFC 4733. Do not assume SIP INFO means the same thing on every PBX.</p><p>Identity: some carriers want PAI, some want the From user to be an E.164 they assigned, some want both plus Privacy. Session timers: if one side sends Session-Expires and the other side ignores the refresh, the call ends on that timer. Registration: Expires is a request. The registrar’s 200 picks the actual interval.</p><p><a href="https://www.rfc-editor.org/rfc/rfc3264">RFC 3264</a> · <a href="https://www.rfc-editor.org/rfc/rfc4733">RFC 4733</a> · <a href="https://www.rfc-editor.org/rfc/rfc6086">RFC 6086 INFO</a> · <a href="https://www.rfc-editor.org/rfc/rfc3323">RFC 3323 Privacy</a></p><h2>Trunk worksheet</h2><ul><li>Peer name and whether it is a domain or an IP.</li><li>Transport and port, including the return port.</li><li>TLS profile and the name in the certificate.</li><li>Outbound codec list and ptime.</li><li>DTMF: telephone-event, KPML, or a documented INFO mapping.</li><li>Calling identity headers and the number format.</li><li>Diversion or History-Info, if the carrier uses them.</li><li>Session-Expires and who sends the refresh.</li><li>Media: anchor, bypass, or ICE. RTP port range on the firewall.</li><li>Source addresses allowed to send INVITEs.</li><li>Emergency route and a test number.</li><li>Recording target, if SIPREC or a vendor fork is in scope.</li></ul>
   <footer>
-    <p><a href="https://cyphermonkeylabs.com">cyphermonkeylabs.com</a> · <a href="https://linktr.ee/cyphermonkey">linktr.ee/cyphermonkey</a> · <a href="https://github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing">github.com/cipher0x9/sip-universe-lab-free-university-mesmerizing</a></p>
+    <p>© 2026 CypherMonkeyLabs 🐒</p>
+    <p><a href="https://github.com/cipher0x9">Visit my GitHub</a> · <a href="https://github.com/CypherMonkeyLabs">Visit the Labs org</a> · <a href="https://cyphermonkeylabs.com">Visit Cypher Monkey Labs</a> · <a href="https://x.com/Cypher0x9">X</a> · <a href="https://huggingface.co/Cypher0x9">Hugging Face</a></p>
     <p>Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.</p>
   </footer>
 </main>

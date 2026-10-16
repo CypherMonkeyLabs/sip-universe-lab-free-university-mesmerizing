@@ -1,11 +1,14 @@
 import { esc } from "./draw.js";
 
 function live() {
-  return document.documentElement.dataset.motion !== "reduce";
+  const motion = document.documentElement.dataset.motion;
+  if (motion === "reduce") return false;
+  if (motion === "full") return true;
+  return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 function svg(label, w, h, body) {
-  return `<svg class="atlas-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">
+  return `<svg class="atlas-svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">
     <rect width="${w}" height="${h}" rx="18" fill="var(--cc-bg)" stroke="var(--cc-line)"></rect>
     ${body}
   </svg>`;
@@ -550,21 +553,20 @@ export const ATLAS = [
     title: "REGISTER, from Mermaid",
     caption: "Mermaid 11.12.0 drew this at build time from the same registration sequence. The hand ladder is the one that animates.",
     cite: { label: "RFC 3261 §10", url: "https://www.rfc-editor.org/rfc/rfc3261#section-10" },
-    draw: () => `<img class="atlas-svg" alt="REGISTER sequence drawn by Mermaid" src="diagrams/register.svg">`,
+    draw: () => `<img class="atlas-svg" width="450" height="347" alt="REGISTER sequence drawn by Mermaid" src="diagrams/register.svg">`,
   },
   {
     id: "mermaid-border",
     title: "Border paths, from Mermaid",
     caption: "A teaching sketch of a phone, an SBC, a call agent, and a carrier. Mermaid 11.12.0 drew it at build time. It is not a customer topology.",
     cite: { label: "RFC 7092", url: "https://www.rfc-editor.org/rfc/rfc7092" },
-    draw: () => `<img class="atlas-svg" alt="Phone, SBC, CUCM, and carrier drawn by Mermaid" src="diagrams/border.svg">`,
+    draw: () => `<img class="atlas-svg" width="424" height="174" alt="Phone, SBC, CUCM, and carrier drawn by Mermaid" src="diagrams/border.svg">`,
   },
 ];
 
 const ANIMATED = new Set([
-  "invite-txn", "noninvite", "stun", "turn", "nat", "ice",
-  "register", "prack", "refer", "early", "fork", "timer", "cancel", "stir",
-  "hold", "tls", "srtp-flow", "cutover", "fault-tree",
+  "invite-txn", "noninvite", "nat", "register", "prack", "refer", "early", "fork",
+  "timer", "cancel", "stir", "hold", "tls", "srtp-flow", "cutover",
 ]);
 for (const item of ATLAS) item.animated = ANIMATED.has(item.id);
 
