@@ -887,7 +887,7 @@ function dockBottom() {
   var saved = null;
   try {
     var data = JSON.parse(localStorage.getItem("cg-dock") || "null");
-    if (data && typeof data.bottom === "number") saved = data.bottom;
+    /* The old vertical-only spot is ignored. dragbot.js saves the new one. */
   } catch (error) { saved = null; }
   var dock = 0;
   if (window.matchMedia("(max-width: 720px)").matches) {
@@ -1003,6 +1003,14 @@ function place() {
     placeGreeting();
     return;
   }
+  var sheetNow = window.innerWidth <= 720 && !panel.hidden;
+  if (host.classList.contains("is-moved") && !sheetNow) {
+    // The reader parked the guide. dragbot.js owns the position and the panel slot.
+    host.classList.toggle("is-compact", window.matchMedia("(max-width: 420px)").matches);
+    host.classList.toggle("is-sheet", false);
+    host.classList.toggle("is-open", !panel.hidden);
+    return;
+  }
   var boxes = obstacleBoxes();
   var story = contentBoxes();
   var size = monkeySize();
@@ -1019,6 +1027,29 @@ function place() {
       var cap = Math.max(lift, window.innerHeight - 180);
       if (lift > bottom) bottom = Math.min(lift, cap);
     }
+  }
+  // Step aside, up or down, when the home spot would cover a heading's text.
+  var heads = [];
+  document.querySelectorAll("main h1, main h2, main h3, .hero-live h1").forEach(function (h) {
+    if (h.closest(".cg-root, [hidden]")) return;
+    var g = document.createRange();
+    g.selectNodeContents(h);
+    var r = g.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < window.innerHeight) heads.push(r);
+  });
+  function coversHead(b) {
+    var top = window.innerHeight - b - height, left = window.innerWidth - right - width;
+    return heads.some(function (r) { return left < r.right + 6 && left + width > r.left - 6 && top < r.bottom + 6 && top + height > r.top - 6; });
+  }
+  if (heads.length && coversHead(bottom)) {
+    var floorB = window.innerWidth <= 720 ? Math.max(12, phoneDockHeight() + 12) : 12;
+    var ceilB = Math.max(floorB, window.innerHeight - height - 8);
+    var bestB = null, k;
+    for (k = floorB; k <= ceilB; k += 12) {
+      if (coversHead(k)) continue;
+      if (bestB === null || Math.abs(k - bottom) < Math.abs(bestB - bottom)) bestB = k;
+    }
+    if (bestB !== null) bottom = bestB;
   }
   var monkeyBox = boxAt(right, bottom, width, height);
   var chosen = { right: right, bottom: bottom, slot: needSlot ? findSlot(monkeyBox, boxes.concat(story)) : null };
@@ -1520,38 +1551,13 @@ function startAmbience(name) {
 }
 
 function bind() {
-  var drag = { id: null, moved: false, y: 0, bottom: 0 };
-  monkey.addEventListener("pointerdown", function (event) {
-    if (event.button != null && event.button !== 0) return;
-    drag.id = event.pointerId;
-    drag.moved = false;
-    drag.y = event.clientY;
-    drag.bottom = parseFloat(host.style.getPropertyValue("--cg-bottom")) || dockBottom();
-    try { monkey.setPointerCapture(event.pointerId); } catch (error) { /* pointer capture is optional */ }
-  });
-  monkey.addEventListener("pointermove", function (event) {
-    if (drag.id !== event.pointerId) return;
-    if (!drag.moved && Math.abs(event.clientY - drag.y) < 8) return;
-    drag.moved = true;
-    host.dataset.dragging = "1";
-    var next = drag.bottom + (drag.y - event.clientY);
-    var floor = window.matchMedia("(max-width: 720px)").matches ? 96 : 12;
-    var max = window.innerHeight - monkeySize().height - 8;
-    if (next < floor) next = floor;
-    if (next > max) next = max;
-    host.style.setProperty("--cg-right", "8px");
-    host.style.setProperty("--cg-bottom", Math.round(next) + "px");
-  });
-  function endDrag(event) {
-    if (drag.id !== event.pointerId) return;
-    drag.id = null;
-    host.dataset.dragging = "0";
-    if (!drag.moved) return;
-    var bottom = parseFloat(host.style.getPropertyValue("--cg-bottom")) || dockBottom();
-    try { localStorage.setItem("cg-dock", JSON.stringify({ bottom: bottom })); } catch (error) { /* storage off */ }
-  }
-  monkey.addEventListener("pointerup", endDrag);
-  monkey.addEventListener("pointercancel", endDrag);
+  // Drag, edge snap, tilt and reset live in guide/dragbot.js. It drives the --cg-right and --cg-bottom
+  // variables and calls place() again when the spot is reset.
+  window.CG_PLACE = place;
+  var botTag = document.querySelector("script[src*='guide/guide.js']");
+  var botScript = document.createElement("script");
+  botScript.src = botTag ? botTag.src.replace(/guide\.js(\?.*)?$/, "dragbot.js") : "guide/dragbot.js";
+  document.body.appendChild(botScript);
   host.addEventListener("click", function (event) {
     if (!host.classList.contains("is-greeting") || typeof host._finishGreet !== "function") return;
     if (event.target.closest(".cg-monkey, .cg-nudge")) return;
@@ -1584,12 +1590,6 @@ function bind() {
   });
   handle.addEventListener("pointercancel", function () { sheetDrag.id = null; });
   monkey.addEventListener("click", function (event) {
-    if (drag.moved) {
-      drag.moved = false;
-      event.preventDefault();
-      event.stopPropagation();
-      return;
-    }
     boop();
     if (panel.hidden) {
       openPanel();
