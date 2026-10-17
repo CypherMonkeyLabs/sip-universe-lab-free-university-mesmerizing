@@ -1,5 +1,5 @@
 /* Same-origin cache. The lab does not phone home. */
-var CACHE = "sip-university-v1";
+var CACHE = "sip-university-v2";
 self.addEventListener("install", function (event) {
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE));
