@@ -122,11 +122,12 @@
     var dockGap = 12;
     var limit = dockTop();
     var below = headingBottom() + margin;
-    var maxW = Math.min(420, window.innerWidth - margin * 2);
+    var botCol = window.innerWidth <= 600 && document.querySelector(".cg-root") ? 72 : 0; /* keep the guide monkey's column free */
+    var maxW = Math.min(420, window.innerWidth - margin * 2 - botCol);
     card.style.boxSizing = "border-box";
     card.style.width = maxW + "px";
-    card.style.maxWidth = (window.innerWidth - margin * 2) + "px";
-    card.style.left = Math.max(margin, Math.round((window.innerWidth - maxW) / 2)) + "px";
+    card.style.maxWidth = (window.innerWidth - margin * 2 - botCol) + "px";
+    card.style.left = (botCol ? margin : Math.max(margin, Math.round((window.innerWidth - maxW) / 2))) + "px";
     card.style.right = "auto";
     card.style.transform = "none";
     var room = Math.max(96, limit - dockGap - below);
