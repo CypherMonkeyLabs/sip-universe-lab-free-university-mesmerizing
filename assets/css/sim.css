@@ -1,0 +1,19 @@
+.sim-banner{margin:0 0 1rem;padding:.75rem 1rem;border:2px solid var(--line,#f59e0b);border-radius:12px;background:color-mix(in srgb, var(--bg,#fff) 88%, #fde047)}
+.sim-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:1rem}
+.sim-stage{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem;perspective:800px}
+.sim-node{min-height:4.5rem;border-radius:14px;border:2px solid var(--line,#334155);background:color-mix(in srgb, var(--bg,#0b1020) 80%, #7c3aed);color:inherit;font:inherit;cursor:pointer}
+.sim-node[aria-pressed="true"]{outline:3px solid #fde047;transform:translateZ(12px)}
+.sim-ladder{min-height:12rem;border:1px solid var(--line,#334155);border-radius:12px;padding:.75rem;overflow:auto}
+.sim-row{display:grid;grid-template-columns:5rem 1fr;gap:.5rem;margin:.35rem 0}
+.sim-arrow{height:2px;background:#7c3aed;position:relative}
+.sim-arrow::after{content:"";position:absolute;right:0;top:-4px;border:5px solid transparent;border-left-color:#7c3aed}
+.sim-controls label,.sim-controls button,.sim-controls input{font:inherit}
+.sim-controls button,.sim-controls input{min-height:44px}
+.sim-controls button:focus-visible,.sim-node:focus-visible,.sim-controls input:focus-visible{outline:3px solid #7c3aed;outline-offset:2px}
+.sim-result{white-space:pre-wrap}
+@media (max-width:700px){
+  .sim-layout{grid-template-columns:1fr}
+  .sim-stage{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .sim-controls{padding-bottom:6rem}
+}
+@media (prefers-reduced-motion:reduce){.sim-node{transform:none!important}}

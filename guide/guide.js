@@ -12,8 +12,48 @@
  *   Leave it null and every answer stays in this browser.
  */
 import { createGuide, mergeKb, blankSession } from "./engine.mjs";
+import { createRetriever } from "../shared/pybot-chat/engine.js";
 
 var guideBase = baseUrl();
+var sipbotPromise = null;
+
+function loadSipbot() {
+  if (!sipbotPromise) {
+    var chatCss = document.createElement("link");
+    chatCss.rel = "stylesheet";
+    chatCss.href = guideBase + "shared/pybot-chat/chat.css";
+    document.head.appendChild(chatCss);
+    sipbotPromise = fetch(guideBase + "js/content/sipbot-index.json").then(function (res) {
+      if (!res.ok) throw new Error("sipbot index");
+      return res.json();
+    }).then(function (data) {
+      var bot = createRetriever(data);
+      window.SIPBOT = bot;
+      return bot;
+    });
+    window.SIPBOT_READY = sipbotPromise;
+  }
+  return sipbotPromise;
+}
+
+loadSipbot();
+
+function sipReply(answer) {
+  var quiet = !answer || answer.mode === "fallback" || answer.intent === "help" || answer.intent === "injection" || answer.intent === "greet" || answer.intent === "smalltalk";
+  var links = [];
+  if (answer && answer.href && !quiet) links.push({ href: answer.href, title: answer.link || "Open this page" });
+  var text = (answer && answer.text) || "";
+  if (answer && answer.example) text += "\n\n" + answer.example;
+  var chips = [];
+  if (answer && answer.intent === "help") {
+    chips = ["Where do I start?", "SIP messages", "SDP and offer/answer", "RTP and codecs", "NAT and ICE", "Session border controllers"];
+  } else if (answer && answer.follow) chips = [answer.follow];
+  return { kind: answer && answer.mode === "fallback" ? "fallback" : "answer", text: text, href: links.length ? answer.href : "", links: links, chips: chips, localOnly: true };
+}
+
+function keepGuideMode(message) {
+  return /quiz|tour|course|teach me|flashcard|1-hour/i.test(message || "");
+}
 var session = loadSession();
 var guide = null;
 var kbPromise = null;
@@ -375,30 +415,24 @@ function ask(message) {
   var ctx = context();
   return ensureKb().then(function (ready) {
     var local = ready.route(message, session, ctx);
-    session = local.session;
-    saveSession();
-    var endpoint = window.CANON_GUIDE && window.CANON_GUIDE.endpoint;
-    if (!endpoint || local.reply.kind !== "fallback") return local.reply;
-    return fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: message, href: location.href, context: ctx })
-    }).then(function (res) {
-      if (!res.ok) throw new Error("endpoint");
-      return res.json();
-    }).then(function (data) {
-      if (!data || typeof data.text !== "string" || !data.text) return local.reply;
-      return {
-        kind: "answer",
-        text: "From the connected agent, not from the local notes: " + data.text,
-        href: typeof data.href === "string" ? data.href : "",
-        links: Array.isArray(data.links) ? data.links : [],
-        chips: local.reply.chips,
-        localOnly: false
-      };
+    if (keepGuideMode(message) && local.reply && (local.reply.kind === "quiz" || local.reply.kind === "tour" || local.reply.kind === "course")) {
+      session = local.session;
+      saveSession();
+      return local.reply;
+    }
+    return loadSipbot().then(function (bot) {
+      return sipReply(bot.ask(message, {
+        progress: function () {
+          return { done: 0, total: 132, xpLevel: 1, nextHref: "start.html", nextTitle: "Start here" };
+        }
+      }));
     }).catch(function () {
+      session = local.session;
+      saveSession();
       return local.reply;
     });
+  }).then(function (reply) {
+    return reply;
   });
 }
 
@@ -630,6 +664,7 @@ function openPanel() {
       row.appendChild(button);
     });
     panel.querySelector("[data-offers]").appendChild(row);
+    setChips(["What can you help with?", "Where do I start?", "What is a SIP dialog?", "What is SDP?", "What is an SBC?"]);
     scrollLog();
   }
   host.classList.toggle("is-open", true);

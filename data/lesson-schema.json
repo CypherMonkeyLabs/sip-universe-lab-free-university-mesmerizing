@@ -1,0 +1,6 @@
+{
+  "required": ["key", "title", "level", "outcomes", "sources", "last_verified"],
+  "level": { "min": 0, "max": 10 },
+  "last_verified": "null or YYYY-MM-DD",
+  "notes": "Titles, outcomes, and source ids are checked against the room HTML and data/sources.json."
+}
