@@ -2,6 +2,7 @@
 <html lang="en" data-theme="neon" data-font="md">
 <head>
   <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob: data:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SIP Universe</title>
   <meta name="description" content="SIP Universe is a field guide to SIP, SDP, RTP/SRTP, NAT, ICE, and session border controllers, with ladders, labs, and cited sources.">
@@ -9,31 +10,12 @@
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="favicon.svg">
-  <script>
-    if (location.protocol !== "file:") {
-      var manifestLink = document.createElement("link");
-      manifestLink.rel = "manifest";
-      manifestLink.href = "manifest.webmanifest";
-      document.head.appendChild(manifestLink);
-    }
-  </script>
+  <script src="js/boot-manifest.js"></script>
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/flagship.css">
   <link rel="stylesheet" href="css/visual.css">
   <link rel="stylesheet" href="../guide/guide.css">
-  <script>
-    try {
-      var saved = JSON.parse(localStorage.getItem("sip-universe-settings") || "{}");
-      if (saved.theme) document.documentElement.dataset.theme = saved.theme;
-      if (saved.font) document.documentElement.dataset.font = saved.font;
-      if (saved.motion) document.documentElement.dataset.motion = saved.motion;
-      else if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.dataset.motion = "reduce";
-      if (saved.lang) {
-        document.documentElement.lang = saved.lang;
-        document.documentElement.dir = saved.lang === "ar" ? "rtl" : "ltr";
-      }
-    } catch (e) {}
-  </script>
+  <script src="js/boot-settings.js"></script>
 </head>
 <body>
   <svg class="sprite" aria-hidden="true">
@@ -341,16 +323,8 @@
   <script src="vendor/rough.js"></script>
   <script src="vendor/confetti.browser.js"></script>
   <script src="vendor/markmap-view.js"></script>
-  <script>
-    if (location.protocol === "file:") {
-      document.write('<script src="js/embedded-data.js"><\/script>');
-    }
-  </script>
+  <script src="js/boot-file-data.js"></script>
   <script src="js/campus.iife.js"></script>
-<script>
-    if (location.protocol !== "file:") {
-      import("../guide/guide.js").catch(function () {});
-    }
-  </script>
+<script type="module" src="js/boot-guide.js"></script>
 </body>
 </html>

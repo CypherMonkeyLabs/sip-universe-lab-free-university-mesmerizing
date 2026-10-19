@@ -2,6 +2,8 @@
 (function () {
   var root = document.querySelector("[data-sip-sim]");
   if (!root) return;
+  var form = root.querySelector("form");
+  if (form) form.addEventListener("submit", function (event) { event.preventDefault(); });
   var state = { phase: "idle", who: "Alice", cLine: "203.0.113.20", port: "49170", loose: true, requestUri: "sip:bob@example.com" };
   var log = [];
   var ladder = root.querySelector("[data-ladder]");

@@ -19,6 +19,7 @@ export const BRAND_LINKS =
 export function standaloneDocument(title, bodyHtml, sourcesHtml) {
   var name = String(title || "Export").replace(/[<>]/g, "");
   return "<!DOCTYPE html>\n<html lang=\"en\"><head><meta charset=\"utf-8\">" +
+    "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob: data:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'\">" +
     "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" +
     "<title>" + name + "</title>" +
     "<style>body{font:18px/1.5 system-ui,sans-serif;margin:24px;color:#1b1340;background:#f8f5ff}" +
