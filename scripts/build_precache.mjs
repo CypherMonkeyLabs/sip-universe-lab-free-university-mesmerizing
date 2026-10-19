@@ -21,6 +21,8 @@ const required = [
   "assets/js/sip-sim.js",
   "assets/js/onboard.js",
   "assets/js/canon.js",
+  "assets/js/theme-boot.js",
+  "assets/js/home-hero-loader.js",
   "assets/js/hero-scene.js",
   "assets/icons/icon-192.png",
   "assets/icons/icon-512.png",

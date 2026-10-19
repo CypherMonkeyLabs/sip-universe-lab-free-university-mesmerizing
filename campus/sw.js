@@ -1,4 +1,4 @@
-const CACHE = "sip-universe-v10";
+const CACHE = "sip-universe-v11";
 const SHELL = [
   "./",
   "./index.html",
@@ -6,6 +6,10 @@ const SHELL = [
   "./css/flagship.css",
   "./css/visual.css",
   "./js/campus.iife.js",
+  "./js/boot-manifest.js",
+  "./js/boot-settings.js",
+  "./js/boot-file-data.js",
+  "./js/boot-guide.js",
   "./vendor/d3.min.js",
   "./vendor/anime.umd.min.js",
   "./vendor/rough.js",

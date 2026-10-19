@@ -13,6 +13,8 @@ const REPO = "https://github.com/CypherMonkeyLabs/sip-universe-lab-free-universi
 const disclaimer = readFileSync(join(root, "assets/disclaimer.html"), "utf8");
 const brandNav = readFileSync(join(root, "assets/brand-nav.html"), "utf8");
 
+const CSP = '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; script-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data: blob:; media-src \'self\' blob: data:; font-src \'self\' data:; connect-src \'self\'; worker-src \'self\' blob:; object-src \'none\'; base-uri \'self\'; form-action \'self\'">';
+
 const LABS = [
   ["UC Lab", "https://cyphermonkeylabs.com/uc-lab-free-university-mesmerizing/"],
   ["AI Lab", "https://cyphermonkeylabs.com/ai-lab-free-university-mesmerizing/"],
@@ -138,10 +140,11 @@ function head(title, desc, depth) {
 <html lang="en">
 <head>
 <meta charset="utf-8">
+${CSP}
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="${esc(desc)}">
 <title>${esc(title)}</title>
-<script>try{var t=localStorage.getItem("canon-theme");if(t==="dark")t="aurora";if(t==="light")t="paper";if(["bloom","aurora","futuristic","gaming","neon","sunset","paper","holographic","cyberpunk","contrast"].indexOf(t)<0)t="bloom";document.documentElement.dataset.theme=t;var f=localStorage.getItem("canon-font");if(f==="sm"||f==="md"||f==="lg")document.documentElement.dataset.font=f;var m=localStorage.getItem("canon-motion");if(m==="reduce"||m==="full")document.documentElement.dataset.motion=m;var ink=localStorage.getItem("canon-ink");if(ink&&/^#[0-9a-f]{6}$/i.test(ink))document.documentElement.style.setProperty("--ink",ink);}catch(e){document.documentElement.dataset.theme="bloom";}</script>
+<script src="${depth}assets/js/theme-boot.js"></script>
 <link rel="stylesheet" href="${depth}assets/css/canon.css">
 <link rel="stylesheet" href="${depth}assets/css/shell.css">
 <link rel="stylesheet" href="${depth}assets/css/wow.css">
@@ -267,7 +270,7 @@ function diagramPage(title, svg, items, depth) {
 }
 
 function standaloneSheet(title, inner, items) {
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>${esc(title)}</title>
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">${CSP}<title>${esc(title)}</title>
 <style>
 body{font:16px/1.45 system-ui,sans-serif;margin:24px;color:#1b1340;background:#fff}
 h1{font-size:1.6rem} table{border-collapse:collapse;width:100%} td,th{border-bottom:1px solid #ddd;padding:4px 6px;text-align:left;vertical-align:top}
@@ -542,7 +545,7 @@ const home = page({
   title: "SIP Universe Free University",
   desc: "SIP, SDP, RTP/SRTP, NAT, ICE, SBCs, and interop. Independent, free, and learning-only.",
   home: true,
-  extra: `<script type="module">if (matchMedia("(min-width: 900px)").matches) { import("./assets/js/hero-scene.js"); import("./assets/js/home-anime.js"); }</script>`,
+  extra: `<script type="module" src="assets/js/home-hero-loader.js"></script>`,
   body: `<section class="world-hero uni-fold" id="uni-fold" data-world>
 <canvas class="world-gl" data-world-canvas width="1440" height="640" aria-hidden="true"></canvas>
 <div class="world-ui">
@@ -594,13 +597,13 @@ ${coreSources}`
 });
 writeFileSync(join(root, "index.html"), home);
 
-const atlasCards = diagrams.map((item) => `<article class="track-card" data-title="${esc(item.title)}"><h2>${esc(item.title)}</h2><p>${item.animated ? "Animated flow" : "Study drawing"} · ${esc(item.kind)}</p><object data="${item.file}" type="image/svg+xml" width="320" height="180"></object><p><a href="${item.file}">SVG</a> · <a href="${item.file.replace(".svg", ".png")}">PNG</a> · <a href="diagrams/pages/${item.id}.html">HTML</a></p></article>`).join("");
+const atlasCards = diagrams.map((item) => `<article class="track-card" data-title="${esc(item.title)}"><h2>${esc(item.title)}</h2><p>${item.animated ? "Animated flow" : "Study drawing"} · ${esc(item.kind)}</p><img src="${item.file}" alt="" width="320" height="180"><p><a href="${item.file}">SVG</a> · <a href="${item.file.replace(".svg", ".png")}">PNG</a> · <a href="diagrams/pages/${item.id}.html">HTML</a></p></article>`).join("");
 writeFileSync(join(root, "diagrams.html"), page({
   title: "Diagram atlas",
   desc: `${diagrams.length} custom SVG diagrams. ${animated} are animated flows.`,
   body: `<h1>Diagram atlas</h1><p class="lede">${diagrams.length} custom SVGs. ${animated} use a moving packet. Count each file once.</p><section id="atlas"><h2>Drawings</h2><div class="room-grid">${atlasCards}</div></section>${sourcesHtml([{ label: "RFC 3261", url: "https://www.rfc-editor.org/rfc/rfc3261", status: opened(log, "https://www.rfc-editor.org/rfc/rfc3261") ? "opened" : "confirm" }])}`
 }));
-const flowCards = diagrams.filter((item) => item.animated).map((item) => `<article class="track-card" data-title="${esc(item.title)}"><h2>${esc(item.title)}</h2><object data="${item.file}" type="image/svg+xml" width="320" height="180"></object><p><a href="${item.href}">Room</a> · <a href="${item.file}">SVG</a></p></article>`).join("");
+const flowCards = diagrams.filter((item) => item.animated).map((item) => `<article class="track-card" data-title="${esc(item.title)}"><h2>${esc(item.title)}</h2><img src="${item.file}" alt="" width="320" height="180"><p><a href="${item.href}">Room</a> · <a href="${item.file}">SVG</a></p></article>`).join("");
 writeFileSync(join(root, "flows.html"), page({
   title: "Animated flows",
   desc: `${animated} animated call and signal flows.`,
@@ -635,20 +638,8 @@ ${barChart("Fault write-ups in each track", faultRows, "Each room in the source 
 </section>
 <script src="vendor/d3.min.js"></script>
 <section id="d3"><h2>Same room counts, drawn with D3</h2><svg id="d3-lessons" class="chart-svg" viewBox="0 0 640 220" role="img" aria-label="D3 bar chart of rooms per track"></svg></section>
-<script>
-(function () {
-  var rows = ${JSON.stringify(byTrack)};
-  var svg = d3.select("#d3-lessons");
-  svg.attr("viewBox", "0 0 " + Math.max(640, 40 + rows.length * 38) + " 220");
-  var max = d3.max(rows, function (row) { return row.value; }) || 1;
-  svg.selectAll("rect").data(rows).enter().append("rect")
-    .attr("x", function (_d, i) { return 20 + i * 38; })
-    .attr("y", function (d) { return 180 - Math.round(d.value / max * 140); })
-    .attr("width", 24)
-    .attr("height", function (d) { return Math.round(d.value / max * 140); })
-    .attr("fill", "#7c3aed");
-})();
-</script>
+<script type="application/json" id="d3-lesson-rows">${JSON.stringify(byTrack)}</script>
+<script src="assets/js/charts-d3.js"></script>
 <script type="module" src="assets/js/chart-rough.js"></script>
 ${sourcesHtml([{ label: "This repository catalog", status: "confirm", note: "confirm" }])}`;
 writeFileSync(join(root, "charts.html"), page({ title: "Charts", desc: "Counts from this SIP lab.", body: chartsBody }));
@@ -823,14 +814,7 @@ writeFileSync(join(root, "ecosystem.html"), page({
   title: "Ecosystem",
   desc: "Systems that hang off a SIP session.",
   extra: `<script src="vendor/d3.min.js"></script><script src="vendor/markmap-view.js"></script>`,
-  body: `<h1>Ecosystem</h1><p>${esc(ecosystem.summary || "")}</p><p>${esc(ecosystem.disclaimer || "Educational only. Not legal advice.")}</p><section id="mind"><h2>Mind map</h2><svg id="mindmap"></svg><pre id="mind-md" hidden>${esc(JSON.stringify(mind))}</pre></section><section id="sisters"><h2>Sister technologies</h2>${ecoSisters}</section><section id="bridges"><h2>Cross-platform bridges</h2>${ecoBridges}</section><section id="config"><h2>Configuration</h2>${ecoConfig}</section><section id="troubleshoot"><h2>Troubleshooting</h2>${ecoTrouble}</section><section id="hooks"><h2>Integration hooks</h2>${ecoHooks}</section><script>
-(function () {
-  var raw = document.getElementById("mind-md").textContent;
-  if (!window.markmap || !window.d3) return;
-  var root = JSON.parse(raw);
-  window.markmap.Markmap.create("svg#mindmap", null, root);
-})();
-</script>${sourcesHtml(citeItems([].concat(ecosystem.sisters || [], ecosystem.bridges || [], ecosystem.config || [], ecosystem.troubleshoot || [], ecosystem.hooks || []).flatMap((item) => item.cites || []), log).slice(0, 12))}`
+  body: `<h1>Ecosystem</h1><p>${esc(ecosystem.summary || "")}</p><p>${esc(ecosystem.disclaimer || "Educational only. Not legal advice.")}</p><section id="mind"><h2>Mind map</h2><svg id="mindmap"></svg><pre id="mind-md" hidden>${esc(JSON.stringify(mind))}</pre></section><section id="sisters"><h2>Sister technologies</h2>${ecoSisters}</section><section id="bridges"><h2>Cross-platform bridges</h2>${ecoBridges}</section><section id="config"><h2>Configuration</h2>${ecoConfig}</section><section id="troubleshoot"><h2>Troubleshooting</h2>${ecoTrouble}</section><section id="hooks"><h2>Integration hooks</h2>${ecoHooks}</section><script src="assets/js/ecosystem-mindmap.js"></script>${sourcesHtml(citeItems([].concat(ecosystem.sisters || [], ecosystem.bridges || [], ecosystem.config || [], ecosystem.troubleshoot || [], ecosystem.hooks || []).flatMap((item) => item.cites || []), log).slice(0, 12))}`
 }));
 
 writeFileSync(join(root, "careers.html"), page({

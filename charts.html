@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob: data:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Counts from this SIP lab.">
 <title>Charts</title>
-<script>try{var t=localStorage.getItem("canon-theme");if(t==="dark")t="aurora";if(t==="light")t="paper";if(["bloom","aurora","futuristic","gaming","neon","sunset","paper","holographic","cyberpunk","contrast"].indexOf(t)<0)t="bloom";document.documentElement.dataset.theme=t;var f=localStorage.getItem("canon-font");if(f==="sm"||f==="md"||f==="lg")document.documentElement.dataset.font=f;var m=localStorage.getItem("canon-motion");if(m==="reduce"||m==="full")document.documentElement.dataset.motion=m;var ink=localStorage.getItem("canon-ink");if(ink&&/^#[0-9a-f]{6}$/i.test(ink))document.documentElement.style.setProperty("--ink",ink);}catch(e){document.documentElement.dataset.theme="bloom";}</script>
+<script src="assets/js/theme-boot.js"></script>
 <link rel="stylesheet" href="assets/css/canon.css">
 <link rel="stylesheet" href="assets/css/shell.css">
 <link rel="stylesheet" href="assets/css/wow.css">
@@ -36,20 +37,8 @@
 </section>
 <script src="vendor/d3.min.js"></script>
 <section id="d3"><h2>Same room counts, drawn with D3</h2><svg id="d3-lessons" class="chart-svg" viewBox="0 0 640 220" role="img" aria-label="D3 bar chart of rooms per track"></svg></section>
-<script>
-(function () {
-  var rows = [{"label":"T01","short":"T01","value":7,"color":"#7c3aed"},{"label":"T02","short":"T02","value":7,"color":"#7c3aed"},{"label":"T03","short":"T03","value":7,"color":"#7c3aed"},{"label":"T04","short":"T04","value":7,"color":"#7c3aed"},{"label":"T05","short":"T05","value":7,"color":"#7c3aed"},{"label":"T06","short":"T06","value":7,"color":"#7c3aed"},{"label":"T07","short":"T07","value":7,"color":"#7c3aed"},{"label":"T08","short":"T08","value":7,"color":"#7c3aed"},{"label":"T09","short":"T09","value":7,"color":"#7c3aed"},{"label":"T10","short":"T10","value":7,"color":"#7c3aed"},{"label":"T11","short":"T11","value":7,"color":"#7c3aed"},{"label":"T12","short":"T12","value":7,"color":"#7c3aed"},{"label":"T13","short":"T13","value":7,"color":"#7c3aed"},{"label":"T14","short":"T14","value":7,"color":"#7c3aed"},{"label":"T15","short":"T15","value":7,"color":"#7c3aed"},{"label":"T16","short":"T16","value":7,"color":"#7c3aed"},{"label":"T17","short":"T17","value":5,"color":"#7c3aed"},{"label":"T18","short":"T18","value":5,"color":"#7c3aed"},{"label":"T19","short":"T19","value":5,"color":"#7c3aed"},{"label":"T20","short":"T20","value":5,"color":"#7c3aed"}];
-  var svg = d3.select("#d3-lessons");
-  svg.attr("viewBox", "0 0 " + Math.max(640, 40 + rows.length * 38) + " 220");
-  var max = d3.max(rows, function (row) { return row.value; }) || 1;
-  svg.selectAll("rect").data(rows).enter().append("rect")
-    .attr("x", function (_d, i) { return 20 + i * 38; })
-    .attr("y", function (d) { return 180 - Math.round(d.value / max * 140); })
-    .attr("width", 24)
-    .attr("height", function (d) { return Math.round(d.value / max * 140); })
-    .attr("fill", "#7c3aed");
-})();
-</script>
+<script type="application/json" id="d3-lesson-rows">[{"label":"T01","short":"T01","value":7,"color":"#7c3aed"},{"label":"T02","short":"T02","value":7,"color":"#7c3aed"},{"label":"T03","short":"T03","value":7,"color":"#7c3aed"},{"label":"T04","short":"T04","value":7,"color":"#7c3aed"},{"label":"T05","short":"T05","value":7,"color":"#7c3aed"},{"label":"T06","short":"T06","value":7,"color":"#7c3aed"},{"label":"T07","short":"T07","value":7,"color":"#7c3aed"},{"label":"T08","short":"T08","value":7,"color":"#7c3aed"},{"label":"T09","short":"T09","value":7,"color":"#7c3aed"},{"label":"T10","short":"T10","value":7,"color":"#7c3aed"},{"label":"T11","short":"T11","value":7,"color":"#7c3aed"},{"label":"T12","short":"T12","value":7,"color":"#7c3aed"},{"label":"T13","short":"T13","value":7,"color":"#7c3aed"},{"label":"T14","short":"T14","value":7,"color":"#7c3aed"},{"label":"T15","short":"T15","value":7,"color":"#7c3aed"},{"label":"T16","short":"T16","value":7,"color":"#7c3aed"},{"label":"T17","short":"T17","value":5,"color":"#7c3aed"},{"label":"T18","short":"T18","value":5,"color":"#7c3aed"},{"label":"T19","short":"T19","value":5,"color":"#7c3aed"},{"label":"T20","short":"T20","value":5,"color":"#7c3aed"}]</script>
+<script src="assets/js/charts-d3.js"></script>
 <script type="module" src="assets/js/chart-rough.js"></script>
 <section id="go-deeper" class="go-deeper"><h2>Sources and go deeper</h2><ul><li>This repository catalog — confirm</li></ul></section>
 </main>

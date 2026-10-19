@@ -13,6 +13,7 @@ const ports = load("ports.json");
 const glossary = load("glossary.json");
 const guide = load("fieldguide.json");
 
+const CSP = '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; script-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data: blob:; media-src \'self\' blob: data:; font-src \'self\' data:; connect-src \'self\'; worker-src \'self\' blob:; object-src \'none\'; base-uri \'self\'; form-action \'self\'">';
 const FOOT = `Independent educational project, not affiliated with or endorsed by any vendor. Trademarks belong to their owners. MIT code, CC BY-NC-SA content.`;
 const CHECKED = "2026-10";
 const LINKS = [
@@ -37,6 +38,7 @@ function page({ title, kicker, body }) {
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  ${CSP}
   <title>${esc(title)} · SIP Universe</title>
   <link rel="icon" href="../favicon.ico" sizes="any">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">

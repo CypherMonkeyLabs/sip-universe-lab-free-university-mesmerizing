@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob: data:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="A browser simulation of a SIP ladder. It does not call a vendor system.">
 <title>Call-flow simulation</title>
@@ -34,7 +35,7 @@
 <div class="sim-ladder" data-ladder aria-live="polite"></div>
 <p>Phase: <strong data-phase>idle</strong></p>
 </div>
-<form class="sim-controls" onsubmit="return false">
+<form class="sim-controls">
 <label>Request-URI <input data-uri type="text" value="sip:bob@example.com" autocomplete="off"></label>
 <label>m-line port <input data-port type="text" inputmode="numeric" value="49170" autocomplete="off"></label>
 <label>c= line
