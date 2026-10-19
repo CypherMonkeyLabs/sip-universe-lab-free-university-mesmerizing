@@ -1,0 +1,343 @@
+{
+  "questions": 102,
+  "beginner": {
+    "total": 40,
+    "relevant": 32,
+    "relevantPct": 80,
+    "confidentWrong": 3,
+    "fallbacks": 4,
+    "fallbackPct": 10
+  },
+  "typo": {
+    "total": 15,
+    "relevant": 11,
+    "relevantPct": 73.3,
+    "confidentWrong": 2,
+    "fallbacks": 2,
+    "fallbackPct": 13.3
+  },
+  "offtopic": {
+    "total": 15,
+    "relevant": 14,
+    "relevantPct": 93.3,
+    "confidentWrong": 1,
+    "fallbacks": 14,
+    "fallbackPct": 93.3
+  },
+  "nav": {
+    "total": 10,
+    "relevant": 10,
+    "relevantPct": 100,
+    "confidentWrong": 0,
+    "fallbacks": 0,
+    "fallbackPct": 0
+  },
+  "inject": {
+    "total": 10,
+    "relevant": 10,
+    "relevantPct": 100,
+    "confidentWrong": 0,
+    "fallbacks": 10,
+    "fallbackPct": 100
+  },
+  "followTurns": {
+    "total": 12,
+    "relevant": 9,
+    "relevantPct": 75,
+    "confidentWrong": 1,
+    "fallbacks": 2,
+    "fallbackPct": 16.7
+  },
+  "followPairs": {
+    "ok": 4,
+    "total": 6
+  },
+  "target": {
+    "offtopicConfidentWrong": 0,
+    "injectConfidentWrong": 0
+  },
+  "confidentWrong": [
+    {
+      "id": "b20",
+      "group": "beginner",
+      "q": "How does a client find a SIP server in DNS?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T01-what-sip-is.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "What SIP is for. SIP creates, changes, and ends sessions, while RTP carries the media those sessions describe."
+    },
+    {
+      "id": "b36",
+      "group": "beginner",
+      "q": "What is an SBC in SIP terms?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T15-glossary-habit.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "A glossary tied to a document. Every term in your notes points at a role and a document, not at a product logo. Source date on the page: 2026-10. If the vendor page changed, treat limits and versions as unconfirmed."
+    },
+    {
+      "id": "b38",
+      "group": "beginner",
+      "q": "How does a browser carry SIP?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T01-what-sip-is.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "What SIP is for. SIP creates, changes, and ends sessions, while RTP carries the media those sessions describe."
+    },
+    {
+      "id": "t03",
+      "group": "typo",
+      "q": "explain sesson timmers",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T13-codec-and-timer-failures.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "488 codecs and 422 session timers. 488 is this UA refusing the session description. 422 is a session interval below Min-SE."
+    },
+    {
+      "id": "t04",
+      "group": "typo",
+      "q": "what is an sdp offfer",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T10-early-delayed.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Early offer and delayed offer. Delayed offer means the INVITE has no SDP. voice-class sip early-offer forced makes the outbound dial peer send an offer in the INVITE. Source date on the page: 2026-10. If the vendor page "
+    },
+    {
+      "id": "o15",
+      "group": "offtopic",
+      "q": "how do I set a BGP MED for a voice route",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T03-record-route.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Record-Route and the route set. A proxy that wants to stay on the dialog prepends a Record-Route URI, and that URI has to contain lr."
+    },
+    {
+      "id": "f03.1",
+      "group": "follow",
+      "pair": "f03",
+      "q": "What is an SDP offer?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T10-early-delayed.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Early offer and delayed offer. Delayed offer means the INVITE has no SDP. voice-class sip early-offer forced makes the outbound dial peer send an offer in the INVITE. Source date on the page: 2026-10. If the vendor page "
+    }
+  ],
+  "misses": [
+    {
+      "id": "b01",
+      "group": "beginner",
+      "q": "What is SIP actually for?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. Closest pages: What SIP is for; One-way audio. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b02",
+      "group": "beginner",
+      "q": "Which port does SIP use on UDP by default?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. Closest pages: Ports, transports, and where a request can go; UDP, TCP, TLS, and WebSocket. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b05",
+      "group": "beginner",
+      "q": "What does the first INVITE in a call usually carry?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. Closest pages: Reading the first INVITE; Emergency calling, location, and the FCC page. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b08",
+      "group": "beginner",
+      "q": "Why do some SIP headers have a one-letter compact form?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b20",
+      "group": "beginner",
+      "q": "How does a client find a SIP server in DNS?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T01-what-sip-is.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "What SIP is for. SIP creates, changes, and ends sessions, while RTP carries the media those sessions describe."
+    },
+    {
+      "id": "b36",
+      "group": "beginner",
+      "q": "What is an SBC in SIP terms?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T15-glossary-habit.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "A glossary tied to a document. Every term in your notes points at a role and a document, not at a product logo. Source date on the page: 2026-10. If the vendor page changed, treat limits and versions as unconfirmed."
+    },
+    {
+      "id": "b38",
+      "group": "beginner",
+      "q": "How does a browser carry SIP?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T01-what-sip-is.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "What SIP is for. SIP creates, changes, and ends sessions, while RTP carries the media those sessions describe."
+    },
+    {
+      "id": "b39",
+      "group": "beginner",
+      "q": "Which open projects are a proxy, a PBX, and a media relay?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "rooms/T18-four-roles.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Four projects, four roles. Read the role each project states. Do not treat them as four names for one PBX."
+    },
+    {
+      "id": "t01",
+      "group": "typo",
+      "q": "what is a sip dialouge",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. Closest pages: What SIP is for; REFER and Replaces. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "t03",
+      "group": "typo",
+      "q": "explain sesson timmers",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T13-codec-and-timer-failures.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "488 codecs and 422 session timers. 488 is this UA refusing the session description. 422 is a session interval below Min-SE."
+    },
+    {
+      "id": "t04",
+      "group": "typo",
+      "q": "what is an sdp offfer",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T10-early-delayed.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Early offer and delayed offer. Delayed offer means the INVITE has no SDP. voice-class sip early-offer forced makes the outbound dial peer send an offer in the INVITE. Source date on the page: 2026-10. If the vendor page "
+    },
+    {
+      "id": "t08",
+      "group": "typo",
+      "q": "diference between stun and turnn",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "o15",
+      "group": "offtopic",
+      "q": "how do I set a BGP MED for a voice route",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T03-record-route.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Record-Route and the route set. A proxy that wants to stay on the dialog prepends a Record-Route URI, and that URI has to contain lr."
+    },
+    {
+      "id": "f03.1",
+      "group": "follow",
+      "pair": "f03",
+      "q": "What is an SDP offer?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T10-early-delayed.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Early offer and delayed offer. Delayed offer means the INVITE has no SDP. voice-class sip early-offer forced makes the outbound dial peer send an offer in the INVITE. Source date on the page: 2026-10. If the vendor page "
+    },
+    {
+      "id": "f05.1",
+      "group": "follow",
+      "pair": "f05",
+      "q": "What is SRTP?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. Closest pages: OPTIONS health and SRTP media; SRTP and two keying methods. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "f05.2",
+      "group": "follow",
+      "pair": "f05",
+      "q": "open it",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. Ask about a lesson first, then say open it."
+    }
+  ]
+}

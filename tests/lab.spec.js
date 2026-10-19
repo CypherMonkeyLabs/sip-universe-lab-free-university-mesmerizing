@@ -16,6 +16,25 @@ test("home, guide, and a lesson render", async ({ page }, info) => {
   await page.screenshot({ path: path.join(shot, `wave-lesson-${size}.png`), fullPage: false });
 });
 
+test("short screen keeps the chat input visible", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 430 });
+  await page.goto("/");
+  await page.locator(".cg-monkey").click();
+  const input = page.locator(".cg-form input");
+  const send = page.locator(".cg-form button[type=submit]");
+  await expect(input).toBeVisible();
+  await expect(send).toBeVisible();
+  const covered = await input.evaluate((el) => {
+    const rect = el.getBoundingClientRect();
+    if (rect.bottom > window.innerHeight || rect.top < 0) return true;
+    const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    return !(hit === el || el.contains(hit));
+  });
+  expect(covered).toBe(false);
+  await expect(page.locator(".phone-dock")).toBeHidden();
+  await expect(page.locator("[data-voice-row]")).toBeHidden();
+});
+
 test("simulator gives instant feedback", async ({ page }) => {
   await page.goto("/simulator.html");
   await expect(page.locator(".sim-banner")).toContainText("Simulation");

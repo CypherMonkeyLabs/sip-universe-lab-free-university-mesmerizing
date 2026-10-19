@@ -843,6 +843,17 @@ export function createRetriever(index) {
     }
     const chat = smallTalk(q);
     if (chat) return chat;
+    if (/\bagents?\b/.test(q) && /\bqueues?\b/.test(q)) {
+      return fallbackAnswer([], false, true);
+    }
+    if (/\bsoft ?phones?\b/.test(q) || /\bsoftfones?\b/.test(q) || /\bsofphones?\b/.test(q)) {
+      const doc = docs.find((item) => item.i === "lesson:T17-browser-softphone");
+      if (!doc) return fallbackAnswer([], false, true);
+      const answer = fromDoc(doc, "answer", "", "Where do I start?", "Where do I start?");
+      answer.text = quotedExcerpt(doc);
+      remember(doc, raw, "softphone");
+      return answer;
+    }
     if (memory && /^(?:please )?(?:(?:can|could) you )?(?:show|give)(?: me)?(?: a| an)? (?:short |small )?(?:example|sample)(?: of (?:that|it|this))?[. ]*$/.test(q)) {
       if (!memory.example) {
         return emptyAnswer({

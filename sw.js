@@ -1,6 +1,6 @@
 /* Same-origin cache. The lab does not phone home.
    SHELL is rewritten by scripts/build_precache.mjs. Keep the markers. */
-var CACHE = "sip-university-v4";
+var CACHE = "sip-university-v5";
 var SHELL = [
   /* precache:start */
   "./",

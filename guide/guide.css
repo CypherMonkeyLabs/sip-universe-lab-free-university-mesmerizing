@@ -205,10 +205,33 @@
   left: 8px;
   right: 8px;
   width: auto;
-  height: var(--cg-sheet-h, auto);
-  max-height: min(62vh, var(--cg-panel-max, 62vh));
+  top: auto;
+  bottom: 8px;
+  height: calc(100dvh - 16px);
+  max-height: calc(100dvh - 16px);
   border-radius: 22px;
   padding-bottom: 10px;
+  overflow: hidden;
+}
+
+html.cg-guide-open .phone-dock {
+  display: none !important;
+}
+
+.cg-root.is-sheet .cg-offers,
+.cg-root.is-sheet .cg-choices,
+.cg-root.is-sheet .cg-log,
+.cg-root.is-sheet .cg-readbar {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.cg-root.is-sheet .cg-form,
+.cg-root.is-sheet .cg-bar,
+.cg-root.is-sheet .cg-chips,
+.cg-root.is-sheet .cg-more {
+  flex: 0 0 auto;
 }
 
 .cg-root.is-sheet .cg-monkey {

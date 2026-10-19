@@ -1,0 +1,356 @@
+{
+  "questions": 102,
+  "beginner": {
+    "total": 40,
+    "relevant": 28,
+    "relevantPct": 70,
+    "confidentWrong": 2,
+    "fallbacks": 10,
+    "fallbackPct": 25
+  },
+  "typo": {
+    "total": 15,
+    "relevant": 12,
+    "relevantPct": 80,
+    "confidentWrong": 2,
+    "fallbacks": 1,
+    "fallbackPct": 6.7
+  },
+  "offtopic": {
+    "total": 15,
+    "relevant": 15,
+    "relevantPct": 100,
+    "confidentWrong": 0,
+    "fallbacks": 15,
+    "fallbackPct": 100
+  },
+  "nav": {
+    "total": 10,
+    "relevant": 10,
+    "relevantPct": 100,
+    "confidentWrong": 0,
+    "fallbacks": 0,
+    "fallbackPct": 0
+  },
+  "inject": {
+    "total": 10,
+    "relevant": 10,
+    "relevantPct": 100,
+    "confidentWrong": 0,
+    "fallbacks": 10,
+    "fallbackPct": 100
+  },
+  "followTurns": {
+    "total": 12,
+    "relevant": 8,
+    "relevantPct": 66.7,
+    "confidentWrong": 1,
+    "fallbacks": 2,
+    "fallbackPct": 16.7
+  },
+  "followPairs": {
+    "ok": 2,
+    "total": 6
+  },
+  "target": {
+    "offtopicConfidentWrong": 0,
+    "injectConfidentWrong": 0
+  },
+  "confidentWrong": [
+    {
+      "id": "b11",
+      "group": "beginner",
+      "q": "How does a proxy stay on the path?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T04-path-service-route.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Path and Service-Route. Path is the inbound vector stored with a binding, and Service-Route is the outbound vector the registrar gives the UA."
+    },
+    {
+      "id": "b17",
+      "group": "beginner",
+      "q": "What is a binding in registration?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T07-threats.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Scanning, hijack, and toll fraud. Scanning, registration hijack, and toll fraud are classes of abuse. The response is authentication, exposure control, and alerting."
+    },
+    {
+      "id": "t03",
+      "group": "typo",
+      "q": "registraton binding",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T07-threats.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Scanning, hijack, and toll fraud. Scanning, registration hijack, and toll fraud are classes of abuse. The response is authentication, exposure control, and alerting."
+    },
+    {
+      "id": "t15",
+      "group": "typo",
+      "q": "sip over websockt",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T17-signaling-planes.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Signaling, JSEP, and the media plane. WebRTC names a browser protocol suite. JSEP leaves the signaling protocol to the application. SIP over WebSocket is one such protocol."
+    },
+    {
+      "id": "f02.1",
+      "group": "follow",
+      "pair": "f02",
+      "q": "How does a proxy stay on the path?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T04-path-service-route.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Path and Service-Route. Path is the inbound vector stored with a binding, and Service-Route is the outbound vector the registrar gives the UA."
+    }
+  ],
+  "misses": [
+    {
+      "id": "b07",
+      "group": "beginner",
+      "q": "What does the branch parameter tie together?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. Closest pages: Alarms that match the failure; Transactions and the branch cookie. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b09",
+      "group": "beginner",
+      "q": "What clocks sit next to T1?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. Closest pages: T1, the transaction timeout, and Timer C; Dial peers select the SIP next hop. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b11",
+      "group": "beginner",
+      "q": "How does a proxy stay on the path?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T04-path-service-route.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Path and Service-Route. Path is the inbound vector stored with a binding, and Service-Route is the outbound vector the registrar gives the UA."
+    },
+    {
+      "id": "b12",
+      "group": "beginner",
+      "q": "What acknowledges a reliable provisional?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b14",
+      "group": "beginner",
+      "q": "What is Min-SE doing near a session timer?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b15",
+      "group": "beginner",
+      "q": "Which request ends a dialog that is already up?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. Closest pages: CANCEL, BYE, and re-INVITE; Match a ladder before you change anything. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b16",
+      "group": "beginner",
+      "q": "What header carries a transfer target in REFER?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. Closest pages: REFER and Replaces; Unity Connection SIP integration. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b17",
+      "group": "beginner",
+      "q": "What is a binding in registration?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T07-threats.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Scanning, hijack, and toll fraud. Scanning, registration hijack, and toll fraud are classes of abuse. The response is authentication, exposure control, and alerting."
+    },
+    {
+      "id": "b18",
+      "group": "beginner",
+      "q": "What do NAPTR and SRV decide?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. Closest pages: Locating a server with RFC 3263; Identity at a trust boundary. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b23",
+      "group": "beginner",
+      "q": "What does an m-line declare?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b35",
+      "group": "beginner",
+      "q": "Why do people disable a SIP ALG?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "b39",
+      "group": "beginner",
+      "q": "What does a SIP OPTIONS ping check?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "t03",
+      "group": "typo",
+      "q": "registraton binding",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T07-threats.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Scanning, hijack, and toll fraud. Scanning, registration hijack, and toll fraud are classes of abuse. The response is authentication, exposure control, and alerting."
+    },
+    {
+      "id": "t05",
+      "group": "typo",
+      "q": "rtcp sender raport",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "t15",
+      "group": "typo",
+      "q": "sip over websockt",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T17-signaling-planes.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Signaling, JSEP, and the media plane. WebRTC names a browser protocol suite. JSEP leaves the signaling protocol to the application. SIP over WebSocket is one such protocol."
+    },
+    {
+      "id": "f02.1",
+      "group": "follow",
+      "pair": "f02",
+      "q": "How does a proxy stay on the path?",
+      "relevant": false,
+      "confidentWrong": true,
+      "clean": false,
+      "href": "rooms/T04-path-service-route.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "Path and Service-Route. Path is the inbound vector stored with a binding, and Service-Route is the outbound vector the registrar gives the UA."
+    },
+    {
+      "id": "f03.1",
+      "group": "follow",
+      "pair": "f03",
+      "q": "What does an m-line declare?",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. I only answer from this lab's lessons. You can also use Search."
+    },
+    {
+      "id": "f04.2",
+      "group": "follow",
+      "pair": "f04",
+      "q": "what about that ALG problem",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "rooms/T08-rport.html",
+      "mode": "answer",
+      "intent": "",
+      "text": "rport and symmetric responses. RFC 3581 adds rport so the response is sent to the source address and port the request came from."
+    },
+    {
+      "id": "f06.2",
+      "group": "follow",
+      "pair": "f06",
+      "q": "and what about ICE",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. I was still on “Media latching on an SBC”, and that follow-up is not in these pages. Closest pages: ICE, STUN, and TURN; ICE candidate types. I only answer from this lab's lessons. You can also use"
+    }
+  ]
+}

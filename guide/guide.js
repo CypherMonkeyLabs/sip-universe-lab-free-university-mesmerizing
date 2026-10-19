@@ -98,7 +98,10 @@ panel.innerHTML =
   '<button type="button" data-along-start>Read along</button>' +
   '<button type="button" data-along-pause>Pause</button>' +
   '<button type="button" data-along-resume>Resume</button>' +
-  '<button type="button" data-along-next>Next section</button></div>' +
+  '<button type="button" data-along-next>Next section</button></div></div>' +
+  '<div class="cg-offers" data-offers></div>' +
+  '<div class="cg-log" role="log" aria-label="Messages"></div>' +
+  '<details class="cg-more"><summary>Sound and type size</summary>' +
   '<div class="cg-voice cg-voice-live" data-voice-row>' +
   '<label>Voice <select data-voice-name aria-label="Speaking voice"><option value="">Browser default</option></select></label>' +
   '<label>Speed <select data-voice-rate aria-label="Speaking speed">' +
@@ -106,10 +109,7 @@ panel.innerHTML =
   '<option value="1.08">1.08×</option></select></label>' +
   '<label>Pitch <select data-voice-pitch aria-label="Speaking pitch">' +
   '<option value="0.9">Lower</option><option value="0.95" selected>Calm</option><option value="1">Even</option><option value="1.05">Brighter</option></select></label>' +
-  '</div></div>' +
-  '<div class="cg-offers" data-offers></div>' +
-  '<div class="cg-log" role="log" aria-label="Messages"></div>' +
-  '<details class="cg-more"><summary>Sound and type size</summary>' +
+  '</div>' +
   '<div class="cg-tools">' +
   '<button type="button" data-font-dec aria-label="Smaller text">A−</button>' +
   '<button type="button" data-font-inc aria-label="Larger text">A+</button>' +
@@ -155,7 +155,7 @@ document.body.appendChild(host);
 
 var css = document.createElement("link");
 css.rel = "stylesheet";
-css.href = guideBase + "guide/guide.css?v=21";
+css.href = guideBase + "guide/guide.css?v=22";
 document.head.appendChild(css);
 
 var log = panel.querySelector(".cg-log");
@@ -617,6 +617,7 @@ function submitText(text) {
 
 function openPanel() {
   panel.hidden = false;
+  document.documentElement.classList.add("cg-guide-open");
   monkey.setAttribute("aria-expanded", "true");
   hideNudge(false);
   if (greetedPath !== location.pathname) {
@@ -675,6 +676,7 @@ function openPanel() {
 function closePanel() {
   if (panel.hidden) return;
   panel.hidden = true;
+  document.documentElement.classList.remove("cg-guide-open");
   host.classList.remove("is-open");
   host.classList.remove("is-sheet");
   monkey.setAttribute("aria-expanded", "false");
@@ -1096,13 +1098,10 @@ function place() {
   host.classList.toggle("is-sheet", sheet);
   host.classList.toggle("is-open", !panel.hidden);
   if (sheet) {
-    var dockH = phoneDockHeight();
     host.style.setProperty("--cg-panel-right", "8px");
-    if (dockH < 64) dockH = 76;
-    var sheetGap = 12;
-    host.style.setProperty("--cg-panel-bottom", (dockH + sheetGap) + "px");
+    host.style.setProperty("--cg-panel-bottom", "8px");
     host.style.setProperty("--cg-panel-width", "calc(100vw - 16px)");
-    host.style.setProperty("--cg-panel-max", "min(62vh, calc(100dvh - " + (dockH + sheetGap) + "px))");
+    host.style.setProperty("--cg-panel-max", "calc(100dvh - 16px)");
     panel.classList.add("is-above");
     panel.classList.remove("is-beside");
   } else if (chosen.slot) {

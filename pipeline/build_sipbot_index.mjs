@@ -17,7 +17,6 @@ const VOLATILE = new Set(["T10", "T11", "T12", "T15", "T19"]);
 
 const SYN = {
   voip: "sip",
-  softphone: "sip",
   dialogue: "dialog",
   dialouge: "dialog",
   dialogs: "dialog",
@@ -175,6 +174,28 @@ for (const room of rooms) {
       volatile: VOLATILE.has(room.track),
     });
   }
+}
+
+const softphone = docs.find((doc) => doc.i === "lesson:T17-browser-softphone");
+if (softphone) {
+  seeds.push({
+    i: softphone.i,
+    h: softphone.h,
+    ti: softphone.ti,
+    k: "lesson",
+    ex: softphone.ex,
+    eg: softphone.eg,
+    topic: "softphone",
+    all: ["softphone"],
+    any: [],
+    allow: ["softphone", "browser", "call", "flow"],
+    block: [],
+    how: false,
+    loose: true,
+    rank: 20,
+    checked: softphone.checked,
+    volatile: false,
+  });
 }
 
 for (const [file, kind] of [
