@@ -1,0 +1,71 @@
+{
+  "questions": 9,
+  "beginner": {
+    "total": 4,
+    "relevant": 4,
+    "relevantPct": 100,
+    "confidentWrong": 0,
+    "fallbacks": 0,
+    "fallbackPct": 0
+  },
+  "typo": {
+    "total": 1,
+    "relevant": 0,
+    "relevantPct": 0,
+    "confidentWrong": 0,
+    "fallbacks": 1,
+    "fallbackPct": 100
+  },
+  "offtopic": {
+    "total": 1,
+    "relevant": 1,
+    "relevantPct": 100,
+    "confidentWrong": 0,
+    "fallbacks": 1,
+    "fallbackPct": 100
+  },
+  "nav": {
+    "total": 2,
+    "relevant": 2,
+    "relevantPct": 100,
+    "confidentWrong": 0,
+    "fallbacks": 0,
+    "fallbackPct": 0
+  },
+  "inject": {
+    "total": 1,
+    "relevant": 1,
+    "relevantPct": 100,
+    "confidentWrong": 0,
+    "fallbacks": 1,
+    "fallbackPct": 100
+  },
+  "followTurns": {
+    "total": 0,
+    "relevant": 0,
+    "relevantPct": 0,
+    "confidentWrong": 0,
+    "fallbacks": 0,
+    "fallbackPct": 0
+  },
+  "followPairs": {
+    "ok": 0,
+    "total": 0
+  },
+  "target": {},
+  "confidentWrong": [],
+  "misses": [
+    {
+      "id": "d09",
+      "group": "typo",
+      "q": "what is a gru u",
+      "relevant": false,
+      "confidentWrong": false,
+      "clean": false,
+      "href": "",
+      "mode": "fallback",
+      "intent": "fallback",
+      "text": "I don't have that yet. I only answer from this lab's lessons. You can also use Search."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "sip-universe-lab",
+  "private": true,
+  "scripts": {
+    "start": "python3 -m http.server 8741 --bind 127.0.0.1",
+    "test": "playwright test",
+    "index:bot": "node pipeline/build_sipbot_index.mjs",
+    "eval:bot": "node tests/sipbot-eval.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}

@@ -242,6 +242,24 @@ async function respond(question) {
     await startQuiz(mine);
     return;
   }
+  if (globalThis.SIPBOT_READY && !/\btour\b/i.test(trimmed)) {
+    try {
+      const bot = await globalThis.SIPBOT_READY;
+      const answer = bot.ask(trimmed);
+      const quiet = answer.mode === "fallback" || answer.intent === "help" || answer.intent === "injection" || answer.intent === "greet" || answer.intent === "smalltalk";
+      const linked = answer.href && !quiet;
+      const html = `<p>${esc(answer.text || "")}</p>${answer.example ? `<pre>${esc(answer.example)}</pre>` : ""}${linked ? `<p><a href="${esc(answer.href)}">${esc(answer.link || "Open this page")}</a></p>` : ""}`;
+      await bubble("bot", html, answer.text || "");
+      if (mine !== generation) return;
+      const chips = answer.intent === "help"
+        ? ["Where do I start?", "SIP messages", "SDP", "RTP", "NAT and ICE", "SBCs"]
+        : [answer.follow || "What can you help with?"];
+      setChips(chips.filter(Boolean));
+      return;
+    } catch {
+      /* The campus quiz book remains if the shared index is missing. */
+    }
+  }
   const tourHit = bestTour(trimmed);
   if (tourHit) {
     await startTour(tourHit, mine);

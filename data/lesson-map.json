@@ -1,0 +1,2284 @@
+{
+  "lessons": [
+    {
+      "key": "T01-e164-and-uris",
+      "title": "E.164, sip URIs, and tel URIs",
+      "level": 0,
+      "outcomes": [
+        "Read a global tel URI and a sip URI with user=phone",
+        "Say what E.164 is without inventing an ITU clause",
+        "Keep the Request-URI and the To URI as different fields"
+      ],
+      "sources": [
+        "rfc3966",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T01-first-message",
+      "title": "Reading the first INVITE",
+      "level": 0,
+      "outcomes": [
+        "Read a request line and the required headers in order",
+        "Check the branch cookie and the initial Max-Forwards",
+        "Recognize documentation addresses from RFC 5737"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc5737"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T01-hitchhiker",
+      "title": "The hitchhiker guide is a map",
+      "level": 0,
+      "outcomes": [
+        "Use RFC 5411 as an index",
+        "Open the specific RFC that defines a header",
+        "Notice that later RFCs are outside that snapshot"
+      ],
+      "sources": [
+        "rfc5411",
+        "rfc3261",
+        "rfc3262",
+        "rfc3311",
+        "rfc6026",
+        "rfc6665",
+        "rfc7118",
+        "rfc4028"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T01-licensing",
+      "title": "Licenses, codecs, and what you may copy",
+      "level": 0,
+      "outcomes": [
+        "Point at the IETF Trust Legal Provisions for protocol text",
+        "Separate Opus documents from G.711 and G.729",
+        "Refuse to state a patent expiry date"
+      ],
+      "sources": [
+        "trustee-ietf-org-trust-legal-provisions-html",
+        "rfc3261",
+        "rfc6716",
+        "www-opus-codec-org-license",
+        "datatracker-ietf-org-ipr",
+        "www-itu-int-rec-t-rec-g-711",
+        "www-itu-int-rec-t-rec-g-729"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T01-prereq-network",
+      "title": "Ports, transports, and where a request can go",
+      "level": 0,
+      "outcomes": [
+        "State the default ports for UDP, TCP, and TLS",
+        "Explain why a large INVITE moves off UDP",
+        "Recognize WebSocket as a transport, not a new method set"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc7118",
+        "rfc5764"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T01-reading-an-rfc",
+      "title": "How to read an RFC",
+      "level": 0,
+      "outcomes": [
+        "Separate Standards Track text from an Informational map",
+        "Cite a rule by RFC and section",
+        "Use the ABNF and the prose together"
+      ],
+      "sources": [
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T01-what-sip-is",
+      "title": "What SIP is for",
+      "level": 0,
+      "outcomes": [
+        "Separate SIP signaling from RTP media",
+        "Name user agent, proxy, registrar, and redirect server",
+        "Treat 100 Trying as hop-by-hop quench, not as an answer"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc3550",
+        "rfc3264",
+        "rfc7092",
+        "rfc5853"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T02-dialogs",
+      "title": "Dialog identity",
+      "level": 1,
+      "outcomes": [
+        "Name the three dialog-id components",
+        "Tell an early dialog from a confirmed dialog",
+        "Increment CSeq for a new request inside the dialog"
+      ],
+      "sources": [
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T02-headers-and-compact",
+      "title": "Headers and compact forms",
+      "level": 1,
+      "outcomes": [
+        "Expand the RFC 3261 compact forms",
+        "Keep extension compact forms with their RFCs",
+        "See why rewriting From or To breaks dialog matching"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc6665",
+        "rfc3515",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T02-methods-and-codes",
+      "title": "Methods and status codes",
+      "level": 1,
+      "outcomes": [
+        "Place a code in the 1xx through 6xx classes",
+        "Match ACK and CANCEL to the INVITE they belong to",
+        "Separate 401 from 407"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc3262",
+        "rfc3311",
+        "rfc3515"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T02-roles",
+      "title": "Roles a trace is actually showing",
+      "level": 1,
+      "outcomes": [
+        "Separate UAC and UAS from the box name",
+        "Predict what a redirect server leaves behind",
+        "Recognize a B2BUA by the second dialog"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc7092",
+        "rfc5853"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T02-three-clocks",
+      "title": "T1, the transaction timeout, and Timer C",
+      "level": 1,
+      "outcomes": [
+        "State the defaults for T1, T2, and T4",
+        "Compute Timer B as 64 times T1",
+        "Keep Timer C separate from Timer B"
+      ],
+      "sources": [
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T02-transactions",
+      "title": "Transactions and the branch cookie",
+      "level": 1,
+      "outcomes": [
+        "Use the branch as the transaction id",
+        "Separate a retransmission from a new request",
+        "Apply the ACK branch rule for 2xx and non-2xx"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc6026"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T02-transports",
+      "title": "UDP, TCP, TLS, and WebSocket",
+      "level": 1,
+      "outcomes": [
+        "Match UDP, TCP, and TLS to their default ports",
+        "Use Content-Length as the stream framing",
+        "Read a teaching dial-peer and trusted list"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc3581",
+        "rfc7118",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cucme-admin-configuration-manual-cme"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T03-cancel-bye-reinvite",
+      "title": "CANCEL, BYE, and re-INVITE",
+      "level": 2,
+      "outcomes": [
+        "Pair 200 OK for CANCEL with 487 for the INVITE",
+        "Use BYE only on a confirmed dialog",
+        "Treat a mid-dialog INVITE as a re-INVITE and a possible target refresh"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc6141"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T03-prack",
+      "title": "PRACK and reliable provisionals",
+      "level": 2,
+      "outcomes": [
+        "Offer 100rel and answer with RSeq",
+        "Build RAck from RSeq and the INVITE CSeq",
+        "Give PRACK its own CSeq number"
+      ],
+      "sources": [
+        "rfc3262",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T03-record-route",
+      "title": "Record-Route and the route set",
+      "level": 2,
+      "outcomes": [
+        "Build the UAC route set by reversing Record-Route",
+        "Build the UAS route set in Record-Route order",
+        "Require lr on every Record-Route a proxy inserts"
+      ],
+      "sources": [
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T03-refer-replaces",
+      "title": "REFER and Replaces",
+      "level": 2,
+      "outcomes": [
+        "Read Refer-To and the 202 Accepted",
+        "Follow progress in NOTIFY sipfrag bodies",
+        "Match a Replaces dialog by Call-ID and both tags"
+      ],
+      "sources": [
+        "rfc3515",
+        "rfc6665",
+        "rfc3891",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T03-session-timers",
+      "title": "Session-Expires and 422",
+      "level": 2,
+      "outcomes": [
+        "Read Session-Expires and the refresher parameter",
+        "Retry after 422 using the Min-SE from the response",
+        "Refresh with re-INVITE or UPDATE before the interval ends"
+      ],
+      "sources": [
+        "rfc4028",
+        "rfc3261",
+        "rfc3311"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T03-two-acks",
+      "title": "Two different ACK rules",
+      "level": 2,
+      "outcomes": [
+        "Reuse the INVITE branch only for a non-2xx ACK",
+        "Send a 2xx ACK end to end with a new branch",
+        "Keep the CSeq number and change the method token to ACK"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc6026"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T03-update",
+      "title": "UPDATE before the INVITE completes",
+      "level": 2,
+      "outcomes": [
+        "Send UPDATE only when no offer is outstanding",
+        "Treat UPDATE as a non-INVITE transaction",
+        "Keep dialog identifiers stable across the session change"
+      ],
+      "sources": [
+        "rfc3311",
+        "rfc3261",
+        "rfc3264",
+        "rfc6141"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T04-dns-3263",
+      "title": "Locating a server with RFC 3263",
+      "level": 3,
+      "outcomes": [
+        "Order NAPTR, then SRV, then A or AAAA",
+        "Name the SIP+D2U, SIP+D2T, and SIPS+D2T services",
+        "Skip the name lookup when the Request-URI is already an IP address"
+      ],
+      "sources": [
+        "rfc3263",
+        "rfc3261",
+        "rfc5737",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T04-forking",
+      "title": "Forking and early dialogs",
+      "level": 3,
+      "outcomes": [
+        "Give each branch its own Via branch",
+        "Key early dialogs on the remote tag",
+        "Forward every 2xx and cancel other branches on a 6xx"
+      ],
+      "sources": [
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T04-gruu",
+      "title": "GRUU and a single instance",
+      "level": 3,
+      "outcomes": [
+        "Register with Supported: gruu and +sip.instance",
+        "Distinguish a public GRUU from a temporary GRUU",
+        "Expect an AOR to fork and a GRUU to target one instance"
+      ],
+      "sources": [
+        "rfc5627",
+        "rfc5626",
+        "rfc3327"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T04-loose-routing",
+      "title": "Loose routing and Max-Forwards",
+      "level": 3,
+      "outcomes": [
+        "Pop a top Route that names this hop",
+        "Leave the Request-URI in place when lr is present",
+        "Return 483 when Max-Forwards arrives as 0"
+      ],
+      "sources": [
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T04-outbound",
+      "title": "Outbound, reg-id, and keepalives",
+      "level": 3,
+      "outcomes": [
+        "Read reg-id and +sip.instance on Contact",
+        "Tell a second flow from a refresh of the first",
+        "Name the keepalive used on TCP and on UDP"
+      ],
+      "sources": [
+        "rfc5626",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T04-path-service-route",
+      "title": "Path and Service-Route",
+      "level": 3,
+      "outcomes": [
+        "Insert Path on REGISTER the way a proxy inserts Record-Route",
+        "Use Service-Route as a preloaded Route for a new request",
+        "Keep the two vectors from being swapped"
+      ],
+      "sources": [
+        "rfc3327",
+        "rfc3261",
+        "rfc3608"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T04-register",
+      "title": "REGISTER and bindings",
+      "level": 3,
+      "outcomes": [
+        "Point To at the address-of-record and Contact at the binding",
+        "Refresh with the same Call-ID and a higher CSeq",
+        "Handle 423 by raising the expiry to Min-Expires"
+      ],
+      "sources": [
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T05-direction-hold",
+      "title": "Direction attributes and hold",
+      "level": 4,
+      "outcomes": [
+        "List the four direction attributes",
+        "Answer sendonly with recvonly or inactive",
+        "Place a call on hold without c=0.0.0.0"
+      ],
+      "sources": [
+        "rfc3264",
+        "rfc6337",
+        "rfc8866"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T05-early-media",
+      "title": "Early media and 183",
+      "level": 4,
+      "outcomes": [
+        "Recognize 183 with SDP as a usual early-media pattern",
+        "Treat 180 as ringing",
+        "Read a 183 that has no SDP as still a 183"
+      ],
+      "sources": [
+        "rfc3960",
+        "rfc3261",
+        "rfc3262",
+        "rfc3264",
+        "rfc6337"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T05-offer-answer-order",
+      "title": "Same m-lines, same order",
+      "level": 4,
+      "outcomes": [
+        "Count m-lines in the offer and in the answer",
+        "Reject a stream without deleting its position",
+        "Keep later offers in the same order"
+      ],
+      "sources": [
+        "rfc3264",
+        "rfc6337",
+        "rfc3551"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T05-pitfalls-6337",
+      "title": "Offer/answer pitfalls in RFC 6337",
+      "level": 4,
+      "outcomes": [
+        "Increment the SDP session version when the description changes",
+        "Tell an early offer from a delayed offer",
+        "Stop using a zero connection address as hold"
+      ],
+      "sources": [
+        "rfc6337",
+        "rfc3264",
+        "rfc8866",
+        "rfc3261",
+        "rfc3551"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T05-port-zero",
+      "title": "Port 0 rejects a stream",
+      "level": 4,
+      "outcomes": [
+        "Write a rejection as port 0",
+        "Keep the rejected line in order",
+        "Refuse a stream that has no codec in common"
+      ],
+      "sources": [
+        "rfc3264",
+        "rfc6337"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T05-rtpmap-fmtp",
+      "title": "rtpmap names and fmtp parameters",
+      "level": 4,
+      "outcomes": [
+        "Match dynamic codecs by encoding name",
+        "Recite the static payload types 0, 8, 9, and 18",
+        "Keep the G.722 rtpmap clock at 8000"
+      ],
+      "sources": [
+        "rfc3264",
+        "rfc3551",
+        "rfc8866"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T05-sdp-anatomy",
+      "title": "The lines in an SDP body",
+      "level": 4,
+      "outcomes": [
+        "Name the session lines and the media lines",
+        "State that RFC 8866 obsoletes RFC 4566 and where status is decided",
+        "Separate the connection address from the RTP packets"
+      ],
+      "sources": [
+        "rfc8866",
+        "rfc4566",
+        "rfc5737",
+        "rfc3264",
+        "rfc3550"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T06-codec-choices",
+      "title": "G.711, G.729, and Opus",
+      "level": 5,
+      "outcomes": [
+        "Separate G.711 PCMU from PCMA",
+        "Point at ITU-T G.729 without stating a patent date",
+        "Read the Opus RFC and the license, and stop there"
+      ],
+      "sources": [
+        "www-itu-int-rec-t-rec-g-711",
+        "www-itu-int-rec-t-rec-g-729",
+        "rfc3551",
+        "rfc6716",
+        "www-opus-codec-org-license",
+        "datatracker-ietf-org-ipr",
+        "rfc3264"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T06-one-way-audio",
+      "title": "One-way audio",
+      "level": 5,
+      "outcomes": [
+        "Separate a completed offer/answer from flowing RTP",
+        "Check sendonly, recvonly, and inactive before blaming the codec",
+        "Use RTCP to see which side is silent"
+      ],
+      "sources": [
+        "rfc3264",
+        "rfc3550",
+        "www-wireshark-org-docs-dfref-r-rtp-html",
+        "www-wireshark-org-docs-dfref-s-sip-html",
+        "rfc8866"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T06-payload-types",
+      "title": "Static and dynamic payload types",
+      "level": 5,
+      "outcomes": [
+        "List static types 0, 8, 9, and 18 with their clocks",
+        "Require rtpmap for payload types 96 through 127",
+        "Refuse a G.722 clock of 16000"
+      ],
+      "sources": [
+        "rfc3551",
+        "www-itu-int-rec-t-rec-g-711",
+        "rfc3264"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T06-ptime",
+      "title": "ptime, packet rate, and EF",
+      "level": 5,
+      "outcomes": [
+        "Read a=ptime as milliseconds of media per packet",
+        "Compute the G.711 20 ms packet rate and payload size",
+        "Place voice in EF using RFC 4594 and RFC 3246, without a router config"
+      ],
+      "sources": [
+        "rfc8866",
+        "rfc3551",
+        "rfc4594",
+        "rfc3246"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T06-rtcp",
+      "title": "RTCP sender and receiver reports",
+      "level": 5,
+      "outcomes": [
+        "Distinguish sender reports from receiver reports",
+        "Look in RTCP for loss and jitter",
+        "Pair RTCP with the RTP port using the RFC 3550 default"
+      ],
+      "sources": [
+        "rfc3550",
+        "www-wireshark-org-docs-dfref-r-rtp-html"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T06-rtp-header",
+      "title": "The RTP header",
+      "level": 5,
+      "outcomes": [
+        "Name version, sequence, timestamp, SSRC, and marker",
+        "Separate the RTP header from the SIP message",
+        "Use the timestamp clock of the payload, not the wall clock"
+      ],
+      "sources": [
+        "rfc3550",
+        "rfc3551"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T06-telephone-event",
+      "title": "telephone-event and other digit paths",
+      "level": 5,
+      "outcomes": [
+        "Negotiate telephone-event in SDP by encoding name",
+        "Limit DTMF events to 0 through 15",
+        "Keep SIP INFO and KPML separate from RFC 4733"
+      ],
+      "sources": [
+        "rfc4733",
+        "rfc3551",
+        "rfc8866",
+        "rfc6086",
+        "rfc4730"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T07-digest",
+      "title": "401, 407, and digest",
+      "level": 6,
+      "outcomes": [
+        "Pair 401 with Authorization and WWW-Authenticate",
+        "Pair 407 with Proxy-Authorization and Proxy-Authenticate",
+        "Stop at the header split and do not compute an attack"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc7616"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T07-hardening",
+      "title": "Hardening a SIP edge",
+      "level": 6,
+      "outcomes": [
+        "Write an allow list of signaling peers",
+        "Require digest on REGISTER and a domain certificate on TLS",
+        "Keep identity and media keying rules explicit"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc7616",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cucme-admin-configuration-manual-cme",
+        "rfc5922",
+        "rfc3325",
+        "rfc8224",
+        "rfc3711"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T07-privacy-pai",
+      "title": "Privacy and asserted identity",
+      "level": 6,
+      "outcomes": [
+        "Name the Privacy header and the id token",
+        "Keep PAI and PPI inside a trust domain",
+        "Refuse to treat PAI as a signature"
+      ],
+      "sources": [
+        "rfc3323",
+        "rfc3325"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T07-srtp-keying",
+      "title": "SRTP and two keying methods",
+      "level": 6,
+      "outcomes": [
+        "Separate SRTP from the way keys are obtained",
+        "Name SDES and DTLS-SRTP as different keying methods",
+        "Key each SBC leg with the method that leg negotiated"
+      ],
+      "sources": [
+        "rfc3711",
+        "rfc4568",
+        "rfc3261",
+        "rfc5764"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T07-stir-shaken",
+      "title": "STIR, PASSporT, and SHAKEN",
+      "level": 6,
+      "outcomes": [
+        "Point at the four RFCs for STIR, PASSporT, certificates, and SHAKEN",
+        "Require a verified Identity header before calling a call authenticated",
+        "Attribute attestation levels to ATIS and confirm the current document"
+      ],
+      "sources": [
+        "rfc8224",
+        "rfc8225",
+        "rfc8226",
+        "rfc8588",
+        "rfc3325"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T07-threats",
+      "title": "Scanning, hijack, and toll fraud",
+      "level": 6,
+      "outcomes": [
+        "Recognize unsolicited SIP as scanning pressure on an open listener",
+        "Describe registration hijack as a replaced Contact binding",
+        "Treat toll fraud as unauthorized call completion"
+      ],
+      "sources": [
+        "rfc3261",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cucme-admin-configuration-manual-cme"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T07-tls-certs",
+      "title": "TLS and domain certificates",
+      "level": 6,
+      "outcomes": [
+        "Treat TLS as a transport for the same SIP messages",
+        "Check the certificate against the SIP domain",
+        "Refuse a name that is only a nearby web host"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc5922"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T08-ice",
+      "title": "ICE candidate types",
+      "level": 6,
+      "outcomes": [
+        "Name the four candidate types",
+        "State that RFC 8445 obsoletes RFC 5245 and where status is decided",
+        "Let connectivity checks choose the pair"
+      ],
+      "sources": [
+        "rfc8445",
+        "rfc8489",
+        "rfc8656",
+        "rfc8866",
+        "rfc3264"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T08-media-latching",
+      "title": "Media latching on an SBC",
+      "level": 6,
+      "outcomes": [
+        "Describe latching as learning RTP from the first packet",
+        "Cite RFC 5853 as requirements, not as an algorithm",
+        "Refuse to move the latch toward an unexpected source"
+      ],
+      "sources": [
+        "rfc5853",
+        "rfc8866",
+        "rfc8445",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T08-nat-breaks-sip",
+      "title": "Embedded addresses and NAT",
+      "level": 6,
+      "outcomes": [
+        "Find addresses in Via, Contact, and SDP c=",
+        "Explain why a packet-header NAT does not fix those fields",
+        "Treat a private connection address as non-routable from the public peer"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc8866",
+        "rfc5737",
+        "rfc3264"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T08-rport",
+      "title": "rport and symmetric responses",
+      "level": 6,
+      "outcomes": [
+        "Add rport on Via when you need symmetric response routing",
+        "Read received and rport on the response Via",
+        "Keep rport separate from RTP NAT traversal"
+      ],
+      "sources": [
+        "rfc3581",
+        "rfc3261",
+        "rfc8866"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T08-sip-alg",
+      "title": "The SIP ALG problem",
+      "level": 6,
+      "outcomes": [
+        "Recognize an in-path rewrite of Via, Contact, or c=",
+        "Treat a broken Content-Length after a rewrite as corruption",
+        "Prefer TLS when you need the ALG to be unable to edit the body"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc8866",
+        "rfc5922"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T08-stun",
+      "title": "STUN server-reflexive addresses",
+      "level": 6,
+      "outcomes": [
+        "State that RFC 8489 obsoletes RFC 5389 and where status is decided",
+        "Describe a Binding request as a way to learn a server-reflexive address",
+        "Keep STUN separate from a SIP registrar"
+      ],
+      "sources": [
+        "rfc8489",
+        "rfc8445",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T08-turn",
+      "title": "TURN relays",
+      "level": 6,
+      "outcomes": [
+        "State that RFC 8656 obsoletes RFC 5766 and where status is decided",
+        "Describe Allocate as the way a client gets a relayed address",
+        "Use the relay only as a media path, not as a SIP registrar"
+      ],
+      "sources": [
+        "rfc8656",
+        "rfc8445"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T09-admission",
+      "title": "Call admission stays on the datasheet",
+      "level": 7,
+      "outcomes": [
+        "Describe admission as a local policy",
+        "Read 503 as one documented failure response",
+        "Refuse invented capacity formulas"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc5853"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T09-b2bua-7092",
+      "title": "An SBC is commonly a B2BUA",
+      "level": 7,
+      "outcomes": [
+        "Contrast a B2BUA with a pure proxy",
+        "Point at two dialogs in one call",
+        "Use RFC 7092 as the taxonomy"
+      ],
+      "sources": [
+        "rfc7092",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T09-high-availability",
+      "title": "Active and standby, without a made-up timer",
+      "level": 7,
+      "outcomes": [
+        "Describe active/standby at product level",
+        "Keep failover timing out of the SIP RFC",
+        "Expect dialog state to be a product problem"
+      ],
+      "sources": [
+        "rfc7092",
+        "rfc5853",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T09-media-modes",
+      "title": "Anchor, bypass, transcode, and DTMF",
+      "level": 7,
+      "outcomes": [
+        "Separate anchoring from bypass",
+        "Tie transcoding to an anchored path",
+        "Treat DTMF interworking as a media function"
+      ],
+      "sources": [
+        "rfc3264",
+        "rfc3550",
+        "rfc4733",
+        "rfc5853"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T09-options-keepalive",
+      "title": "OPTIONS keepalives",
+      "level": 7,
+      "outcomes": [
+        "Build a legal OPTIONS",
+        "Read a 200 OK as liveness",
+        "Keep the timer out of the RFC"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc5853"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T09-requirements-5853",
+      "title": "RFC 5853 is requirements, not a protocol",
+      "level": 7,
+      "outcomes": [
+        "Classify RFC 5853 as informational",
+        "Name functions operators ask an SBC to perform",
+        "Keep those functions separate from SIP methods"
+      ],
+      "sources": [
+        "rfc5853",
+        "rfc3261",
+        "rfc7092",
+        "rfc3264"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T09-topology-hiding",
+      "title": "Topology hiding rewrites the addresses you leak",
+      "level": 7,
+      "outcomes": [
+        "Name the headers that leak topology",
+        "See Contact and Via change at the B2BUA",
+        "Leave the rewrite policy in the product guide"
+      ],
+      "sources": [
+        "rfc5853",
+        "rfc3261",
+        "rfc7092",
+        "rfc3264"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T10-cube-role",
+      "title": "CUBE is an IOS XE B2BUA",
+      "level": 8,
+      "outcomes": [
+        "Name CUBE as Cisco Unified Border Element",
+        "Place it in the B2BUA role",
+        "Treat IOS voice behavior as release-specific"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "rfc7092",
+        "www-cisco-com-c-en-us-support-docs-unified-communications-unified-border-element",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cucme-admin-configuration-manual-cme",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cusrst-feature-guide-srst8-1-html"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T10-cucm-trunk",
+      "title": "CUCM trunks, SIP profiles, and Lua",
+      "level": 8,
+      "outcomes": [
+        "Separate CUCM objects from CUBE sip-profiles",
+        "Remember that Lua scripts exist",
+        "Confirm MTP required in the guide for that version"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-support-unified-communications-unified-communications-mana",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "rfc3264",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T10-debug-ccsip",
+      "title": "debug ccsip messages",
+      "level": 8,
+      "outcomes": [
+        "Read Sent and Received in debug ccsip messages",
+        "Name the profile debug",
+        "Use the analyzer as a dry run"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "www-cisco-com-c-en-us-support-docs-voice-session-initiation-protocol-sip-222316-",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T10-dial-peers",
+      "title": "Dial peers select the SIP next hop",
+      "level": 8,
+      "outcomes": [
+        "Read the three documented dial-peer lines",
+        "Point session target at the intended peer",
+        "Keep extra IOS commands out of this lesson"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "rfc3261",
+        "rfc5737"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T10-early-delayed",
+      "title": "Early offer and delayed offer",
+      "level": 8,
+      "outcomes": [
+        "Define delayed offer",
+        "State where RFC 3264 allows an offer",
+        "Name the CUBE command that forces early offer"
+      ],
+      "sources": [
+        "rfc3264",
+        "rfc3262",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T10-sip-profiles",
+      "title": "voice class sip-profiles",
+      "level": 8,
+      "outcomes": [
+        "Read request INVITE sip-header rules",
+        "Separate this object from a CUCM SIP profile",
+        "Test a rule before blaming the carrier"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "www-cisco-com-c-en-us-support-docs-voice-session-initiation-protocol-sip-222316-",
+        "www-cisco-com-c-en-us-support-docs-unified-communications-unified-border-element"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T10-unity",
+      "title": "Unity Connection SIP integration",
+      "level": 8,
+      "outcomes": [
+        "State that SIP integration is the documented path",
+        "Use Diversion as a redirecting-number example",
+        "Open the version’s integration guide"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-support-unified-communications-unity-connection-series-htm",
+        "www-cisco-com-c-en-us-support-unified-communications-unified-communications-mana",
+        "rfc5806",
+        "rfc7044"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T11-acme-hmr",
+      "title": "Header rules run in order",
+      "level": 8,
+      "outcomes": [
+        "Put header rules in configured order",
+        "Name the documented actions",
+        "Leave the reject status code in the release guide"
+      ],
+      "sources": [
+        "docs-oracle-com-en-industries-communications-session-border-controller-10-1-0-hm"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T11-audiocodes-rules",
+      "title": "AudioCodes manipulation in software 7.6",
+      "level": 8,
+      "outcomes": [
+        "Name the five table fields",
+        "Name the documented action types",
+        "Treat the menu as release-specific"
+      ],
+      "sources": [
+        "techdocs-audiocodes-com-session-border-controller-sbc-mediant-software-sbc-user-",
+        "www-audiocodes-com-media-aomncwrs-sip-message-manipulation-syntax-reference-guid"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T11-certificate-fqdn",
+      "title": "Certificate names and Contact",
+      "level": 8,
+      "outcomes": [
+        "Match a certificate name to the SIP name",
+        "Use an FQDN in a Teams Contact",
+        "Keep Webex Local Gateway off wildcard certificates"
+      ],
+      "sources": [
+        "rfc5922",
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-protocols-sip",
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-plan",
+        "help-webex-com-en-us-article-t9xctu-get-started-with-local-gateway"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T11-compare-manipulation",
+      "title": "Three manipulation grammars",
+      "level": 8,
+      "outcomes": [
+        "Match a snippet to its product",
+        "Keep rule order in mind on each product",
+        "Stop pasting one syntax into another box"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "docs-oracle-com-en-industries-communications-session-border-controller-10-1-0-hm",
+        "techdocs-audiocodes-com-session-border-controller-sbc-mediant-software-sbc-user-",
+        "ribboncommunications-com-services-support-services-documentation"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T11-oracle-objects",
+      "title": "Oracle SBC objects",
+      "level": 8,
+      "outcomes": [
+        "Name the objects the 10.1 docs use",
+        "Attach a manipulation inbound or outbound",
+        "Leave element-rule syntax in the configuration guide"
+      ],
+      "sources": [
+        "docs-oracle-com-en-industries-communications-session-border-controller-index-htm",
+        "docs-oracle-com-en-industries-communications-session-border-controller-10-1-0-hm"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T11-pai-interop",
+      "title": "Identity at a trust boundary",
+      "level": 8,
+      "outcomes": [
+        "Read P-Asserted-Identity and Privacy",
+        "Strip an assertion that arrives from an untrusted peer",
+        "Use the interop guide for header mapping"
+      ],
+      "sources": [
+        "rfc3325",
+        "rfc3323",
+        "rfc5806",
+        "rfc7044",
+        "ribboncommunications-com-partners-interoperability-guides"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T11-ribbon-families",
+      "title": "Ribbon Edge, Core, and public validation lists",
+      "level": 8,
+      "outcomes": [
+        "Separate Edge from Core",
+        "Read the ACS validation list as a snapshot",
+        "Use the documentation portal instead of invented CLI"
+      ],
+      "sources": [
+        "ribboncommunications-com-products-enterprise-products-session-border-controllers",
+        "ribboncommunications-com-services-support-services-documentation",
+        "ribboncommunications-com-partners-interoperability-guides",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T12-connect-boundaries",
+      "title": "Amazon Connect voice boundaries",
+      "level": 9,
+      "outcomes": [
+        "Use managed PSTN for ordinary calls",
+        "Place SIPREC on the analytics connector",
+        "Refuse the unapproved Voice Connector bridge"
+      ],
+      "sources": [
+        "docs-aws-amazon-com-connect-latest-adminguide-concepts-telephony-html",
+        "docs-aws-amazon-com-connect-latest-adminguide-configure-external-voice-system-ht",
+        "docs-aws-amazon-com-connect-latest-adminguide-create-contact-lens-connector-html",
+        "docs-aws-amazon-com-chime-sdk-latest-ag-voice-connectors-html",
+        "docs-aws-amazon-com-chime-sdk-latest-ag-vc-connect-integrations-html",
+        "rfc7866"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T12-five9-twilio",
+      "title": "Five9 BYO SIP and Twilio trunks",
+      "level": 9,
+      "outcomes": [
+        "Define Five9 BYO SIP and the gateway option",
+        "Separate Twilio termination from origination",
+        "Keep origination URLs on the sip scheme"
+      ],
+      "sources": [
+        "documentation-five9-com-bundle-byot-sip-trunk-integration-page-byo-sip-trunking-",
+        "www-twilio-com-docs-sip-trunking",
+        "www-twilio-com-docs-sip-trunking-troubleshooting",
+        "www-twilio-com-docs-sip-trunking-api"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T12-genesys-cxone",
+      "title": "Genesys BYOC and NICE CXone SIP",
+      "level": 9,
+      "outcomes": [
+        "Separate BYOC Cloud from BYOC Premises",
+        "Keep the hardware date on the Genesys Hardware Solution",
+        "State CXone ports without inventing a BYOC menu"
+      ],
+      "sources": [
+        "help-genesys-cloud-articles-byoc-cloud-overview",
+        "help-genesys-cloud-articles-about-byoc-cloud",
+        "help-genesys-cloud-articles-about-byoc-premises",
+        "help-genesys-cloud-faqs-can-i-use-byoc-cloud-with-byoc-premises",
+        "help-nicecxone-com-content-globalfeatures-connectivity-connectivityincxone-htm",
+        "help-nicecxone-com-content-platformrequirements-ports-htm"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T12-teams-options-media",
+      "title": "OPTIONS health and SRTP media",
+      "level": 9,
+      "outcomes": [
+        "Mark health with OPTIONS and 200",
+        "Keep CSeq method equal to OPTIONS",
+        "Treat media-processor audio as SRTP"
+      ],
+      "sources": [
+        "learn-microsoft-com-en-us-microsoftteams-troubleshoot-phone-system-direct-routin",
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-protocols-sip",
+        "rfc3261",
+        "rfc3711",
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-protocols"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T12-teams-signaling",
+      "title": "Teams Direct Routing signaling",
+      "level": 9,
+      "outcomes": [
+        "Name the three signaling FQDNs and port 5061",
+        "Require a verified domain and an FQDN Contact",
+        "Remember that connection aliasing is unsupported"
+      ],
+      "sources": [
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-plan",
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-protocols-sip",
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-protocols",
+        "rfc5923"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T12-webex-lgw",
+      "title": "Webex Calling Local Gateway",
+      "level": 9,
+      "outcomes": [
+        "State the IOS XE TLS and SRTP requirement",
+        "Use a certificate-based trunk for a third-party SBC",
+        "Define ByoPSTN from the get-started article"
+      ],
+      "sources": [
+        "help-webex-com-en-us-article-jr1i3r-configure-local-gateway-on-ios-xe-for-webex-",
+        "rfc3711",
+        "help-webex-com-article-n0xb944",
+        "help-webex-com-en-us-article-t9xctu-get-started-with-local-gateway",
+        "help-webex-com-article-njvdjf2-configure-cisco-webex-calling-for-your-organizati"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T12-webex-pstn-models",
+      "title": "Three PSTN choices, one per location",
+      "level": 9,
+      "outcomes": [
+        "Name the three PSTN choices",
+        "Give a location one connection",
+        "Keep Cloud Connected PSTN distinct from Local Gateway"
+      ],
+      "sources": [
+        "help-webex-com-article-njvdjf2-configure-cisco-webex-calling-for-your-organizati",
+        "help-webex-com-en-us-article-t9xctu-get-started-with-local-gateway",
+        "help-webex-com-article-n0xb944"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T13-build-a-timeline",
+      "title": "Read an RFC header before you cite it",
+      "level": 7,
+      "outcomes": [
+        "Read number, category, and Obsoletes or Updates",
+        "Keep 422 and 2xx ACK with the RFCs that define them",
+        "Leave publication months to the header"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc6881",
+        "rfc5411",
+        "rfc8866",
+        "rfc4566",
+        "rfc8445",
+        "rfc8489",
+        "rfc8656",
+        "rfc6026",
+        "rfc4028"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T13-ccsip-output",
+      "title": "IOS ccsip and ccapi debug",
+      "level": 7,
+      "outcomes": [
+        "Read debug ccsip messages as SIP",
+        "Keep ccapi output out of the RFC pile",
+        "Match a synthetic debug line to the ladder"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T13-codec-and-timer-failures",
+      "title": "488 codecs and 422 session timers",
+      "level": 7,
+      "outcomes": [
+        "Read 488 as an offer/answer refusal at this UA",
+        "Retry 422 with a large enough session interval",
+        "Keep telephone-event in the overlap you meant to keep"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc3264",
+        "rfc3551",
+        "rfc4733",
+        "rfc4028",
+        "rfc6337"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T13-read-a-ladder",
+      "title": "Match a ladder before you change anything",
+      "level": 7,
+      "outcomes": [
+        "Match messages that belong to one dialog",
+        "Separate a Via branch from a dialog",
+        "Say where a 2xx ACK travels"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc3665",
+        "rfc6026",
+        "rfc7092"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T13-status-codes",
+      "title": "Status codes you will actually see",
+      "level": 7,
+      "outcomes": [
+        "Separate provisional codes from final ones",
+        "Place 422 with the session-timer RFC",
+        "Use 488 for this UA and 606 for a global refusal"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc3264",
+        "rfc4028"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T13-tls-failures",
+      "title": "TLS names, trust anchors, and version",
+      "level": 7,
+      "outcomes": [
+        "Separate handshake failures from SIP status codes",
+        "Require TLS 1.2 or newer toward Teams",
+        "Put an FQDN in Contact or expect 403"
+      ],
+      "sources": [
+        "learn-microsoft-com-en-us-microsoftteams-troubleshoot-phone-system-direct-routin",
+        "rfc3261",
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-protocols-sip",
+        "rfc5922",
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-plan"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T13-wireshark",
+      "title": "Display filters for SIP and RTP",
+      "level": 7,
+      "outcomes": [
+        "Use the display filters this lesson names",
+        "Confirm a CSeq field in the Wireshark reference",
+        "Read Call-ID from the packet you selected"
+      ],
+      "sources": [
+        "www-wireshark-org-docs-dfref-s-sip-html",
+        "www-wireshark-org-docs-dfref-r-rtp-html",
+        "rfc3550",
+        "rfc3264",
+        "rfc3261",
+        "rfc6026"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T14-alarms",
+      "title": "Alarms that match the failure",
+      "level": 8,
+      "outcomes": [
+        "Tie each alarm to one failure class",
+        "Use OPTIONS as a liveness signal",
+        "Keep synthetic examples labeled synthetic"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc7866",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cucme-admin-configuration-manual-cme",
+        "learn-microsoft-com-en-us-microsoftteams-troubleshoot-phone-system-direct-routin",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cusrst-feature-guide-srst8-1-html"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T14-change-window",
+      "title": "One change in the window",
+      "level": 8,
+      "outcomes": [
+        "Record a baseline before the change",
+        "Change a single variable",
+        "Verify with one signal and roll back that variable"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cucme-admin-configuration-manual-cme",
+        "rfc3264",
+        "rfc3261",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "learn-microsoft-com-en-us-microsoftteams-troubleshoot-phone-system-direct-routin"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T14-e911",
+      "title": "Emergency calling, location, and the FCC page",
+      "level": 8,
+      "outcomes": [
+        "Use urn:service:sos from RFC 5031",
+        "Carry location as RFC 6442 and RFC 6881 require",
+        "Point national MLTS duties at the FCC page"
+      ],
+      "sources": [
+        "rfc5031",
+        "rfc6881",
+        "rfc6442"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T14-fraud-class",
+      "title": "The toll-fraud class, stated defensively",
+      "level": 8,
+      "outcomes": [
+        "Name the four exposure classes",
+        "Point prevention at source restrictions and the numbering plan",
+        "Keep STIR identity separate from the trusted list"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cucme-admin-configuration-manual-cme",
+        "rfc3261",
+        "rfc7616",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cusrst-feature-guide-srst8-1-html",
+        "rfc8224"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T14-qos",
+      "title": "Voice, EF, and what the PHB does not design",
+      "level": 8,
+      "outcomes": [
+        "Name EF as the PHB for the telephony class",
+        "Keep the recommended codepoint inside the RFC",
+        "Leave switch queues and campus design out of the lesson"
+      ],
+      "sources": [
+        "rfc3246",
+        "rfc4594",
+        "rfc3550",
+        "rfc3264"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T14-siprec",
+      "title": "Disclosed recording with SIPREC",
+      "level": 8,
+      "outcomes": [
+        "Name SRC and SRS roles at a high level",
+        "Keep metadata with RFC 7865",
+        "Treat notice and retention as outside the RFC"
+      ],
+      "sources": [
+        "rfc7866",
+        "rfc7865"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T14-trusted-list",
+      "title": "Trusted addresses and source restrictions",
+      "level": 8,
+      "outcomes": [
+        "Apply the trusted-list commands as a teaching snippet",
+        "Refuse a single universal list size",
+        "Keep source restrictions on the lab addresses"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cucme-admin-configuration-manual-cme",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cusrst-feature-guide-srst8-1-html"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T15-certifications",
+      "title": "Certifications this edition will name",
+      "level": 9,
+      "outcomes": [
+        "State the SIP School, Cisco, and Microsoft credentials this edition names",
+        "Keep the checked dates attached to their pages",
+        "Send Oracle, Ribbon, and AudioCodes readers to product docs"
+      ],
+      "sources": [
+        "www-cisco-com-site-us-en-learn-training-certifications-certifications-collaborat",
+        "www-cisco-com-site-us-en-learn-training-certifications-exams-clcor-html",
+        "www-cisco-com-site-us-en-learn-training-certifications-exams-list-html",
+        "learningnetwork-cisco-com-s-a-new-era-for-cisco-certifications",
+        "learn-microsoft-com-en-us-credentials-certifications-m365-collaboration-communic",
+        "learn-microsoft-com-en-us-credentials-certifications-resources-study-guides-ms-7",
+        "docs-oracle-com-en-industries-communications-session-border-controller-index-htm",
+        "ribboncommunications-com-services-support-services-documentation",
+        "techdocs-audiocodes-com-session-border-controller-sbc-mediant-software-sbc-user-",
+        "rfc6026"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T15-cloud-bridge",
+      "title": "Webex Calling local gateway, and a separate contact center",
+      "level": 9,
+      "outcomes": [
+        "Place premises PSTN on the Local Gateway pattern",
+        "Cite the Webex Calling PSTN and Local Gateway pages",
+        "Keep Webex Contact Center off this pattern until its own guide says otherwise"
+      ],
+      "sources": [
+        "help-webex-com-en-us-article-t9xctu-get-started-with-local-gateway",
+        "help-webex-com-article-njvdjf2-configure-cisco-webex-calling-for-your-organizati",
+        "www-cisco-com-c-en-us-support-unified-communications-unified-communications-mana"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T15-glossary-habit",
+      "title": "A glossary tied to a document",
+      "level": 9,
+      "outcomes": [
+        "Write the expansion and the role",
+        "Attach a cite key that exists",
+        "Keep product names out of the role column"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc7092",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "www-cisco-com-c-en-us-support-unified-communications-unified-communications-mana",
+        "rfc8866",
+        "rfc4566",
+        "rfc5411",
+        "rfc6026"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T15-neighbors",
+      "title": "Neighbors that are not SIP elements",
+      "level": 9,
+      "outcomes": [
+        "Place WFM and QM outside the SIP RFC set",
+        "Tie recording to SIPREC and emergency to the BCP",
+        "Leave CRM off the ladder"
+      ],
+      "sources": [
+        "rfc7866",
+        "rfc7865",
+        "rfc6881",
+        "rfc6442",
+        "rfc3261",
+        "rfc3550",
+        "www-cisco-com-c-en-us-support-unified-communications-unity-connection-series-htm",
+        "www-cisco-com-c-en-us-support-unified-communications-unified-communications-mana",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T15-reading-the-index",
+      "title": "When the page and the memory disagree",
+      "level": 9,
+      "outcomes": [
+        "Open the document index before you freeze a number",
+        "Let the vendor page win on exam topics",
+        "Keep the few dates this edition checked"
+      ],
+      "sources": [
+        "rfc5411",
+        "www-cisco-com-site-us-en-learn-training-certifications-certifications-collaborat",
+        "www-cisco-com-site-us-en-learn-training-certifications-exams-clcor-html",
+        "www-cisco-com-site-us-en-learn-training-certifications-exams-list-html",
+        "learningnetwork-cisco-com-s-a-new-era-for-cisco-certifications",
+        "learn-microsoft-com-en-us-credentials-certifications-m365-collaboration-communic",
+        "learn-microsoft-com-en-us-credentials-certifications-resources-study-guides-ms-7",
+        "rfc8866"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T15-uc-bridge",
+      "title": "CUCM, UCCX, and CVP without a fake script",
+      "level": 9,
+      "outcomes": [
+        "Place PSTN SIP on CUBE or CUCM",
+        "Keep UCCX off the carrier trunk",
+        "Send CVP readers to the matching configuration guide"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-support-unified-communications-unified-communications-mana",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "rfc3261",
+        "www-cisco-com-c-en-us-support-customer-collaboration-unified-contact-center-expr",
+        "www-cisco-com-c-en-us-support-customer-collaboration-unified-customer-voice-port"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T15-workforce-and-ai",
+      "title": "Workforce tools and agents above the media",
+      "level": 9,
+      "outcomes": [
+        "Keep SIP as the session protocol",
+        "Place AI assistance above RTP",
+        "Refuse invented agent features"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc3550",
+        "rfc7866",
+        "rfc3264",
+        "rfc6026"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T16-design-interconnect",
+      "title": "An interconnect checklist, not a config dump",
+      "level": 10,
+      "outcomes": [
+        "Fill the six checklist rows",
+        "Keep E.164 with the tel URI RFC",
+        "Stop before a full configuration dump"
+      ],
+      "sources": [
+        "learn-microsoft-com-en-us-microsoftteams-troubleshoot-phone-system-direct-routin",
+        "rfc4733",
+        "rfc3264",
+        "rfc3966",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cucme-admin-configuration-manual-cme",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cusrst-feature-guide-srst8-1-html",
+        "rfc3261",
+        "rfc3711",
+        "rfc4568",
+        "rfc5764",
+        "rfc3246",
+        "rfc4594",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T16-design-teams-cucm",
+      "title": "CUCM, a certified SBC, and Teams Direct Routing",
+      "level": 10,
+      "outcomes": [
+        "Place a certified SBC between CUCM and Teams",
+        "Require TLS 1.2+ and an FQDN Contact",
+        "Keep the SIP target on sip.pstnhub.microsoft.com"
+      ],
+      "sources": [
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-plan",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "www-cisco-com-c-en-us-support-unified-communications-unified-communications-mana",
+        "rfc7092",
+        "learn-microsoft-com-en-us-microsoftteams-troubleshoot-phone-system-direct-routin",
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-protocols-sip",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T16-drill-media",
+      "title": "Media drill with the cited answer",
+      "level": 10,
+      "outcomes": [
+        "Answer 488 from RFC 3261 and RFC 3264",
+        "Keep 422 on RFC 4028",
+        "Name RTP and the two keying choices"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc3264",
+        "rfc6337",
+        "rfc4028",
+        "rfc4733",
+        "rfc3550",
+        "rfc3551",
+        "rfc3711",
+        "rfc4568",
+        "rfc5764"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T16-drill-sbc",
+      "title": "SBC drill with the cited answer",
+      "level": 10,
+      "outcomes": [
+        "Call an SBC a B2BUA with RFC 7092",
+        "Land PSTN SIP on CUBE or CUCM",
+        "Separate IOS trusted-list checks from SIP RFCs"
+      ],
+      "sources": [
+        "rfc7092",
+        "rfc5853",
+        "rfc3261",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "www-cisco-com-c-en-us-support-unified-communications-unified-communications-mana",
+        "www-cisco-com-c-en-us-support-customer-collaboration-unified-contact-center-expr",
+        "www-cisco-com-c-en-us-support-customer-collaboration-unified-customer-voice-port",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cucme-admin-configuration-manual-cme",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cusrst-feature-guide-srst8-1-html",
+        "learn-microsoft-com-en-us-microsoftteams-troubleshoot-phone-system-direct-routin",
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-protocols-sip",
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-plan"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T16-drill-signaling",
+      "title": "Signaling drill with the cited answer",
+      "level": 10,
+      "outcomes": [
+        "Match a dialog with Call-ID, CSeq, branch, and To tag",
+        "Place both kinds of ACK",
+        "Say what 487 follows"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc6026"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T16-incident-method",
+      "title": "Symptom, ladder, one packet, one variable",
+      "level": 10,
+      "outcomes": [
+        "State the symptom before the fix",
+        "Match one ladder and one packet",
+        "Change a single variable"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc3264",
+        "rfc3550",
+        "rfc6026",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cucme-admin-configuration-manual-cme"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T16-specs-move",
+      "title": "When the RFC number moves",
+      "level": 10,
+      "outcomes": [
+        "Name the four moves this edition teaches",
+        "Read Obsoletes on the header",
+        "Mark a possible newer RFC this library does not cite"
+      ],
+      "sources": [
+        "rfc8866",
+        "rfc4566",
+        "rfc8445",
+        "rfc8489",
+        "rfc8656",
+        "rfc3261",
+        "rfc6026",
+        "rfc3264",
+        "rfc3550",
+        "rfc4028",
+        "rfc6881",
+        "rfc5411"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T17-browser-softphone",
+      "title": "Browser softphone call flow",
+      "level": 5,
+      "outcomes": [
+        "Order the handshake before the INVITE",
+        "Keep DTLS off the SIP transaction",
+        "Use the step control to read one hop at a time"
+      ],
+      "sources": [
+        "rfc7118",
+        "rfc5764",
+        "rfc5737",
+        "rfc8829",
+        "rfc8834",
+        "rfc6455",
+        "rfc3261",
+        "rfc7587"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T17-dtls-srtp-codecs",
+      "title": "DTLS-SRTP and the required audio codecs",
+      "level": 5,
+      "outcomes": [
+        "Say where DTLS-SRTP keys are made",
+        "Write the UDP proto token from RFC 5764",
+        "List the required WebRTC audio codecs"
+      ],
+      "sources": [
+        "rfc5764",
+        "rfc8834",
+        "rfc8827",
+        "rfc7874",
+        "rfc7587",
+        "rfc3551"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T17-ice-stun-turn",
+      "title": "ICE, STUN, and TURN",
+      "level": 5,
+      "outcomes": [
+        "Name the three candidate kinds in RFC 8445",
+        "Give the default STUN ports from RFC 8489",
+        "Say what a TURN relay adds"
+      ],
+      "sources": [
+        "rfc8445",
+        "rfc8839",
+        "rfc7118",
+        "rfc8489",
+        "rfc8656"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T17-signaling-planes",
+      "title": "Signaling, JSEP, and the media plane",
+      "level": 5,
+      "outcomes": [
+        "Separate the browser media stack from the signaling protocol",
+        "Say what RFC 8825 and RFC 8829 each are",
+        "Name RFC 7118 as SIP on a WebSocket, not a new SIP method"
+      ],
+      "sources": [
+        "rfc8825",
+        "rfc8829",
+        "rfc7118",
+        "rfc6455"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T17-sip-websocket",
+      "title": "RFC 7118: the sip subprotocol",
+      "level": 5,
+      "outcomes": [
+        "Read Sec-WebSocket-Protocol: sip",
+        "Tell Via WSS from a Contact transport=ws",
+        "Say why a browser example uses a .invalid host"
+      ],
+      "sources": [
+        "rfc7118",
+        "rfc3261",
+        "rfc6455",
+        "rfc5922",
+        "rfc5626"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T18-asterisk-pjsip",
+      "title": "Asterisk, PJSIP, and the dialplan",
+      "level": 6,
+      "outcomes": [
+        "Name pjsip.conf and extensions.conf",
+        "Name chan_pjsip and res_pjsip",
+        "Repeat the license page without turning it into legal advice"
+      ],
+      "sources": [
+        "docs-asterisk-org-configuration-channel-drivers-sip-configuring-res-pjsip",
+        "docs-asterisk-org-about-the-project-a-brief-history-of-the-asterisk-project",
+        "docs-asterisk-org-about-the-project-license-information"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T18-four-roles",
+      "title": "Four projects, four roles",
+      "level": 6,
+      "outcomes": [
+        "Place Asterisk, FreeSWITCH, Kamailio, and rtpengine",
+        "Say which one is a media proxy meant to sit with Kamailio",
+        "Refuse a single configuration that the pages do not share"
+      ],
+      "sources": [
+        "docs-asterisk-org-about-the-project-a-brief-history-of-the-asterisk-project",
+        "docs-asterisk-org-configuration-channel-drivers-sip-configuring-res-pjsip",
+        "developer-signalwire-com-freeswitch-freeswitch-explained-introduction-what-is-fr",
+        "www-kamailio-org-w",
+        "raw-githubusercontent-com-sipwise-rtpengine-master-readme-md"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T18-freeswitch-core",
+      "title": "FreeSWITCH profiles, dialplan, and WebRTC",
+      "level": 6,
+      "outcomes": [
+        "List what the opened manual says it teaches",
+        "Name the two editions",
+        "Treat SignalWire's hosted service as a separate product from the open source build"
+      ],
+      "sources": [
+        "developer-signalwire-com-freeswitch-freeswitch-explained-introduction-what-is-fr"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T18-kamailio-proxy",
+      "title": "Kamailio as the SIP server",
+      "level": 6,
+      "outcomes": [
+        "Quote the role from the Kamailio home page",
+        "Name WebSocket support for WebRTC as a listed feature",
+        "Decide when the SIP server is Kamailio and the dialplan is elsewhere"
+      ],
+      "sources": [
+        "www-kamailio-org-w",
+        "rfc7118",
+        "raw-githubusercontent-com-sipwise-rtpengine-master-readme-md",
+        "docs-asterisk-org-configuration-channel-drivers-sip-configuring-res-pjsip"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T18-rtpengine-map",
+      "title": "rtpengine and the integration map",
+      "level": 6,
+      "outcomes": [
+        "List media features the README states",
+        "Draw the SIP server beside the media proxy",
+        "Keep kernel forwarding as an optimization the README describes"
+      ],
+      "sources": [
+        "raw-githubusercontent-com-sipwise-rtpengine-master-readme-md",
+        "rfc8445",
+        "rfc5764",
+        "www-kamailio-org-w",
+        "docs-asterisk-org-configuration-channel-drivers-sip-configuring-res-pjsip",
+        "rfc3264"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T19-compliance-troubleshoot",
+      "title": "Troubleshooting without a legal conclusion",
+      "level": 9,
+      "outcomes": [
+        "Pick the document that matches the symptom",
+        "Keep a live 911 test out of this lab",
+        "Write a next step that cites a page"
+      ],
+      "sources": [
+        "rfc8224",
+        "www-govinfo-gov-content-pkg-plaw-115publ127-html-plaw-115publ127-htm",
+        "www-campaignregistry-com",
+        "rfc5764",
+        "rfc6881",
+        "www-govinfo-gov-content-pkg-plaw-115publ141-html-plaw-115publ141-htm",
+        "rfc3261",
+        "rfc3264"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T19-e911-statutes",
+      "title": "Kari's Law, RAY BAUM'S Act, and SIP location",
+      "level": 9,
+      "outcomes": [
+        "State Kari's Law from the public law",
+        "State the section 506 duty as a proceeding, and the statutory definition",
+        "Keep RFC 6881 and RFC 6442 in the protocol column"
+      ],
+      "sources": [
+        "www-govinfo-gov-content-pkg-plaw-115publ127-html-plaw-115publ127-htm",
+        "www-govinfo-gov-content-pkg-plaw-115publ141-html-plaw-115publ141-htm",
+        "rfc6881",
+        "rfc6442"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T19-not-legal-advice",
+      "title": "How to read a compliance page",
+      "level": 9,
+      "outcomes": [
+        "Treat this track as study material",
+        "Prefer the statute or the agency page over a paraphrase",
+        "Separate SIP headers from messaging rules"
+      ],
+      "sources": [
+        "rfc3261",
+        "rfc8224",
+        "www-campaignregistry-com",
+        "rfc6881",
+        "www-govinfo-gov-content-pkg-plaw-115publ127-html-plaw-115publ127-htm"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T19-stir-shaken",
+      "title": "STIR and SHAKEN",
+      "level": 9,
+      "outcomes": [
+        "Separate STIR from SHAKEN",
+        "Name PASSporT",
+        "Repeat the FCC description without treating this page as the rule"
+      ],
+      "sources": [
+        "rfc8224",
+        "rfc8225",
+        "www-atis-org-sti-ga"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T19-ten-dlc",
+      "title": "10DLC is a messaging channel",
+      "level": 9,
+      "outcomes": [
+        "Say what 10DLC is on the opened registry page",
+        "Keep it out of the SIP dialog",
+        "Refuse to invent a statute this lab did not open"
+      ],
+      "sources": [
+        "www-campaignregistry-com",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T20-bridges-map",
+      "title": "Bridges from enterprise UC to open platforms",
+      "level": 10,
+      "outcomes": [
+        "Keep CUCM SIP Profile and a CUBE SIP profile distinct",
+        "Name Local Gateway as the Webex premises PSTN role",
+        "Place Asterisk or FreeSWITCH on the far side of a SIP trunk, not inside the Cisco product"
+      ],
+      "sources": [
+        "www-cisco-com-c-en-us-support-unified-communications-unified-communications-mana",
+        "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+        "www-cisco-com-c-en-us-support-customer-collaboration-unified-contact-center-expr",
+        "help-webex-com-en-us-article-t9xctu-get-started-with-local-gateway",
+        "learn-microsoft-com-en-us-microsoftteams-direct-routing-plan",
+        "www-kamailio-org-w",
+        "docs-asterisk-org-configuration-channel-drivers-sip-configuring-res-pjsip",
+        "raw-githubusercontent-com-sipwise-rtpengine-master-readme-md",
+        "rfc6881"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T20-config-troubleshoot",
+      "title": "Configuration and troubleshooting seams",
+      "level": 10,
+      "outcomes": [
+        "Point Asterisk SIP config at pjsip.conf and the dialplan at extensions.conf",
+        "Point a media-proxy problem at rtpengine's README",
+        "Separate a WebSocket handshake failure from a codec failure"
+      ],
+      "sources": [
+        "docs-asterisk-org-configuration-channel-drivers-sip-configuring-res-pjsip",
+        "developer-signalwire-com-freeswitch-freeswitch-explained-introduction-what-is-fr",
+        "raw-githubusercontent-com-sipwise-rtpengine-master-readme-md",
+        "rfc7118",
+        "rfc5764",
+        "rfc8224",
+        "www-govinfo-gov-content-pkg-plaw-115publ127-html-plaw-115publ127-htm",
+        "rfc6455",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T20-future-hooks",
+      "title": "Integration hooks that are already named",
+      "level": 10,
+      "outcomes": [
+        "Name the control interfaces on the Asterisk license page",
+        "Name the FreeSWITCH Event Socket",
+        "Leave unstated vendor webhooks unstated"
+      ],
+      "sources": [
+        "docs-asterisk-org-about-the-project-license-information",
+        "developer-signalwire-com-freeswitch-freeswitch-explained-introduction-what-is-fr",
+        "rfc7866",
+        "rfc7118",
+        "rfc8224",
+        "rfc6442",
+        "rfc3261"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T20-glossary-map",
+      "title": "Glossary and the mind map",
+      "level": 10,
+      "outcomes": [
+        "Read a glossary row as a pointer",
+        "Use the mind map to find a track",
+        "Refuse a definition that has no citation"
+      ],
+      "sources": [
+        "rfc7118",
+        "rfc8224",
+        "www-kamailio-org-w",
+        "rfc3261",
+        "rfc8825",
+        "rfc8225",
+        "rfc7587"
+      ],
+      "last_verified": null
+    },
+    {
+      "key": "T20-sister-systems",
+      "title": "Sister technologies around the session",
+      "level": 10,
+      "outcomes": [
+        "Name the neighbor and the document that mentions it",
+        "Keep CRM and WFM out of the Via path",
+        "Describe programmable APIs only as far as the Twilio docs page goes"
+      ],
+      "sources": [
+        "rfc7866",
+        "rfc6881",
+        "rfc3261",
+        "developer-signalwire-com-freeswitch-freeswitch-explained-introduction-what-is-fr",
+        "www-twilio-com-docs",
+        "www-twilio-com-docs-sip-trunking",
+        "rfc3264"
+      ],
+      "last_verified": null
+    }
+  ]
+}

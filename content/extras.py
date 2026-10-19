@@ -136,7 +136,7 @@ def certs():
              "note": "The SIP School describes SSCA Elite as its SIP certification. The same courses page lists SSVVP and SSSP as separate tests. The SSCA page says passing is worth 20 CEC credits toward a BICSI certification.",
              "url": C["ssca"]["url"]},
             {"name": "Cisco Certified Network Professional (CCNP) Collaboration", "status": "Listed on Cisco’s certification and exam pages.",
-             "note": "Cisco’s exam list shows the core exam 350-801 CLCOR and concentration exams 300-815 CLACC, 300-820 CLHCT, and 300-830 CLCCE. Cisco’s CLCOR page says passing the core exam also earns Cisco Certified Specialist - Collaboration Core and can be used toward CCNP Collaboration and CCIE Collaboration. Confirm the current topic list before you study.",
+             "note": "Cisco’s exam list shows the core exam 350-801 CLCOR and concentration exams 300-815 CLACC, 300-820 CLHCT, and 300-830 CLCCE. Cisco’s CLCOR page says passing the core exam also unlocks Cisco Certified Specialist - Collaboration Core and can be used toward CCNP Collaboration and CCIE Collaboration. Confirm the current topic list before you study.",
              "url": C["ccnp"]["url"]},
             {"name": "CCIE Collaboration", "status": "Listed on Cisco’s exam list as a lab exam plus the collaboration core.",
              "note": "The lab exam is named on Cisco’s exam list. This lab does not restate lab topology details.",

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A browser simulation of a SIP ladder. It does not call a vendor system.">
+<title>Call-flow simulation</title>
+<link rel="stylesheet" href="assets/css/canon.css">
+<link rel="stylesheet" href="assets/css/shell.css">
+<link rel="stylesheet" href="assets/css/university.css">
+<link rel="stylesheet" href="assets/css/sip.css">
+<link rel="stylesheet" href="assets/css/footer.css">
+<link rel="stylesheet" href="assets/css/sim.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="guide/guide.css">
+</head>
+<body class="v4">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar"><div class="bar-inner"><a class="brand" href="index.html"><span class="brand-name">SIP Universe<small>Free University</small></span></a></div></header>
+<main id="main">
+<p class="crumbs"><a href="index.html">Home</a> / Call-flow simulation</p>
+<h1>Call-flow simulation</h1>
+<p class="lede">Click a hop, edit the Request-URI, and walk INVITE, 180, 200, and BYE. The result is computed in this page.</p>
+<p class="sim-banner" role="note"><strong>Simulation.</strong> This does not call a carrier, a proxy, an SBC, or any vendor system. Addresses use the documentation range from RFC 5737. Cypher Monkey, a lifelong student and AI builder, drew this as a study tool.</p>
+<section data-sip-sim>
+<div class="sim-stage" role="group" aria-label="Hops">
+<button type="button" class="sim-node" data-node="Alice" aria-pressed="true">Alice<small>UA</small></button>
+<button type="button" class="sim-node" data-node="Proxy" aria-pressed="false">Proxy</button>
+<button type="button" class="sim-node" data-node="SBC" aria-pressed="false">SBC<small>sim</small></button>
+<button type="button" class="sim-node" data-node="Bob" aria-pressed="false">Bob<small>UA</small></button>
+</div>
+<div class="sim-layout">
+<div>
+<div class="sim-ladder" data-ladder aria-live="polite"></div>
+<p>Phase: <strong data-phase>idle</strong></p>
+</div>
+<form class="sim-controls" onsubmit="return false">
+<label>Request-URI <input data-uri type="text" value="sip:bob@example.com" autocomplete="off"></label>
+<label>m-line port <input data-port type="text" inputmode="numeric" value="49170" autocomplete="off"></label>
+<label>c= line
+<select data-cline>
+<option value="203.0.113.20">203.0.113.20 documentation address</option>
+<option value="10.1.2.3">10.1.2.3 private</option>
+</select></label>
+<label><input data-loose type="checkbox" checked> loose route (lr)</label>
+<p>
+<button type="button" data-act="invite">Send INVITE</button>
+<button type="button" data-act="ring">Send 180</button>
+<button type="button" data-act="ok">Send 200 and ACK</button>
+<button type="button" data-act="bye">Send BYE</button>
+<button type="button" data-act="reset">Reset</button>
+</p>
+<p class="sim-result" data-result></p>
+</form>
+</div>
+</section>
+<section id="go-deeper" class="go-deeper"><h2>Sources and go deeper</h2>
+<ul>
+<li><a href="rooms/T01-first-message.html">Reading the first INVITE</a></li>
+<li><a href="rooms/T03-two-acks.html">Two different ACK rules</a></li>
+<li><a href="rooms/T06-one-way-audio.html">One-way audio</a></li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc3261">RFC 3261</a> — last checked 2026-10</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc5737">RFC 5737</a> — last checked 2026-10</li>
+</ul>
+</section>
+</main>
+<footer class="site-footer"><p>This is an independent, free, learning-only student project. MIT code. CC BY-NC-SA content. Not a vendor console.</p></footer>
+<script src="assets/js/sip-sim.js"></script>
+<script src="assets/js/university.js"></script>
+</body>
+</html>

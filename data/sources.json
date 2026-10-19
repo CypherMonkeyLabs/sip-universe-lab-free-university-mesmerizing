@@ -1,0 +1,644 @@
+{
+  "sources": [
+    {
+      "id": "rfc3966",
+      "title": "RFC 3966",
+      "url": "https://www.rfc-editor.org/rfc/rfc3966"
+    },
+    {
+      "id": "rfc3261",
+      "title": "RFC 3261",
+      "url": "https://www.rfc-editor.org/rfc/rfc3261"
+    },
+    {
+      "id": "rfc5737",
+      "title": "RFC 5737",
+      "url": "https://www.rfc-editor.org/rfc/rfc5737"
+    },
+    {
+      "id": "rfc5411",
+      "title": "RFC 5411",
+      "url": "https://www.rfc-editor.org/rfc/rfc5411"
+    },
+    {
+      "id": "rfc3262",
+      "title": "RFC 3262",
+      "url": "https://www.rfc-editor.org/rfc/rfc3262"
+    },
+    {
+      "id": "rfc3311",
+      "title": "RFC 3311",
+      "url": "https://www.rfc-editor.org/rfc/rfc3311"
+    },
+    {
+      "id": "rfc6026",
+      "title": "RFC 6026",
+      "url": "https://www.rfc-editor.org/rfc/rfc6026"
+    },
+    {
+      "id": "rfc6665",
+      "title": "RFC 6665",
+      "url": "https://www.rfc-editor.org/rfc/rfc6665"
+    },
+    {
+      "id": "rfc7118",
+      "title": "RFC 7118",
+      "url": "https://www.rfc-editor.org/rfc/rfc7118"
+    },
+    {
+      "id": "rfc4028",
+      "title": "RFC 4028",
+      "url": "https://www.rfc-editor.org/rfc/rfc4028"
+    },
+    {
+      "id": "trustee-ietf-org-trust-legal-provisions-html",
+      "title": "IETF Trust Legal Provisions",
+      "url": "https://trustee.ietf.org/trust-legal-provisions.html"
+    },
+    {
+      "id": "rfc6716",
+      "title": "RFC 6716",
+      "url": "https://www.rfc-editor.org/rfc/rfc6716"
+    },
+    {
+      "id": "www-opus-codec-org-license",
+      "title": "Opus license",
+      "url": "https://www.opus-codec.org/license/"
+    },
+    {
+      "id": "datatracker-ietf-org-ipr",
+      "title": "IETF IPR disclosures",
+      "url": "https://datatracker.ietf.org/ipr/"
+    },
+    {
+      "id": "www-itu-int-rec-t-rec-g-711",
+      "title": "ITU-T G.711",
+      "url": "https://www.itu.int/rec/T-REC-G.711"
+    },
+    {
+      "id": "www-itu-int-rec-t-rec-g-729",
+      "title": "ITU-T G.729",
+      "url": "https://www.itu.int/rec/T-REC-G.729"
+    },
+    {
+      "id": "rfc5764",
+      "title": "RFC 5764",
+      "url": "https://www.rfc-editor.org/rfc/rfc5764"
+    },
+    {
+      "id": "rfc3550",
+      "title": "RFC 3550",
+      "url": "https://www.rfc-editor.org/rfc/rfc3550"
+    },
+    {
+      "id": "rfc3264",
+      "title": "RFC 3264",
+      "url": "https://www.rfc-editor.org/rfc/rfc3264"
+    },
+    {
+      "id": "rfc7092",
+      "title": "RFC 7092",
+      "url": "https://www.rfc-editor.org/rfc/rfc7092"
+    },
+    {
+      "id": "rfc5853",
+      "title": "RFC 5853",
+      "url": "https://www.rfc-editor.org/rfc/rfc5853"
+    },
+    {
+      "id": "rfc3515",
+      "title": "RFC 3515",
+      "url": "https://www.rfc-editor.org/rfc/rfc3515"
+    },
+    {
+      "id": "www-cisco-com-c-en-us-td-docs-ios-xml-ios-voice-cube-ios-xe-config-ios-xe-book-m",
+      "title": "Cisco CUBE SIP profiles (IOS XE 17.6+)",
+      "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/voice/cube/ios-xe/config/ios-xe-book/m_voi-sip-param-mod.html"
+    },
+    {
+      "id": "rfc3581",
+      "title": "RFC 3581",
+      "url": "https://www.rfc-editor.org/rfc/rfc3581"
+    },
+    {
+      "id": "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cucme-admin-configuration-manual-cme",
+      "title": "Cisco CME toll-fraud prevention",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/admin/configuration/manual/cmeadm/cmetoll.html"
+    },
+    {
+      "id": "rfc6141",
+      "title": "RFC 6141",
+      "url": "https://www.rfc-editor.org/rfc/rfc6141"
+    },
+    {
+      "id": "rfc3891",
+      "title": "RFC 3891",
+      "url": "https://www.rfc-editor.org/rfc/rfc3891"
+    },
+    {
+      "id": "rfc3263",
+      "title": "RFC 3263",
+      "url": "https://www.rfc-editor.org/rfc/rfc3263"
+    },
+    {
+      "id": "rfc5627",
+      "title": "RFC 5627",
+      "url": "https://www.rfc-editor.org/rfc/rfc5627"
+    },
+    {
+      "id": "rfc5626",
+      "title": "RFC 5626",
+      "url": "https://www.rfc-editor.org/rfc/rfc5626"
+    },
+    {
+      "id": "rfc3327",
+      "title": "RFC 3327",
+      "url": "https://www.rfc-editor.org/rfc/rfc3327"
+    },
+    {
+      "id": "rfc3608",
+      "title": "RFC 3608",
+      "url": "https://www.rfc-editor.org/rfc/rfc3608"
+    },
+    {
+      "id": "rfc6337",
+      "title": "RFC 6337",
+      "url": "https://www.rfc-editor.org/rfc/rfc6337"
+    },
+    {
+      "id": "rfc8866",
+      "title": "RFC 8866",
+      "url": "https://www.rfc-editor.org/rfc/rfc8866"
+    },
+    {
+      "id": "rfc3960",
+      "title": "RFC 3960",
+      "url": "https://www.rfc-editor.org/rfc/rfc3960"
+    },
+    {
+      "id": "rfc3551",
+      "title": "RFC 3551",
+      "url": "https://www.rfc-editor.org/rfc/rfc3551"
+    },
+    {
+      "id": "rfc4566",
+      "title": "RFC 4566",
+      "url": "https://www.rfc-editor.org/rfc/rfc4566"
+    },
+    {
+      "id": "www-wireshark-org-docs-dfref-r-rtp-html",
+      "title": "Wireshark RTP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/r/rtp.html"
+    },
+    {
+      "id": "www-wireshark-org-docs-dfref-s-sip-html",
+      "title": "Wireshark SIP display filter reference",
+      "url": "https://www.wireshark.org/docs/dfref/s/sip.html"
+    },
+    {
+      "id": "rfc4594",
+      "title": "RFC 4594",
+      "url": "https://www.rfc-editor.org/rfc/rfc4594"
+    },
+    {
+      "id": "rfc3246",
+      "title": "RFC 3246",
+      "url": "https://www.rfc-editor.org/rfc/rfc3246"
+    },
+    {
+      "id": "rfc4733",
+      "title": "RFC 4733",
+      "url": "https://www.rfc-editor.org/rfc/rfc4733"
+    },
+    {
+      "id": "rfc6086",
+      "title": "RFC 6086",
+      "url": "https://www.rfc-editor.org/rfc/rfc6086"
+    },
+    {
+      "id": "rfc4730",
+      "title": "RFC 4730",
+      "url": "https://www.rfc-editor.org/rfc/rfc4730"
+    },
+    {
+      "id": "rfc7616",
+      "title": "RFC 7616",
+      "url": "https://www.rfc-editor.org/rfc/rfc7616"
+    },
+    {
+      "id": "rfc5922",
+      "title": "RFC 5922",
+      "url": "https://www.rfc-editor.org/rfc/rfc5922"
+    },
+    {
+      "id": "rfc3325",
+      "title": "RFC 3325",
+      "url": "https://www.rfc-editor.org/rfc/rfc3325"
+    },
+    {
+      "id": "rfc8224",
+      "title": "RFC 8224",
+      "url": "https://www.rfc-editor.org/rfc/rfc8224"
+    },
+    {
+      "id": "rfc3711",
+      "title": "RFC 3711",
+      "url": "https://www.rfc-editor.org/rfc/rfc3711"
+    },
+    {
+      "id": "rfc3323",
+      "title": "RFC 3323",
+      "url": "https://www.rfc-editor.org/rfc/rfc3323"
+    },
+    {
+      "id": "rfc4568",
+      "title": "RFC 4568",
+      "url": "https://www.rfc-editor.org/rfc/rfc4568"
+    },
+    {
+      "id": "rfc8225",
+      "title": "RFC 8225",
+      "url": "https://www.rfc-editor.org/rfc/rfc8225"
+    },
+    {
+      "id": "rfc8226",
+      "title": "RFC 8226",
+      "url": "https://www.rfc-editor.org/rfc/rfc8226"
+    },
+    {
+      "id": "rfc8588",
+      "title": "RFC 8588",
+      "url": "https://www.rfc-editor.org/rfc/rfc8588"
+    },
+    {
+      "id": "rfc8445",
+      "title": "RFC 8445",
+      "url": "https://www.rfc-editor.org/rfc/rfc8445"
+    },
+    {
+      "id": "rfc8489",
+      "title": "RFC 8489",
+      "url": "https://www.rfc-editor.org/rfc/rfc8489"
+    },
+    {
+      "id": "rfc8656",
+      "title": "RFC 8656",
+      "url": "https://www.rfc-editor.org/rfc/rfc8656"
+    },
+    {
+      "id": "www-cisco-com-c-en-us-support-docs-unified-communications-unified-border-element",
+      "title": "Cisco SIP profile use cases",
+      "url": "https://www.cisco.com/c/en/us/support/docs/unified-communications/unified-border-element/118825-technote-sip-00.html"
+    },
+    {
+      "id": "www-cisco-com-c-en-us-td-docs-voice-ip-comm-cusrst-feature-guide-srst8-1-html",
+      "title": "Cisco SRST trusted IP authentication",
+      "url": "https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cusrst/feature/guide/srst8_1.html"
+    },
+    {
+      "id": "www-cisco-com-c-en-us-support-unified-communications-unified-communications-mana",
+      "title": "Cisco Unified Communications Manager",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unified-communications-manager-callmanager/series.html"
+    },
+    {
+      "id": "www-cisco-com-c-en-us-support-docs-voice-session-initiation-protocol-sip-222316-",
+      "title": "Cisco Collaboration Solutions Analyzer",
+      "url": "https://www.cisco.com/c/en/us/support/docs/voice/session-initiation-protocol-sip/222316-troubleshoot-cube-via-collaboration-solu.html"
+    },
+    {
+      "id": "www-cisco-com-c-en-us-support-unified-communications-unity-connection-series-htm",
+      "title": "Cisco Unity Connection",
+      "url": "https://www.cisco.com/c/en/us/support/unified-communications/unity-connection/series.html"
+    },
+    {
+      "id": "rfc5806",
+      "title": "RFC 5806",
+      "url": "https://www.rfc-editor.org/rfc/rfc5806"
+    },
+    {
+      "id": "rfc7044",
+      "title": "RFC 7044",
+      "url": "https://www.rfc-editor.org/rfc/rfc7044"
+    },
+    {
+      "id": "docs-oracle-com-en-industries-communications-session-border-controller-10-1-0-hm",
+      "title": "Oracle SBC HMR fundamentals (10.1)",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/10.1.0/hmr/hmr-fundamentals.html"
+    },
+    {
+      "id": "techdocs-audiocodes-com-session-border-controller-sbc-mediant-software-sbc-user-",
+      "title": "AudioCodes SIP message manipulation (7.6)",
+      "url": "https://techdocs.audiocodes.com/session-border-controller-sbc/mediant-software-sbc/user-manual/version-760/Content/UM/Configuring%20SIP%20Message%20Manipulation.htm"
+    },
+    {
+      "id": "www-audiocodes-com-media-aomncwrs-sip-message-manipulation-syntax-reference-guid",
+      "title": "AudioCodes manipulation syntax 7.6",
+      "url": "https://www.audiocodes.com/media/aomncwrs/sip-message-manipulation-syntax-reference-guide-ver-76.pdf"
+    },
+    {
+      "id": "learn-microsoft-com-en-us-microsoftteams-direct-routing-protocols-sip",
+      "title": "Direct Routing SIP protocol",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols-sip"
+    },
+    {
+      "id": "learn-microsoft-com-en-us-microsoftteams-direct-routing-plan",
+      "title": "Plan Direct Routing",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan"
+    },
+    {
+      "id": "help-webex-com-en-us-article-t9xctu-get-started-with-local-gateway",
+      "title": "Get started with Local Gateway",
+      "url": "https://help.webex.com/en-us/article/t9xctu/Get-started-with-Local-Gateway"
+    },
+    {
+      "id": "ribboncommunications-com-services-support-services-documentation",
+      "title": "Ribbon documentation portal",
+      "url": "https://ribboncommunications.com/services/support-services/documentation"
+    },
+    {
+      "id": "docs-oracle-com-en-industries-communications-session-border-controller-index-htm",
+      "title": "Oracle Communications SBC documentation",
+      "url": "https://docs.oracle.com/en/industries/communications/session-border-controller/index.html"
+    },
+    {
+      "id": "ribboncommunications-com-partners-interoperability-guides",
+      "title": "Ribbon SBC interoperability guides",
+      "url": "https://ribboncommunications.com/partners/interoperability-guides"
+    },
+    {
+      "id": "ribboncommunications-com-products-enterprise-products-session-border-controllers",
+      "title": "Ribbon SBC SWe Edge",
+      "url": "https://ribboncommunications.com/products/enterprise-products/session-border-controllers/sbc-software-edition-edge-sbc-swe-edge"
+    },
+    {
+      "id": "docs-aws-amazon-com-connect-latest-adminguide-concepts-telephony-html",
+      "title": "Amazon Connect telephony",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/concepts-telephony.html"
+    },
+    {
+      "id": "docs-aws-amazon-com-connect-latest-adminguide-configure-external-voice-system-ht",
+      "title": "Connect external voice system",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/configure-external-voice-system.html"
+    },
+    {
+      "id": "docs-aws-amazon-com-connect-latest-adminguide-create-contact-lens-connector-html",
+      "title": "Connect conversational analytics connector",
+      "url": "https://docs.aws.amazon.com/connect/latest/adminguide/create-contact-lens-connector.html"
+    },
+    {
+      "id": "docs-aws-amazon-com-chime-sdk-latest-ag-voice-connectors-html",
+      "title": "Amazon Chime SDK Voice Connector",
+      "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/voice-connectors.html"
+    },
+    {
+      "id": "docs-aws-amazon-com-chime-sdk-latest-ag-vc-connect-integrations-html",
+      "title": "Voice Connector and Connect",
+      "url": "https://docs.aws.amazon.com/chime-sdk/latest/ag/vc-connect-integrations.html"
+    },
+    {
+      "id": "rfc7866",
+      "title": "RFC 7866",
+      "url": "https://www.rfc-editor.org/rfc/rfc7866"
+    },
+    {
+      "id": "documentation-five9-com-bundle-byot-sip-trunk-integration-page-byo-sip-trunking-",
+      "title": "Five9 BYO SIP trunking",
+      "url": "https://documentation.five9.com/bundle/byot-sip-trunk-integration/page/byo-sip-trunking/landing-byo-sip-trunking.htm"
+    },
+    {
+      "id": "www-twilio-com-docs-sip-trunking",
+      "title": "Twilio Elastic SIP Trunking",
+      "url": "https://www.twilio.com/docs/sip-trunking"
+    },
+    {
+      "id": "www-twilio-com-docs-sip-trunking-troubleshooting",
+      "title": "Twilio trunk troubleshooting",
+      "url": "https://www.twilio.com/docs/sip-trunking/troubleshooting"
+    },
+    {
+      "id": "www-twilio-com-docs-sip-trunking-api",
+      "title": "Twilio Elastic SIP Trunking API",
+      "url": "https://www.twilio.com/docs/sip-trunking/api"
+    },
+    {
+      "id": "help-genesys-cloud-articles-byoc-cloud-overview",
+      "title": "Genesys BYOC Cloud overview",
+      "url": "https://help.genesys.cloud/articles/byoc-cloud-overview/"
+    },
+    {
+      "id": "help-genesys-cloud-articles-about-byoc-cloud",
+      "title": "About BYOC Cloud",
+      "url": "https://help.genesys.cloud/articles/about-byoc-cloud/"
+    },
+    {
+      "id": "help-genesys-cloud-articles-about-byoc-premises",
+      "title": "About BYOC Premises",
+      "url": "https://help.genesys.cloud/articles/about-byoc-premises/"
+    },
+    {
+      "id": "help-genesys-cloud-faqs-can-i-use-byoc-cloud-with-byoc-premises",
+      "title": "BYOC Cloud with BYOC Premises",
+      "url": "https://help.genesys.cloud/faqs/can-i-use-byoc-cloud-with-byoc-premises/"
+    },
+    {
+      "id": "help-nicecxone-com-content-globalfeatures-connectivity-connectivityincxone-htm",
+      "title": "NiCE CXone connectivity",
+      "url": "https://help.nicecxone.com/content/globalfeatures/connectivity/connectivityincxone.htm"
+    },
+    {
+      "id": "help-nicecxone-com-content-platformrequirements-ports-htm",
+      "title": "NiCE CXone ports",
+      "url": "https://help.nicecxone.com/content/platformrequirements/ports.htm"
+    },
+    {
+      "id": "learn-microsoft-com-en-us-microsoftteams-troubleshoot-phone-system-direct-routin",
+      "title": "Direct Routing OPTIONS and TLS",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/phone-system/direct-routing/sip-options-tls-certificate-issues"
+    },
+    {
+      "id": "learn-microsoft-com-en-us-microsoftteams-direct-routing-protocols",
+      "title": "Direct Routing definitions and RFCs",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-protocols"
+    },
+    {
+      "id": "rfc5923",
+      "title": "RFC 5923",
+      "url": "https://www.rfc-editor.org/rfc/rfc5923"
+    },
+    {
+      "id": "help-webex-com-en-us-article-jr1i3r-configure-local-gateway-on-ios-xe-for-webex-",
+      "title": "Local Gateway on IOS XE",
+      "url": "https://help.webex.com/en-us/article/jr1i3r/Configure-local-gateway-on-IOS-XE-for-Webex-Calling"
+    },
+    {
+      "id": "help-webex-com-article-n0xb944",
+      "title": "Webex Calling trunks and dial plans",
+      "url": "https://help.webex.com/article/n0xb944"
+    },
+    {
+      "id": "help-webex-com-article-njvdjf2-configure-cisco-webex-calling-for-your-organizati",
+      "title": "Configure Webex Calling PSTN",
+      "url": "https://help.webex.com/article/njvdjf2/Configure-Cisco-Webex-Calling-for-Your-Organization"
+    },
+    {
+      "id": "rfc6881",
+      "title": "RFC 6881",
+      "url": "https://www.rfc-editor.org/rfc/rfc6881"
+    },
+    {
+      "id": "rfc3665",
+      "title": "RFC 3665",
+      "url": "https://www.rfc-editor.org/rfc/rfc3665"
+    },
+    {
+      "id": "rfc5031",
+      "title": "RFC 5031",
+      "url": "https://www.rfc-editor.org/rfc/rfc5031"
+    },
+    {
+      "id": "rfc6442",
+      "title": "RFC 6442",
+      "url": "https://www.rfc-editor.org/rfc/rfc6442"
+    },
+    {
+      "id": "rfc7865",
+      "title": "RFC 7865",
+      "url": "https://www.rfc-editor.org/rfc/rfc7865"
+    },
+    {
+      "id": "www-cisco-com-site-us-en-learn-training-certifications-certifications-collaborat",
+      "title": "CCNP Collaboration",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html"
+    },
+    {
+      "id": "www-cisco-com-site-us-en-learn-training-certifications-exams-clcor-html",
+      "title": "350-801 CLCOR",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/clcor.html"
+    },
+    {
+      "id": "www-cisco-com-site-us-en-learn-training-certifications-exams-list-html",
+      "title": "Cisco exams list",
+      "url": "https://www.cisco.com/site/us/en/learn/training-certifications/exams/list.html"
+    },
+    {
+      "id": "learningnetwork-cisco-com-s-a-new-era-for-cisco-certifications",
+      "title": "Cisco certification updates",
+      "url": "https://learningnetwork.cisco.com/s/a-new-era-for-cisco-certifications"
+    },
+    {
+      "id": "learn-microsoft-com-en-us-credentials-certifications-m365-collaboration-communic",
+      "title": "MS-721 certification",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/m365-collaboration-communications-systems-engineer/"
+    },
+    {
+      "id": "learn-microsoft-com-en-us-credentials-certifications-resources-study-guides-ms-7",
+      "title": "MS-721 study guide",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ms-721"
+    },
+    {
+      "id": "www-cisco-com-c-en-us-support-customer-collaboration-unified-contact-center-expr",
+      "title": "Cisco Unified Contact Center Express",
+      "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-contact-center-express/series.html"
+    },
+    {
+      "id": "www-cisco-com-c-en-us-support-customer-collaboration-unified-customer-voice-port",
+      "title": "Cisco Unified Customer Voice Portal",
+      "url": "https://www.cisco.com/c/en/us/support/customer-collaboration/unified-customer-voice-portal/series.html"
+    },
+    {
+      "id": "rfc8829",
+      "title": "RFC 8829",
+      "url": "https://www.rfc-editor.org/rfc/rfc8829"
+    },
+    {
+      "id": "rfc8834",
+      "title": "RFC 8834",
+      "url": "https://www.rfc-editor.org/rfc/rfc8834"
+    },
+    {
+      "id": "rfc6455",
+      "title": "RFC 6455",
+      "url": "https://www.rfc-editor.org/rfc/rfc6455"
+    },
+    {
+      "id": "rfc7587",
+      "title": "RFC 7587",
+      "url": "https://www.rfc-editor.org/rfc/rfc7587"
+    },
+    {
+      "id": "rfc8827",
+      "title": "RFC 8827",
+      "url": "https://www.rfc-editor.org/rfc/rfc8827"
+    },
+    {
+      "id": "rfc7874",
+      "title": "RFC 7874",
+      "url": "https://www.rfc-editor.org/rfc/rfc7874"
+    },
+    {
+      "id": "rfc8839",
+      "title": "RFC 8839",
+      "url": "https://www.rfc-editor.org/rfc/rfc8839"
+    },
+    {
+      "id": "rfc8825",
+      "title": "RFC 8825",
+      "url": "https://www.rfc-editor.org/rfc/rfc8825"
+    },
+    {
+      "id": "docs-asterisk-org-configuration-channel-drivers-sip-configuring-res-pjsip",
+      "title": "Asterisk res_pjsip configuration",
+      "url": "https://docs.asterisk.org/Configuration/Channel-Drivers/SIP/Configuring-res_pjsip/"
+    },
+    {
+      "id": "docs-asterisk-org-about-the-project-a-brief-history-of-the-asterisk-project",
+      "title": "A brief history of the Asterisk project",
+      "url": "https://docs.asterisk.org/About-the-Project/A-Brief-History-of-the-Asterisk-Project/"
+    },
+    {
+      "id": "docs-asterisk-org-about-the-project-license-information",
+      "title": "Asterisk license information",
+      "url": "https://docs.asterisk.org/About-the-Project/License-Information/"
+    },
+    {
+      "id": "developer-signalwire-com-freeswitch-freeswitch-explained-introduction-what-is-fr",
+      "title": "FreeSWITCH users manual",
+      "url": "https://developer.signalwire.com/freeswitch/FreeSWITCH-Explained/Introduction/What-is-FreeSWITCH/"
+    },
+    {
+      "id": "www-kamailio-org-w",
+      "title": "Kamailio SIP server",
+      "url": "https://www.kamailio.org/w/"
+    },
+    {
+      "id": "raw-githubusercontent-com-sipwise-rtpengine-master-readme-md",
+      "title": "rtpengine README",
+      "url": "https://raw.githubusercontent.com/sipwise/rtpengine/master/README.md"
+    },
+    {
+      "id": "www-govinfo-gov-content-pkg-plaw-115publ127-html-plaw-115publ127-htm",
+      "title": "Kari's Law Act of 2017, Public Law 115-127",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ127/html/PLAW-115publ127.htm"
+    },
+    {
+      "id": "www-campaignregistry-com",
+      "title": "The Campaign Registry",
+      "url": "https://www.campaignregistry.com/"
+    },
+    {
+      "id": "www-govinfo-gov-content-pkg-plaw-115publ141-html-plaw-115publ141-htm",
+      "title": "Public Law 115-141, RAY BAUM'S Act of 2018",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-115publ141/html/PLAW-115publ141.htm"
+    },
+    {
+      "id": "www-atis-org-sti-ga",
+      "title": "Secure Telephone Identity Governance Authority",
+      "url": "https://www.atis.org/sti-ga/"
+    },
+    {
+      "id": "www-twilio-com-docs",
+      "title": "Twilio docs",
+      "url": "https://www.twilio.com/docs"
+    }
+  ]
+}

@@ -1465,7 +1465,7 @@
       const to = EXPLORER.find((node) => node.id === b);
       return `<line x1="${from.x + 75}" y1="${from.y + 32}" x2="${to.x + 75}" y2="${to.y + 32}" class="ex-link ${a === "crm" ? "is-soft" : ""}"></line>`;
     }).join("");
-    view2.innerHTML = `<p class="lede">A teaching map. Click a node. Five different nodes earns the explorer badge.</p>
+    view2.innerHTML = `<p class="lede">A teaching map. Click a node. Five different nodes unlocks the explorer badge.</p>
     <div class="tool-grid">
       <div class="scroll"><svg class="explorer" viewBox="0 0 880 420" role="img" aria-label="SIP edge map">${edges}${nodes}</svg></div>
       <article class="panel" id="ex-detail"><h2>Pick a node</h2><p>The citation opens the source.</p></article>
@@ -4914,6 +4914,24 @@
     if (/quiz me|start a quiz|another quiz/i.test(trimmed)) {
       await startQuiz(mine);
       return;
+    }
+    if (globalThis.SIPBOT_READY && !/\btour\b/i.test(trimmed)) {
+      try {
+        const bot = await globalThis.SIPBOT_READY;
+        const answer = bot.ask(trimmed);
+        const quiet = answer.mode === "fallback" || answer.intent === "help" || answer.intent === "injection" || answer.intent === "greet" || answer.intent === "smalltalk";
+        const linked = answer.href && !quiet;
+        const html = `<p>${esc(answer.text || "")}</p>${answer.example ? `<pre>${esc(answer.example)}</pre>` : ""}${linked ? `<p><a href="${esc(answer.href)}">${esc(answer.link || "Open this page")}</a></p>` : ""}`;
+        await bubble("bot", html, answer.text || "");
+        if (mine !== generation) return;
+        const chips = answer.intent === "help"
+          ? ["Where do I start?", "SIP messages", "SDP", "RTP", "NAT and ICE", "SBCs"]
+          : [answer.follow || "What can you help with?"];
+        setChips(chips.filter(Boolean));
+        return;
+      } catch {
+        /* The campus quiz book remains if the shared index is missing. */
+      }
     }
     const tourHit = bestTour(trimmed);
     if (tourHit) {

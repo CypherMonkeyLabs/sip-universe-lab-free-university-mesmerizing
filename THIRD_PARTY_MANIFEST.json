@@ -1,0 +1,123 @@
+{
+  "components": [
+    {
+      "name": "three.js",
+      "version": "r170 and campus r159",
+      "licence": "MIT",
+      "url": "https://threejs.org",
+      "licence_file": "campus/vendor/THREE-LICENSE.txt",
+      "files": [
+        {
+          "path": "vendor/three.module.min.js",
+          "sha256": "08fd7545d13d2c7fb65ab691530a802dafefd638596501854f267d0fb13c39e7"
+        },
+        {
+          "path": "campus/vendor/three.min.js",
+          "sha256": "7737cac07d9ea034782aa1b1dd6963959db50fdf54a7f747fd1b3c57a8730f6a"
+        }
+      ]
+    },
+    {
+      "name": "anime.js",
+      "version": "4.5.0",
+      "licence": "MIT",
+      "url": "https://animejs.com",
+      "licence_file": "campus/vendor/ANIME-LICENSE.txt",
+      "files": [
+        {
+          "path": "vendor/anime.esm.min.js",
+          "sha256": "a19015a1a92d52025a2fb6703b6d67eadd1cc2aeaf880770e96e04cf6aa07be1"
+        },
+        {
+          "path": "campus/vendor/anime.umd.min.js",
+          "sha256": "8d5b3a58a1f64023a04a4cedeef135a2263b18da04b35177ac13438a0bad033b"
+        }
+      ]
+    },
+    {
+      "name": "d3",
+      "version": "7.9.0",
+      "licence": "ISC",
+      "url": "https://d3js.org",
+      "licence_file": "campus/vendor/D3-LICENSE.txt",
+      "files": [
+        {
+          "path": "vendor/d3.min.js",
+          "sha256": "f2094bbf6141b359722c4fe454eb6c4b0f0e42cc10cc7af921fc158fceb86539"
+        },
+        {
+          "path": "campus/vendor/d3.min.js",
+          "sha256": "f2094bbf6141b359722c4fe454eb6c4b0f0e42cc10cc7af921fc158fceb86539"
+        }
+      ]
+    },
+    {
+      "name": "rough.js",
+      "version": "4.6.6",
+      "licence": "MIT",
+      "url": "https://roughjs.com",
+      "licence_file": "campus/vendor/ROUGH-LICENSE.txt",
+      "files": [
+        {
+          "path": "vendor/rough.esm.js",
+          "sha256": "e921535f216ebc93d422489d614da955b5286812220b3149fc70978f4cb5bd45"
+        },
+        {
+          "path": "campus/vendor/rough.js",
+          "sha256": "6853af8619532f3939b156cd16824d2e14f31e71d3df306ad5558eeafacab194"
+        }
+      ]
+    },
+    {
+      "name": "canvas-confetti",
+      "version": "1.9.3",
+      "licence": "ISC",
+      "url": "https://www.npmjs.com/package/canvas-confetti",
+      "licence_file": "campus/vendor/CONFETTI-LICENSE.txt",
+      "files": [
+        {
+          "path": "vendor/confetti.browser.js",
+          "sha256": "e103ab02784339d56c93ca3debe2c5a299372cafc5215148d55283de046e86d1"
+        },
+        {
+          "path": "campus/vendor/confetti.browser.js",
+          "sha256": "e103ab02784339d56c93ca3debe2c5a299372cafc5215148d55283de046e86d1"
+        }
+      ]
+    },
+    {
+      "name": "outfit and space grotesk latin subsets",
+      "version": "unconfirmed",
+      "licence": "unconfirmed",
+      "url": "https://fonts.google.com/specimen/Outfit",
+      "licence_file": "(unconfirmed \u2014 no licence file was shipped beside the woff2 files; left in place)",
+      "files": [
+        {
+          "path": "assets/fonts/outfit-latin.woff2",
+          "sha256": "6c18d579fd87c3776be068b762cbc83fde3acb543d49eabd3ade842eb987e887"
+        },
+        {
+          "path": "assets/fonts/space-grotesk-latin.woff2",
+          "sha256": "22f9fe0df47741897991d459bcd18c03edefacafd00ad20f2d25e1d75d3be77e"
+        }
+      ]
+    },
+    {
+      "name": "markmap-view",
+      "version": "0.18.12",
+      "licence": "MIT",
+      "url": "https://markmap.js.org",
+      "licence_file": "campus/vendor/MARKMAP-LICENSE.txt",
+      "files": [
+        {
+          "path": "vendor/markmap-view.js",
+          "sha256": "861eb6d20af18aaa300878d46d695722a73625c58b40f49236af027f18b74e07"
+        },
+        {
+          "path": "campus/vendor/markmap-view.js",
+          "sha256": "861eb6d20af18aaa300878d46d695722a73625c58b40f49236af027f18b74e07"
+        }
+      ]
+    }
+  ]
+}

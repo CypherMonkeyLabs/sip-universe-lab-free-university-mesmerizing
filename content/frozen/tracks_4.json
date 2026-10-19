@@ -5669,7 +5669,7 @@
      {
       "h": "Cisco Collaboration",
       "paragraphs": [
-       "CCNP Collaboration is the core exam 350-801 CLCOR plus one concentration: 300-815 CLACC, 300-820 CLHCT, or 300-830 CLCCE. CLCOR also earns Cisco Certified Specialist - Collaboration Core. CCIE Collaboration is the core exam plus the lab exam. Cite the CCNP page, the CLCOR page, the Cisco exams list, and the learning-network update page.",
+       "CCNP Collaboration is the core exam 350-801 CLCOR plus one concentration: 300-815 CLACC, 300-820 CLHCT, or 300-830 CLCCE. CLCOR also unlocks Cisco Certified Specialist - Collaboration Core. CCIE Collaboration is the core exam plus the lab exam. Cite the CCNP page, the CLCOR page, the Cisco exams list, and the learning-network update page.",
        "The learning-network update page says the first date to test for the Collaboration Cloud Customer Experience specialist was February 3, 2026. This lesson invents no other dates. Exam topics change, and the Cisco page wins."
       ],
       "cites": [
@@ -5835,7 +5835,7 @@
        "RFC 8866 as an exam"
       ],
       "answer": 0,
-      "why": "CLCOR also earns the Collaboration Core specialist.",
+      "why": "CLCOR also unlocks the Collaboration Core specialist.",
       "cite": {
        "label": "CCNP Collaboration",
        "url": "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/collaboration/ccnp-collaboration/index.html"

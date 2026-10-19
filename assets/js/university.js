@@ -226,6 +226,10 @@
   if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
     navigator.serviceWorker.register(fromRoot("sw.js")).catch(function () { /* pages still work */ });
   }
+  var pwaJs = document.createElement("script");
+  pwaJs.src = rootPrefix + "assets/js/pwa.js";
+  pwaJs.defer = true;
+  document.body.appendChild(pwaJs);
 
   if (!document.body.classList.contains("home-world")) {
     document.body.classList.add("canon-world");

@@ -216,7 +216,7 @@ function explorer(view, ctx) {
     const to = EXPLORER.find((node) => node.id === b);
     return `<line x1="${from.x + 75}" y1="${from.y + 32}" x2="${to.x + 75}" y2="${to.y + 32}" class="ex-link ${a === "crm" ? "is-soft" : ""}"></line>`;
   }).join("");
-  view.innerHTML = `<p class="lede">A teaching map. Click a node. Five different nodes earns the explorer badge.</p>
+  view.innerHTML = `<p class="lede">A teaching map. Click a node. Five different nodes unlocks the explorer badge.</p>
     <div class="tool-grid">
       <div class="scroll"><svg class="explorer" viewBox="0 0 880 420" role="img" aria-label="SIP edge map">${edges}${nodes}</svg></div>
       <article class="panel" id="ex-detail"><h2>Pick a node</h2><p>The citation opens the source.</p></article>
